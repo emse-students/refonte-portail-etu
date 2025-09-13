@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"bun-types": "^1.2.21",
+		"svelte-adapter-bun": "^0.5.2",
 		"sveltekit-oidc": "^0.0.8"
 	}
 }
