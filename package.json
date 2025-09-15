@@ -4,9 +4,9 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "rm node_modules/.vite-temp && bunx --bun vite dev",
-		"build": "rm node_modules/.vite-temp && bunx --bun vite build",
-		"preview": "rm node_modules/.vite-temp && bunx --bun vite preview",
+		"dev": "rm -r node_modules/.vite-temp && bunx --bun vite dev",
+		"build": "rm -r node_modules/.vite-temp && bunx --bun vite build",
+		"preview": "rm -r node_modules/.vite-temp && bunx --bun vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
@@ -24,6 +24,7 @@
 		"bun-types": "^1.2.21"
 	},
 	"dependencies": {
+		"jose": "6.1.0",
 		"svelte-adapter-bun": "^0.5.2",
 		"sveltekit-oidc": "^0.0.8"
 	}

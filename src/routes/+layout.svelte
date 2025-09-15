@@ -3,11 +3,12 @@
 	import "../app.css";
 	import Footer from "./Footer.svelte";
 
-	let { children } = $props();
+	let { children, data } = $props();
+	let { user } = data;
 </script>
 
 <div class="app">
-	<Header />
+	<Header {user} />
 
 	<main>
 		{@render children()}
