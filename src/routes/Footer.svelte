@@ -1,9 +1,9 @@
 <footer>
 	<p>&copy; {new Date().getFullYear()} - BDE de l'EMSE</p>
 	<p>
-		Site développé en 2025 par <a href="https://www.icm.edu.fr"
-			>Léon Muselli</a
-		> - ICM 2024
+		Site développé en 2025 par
+		<a href="mailto:leon.muselli@etu.emse.fr">Léon Muselli</a> &amp; Mathieu Daussin
+		- ICM 2024
 	</p>
 </footer>
 
@@ -28,5 +28,9 @@
 	footer p {
 		margin: 0.5em 0;
 		color: #ad83f1;
+	}
+
+	a { /* other color for links*/
+		color: #f0a500;
 	}
 </style>
