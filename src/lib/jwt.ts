@@ -34,7 +34,7 @@ export async function setJwt(cookies: Cookies, tokenData: Record<string, unknown
 
 
 export async function verifyJwt(token: string | undefined) {
-    if (!token) {
+    if (!token || isJwtInvalidated(token)) {
         return null;
     }
     try {
@@ -70,4 +70,18 @@ export function getUserData(cookies: Cookies) {
 export function clearAuthCookies(cookies: Cookies) {
     cookies.delete('jwt', { path: '/' });
     cookies.delete('userData', { path: '/' });
+}
+
+export function invalidateJwt(cookies: Cookies) {
+    invalidJwt.push(cookies.get('jwt') ?? '');
+    cookies.delete('jwt', { path: '/' });
+}
+
+const invalidJwt: string[] = [];
+
+export function isJwtInvalidated(token: string | undefined) {
+    if (!token) {
+        return true;
+    }
+    return invalidJwt.includes(token);
 }

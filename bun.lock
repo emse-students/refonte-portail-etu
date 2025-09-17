@@ -4,7 +4,7 @@
     "": {
       "name": "portailetu",
       "dependencies": {
-        "jose": "^6.1.0",
+        "jose": "6.1.0",
         "svelte-adapter-bun": "^0.5.2",
         "sveltekit-oidc": "^0.0.8",
       },
