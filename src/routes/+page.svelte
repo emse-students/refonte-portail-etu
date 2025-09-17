@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Counter from "./Counter.svelte";
 	import welcome from "$lib/images/svelte-welcome.webp";
 	import welcomeFallback from "$lib/images/svelte-welcome.png";
+	import Calendar from "./Calendar.svelte";
 </script>
 
 <svelte:head>
@@ -11,21 +11,13 @@
 
 <section>
 	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
+		Welcome
 	</h1>
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+	<div class="calendar-fixed-container">
+		<Calendar />
+	</div>
 
-	<Counter />
 </section>
 
 <style>
@@ -40,20 +32,18 @@
 	h1 {
 		width: 100%;
 	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	
+	.calendar-fixed-container {
+		width: 700px;
+		max-width: 95vw;
+		min-height: 420px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 2rem 0;
+		box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+		background: #fff;
+		border-radius: 12px;
+		padding: 1.5rem;
 	}
 </style>
