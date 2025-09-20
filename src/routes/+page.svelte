@@ -1,7 +1,7 @@
 <script lang="ts">
 	import welcome from "$lib/images/svelte-welcome.webp";
 	import welcomeFallback from "$lib/images/svelte-welcome.png";
-	import Calendar from "./Calendar.svelte";
+	import Calendar from "$lib/components/calendar/Calendar.svelte";
 </script>
 
 <svelte:head>
