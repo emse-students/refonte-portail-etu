@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
 	import logo from "$lib/images/logo_bde.png";
 
@@ -13,7 +14,7 @@
 	function openNavWithHistory() {
 		if (!navOpen) {
 			navOpen = true;
-			history.pushState({ navMenu: true }, "", location.href);
+			pushState('', { navMenu: true });
 		}
 	}
 
@@ -25,7 +26,7 @@
 		if (navOpen) {
 			closeNav();
 			// If the last history entry was for nav menu, go back
-			if (history.state && history.state.navMenu) {
+			if (page.state.navMenu) {
 				history.back();
 			}
 		} else {
@@ -92,7 +93,7 @@
 			</ul>
 		</div>
 		{#if navOpen}
-			<div class="nav-overlay" onclick={toggleNav}></div>
+			<div class="nav-overlay" role="presentation" onclick={toggleNav}></div>
 		{/if}
 	</nav>
 	<div class="header-right">
@@ -291,9 +292,15 @@
 		}
 	}
 
-	/* Hide menu button on desktop */
-	.header-nav .mobile-menu-btn {
+
+	/* Hide menu button on desktop, show only on mobile */
+	.mobile-menu-btn {
 		display: none;
+	}
+	@media (max-width: 768px) {
+		.mobile-menu-btn {
+			display: flex;
+		}
 	}
 
 	.header-nav button:hover {

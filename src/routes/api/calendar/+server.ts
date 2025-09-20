@@ -19,6 +19,33 @@ const mockCalendarData = [
         location: 'Location B',
         description: 'Description for Event 2'
     },
+    {
+        id: '3',
+        title: 'Event 3',
+        start: new Date('2025-09-15T09:00:00Z'),
+        end: new Date('2025-09-15T11:00:00Z'),
+        association: 'Association C',
+        location: 'Location C',
+        description: 'Description for Event 3'
+    },
+    {
+        id: '4',
+        title: 'Event 4',
+        start: new Date('2025-09-15T13:00:00Z'),
+        end: new Date('2025-09-15T15:00:00Z'),
+        association: 'Association D',
+        location: 'Location D',
+        description: 'Description for Event 4'
+    },
+    {
+        id: '5',
+        title: 'Event 5',
+        start: new Date('2025-09-15T13:00:00Z'),
+        end: new Date('2025-09-15T15:00:00Z'),
+        association: 'Association D',
+        location: 'Location D',
+        description: 'Description for Event 4'
+    }
 ];
 
 // GET /api/calendar?start=YYYY-MM-DD&end=YYYY-MM-DD

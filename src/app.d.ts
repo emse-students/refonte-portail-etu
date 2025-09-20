@@ -10,7 +10,10 @@ declare global {
 			token: JwtPayload | null;
 		}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			navMenu?: boolean;
+			modalOpen?: boolean;
+		}
 		// interface Platform {}
 	}
 }

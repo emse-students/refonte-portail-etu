@@ -3,13 +3,48 @@
 // --- Imports and Types ---
 import { onMount, tick } from "svelte";
 import type { CalendarEvent } from "$lib/types";
+import Event from "./Event.svelte";
 
 // --- State ---
 // Desktop state
-let events: CalendarEvent[] = $state([]); // Events for the current desktop month
+let events: CalendarEvent[] = $state([]); // Events for the current visible range
 let loading = $state(true); // Desktop loading state
-let month = $state(new Date().getMonth());
-let year = $state(new Date().getFullYear());
+let weekStart: Date = $state(getStartOfWeek(new Date()));
+
+// Helper: get start of week (Monday)
+function getStartOfWeek(date: Date) {
+	const d = new Date(date);
+	const day = (d.getDay() + 6) % 7; // Monday=0
+	d.setDate(d.getDate() - day);
+	d.setHours(0,0,0,0);
+	return d;
+}
+
+// Helper: add days
+function addDays(date: Date, days: number) {
+	const d = new Date(date);
+	d.setDate(d.getDate() + days);
+	return d;
+}
+
+// Helper: get visible weeks (4 weeks)
+function getVisibleWeeks(start: Date) {
+	return Array.from({length: 4}, (_, i) => addDays(start, i * 7));
+}
+
+// Helper: get visible days for a week
+function getWeekDays(start: Date) {
+	return Array.from({length: 7}, (_, i) => addDays(start, i));
+}
+
+// Helper: get event for a day
+function getEventForDay(dayDate: Date) {
+	return events.find((event) =>
+		event.start.getFullYear() === dayDate.getFullYear() &&
+		event.start.getMonth() === dayDate.getMonth() &&
+		event.start.getDate() === dayDate.getDate()
+	);
+}
 
 // Mobile state
 let mobileMonths: { month: number, year: number, events: CalendarEvent[] }[] = $state([]); // List of loaded months (in order)
@@ -19,61 +54,56 @@ let loadingNext = $state(false); // Show spinner at bottom
 let isMobile = false;
 
 
-// Get the start and end date for a month
-function getMonthRange(year: number, month: number) {
-	const start = new Date(year, month, 1);
-	const end = new Date(year, month + 1, 0);
-	return { start, end };
+// Get the start and end date for a range
+function getRange(start: Date, end: Date) {
+    return { start, end };
 }
 
 
-// Fetch events for a given month/year
+// Fetch events for a given range
+async function fetchEventsRange(start: Date, end: Date) {
+    loading = true;
+    const response = await fetch(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`);
+    let data: CalendarEvent[] = (await response.json()).calendar;
+    // Convert event date strings to Date objects
+    data = data.map(event => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end)
+    }));
+    loading = false;
+    return data;
+}
+
+
+// Load 4 weeks for desktop view
+async function loadWeeks(start: Date) {
+    const end = addDays(start, 27); // 4 weeks, 28 days
+    events = await fetchEventsRange(start, end);
+    weekStart = new Date(start);
+}
+
+
+// Desktop navigation (by week)
+async function loadPrevWeek() {
+    const newStart = addDays(weekStart, -7);
+    await loadWeeks(newStart);
+}
+
+async function loadNextWeek() {
+    const newStart = addDays(weekStart, 7);
+    await loadWeeks(newStart);
+}
+
+
+
+// Fetch events for a specific month (used in mobile view)
 async function fetchEvents(year: number, month: number) {
-	loading = true;
-	const { start, end } = getMonthRange(year, month);
-	const response = await fetch(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`);
-	let data: CalendarEvent[] = (await response.json()).calendar;
-	// Convert event date strings to Date objects
-	data = data.map(event => ({
-		...event,
-		start: new Date(event.start),
-		end: new Date(event.end)
-	}));
-	loading = false;
+	const start = new Date(year, month, 1);
+	const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+	let data: CalendarEvent[] = await fetchEventsRange(start, end);
 	return data;
 }
-
-
-// Load a month for desktop view
-async function loadMonth(y: number, m: number) {
-	events = await fetchEvents(y, m);
-	month = m;
-	year = y;
-}
-
-
-// Desktop navigation
-async function loadPrevMonth() {
-	let newMonth = month - 1;
-	let newYear = year;
-	if (newMonth < 0) {
-		newMonth = 11;
-		newYear--;
-	}
-	await loadMonth(newYear, newMonth);
-}
-
-async function loadNextMonth() {
-	let newMonth = month + 1;
-	let newYear = year;
-	if (newMonth > 11) {
-		newMonth = 0;
-		newYear++;
-	}
-	await loadMonth(newYear, newMonth);
-}
-
-
 
 // Load a month for mobile view (prepend = true for previous, false for next)
 async function loadMobileMonth(y: number, m: number, prepend = false) {
@@ -111,7 +141,7 @@ async function loadMobileMonth(y: number, m: number, prepend = false) {
 
 
 // Infinite scroll handler for mobile
-function handleMobileScroll(e: Event) {
+function handleMobileScroll(e: UIEvent) {
 	const el = e.target as HTMLElement;
 	// Prepend previous month if at top
 	if (el.scrollTop === 0) {
@@ -171,13 +201,13 @@ function handleMobileScroll(e: Event) {
 
 // Initial load: detect mobile/desktop and load the right calendar
 onMount(async () => {
-	isMobile = window.matchMedia("(max-width: 700px)").matches;
-	if (isMobile) {
-		const now = new Date();
-		await loadMobileMonth(now.getFullYear(), now.getMonth());
-	} else {
-		await loadMonth(year, month);
-	}
+    isMobile = window.matchMedia("(max-width: 700px)").matches;
+    if (isMobile) {
+        const now = new Date();
+        await loadMobileMonth(now.getFullYear(), now.getMonth());
+    } else {
+        await loadWeeks(getStartOfWeek(new Date()));
+    }
 });
 </script>
 
@@ -185,36 +215,40 @@ onMount(async () => {
 <div class="calendar-responsive">
 		<!-- Desktop: Month navigation -->
 		<div class="calendar-nav desktop-view">
-			<button class="calendar-arrow" onclick={loadPrevMonth}>&lt;</button>
-			<span class="calendar-month-label">{new Date(year, month).toLocaleString(undefined, { month: 'long', year: 'numeric' })}</span>
-			<button class="calendar-arrow" onclick={loadNextMonth}>&gt;</button>
+			<button class="calendar-arrow" onclick={loadPrevWeek}>&lt;</button>
+			<span class="calendar-month-label">
+				{(() => {
+					const weeks = getVisibleWeeks(weekStart);
+					const first = weeks[0];
+					const last = addDays(weeks[3], 6);
+					const firstLabel = first.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+					const lastLabel = last.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+					return `${firstLabel} - ${lastLabel}`;
+				})()}
+			</span>
+			<button class="calendar-arrow" onclick={loadNextWeek}>&gt;</button>
 		</div>
 		<table class="calendar desktop-view">
-			<thead>
-				<tr>
-					<th>Monday</th>
-					<th>Tuesday</th>
-					<th>Wednesday</th>
-					<th>Thursday</th>
-					<th>Friday</th>
-					<th>Saturday</th>
-					<th>Sunday</th>
-				</tr>
-			</thead>
 			<tbody>
-				{#each Array(5) as _, weekIndex}
+				{#each getVisibleWeeks(weekStart) as weekStartDate}
 					<tr>
-						{#each Array(7) as _, dayIndex}
-							<td>
-								{#each events.filter((event) => event.start.getMonth() === month && event.start.getFullYear() === year && event.start.getDay() === (dayIndex + 1) % 7 && Math.floor((event.start.getDate() - 1) / 7) === weekIndex) as event}
-									<div class="event">
-										<strong>{event.title}</strong><br />
-										<small>{event.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small>
-									</div>
-								{/each}
-								<div class="date">
-									{new Date(year, month, weekIndex * 7 + dayIndex + 1).toLocaleDateString()}
+						{#each getWeekDays(weekStartDate) as dayDate}
+							{@const eventsForDay = events.filter(event => event.start.getFullYear() === dayDate.getFullYear() && event.start.getMonth() === dayDate.getMonth() && event.start.getDate() === dayDate.getDate())}
+							<td class="calendar-cell">
+								<div class="event-stack">
+																	{#each eventsForDay.slice(0, 3) as event, i (event.id)}
+																		{@const count = Math.min(eventsForDay.length, 3) }
+																		<div class="event-stack-item" style={`--stack-index: ${i}; --stack-count: ${count};`}>
+																			<Event {...event} />
+																		</div>
+																	{/each}
+									{#if eventsForDay.length > 3}
+										<div class="event-overflow">+{eventsForDay.length - 3} autres</div>
+									{/if}
 								</div>
+														<div class="date-cell">
+															{String(dayDate.getDate()).padStart(2, '0')}/{String(dayDate.getMonth() + 1).padStart(2, '0')}
+														</div>
 							</td>
 						{/each}
 					</tr>
@@ -241,10 +275,7 @@ onMount(async () => {
 							</div>
 							<div class="mobile-day-cell">
 								{#each m.events.filter((event) => event.start.getDate() === dayIdx + 1) as event}
-									<div class="event">
-										<strong>{event.title}</strong><br />
-										<small>{event.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</small>
-									</div>
+									<Event {...event} />
 								{/each}
 							</div>
 						</div>
@@ -262,9 +293,10 @@ onMount(async () => {
 
 	.calendar {
 		width: 100%;
-		max-width: 800px;
+		max-width: 100%;
 		margin: auto;
 		border-collapse: collapse;
+		table-layout: fixed;
 	}
 
 	.calendar-responsive {
@@ -332,34 +364,88 @@ onMount(async () => {
 		.mobile-day-cell {
 			padding: 0.7rem 1rem 0.5rem 1rem;
 		}
-		.event {
-			margin-bottom: 0.5rem;
-		}
 	}
 
-	.calendar th,
+
+
 	.calendar td {
-		border: 1px solid #ddd;
-		padding: 8px;
+		border: 1px solid #b0b0b0;
 		text-align: left;
 	}
 
-	.calendar th {
-		background-color: #f4f4f4;
+	.calendar-cell {
+		width: 1%;
+		height: 110px;
+		min-width: 0;
+		min-height: 110px;
+		max-width: none;
+		max-height: 110px;
+		vertical-align: top;
+		position: relative;
+		padding: 4px 4px 2px 4px;
+		box-sizing: border-box;
+		overflow: hidden;
+		word-break: break-word;
+	}
+	.event-stack {
+		position: absolute;
+		top: 0; left: 0; right: 0; bottom: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+	.event-stack-item {
+		position: absolute;
+		left: 0; right: 0;
+		width: 100%;
+		min-height: 0;
+		top: calc(var(--stack-index) * (100% / var(--stack-count, 1)));
+		height: calc(100% / var(--stack-count, 1));
+		max-height: calc(100% / var(--stack-count, 1));
+		z-index: calc(3 - var(--stack-index));
+		transition: top 0.25s cubic-bezier(.4,0,.2,1), height 0.25s cubic-bezier(.4,0,.2,1), max-height 0.25s cubic-bezier(.4,0,.2,1), z-index 0s 0.25s;
+		pointer-events: auto;
+		cursor: pointer;
+		display: flex;
+		align-items: stretch;
+		justify-content: stretch;
 	}
 
-	.event {
-		background-color: #e0f7fa;
-		margin: 5px 0;
-		padding: 5px;
-		border-radius: 4px;
+	.event-stack-item:hover,
+	.event-stack-item:focus-within {
+		top: 0 !important;
+		height: 100% !important;
+		max-height: 100% !important;
+		z-index: 5 !important;
+		box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+		transition: top 0.25s cubic-bezier(.4,0,.2,1), height 0.25s cubic-bezier(.4,0,.2,1), max-height 0.25s cubic-bezier(.4,0,.2,1), z-index 0s 0s !important;
 	}
-	.date {
-		text-align: right;
-		font-size: 0.8em;
-		color: #888;
-		margin-top: 10px;
+
+	.event-overflow {
+		position: absolute;
+		left: 0; right: 0; bottom: 24px;
+		width: 100%;
+		text-align: center;
+		font-size: 0.85em;
+		color: #232946;
+		background: rgba(255,255,255,0.7);
+		z-index: 5;
+		pointer-events: none;
 	}
+
+		.date-cell {
+			position: absolute;
+			bottom: 4px;
+			right: 6px;
+			font-size: 0.9em;
+			color: #6a6a6a;
+			background: none;
+			border-radius: 0 0 6px 6px;
+			padding: 0 2px 2px 4px;
+			z-index: 5;
+			pointer-events: none;
+			text-align: right;
+		}
 
 
 	.spinner {
