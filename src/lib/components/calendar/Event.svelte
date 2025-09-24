@@ -10,9 +10,10 @@
 		description,
 		association,
 		id,
-		className,
-		style,
-	}: CalendarEvent & { className?: string; style?: string } = $props();
+		i,
+		count
+	}: CalendarEvent & { i?: number, count?: number } = $props();
+
 
 	const palette = [
 		"#f7c873",
@@ -52,17 +53,6 @@
 		});
 	}
 </script>
-
-<div
-	class="event-title-only clickable fill-cell {className}"
-	role="presentation"
-	onclick={openModal}
-	onkeydown={(e) => e.key === "Enter" && openModal()}
-	title="Voir les détails"
-	style="background: {color}; border-radius: 0; {style}"
->
-	{title}
-</div>
 
 {#if showModal}
 	<div class="modal-overlay" role="presentation" onclick={closeModal}>
@@ -183,11 +173,6 @@
 			align-items: center;
 			justify-content: center;
 			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			z-index: 1;
 		}
 	}
 	.event-title-only.clickable:hover,
@@ -202,10 +187,11 @@
 		width: 100vw;
 		height: 100vh;
 		background: rgba(0, 0, 0, 0.35);
-		z-index: 1000;
+		z-index: 2000;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		pointer-events: auto;
 	}
 
 	.modal {
@@ -216,10 +202,9 @@
 		max-height: 80vh;
 		overflow-y: auto;
 		box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
-		position: absolute;
+		position: relative;
 		padding: 2.2rem 1.5rem 1.2rem 1.5rem;
 		animation: modalIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-		z-index: 1001;
 	}
 	@keyframes modalIn {
 		from {

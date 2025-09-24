@@ -64,41 +64,7 @@
 		height: 100%;
 		pointer-events: none;
 	}
-	.event-stack-item {
-		position: absolute;
-		left: 0;
-		right: 0;
-		width: 100%;
-		min-height: 0;
-		top: calc(var(--stack-index) * (100% / var(--stack-count, 1)));
-		height: calc(100% / var(--stack-count, 1));
-		max-height: calc(100% / var(--stack-count, 1));
-		z-index: 1;
-		transition:
-			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			z-index 0s 0.25s;
-		pointer-events: auto;
-		cursor: pointer;
-		display: flex;
-		align-items: stretch;
-		justify-content: stretch;
-	}
-	.event-stack-item:hover,
-	.event-stack-item:focus-within,
-    :global .event-stack-item:has(> .modal-overlay) {
-		top: 0 !important;
-		height: 100% !important;
-		max-height: 100% !important;
-		z-index: 3 !important;
-		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
-		transition:
-			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			z-index 0s 0s !important;
-	}
+
 
 	.event-overflow {
 		position: absolute;
