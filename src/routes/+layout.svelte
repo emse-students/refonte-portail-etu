@@ -32,8 +32,8 @@
 		display: flex;
 		flex-direction: column;
 		padding: 1rem 0;
-		width: 100vw;
-		max-width: 100vw;
+		width: 100%;
+		max-width: 100%;
 		margin: 0;
 		box-sizing: border-box;
 		min-height: 0;
