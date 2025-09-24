@@ -113,17 +113,33 @@
 		z-index: 3;
 		pointer-events: none;
 	}
-	.date-cell {
+	.date-badge {
 		position: absolute;
-		bottom: 4px;
-		right: 6px;
-		font-size: 0.9em;
-		color: #6a6a6a;
-		background: none;
-		border-radius: 0 0 6px 6px;
-		padding: 0 2px 2px 4px;
-		z-index: 2;
+		top: 6px;
+		left: 8px;
+		z-index: 3;
+		background: #fff;
+		color: #232946;
+		border-radius: 8px;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+		padding: 2px 10px 2px 8px;
+		font-size: 1.05em;
+		font-weight: 600;
+		display: flex;
+		align-items: baseline;
+		gap: 0.3em;
 		pointer-events: none;
-		text-align: right;
+		border: 1px solid #e0e0e0;
+	}
+	.date-badge .day-number {
+		font-size: 1.15em;
+		font-weight: 700;
+		margin-right: 0.15em;
+	}
+	.date-badge .month {
+		font-size: 0.95em;
+		text-transform: lowercase;
+		color: #888;
+		font-weight: 500;
 	}
 </style>

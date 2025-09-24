@@ -110,7 +110,57 @@
 	</div>
 {/if}
 
+<div
+	class="event-stack-item event-title-only clickable fill-cell"
+	role="presentation"
+	onclick={openModal}
+	onkeydown={(e) => e.key === "Enter" && openModal()}
+	title="Voir les détails"
+	style="background: {color}; border-radius: 0; --stack-index: {i}; --stack-count: {count};"
+>
+	{title}
+</div>
+
 <style>
+
+	.event-stack-item {
+		position: absolute;
+		left: 0;
+		right: 0;
+		width: 100%;
+		min-height: 0;
+		top: calc(var(--stack-index) * (100% / var(--stack-count, 1)));
+		height: calc(100% / var(--stack-count, 1));
+		max-height: calc(100% / var(--stack-count, 1));
+		z-index: 1;
+		transition:
+			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1)
+			z-index 0s 0.25s !important;
+		pointer-events: auto;
+		cursor: pointer;
+		display: flex;
+		align-items: stretch;
+		justify-content: stretch;
+		will-change: top, height, max-height, z-index;
+	}
+
+	.event-stack-item:hover,
+	.event-stack-item:focus-within,
+	.modal-overlay + .event-stack-item {
+		top: 0 !important;
+		height: 100% !important;
+		max-height: 100% !important;
+		z-index: 2 !important;
+		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
+		transition:
+			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			z-index 0s 0s;
+	}
+
 	.event-title-only {
 		font-size: 1rem;
 		font-weight: 600;
