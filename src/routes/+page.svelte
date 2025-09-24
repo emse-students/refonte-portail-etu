@@ -34,7 +34,6 @@
 	}
 	
 	.calendar-fixed-container {
-		width: 700px;
 		max-width: 95vw;
 		min-height: 420px;
 		display: flex;
