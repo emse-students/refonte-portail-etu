@@ -3,54 +3,56 @@
 	import Event from "./Event.svelte";
 	import { onMount } from "svelte";
 
-    let { dayDate, events }: { dayDate: Date, events: CalendarEvent[] } = $props();
+	let { dayDate, events }: { dayDate: Date; events: CalendarEvent[] } =
+		$props();
 
-	const eventsForDay = events.filter(
-		(event) =>
-			event.start.getFullYear() === dayDate.getFullYear() &&
-			event.start.getMonth() === dayDate.getMonth() &&
-			event.start.getDate() === dayDate.getDate()
+	const eventsForDay = $derived(
+		events.filter(
+			(event) =>
+				event.start.getFullYear() === dayDate.getFullYear() &&
+				event.start.getMonth() === dayDate.getMonth() &&
+				event.start.getDate() === dayDate.getDate()
+		)
 	);
 </script>
 
 <div class="calendar-cell">
 	<div class="event-stack">
+		<div class="date-badge">
+			<span class="day-number">{dayDate.getDate()}</span>
+			<span class="month"
+				>{dayDate.toLocaleString(undefined, { month: "short" })}</span
+			>
+		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
 			{@const count = Math.min(eventsForDay.length, 3)}
-			<div
-				class="event-stack-item"
-				style={`--stack-index: ${i}; --stack-count: ${count};`}
-			>
-				<Event {...event} />
-			</div>
+			
+			<Event {...event} {i} {count} />
+			
 		{/each}
 		{#if eventsForDay.length > 3}
 			<div class="event-overflow">+{eventsForDay.length - 3} autres</div>
 		{/if}
 	</div>
-	<div class="date-cell">
-		<div class="date">
-			<div class="day-number">{dayDate.getDate()}</div>
-			<div class="month">
-				{dayDate.toLocaleString(undefined, { month: "long" })}
-			</div>
-		</div>
-	</div>
 </div>
 
 <style>
+	:root {
+		--calendar-cell-size: 175px;
+		--calendar-max-cell-size: 225px;
+	}
 	.calendar-cell {
-		height: 110px;
-		min-width: 0;
-		min-height: 110px;
-		max-width: none;
-		max-height: 110px;
+		width: calc(100% / 7);
+		min-height: var(--calendar-cell-size);
+		min-width: var(--calendar-cell-size);
+		max-width: var(--calendar-max-cell-size);
 		vertical-align: top;
 		position: relative;
-		padding: 4px 4px 2px 4px;
+		margin: 4px;
 		box-sizing: border-box;
 		overflow: hidden;
 		word-break: break-word;
+		background-color: #f0f0f0;
 	}
 	.event-stack {
 		position: absolute;
