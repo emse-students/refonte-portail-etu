@@ -425,7 +425,7 @@
 			border-radius: 8px;
 			margin-bottom: 1.2rem;
 			background: #fff;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 		}
 		.mobile-day-header {
 			background: #f4f4f4;
@@ -437,11 +437,6 @@
 		.mobile-day-cell {
 			padding: 0.7rem 1rem 0.5rem 1rem;
 		}
-	}
-
-	.calendar td {
-		border: 1px solid #b0b0b0;
-		text-align: left;
 	}
 
 	.spinner {
@@ -460,8 +455,16 @@
 		border-width: 5px;
 	}
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	.calendar-table-wrapper {
+		position: relative;
+	}
 </style>
