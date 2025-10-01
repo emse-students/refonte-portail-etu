@@ -124,10 +124,10 @@
 		max-height: calc(100% / var(--stack-count, 1));
 		z-index: 1;
 		transition:
+			all 0s 0.25s,
 			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1)
-			z-index 0s 0.25s !important;
+			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 		pointer-events: auto;
 		cursor: pointer;
 		display: flex;
@@ -145,10 +145,10 @@
 		z-index: 2 !important;
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
 		transition:
+			all 0s 0s,
 			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-			z-index 0s 0s;
+			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 	}
 
 	.event-title-only {
@@ -192,6 +192,7 @@
 		align-items: center;
 		justify-content: center;
 		pointer-events: auto;
+		animation: fadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.modal {
@@ -241,5 +242,14 @@
 		font-size: 1rem;
 		color: #232946;
 		word-break: break-word;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 </style>
