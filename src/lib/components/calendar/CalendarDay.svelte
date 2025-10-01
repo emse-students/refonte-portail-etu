@@ -14,18 +14,19 @@
 				event.start.getDate() === dayDate.getDate()
 		)
 	);
+
+	const count = $derived(Math.max(eventsForDay.length, 3));
 </script>
 
 <div class="calendar-cell">
 	<div class="event-stack">
-		<div class="date-badge">
+		<div class="date-badge {eventsForDay.length > 0 ? 'fade-on-hover' : ''}">
 			<span class="day-number">{dayDate.getDate()}</span>
 			<span class="month"
 				>{dayDate.toLocaleString(undefined, { month: "short" })}</span
 			>
 		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
-			{@const count = Math.min(eventsForDay.length, 3)}
 			
 			<Event {...event} {i} {count} />
 			
@@ -96,6 +97,11 @@
 		gap: 0.3em;
 		pointer-events: none;
 		border: 1px solid #e0e0e0;
+		user-select: none;
+	}
+	.date-badge .day-number,
+	.date-badge .month {
+		user-select: none;
 	}
 	.date-badge .day-number {
 		font-size: 1.15em;
@@ -107,5 +113,17 @@
 		text-transform: lowercase;
 		color: #888;
 		font-weight: 500;
+	}
+
+	.fade-on-hover {
+		transition: opacity 0.3s 0.15s;
+		opacity: 0.4;
+	}
+
+	
+	.event-stack:hover .fade-on-hover,
+	.event-stack:focus-within .fade-on-hover,
+	:global .fade-on-hover:has(~ .modal-overlay) {
+		opacity: 1;
 	}
 </style>
