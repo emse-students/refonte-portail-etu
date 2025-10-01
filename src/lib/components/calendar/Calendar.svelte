@@ -263,6 +263,15 @@
 	<div class="calendar-table-wrapper">
 		
 			<table class="calendar desktop-view">
+				<thead>
+					<tr class="calendar-weekdays-row">
+						{#each getWeekDays(weekStart) as dayDate}
+							<th class="calendar-weekday-header">
+								{dayDate.toLocaleDateString(undefined, { weekday: 'long' })}
+							</th>
+						{/each}
+					</tr>
+				</thead>
 				<tbody>
 					{#each getVisibleWeeks(weekStart) as weekStartDate}
 						<tr>
@@ -466,5 +475,21 @@
 
 	.calendar-table-wrapper {
 		position: relative;
+	}
+
+	.calendar-weekdays-row {
+		background: linear-gradient(90deg, #f7f3ff 0%, #f7f3ff 100%);
+	}
+	.calendar-weekday-header {
+		font-family: "Inter", "Segoe UI", Arial, sans-serif;
+		font-size: 1.08rem;
+		font-weight: 700;
+		color: #6c3fc5;
+		letter-spacing: 0.01em;
+		padding: 0.7em 0 0.7em 0;
+		text-align: center;
+		border-bottom: 2px solid #e6d6ff;
+		background: none;
+		text-transform: capitalize;
 	}
 </style>
