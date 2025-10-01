@@ -65,9 +65,7 @@
 						? "page"
 						: undefined}
 				>
-					<button aria-haspopup="true" aria-expanded="false">
-						Associations
-					</button>
+					<a href="/associations">Associations</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith("/listes")
@@ -267,20 +265,6 @@
 		.nav-drawer li {
 			padding: 0.5rem 0;
 		}
-		.nav-drawer a, .nav-drawer button {
-			color: #f7c873;
-			font-size: 1.1rem;
-			font-weight: 500;
-			background: none;
-			border: none;
-			padding: 0.5rem 0;
-			text-align: left;
-			width: 100%;
-			transition: color 0.2s;
-		}
-		.nav-drawer a:hover, .nav-drawer button:hover {
-			color: #e3eafc;
-		}
 		.nav-overlay {
 			position: fixed;
 			top: 0;
@@ -301,9 +285,5 @@
 		.mobile-menu-btn {
 			display: flex;
 		}
-	}
-
-	.header-nav button:hover {
-		color: #1976d2;
 	}
 </style>
