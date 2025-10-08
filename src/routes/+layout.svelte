@@ -3,12 +3,15 @@
 	import "../app.css";
 	import Footer from "./Footer.svelte";
 
-	let { children, data } = $props();
-	let { user } = data;
+	import { page } from "$app/state";
+
+
+	let { children } = $props();
+	const session = page.data.session;
 </script>
 
 <div class="app">
-	<Header {user} />
+	<Header user={session?.user} />
 
 	<main>
 		{@render children()}

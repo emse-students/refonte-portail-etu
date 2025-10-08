@@ -2,6 +2,11 @@
 	import welcome from "$lib/images/svelte-welcome.webp";
 	import welcomeFallback from "$lib/images/svelte-welcome.png";
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
+
+	// load session
+	import { page } from "$app/state";
+	let session = page.data.session;
+	console.log(session);
 </script>
 
 <svelte:head>
@@ -11,7 +16,7 @@
 
 <section>
 	<h1>
-		Welcome
+		Welcome {session?.user?.name ?? 'to the Svelte demo app'}!
 	</h1>
 
 	<div class="calendar-fixed-container">
