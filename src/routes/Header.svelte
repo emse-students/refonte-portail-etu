@@ -2,6 +2,7 @@
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
 	import logo from "$lib/images/logo_bde.png";
+	import { signIn, signOut } from "@auth/sveltekit/client";
 
 	// Load the associations and lists from the api
 
@@ -96,14 +97,9 @@
 	</nav>
 	<div class="header-right">
 		{#if user}
-			<span>Bienvenue, {user.username}!</span>
-			<a href="/logout" class="login-btn" data-sveltekit-reload
-				>Se déconnecter</a
-			>
+			<button onclick={() => signOut()} class="login-btn">Se déconnecter</button>
 		{:else}
-			<a href="/login" class="login-btn" data-sveltekit-reload
-				>Se connecter</a
-			>
+			<button class="login-btn" onclick={() => signIn("cas-emse")}>Se connecter</button>
 		{/if}
 	</div>
 </header>
@@ -183,6 +179,7 @@
 		text-decoration: none;
 		transition: background 0.2s, color 0.2s;
 		box-shadow: 0 2px 8px rgba(247, 200, 115, 0.08);
+		cursor: pointer;
 	}
 
 	.login-btn:hover {
