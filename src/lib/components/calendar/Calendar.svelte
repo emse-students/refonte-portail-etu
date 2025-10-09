@@ -188,7 +188,7 @@
 
 <div class="calendar-responsive">
 	<!-- Desktop: Month navigation -->
-	<div class="calendar-nav calendar-nav-modern">
+	<div class="calendar-nav-modern">
 		<button
 			class="calendar-arrow-modern"
 			onclick={loadPrevWeek}
@@ -218,7 +218,7 @@
 				/>
 			</svg>
 		</button>
-		<span class="calendar-title-modern">
+		<span class="calendar-title">
 			<span class="calendar-title-main">Calendrier des événements</span>
 			<span class="calendar-title-sub">
 				Semaine du <b
@@ -347,13 +347,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 1.5rem;
-		margin: 1rem 0 0.5rem 0;
-	}
-	.calendar-nav-modern {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		gap: 2.2rem;
 		margin: 1.5rem 0 1.2rem 0;
 		background: linear-gradient(90deg, #f7f3ff 0%, #f3f7ff 100%);
@@ -361,7 +354,7 @@
 		box-shadow: 0 2px 12px rgba(179, 136, 255, 0.07);
 		padding: 1.1rem 2.2rem 1.1rem 2.2rem;
 	}
-	.calendar-title-modern {
+	.calendar-title {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
