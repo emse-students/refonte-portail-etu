@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CalendarEvent } from "$lib/types";
+	import type { Event as CalendarEvent } from "$lib/databasetypes";
 	import Event from "./Event.svelte";
 	import { onMount } from "svelte";
 
@@ -9,9 +9,9 @@
 	const eventsForDay = $derived(
 		events.filter(
 			(event) =>
-				event.start.getFullYear() === dayDate.getFullYear() &&
-				event.start.getMonth() === dayDate.getMonth() &&
-				event.start.getDate() === dayDate.getDate()
+				event.date.getFullYear() === dayDate.getFullYear() &&
+				event.date.getMonth() === dayDate.getMonth() &&
+				event.date.getDate() === dayDate.getDate()
 		)
 	);
 

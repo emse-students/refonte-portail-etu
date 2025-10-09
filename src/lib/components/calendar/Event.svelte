@@ -1,19 +1,29 @@
 <script lang="ts">
-	import type { CalendarEvent } from "$lib/types";
+	import type { Event } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
 	let {
-		title,
-		start,
-		end,
-		location,
+		name,
+		date,
+		duration,
+		place,
 		description,
-		association,
+		association_id,
 		id,
 		i,
 		count
-	}: CalendarEvent & { i?: number, count?: number } = $props();
+	}: Event & { i?: number, count?: number } = $props();
 
+	const end = new Date(date.getTime() + (duration ?? 0) * 60000);
+
+	// get the association name from id (either from page data or fetch it if not available)
+	let association_name = $state("");
+
+	fetch(`/api/associations/${association_id}`)
+				.then((res) => res.json())
+				.then((data) => {
+					association_name = data.name;
+				});
 
 	const palette = [
 		"#f7c873",
@@ -29,9 +39,9 @@
 	];
 	let color =
 		palette[
-			(id
-				? Array.from(id).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: title.length) % palette.length
+			(association_id
+				? Array.from(name).reduce((a, c) => a + c.charCodeAt(0), 0)
+				: name.length) % palette.length
 		];
 
 	let showModal = $state(false);
@@ -65,11 +75,11 @@
 				>&times;</button
 			>
 			<div class="modal-content">
-				<h2>{title}</h2>
+				<h2>{name}</h2>
 				<div class="modal-section">
 					<strong>Date :</strong>
-					{start.toLocaleDateString()}
-					{start.toLocaleTimeString([], {
+					{date.toLocaleDateString()}
+					{date.toLocaleTimeString([], {
 						hour: "2-digit",
 						minute: "2-digit",
 					})} - {end.toLocaleDateString()}
@@ -84,10 +94,10 @@
 						{location}
 					</div>
 				{/if}
-				{#if association}
+				{#if association_name}
 					<div class="modal-section">
 						<strong>Association :</strong>
-						{association}
+						{association_name}
 					</div>
 				{/if}
 				{#if description}
@@ -108,7 +118,7 @@
 	title="Voir les détails"
 	style="background: {color}; border-radius: 0; --stack-index: {i}; --stack-count: {count};"
 >
-	{title}
+	{name}
 </div>
 
 <style>

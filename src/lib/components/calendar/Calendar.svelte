@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import type { CalendarEvent } from "$lib/types.d.ts";
+	import type { Event as CalendarEvent } from "$lib/databasetypes";
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
 
@@ -49,8 +49,8 @@
 		let data: CalendarEvent[] = (await response.json()).calendar;
 		data = data.map((event) => ({
 			...event,
-			start: new Date(event.start),
-			end: new Date(event.end),
+			start: new Date(event.date),
+			end: new Date(event.date.getTime() + (event.duration ?? 0) * 60000),
 		}));
 		return data;
 	}
@@ -319,7 +319,7 @@
 							})}
 						</div>
 						<div class="mobile-day-cell">
-							{#each m.events.filter((event) => event.start.getDate() === dayIdx + 1) as event}
+							{#each m.events.filter((event) => event.date.getDate() === dayIdx + 1) as event}
 								<Event {...event} />
 							{/each}
 						</div>
