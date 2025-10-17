@@ -1,4 +1,4 @@
-import db from '$lib/database';
+import db from '$lib/server/database';
 import { json } from '@sveltejs/kit';
 
 
