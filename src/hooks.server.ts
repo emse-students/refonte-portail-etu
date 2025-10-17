@@ -14,5 +14,6 @@ export const handle = async ({ event, resolve }) => {
 	} catch (e) {
 		// Ignore tracking errors
 	}
+
 	return authHandle({ event, resolve });
-}
+};
