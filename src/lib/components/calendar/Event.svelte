@@ -3,12 +3,12 @@
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
 	let {
-		name,
+		title,
 		date,
 		duration,
-		place,
+		location,
 		description,
-		association_id,
+		association,
 		id,
 		i,
 		count
@@ -19,7 +19,7 @@
 	// get the association name from id (either from page data or fetch it if not available)
 	let association_name = $state("");
 
-	fetch(`/api/associations/${association_id}`)
+	fetch(`/api/associations/${association.id}`)
 				.then((res) => res.json())
 				.then((data) => {
 					association_name = data.name;
@@ -39,9 +39,9 @@
 	];
 	let color =
 		palette[
-			(association_id
-				? Array.from(name).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: name.length) % palette.length
+			(association.id
+				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
+				: title.length) % palette.length
 		];
 
 	let showModal = $state(false);
