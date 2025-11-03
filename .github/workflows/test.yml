@@ -13,26 +13,18 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Setup Bun
-    # You may pin to the exact commit or the version.
-    # uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
-      uses: oven-sh/setup-bun@v2.0.2
+      uses: oven-sh/setup-bun@v2
       with:
-        # The version of Bun to install. (e.g. "latest", "canary", "1.0.0", "1.0.x", <sha>)
         bun-version: latest
-        # The version of Bun to install from file. (e.g. "package.json", ".bun-version", ".tool-versions")
-        bun-version-file: package.json
-        # Override the URL to download Bun from. This skips version resolution and verifying AVX2 support.
-        bun-download-url: # optional
-        # The URL of the package registry to use for installing Bun. Set the $BUN_AUTH_TOKEN environment variable to authenticate with the registry.
-        registry-url: # optional
-        # The scope for authenticating with the package registry.
-        scope: # optional
-        # Disable caching of bun executable.
-        no-cache: # optional
+
     - name: Install dependencies
       run: bun install
+      
     - name: Run tests
       run: bun run vitest
     
