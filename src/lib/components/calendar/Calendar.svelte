@@ -188,9 +188,9 @@
 
 <div class="calendar-responsive">
 	<!-- Desktop: Month navigation -->
-	<div class="calendar-nav-modern">
+	<div class="calendar-nav">
 		<button
-			class="calendar-arrow-modern"
+			class="calendar-arrow"
 			onclick={loadPrevWeek}
 			aria-label="Semaine précédente"
 		>
@@ -231,7 +231,7 @@
 			</span>
 		</span>
 		<button
-			class="calendar-arrow-modern"
+			class="calendar-arrow"
 			onclick={loadNextWeek}
 			aria-label="Semaine suivante"
 		>
@@ -382,7 +382,7 @@
 		color: #b388ff;
 		font-weight: 700;
 	}
-	.calendar-arrow-modern {
+	.calendar-arrow {
 		background: none;
 		border: none;
 		border-radius: 50%;
@@ -399,12 +399,12 @@
 		box-shadow: 0 1px 6px #b388ff22;
 		outline: none;
 	}
-	.calendar-arrow-modern:hover,
-	.calendar-arrow-modern:focus {
+	.calendar-arrow:hover,
+	.calendar-arrow:focus {
 		background: #f3eaff;
 		box-shadow: 0 2px 12px #b388ff44;
 	}
-	.calendar-arrow-modern svg {
+	.calendar-arrow svg {
 		display: block;
 	}
 

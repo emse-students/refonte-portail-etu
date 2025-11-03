@@ -45,3 +45,22 @@ export const GET = async (event: RequestEvent) => {
 		headers: { "Content-Type": "application/json" },
 	});
 };
+
+
+export const DELETE = async (event: RequestEvent) => {
+    const id = event.params.id;
+    await db`DELETE FROM associations WHERE id = ${id}`;
+
+    return new Response(null, { status: 204 });
+}
+
+export const PUT = async (event: RequestEvent) => {
+    const id = event.params.id;
+    const body = await event.request.json();
+    const name = body.name;
+    const description = body.description;
+
+    await db`UPDATE associations SET name = ${name}, description = ${description} WHERE id = ${id}`;
+
+    return new Response(null, { status: 204 });
+}
