@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import type { Event as CalendarEvent } from "$lib/databasetypes";
+	import type { RawEvent as CalendarEvent } from "$lib/databasetypes";
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
@@ -45,13 +45,13 @@
 
 	async function fetchEventsRange(start: Date, end: Date) {
 		const response = await fetch(
-			resolve(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`)
+			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}`
 		);
 		let data: CalendarEvent[] = (await response.json()).calendar;
 		data = data.map((event) => ({
 			...event,
-			start: new Date(event.date),
-			end: new Date(event.date.getTime() + (event.duration ?? 0) * 60000),
+			start: new Date(event.start_time),
+			end: new Date(event.end_time),
 		}));
 		return data;
 	}
@@ -320,7 +320,7 @@
 							})}
 						</div>
 						<div class="mobile-day-cell">
-							{#each m.events.filter((event) => event.date.getDate() === dayIdx + 1) as event}
+							{#each m.events.filter((event) => event.start_time.getDate() === dayIdx + 1) as event}
 								<Event {...event} />
 							{/each}
 						</div>

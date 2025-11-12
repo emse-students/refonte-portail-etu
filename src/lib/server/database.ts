@@ -1,16 +1,26 @@
-import { SQL, env } from "bun";
+import { createPool, type Pool, type RowDataPacket } from "mysql2/promise";
+import "dotenv/config";
 import type { Association, RawAssociation } from "$lib/databasetypes";
 
-const db = new SQL({
-    adapter: "mysql",
-    hostname: env.DB_HOST,
-    username: env.DB_USER,
-    password: env.DB_PASSWORD,
-    database: env.DB_NAME,
-    port: Number(env.DB_PORT) || 3306
-});
+let pool: Pool | null = null;
 
-export default db;
+export default async function db(strings: TemplateStringsArray, ...values: any[]) {
+
+    if (!pool) {
+        pool = createPool({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            port: Number(process.env.DB_PORT) || 3306,
+            connectionLimit: 10,
+        });
+    }
+
+    const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
+    const [rows] = await pool.query<RowDataPacket[]>(query, values);
+    return rows as any[];
+}
 
 
 export async function getBasicAssociation(raw: RawAssociation): Promise<Association> {

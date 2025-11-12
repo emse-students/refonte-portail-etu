@@ -45,7 +45,7 @@
     <main class="partners-grid">
         {#if partnerLogos.length > 0}
             {#each partnerLogos as partner (partner.name)}
-                <a href={resolve(`/partenariats/${partner.name.toLowerCase()}`)} class="partner-card">
+                <div class="partner-card">
                     <div class="logo-container">
                         <img src={partner.logoUrl} alt={`Logo de ${partner.name}`} loading="lazy" />
                     </div>
@@ -53,7 +53,7 @@
                         <h3>{partner.name}</h3>
                         <span class="category-badge">{partner.category}</span>
                     </div>
-                </a>
+                </div>
             {/each}
         {:else}
             {#each Array(8) as _}

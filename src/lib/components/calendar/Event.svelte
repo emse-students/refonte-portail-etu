@@ -1,28 +1,26 @@
 <script lang="ts">
-	import type { Event } from "$lib/databasetypes";
+	import type { Association, RawEvent } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
 	import { resolve } from "$app/paths";
 	let {
-		title,
-		date,
-		duration,
+		name,
+		start_time,
+		end_time,
 		location,
 		description,
-		association,
+		association_id,
 		id,
 		i,
 		count
-	}: Event & { i?: number, count?: number } = $props();
-
-	const end = new Date(date.getTime() + (duration ?? 0) * 60000);
+	}: RawEvent & { i?: number, count?: number } = $props();
 
 	// get the association name from id (either from page data or fetch it if not available)
 	let association_name = $state("");
 
-	fetch(resolve(`/api/associations/${association.id}`))
+	fetch(resolve(`/api/associations/${association_id}`))
 				.then((res) => res.json())
-				.then((data) => {
+				.then((data: Association) => {
 					association_name = data.name;
 				});
 
@@ -40,9 +38,9 @@
 	];
 	let color =
 		palette[
-			(association.id
-				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: title.length) % palette.length
+			(association_id
+				? Array.from(name).reduce((a, c) => a + c.charCodeAt(0), 0)
+				: name.length) % palette.length
 		];
 
 	let showModal = $state(false);
@@ -79,12 +77,12 @@
 				<h2>{name}</h2>
 				<div class="modal-section">
 					<strong>Date :</strong>
-					{date.toLocaleDateString()}
-					{date.toLocaleTimeString([], {
+					{start_time.toLocaleDateString()}
+					{start_time.toLocaleTimeString([], {
 						hour: "2-digit",
 						minute: "2-digit",
-					})} - {end.toLocaleDateString()}
-					{end.toLocaleTimeString([], {
+					})} - {end_time.toLocaleDateString()}
+					{end_time.toLocaleTimeString([], {
 						hour: "2-digit",
 						minute: "2-digit",
 					})}
