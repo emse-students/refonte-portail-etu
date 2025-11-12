@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Association } from "$lib/databasetypes";
-	import { resolve } from "bun";
+	import { resolve } from "$app/paths";
 
 	let { associations }: {associations: Association[]} = $props();
 </script>

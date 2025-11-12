@@ -3,6 +3,7 @@
 	import type { Event as CalendarEvent } from "$lib/databasetypes";
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
+	import { resolve } from "$app/paths";
 
 	// Desktop state
 	let events: CalendarEvent[] = $state([]);

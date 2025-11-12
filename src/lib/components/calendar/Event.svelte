@@ -2,6 +2,7 @@
 	import type { Event } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
+	import { resolve } from "$app/paths";
 	let {
 		title,
 		date,
