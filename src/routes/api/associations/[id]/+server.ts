@@ -1,6 +1,7 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import type { Association, AssociationDB } from "$lib/databasetypes";
+import type { RawAssociation } from "$lib/databasetypes";
+import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
 
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
@@ -17,33 +18,28 @@ export const GET = async (event: RequestEvent) => {
 		);
 	}
 
-	const associationData: AssociationDB = associations[0];
+	const associationData: RawAssociation = associations[0];
 
-    const data =
-		await db`SELECT * FROM users u
-                             JOIN user_roles ur ON u.id = ur.user_id
-                             WHERE ur.association_id = ${id}`;
 
-   const association = {
-    members:  data.map((row: { id: number; name: string; email: string; role_id: number; role_name: string; role_permissions: number; }) => ({
-       user: {
-           id: row.id,
-           name: row.name,
-           email: row.email,
-       },
-       role: {
-           id: row.role_id,
-           name: row.role_name,
-           permissions: row.role_permissions,
-       },
-       association: association.id,
-   })),
-   ...associationData,
-   } as Association;
 
-	return new Response(JSON.stringify(associations[0]), {
-		headers: { "Content-Type": "application/json" },
-	});
+    // If url contains ?includeMembers=true, include members
+    const url = new URL(event.request.url);
+    const includeMembers = url.searchParams.get("includeMembers") === "true";
+    
+    if (includeMembers) {
+        const asso = getAssociationWithMembers(associationData);
+        return new Response(JSON.stringify(asso), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+    } else {
+        const asso = getBasicAssociation(associationData);
+        return new Response(JSON.stringify(asso), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
 };
 
 

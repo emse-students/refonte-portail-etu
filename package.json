@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@auth/core": "^0.41.0",
 		"@auth/sveltekit": "^1.11.0",
+		"sass-embedded": "^1.93.3",
 		"svelte-adapter-bun": "^1.0.0"
 	},
 	"overrides": {

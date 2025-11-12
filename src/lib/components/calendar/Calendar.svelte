@@ -44,7 +44,7 @@
 
 	async function fetchEventsRange(start: Date, end: Date) {
 		const response = await fetch(
-			`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`
+			resolve(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`)
 		);
 		let data: CalendarEvent[] = (await response.json()).calendar;
 		data = data.map((event) => ({
@@ -333,7 +333,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="scss">
 	.calendar {
 		max-width: 100%;
 		margin: auto;
@@ -377,10 +377,10 @@
 		font-weight: 500;
 		letter-spacing: 0.01em;
 		margin-top: 0.1em;
-	}
-	.calendar-title-sub b {
-		color: #b388ff;
-		font-weight: 700;
+		b {
+			color: #b388ff;
+			font-weight: 700;
+		}
 	}
 	.calendar-arrow {
 		background: none;
@@ -398,14 +398,14 @@
 			background 0.18s;
 		box-shadow: 0 1px 6px #b388ff22;
 		outline: none;
-	}
-	.calendar-arrow:hover,
-	.calendar-arrow:focus {
-		background: #f3eaff;
-		box-shadow: 0 2px 12px #b388ff44;
-	}
-	.calendar-arrow svg {
-		display: block;
+		:hover, :focus {
+			background: #f3eaff;
+			box-shadow: 0 2px 12px #b388ff44;
+		}
+
+		svg {
+			display: block;
+		}
 	}
 
 	.mobile-view {

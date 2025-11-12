@@ -1,83 +1,90 @@
-export interface Association {
+// Raw types : 
+
+export type RawAssociation = {
 	id: number;
+	handle: string;
 	name: string;
 	description: string;
-	icon: string;
-	color: string;
-	members: Member[];
-	established: string;
-	// UI-specific properties that might not be in the main 'associations' table
-	size?: "small" | "medium" | "large";
-	position?: { x: number; y: number };
-}
+	is_list: boolean;
+	icon: number;
+	color: number;
+	created_at: Date;
+	updated_at: Date;
+};
 
-export interface User {
+export type RawUser = {
 	id: number;
+	name: string;
+	email: string;
+	login: string;
+	permissions: number;
+	created_at: Date;
+	updated_at: Date;
+};
+
+export type RawRole = {
+	id: number;
+	name: string;
+	permissions: number;
+	created_at: Date;
+	updated_at: Date;
+};
+
+export type RawMember = {
+	id: number;
+	visible: boolean;
+	user_id: number;
+	association_id: number;
+	role_id: number;
+	created_at: Date;
+	updated_at: Date;
+};
+
+export type RawEvent = {
+	id: number;
+	association_id: number;
+	name: string;
+	description: string;
+	start_time: Date;
+	end_time: Date;
+	location: string;
+	created_at: Date;
+	updated_at: Date;
+};
+
+// Processed types :
+
+export type Association = {
+	id: number;
+	handle: string;
+	name: string;
+	description: string;
+	members: Member[];
+	is_list: boolean;
+	icon: string;
+	color: number;
+};
+
+export type User = {
+	id: number;
+	name: string;
 	login: string;
 	email: string;
-	name: string;
-	avatar_url: string;
-}
+	permissions: number;
+};
 
-export interface Event {
-	id: number;
-	title: string;
-	date: Date;
-	duration: number; // duration in minutes
-	description: string | null;
-	location: string | null;
-	association: AssociationDB;
-	color: string;
-}
-/**
- * Represents the raw data structure for a Role from the database.
- */
-export interface Role {
+export type Role = {
 	id: number;
 	name: string;
-    permissions: number;
-}
+	permissions: number;
+};
 
-/**
- * Represents the raw, nested data structure for a Member,
- * combining user and role information as fetched from the database.
- */
-export interface Member {
+export type Member = {
 	user: User;
 	role: Role;
-	association: Association["id"];
-}
-
-/**
- * Represents the raw data structure for an Association from the database.
- * Note: Members are not included here as they are fetched in a separate query.
- */
-export interface AssociationDB {
-	id: number;
-	name: string;
-	description: string;
-	icon: string;
-	color: string;
-	contact: string;
-	established: string;
-}
-
-/**
- * Represents the raw data structure for an Event from the database.
- */
-export interface EventDB {
-	id: number;
-	title: string;
-	start_date: string;
-	end_date: string;
-	description: string | null;
-	location: string | null;
-	association_id: number | null;
-	color: string;
-}
-
-
-
+	association: number;
+	visible: boolean;
+};
 
 
 

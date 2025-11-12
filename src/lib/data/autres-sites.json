@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://gallery.mitv.fr",
+        "name": "MITV Gallery",
+        "description": "Photos et vidéos des événements étudiants",
+        "icon": "/autres-sites/migallery-logo.png"
+    },
+    {
+        "url": "https://portail-etu.emse.fr/cercle",
+        "name": "Site du Cercle",
+        "description": "Le bar asso de la ME, par les étudiants, pour les étudiants",
+        "icon": "/autres-sites/cercle-logo.png"
+    },
+    {
+        "url": "https://portail-etu.emse.fr/gala",
+        "name": "Gala Illumines",
+        "description": "Le gala de fin d'année de l'école",
+        "icon": "/autres-sites/gala-logo.jpeg"
+    }
+]

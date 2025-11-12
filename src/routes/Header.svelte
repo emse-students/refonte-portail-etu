@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { pushState } from "$app/navigation";
 	import { page } from "$app/state";
-	import logo from "$lib/images/logo_bde.png";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 
 	// Load the associations and lists from the api
@@ -51,7 +50,7 @@
 			<span class="icon">☰</span>
 		</button>
 		<a href="/">
-			<img src={logo} alt="Logo BDE EMSE" class="logo-bde" />
+			<img src="logo.png" alt="Logo BDE EMSE" class="logo-bde" />
 			<span class="site-title">Portail des Étudiants</span>
 		</a>
 	</div>
@@ -67,13 +66,6 @@
 						: undefined}
 				>
 					<a href="/associations">Associations</a>
-				</li>
-				<li
-					aria-current={page.url.pathname.startsWith("/listes")
-						? "page"
-						: undefined}
-				>
-					<a href="/listes">Listes</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith("/autres-sites")
@@ -109,8 +101,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background: #1a2233; /* Modern dark blue */
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+		background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #6d28d9 100%);
+		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 		padding: 0 2rem;
 		min-height: 64px;
 	}
@@ -118,19 +110,29 @@
 	.header-left {
 		display: flex;
 		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.header-left > a {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		text-decoration: none;
 	}
 
 	.logo-bde {
-		height: 40px;
-		width: 40px;
-		margin-right: 0.75rem;
+		height: 48px;
+		width: auto;
+		object-fit: contain;
 	}
 
 	.site-title {
 		font-size: 1.3rem;
 		font-weight: bold;
-		color: #f7c873; /* Soft gold accent */
+		color: #f0abfc; /* Rose-violet clair chaleureux */
 		letter-spacing: 0.02em;
+		white-space: nowrap;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 	}
 
 	.header-nav ul {
@@ -146,21 +148,21 @@
 	}
 
 	.header-nav li[aria-current="page"] a {
-		color: #f7c873;
+		color: #f0abfc;
 		font-weight: bold;
-		border-bottom: 2px solid #f7c873;
+		border-bottom: 2px solid #f0abfc;
 	}
 
 	header a {
-		color: #e3eafc; /* Soft light blue */
+		color: #f3e8ff;
 		text-decoration: none;
 		font-size: 1rem;
 		padding: 0.5rem 0;
-		transition: color 0.2s;
+		transition: color 0.2s, transform 0.2s;
 	}
 
 	header a:hover {
-		color: #f7c873;
+		color: #f0abfc;
 	}
 
 	.header-right {
@@ -169,22 +171,22 @@
 	}
 
 	.login-btn {
-		background: #f7c873;
-		color: #1a2233;
+		background: linear-gradient(135deg, #d946ef 0%, #ec4899 100%);
+		color: #ffffff;
 		border: none;
-		border-radius: 4px;
-		padding: 0.5rem 1.2rem;
+		border-radius: 8px;
+		padding: 0.6rem 1.4rem;
 		font-size: 1rem;
 		font-weight: 600;
 		text-decoration: none;
-		transition: background 0.2s, color 0.2s;
-		box-shadow: 0 2px 8px rgba(247, 200, 115, 0.08);
+		transition: background 0.3s ease;
+		box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
 		cursor: pointer;
 	}
 
 	.login-btn:hover {
-		background: #e3eafc;
-		color: #1a2233;
+		background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+		box-shadow: 0 6px 16px rgba(217, 70, 239, 0.4);
 	}
 
 	/* Collapsible menu for mobile */
@@ -202,21 +204,22 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: #2d3652;
-			border: 2px solid #f7c873;
+			background: rgba(255, 255, 255, 0.1);
+			border: 2px solid #f0abfc;
 			border-radius: 50%;
 			width: 48px;
 			height: 48px;
 			margin-right: 0.5rem;
 			font-size: 2rem;
-			color: #f7c873;
-			box-shadow: 0 2px 8px rgba(26, 34, 51, 0.12);
-			transition: background 0.2s, border 0.2s, color 0.2s;
+			color: #f0abfc;
+			box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
 		}
 		.mobile-menu-btn:active, .mobile-menu-btn:focus {
-			background: #f7c873;
-			border-color: #2d3652;
-			color: #1a2233;
+			background: #d946ef;
+			border-color: #ec4899;
+			color: #ffffff;
 			outline: none;
 		}
 		.logo-bde {
@@ -240,8 +243,8 @@
 			left: 0;
 			height: 100vh;
 			width: 270px;
-			background: #232946;
-			box-shadow: 2px 0 12px rgba(0,0,0,0.12);
+			background: linear-gradient(180deg, #6d28d9 0%, #5b21b6 100%);
+			box-shadow: 2px 0 20px rgba(124, 58, 237, 0.3);
 			transform: translateX(-100%);
 			transition: transform 0.3s cubic-bezier(.4,0,.2,1);
 			z-index: 200;

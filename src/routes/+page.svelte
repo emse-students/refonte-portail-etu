@@ -1,6 +1,4 @@
 <script lang="ts">
-	import welcome from "$lib/images/svelte-welcome.webp";
-	import welcomeFallback from "$lib/images/svelte-welcome.png";
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
 
 	// load session
@@ -16,7 +14,7 @@
 
 <section>
 	<h1>
-		Welcome {session?.user?.name ?? 'to the Svelte demo app'}!
+		Bienvenue {session?.user?.name ?? 'dans le portail étudiant'} !
 	</h1>
 
 	<div class="calendar-fixed-container">

@@ -19,7 +19,7 @@
 	// get the association name from id (either from page data or fetch it if not available)
 	let association_name = $state("");
 
-	fetch(`/api/associations/${association.id}`)
+	fetch(resolve(`/api/associations/${association.id}`))
 				.then((res) => res.json())
 				.then((data) => {
 					association_name = data.name;
