@@ -4,7 +4,7 @@ import type { Association, RawAssociation } from "$lib/databasetypes";
 
 let pool: Pool | null = null;
 
-export default async function db(strings: TemplateStringsArray, ...values: any[]) {
+export default async function db<T = any>(strings: TemplateStringsArray, ...values: any[]) {
 
     if (!pool) {
         pool = createPool({
@@ -19,7 +19,7 @@ export default async function db(strings: TemplateStringsArray, ...values: any[]
 
     const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
     const [rows] = await pool.query<RowDataPacket[]>(query, values);
-    return rows as any[];
+    return rows as T[];
 }
 
 

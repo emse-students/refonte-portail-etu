@@ -1,3 +1,4 @@
+import { type RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { json, type RequestEvent } from '@sveltejs/kit'
 
@@ -7,16 +8,15 @@ export const GET = async (event: RequestEvent) => {
 
 
 
-    const user = await db`SELECT id, username, email, created_at FROM users WHERE id = ${id}` || null;
+    const user = await db<RawUser>`SELECT id, username, email, login FROM users WHERE id = ${id}`.then(rows => rows?.[0]) || null;
+
+
     if (withPermissions) {
         if (user) {
-            const permissions = await db`
-                SELECT p.id, p.name
-                FROM permissions p
-                JOIN user_permissions up ON p.id = up.permission_id
-                WHERE up.user_id = ${id}
-            `;
-            (user as any).permissions = permissions;
+            const permissions = await db<RawUser>`
+                SELECT permissions from users WHERE id = ${id}
+            `.then(rows => rows[0]?.permissions || 0);
+            user.permissions = permissions;
         }
     }
 

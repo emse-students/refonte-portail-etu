@@ -28,6 +28,10 @@ jobs:
       - name: Build application
         run: bun run build
 
+      - name: Show runner IP
+        run: |
+          echo "My public IP is: $(curl -4s ifconfig.me)"
+
       - name: Deploy to Server
         uses: appleboy/scp-action@master
         with:
