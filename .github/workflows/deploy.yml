@@ -28,9 +28,13 @@ jobs:
       - name: Build application
         run: bun run build
 
-      # - name: Paste files to right location
-      #   run: |
-      #     cd ~/portail-etu
-      #     rm -rf -v !(.env)
-      #     cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/build/* . -r
+      - name: Paste files to right location
+        run: |
+          cd ~/portail-etu
+          rm -rf -v !(.env)
+          cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/build/* . -r
+
+      - name: Restart server
+        run: |
+          pm2 restart portail-etu || pm2 start --interpreter ~/.bun/bin/bun ./index.js --name portail-etu --update-env
 
