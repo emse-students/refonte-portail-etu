@@ -10,7 +10,7 @@ on:
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
 
     steps:
@@ -28,32 +28,9 @@ jobs:
       - name: Build application
         run: bun run build
 
-      - name: Show runner IP
-        run: |
-          echo "My public IP is: $(curl -4s ifconfig.me)"
+      # - name: Paste files to right location
+      #   run: |
+      #     cd ~/portail-etu
+      #     rm -rf -v !(.env)
+      #     cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/build/* . -r
 
-      - name: Deploy to Server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "build/,package.json,package-lock.json"
-          target: ${{ secrets.REMOTE_PATH }}
-          strip_components: 1
-
-      - name: Restart application on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd ${{ secrets.REMOTE_PATH }}
-            bun install --omit=dev
-            # Assuming you use a process manager like pm2
-            # Make sure pm2 is installed globally on your server
-            pm2 restart portailetu || pm2 start build/index.js --name portailetu
-            echo "Deployment successful!"
