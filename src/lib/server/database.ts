@@ -43,9 +43,9 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
     const membersData = await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.name as user_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions
-        FROM members m
-        JOIN users u ON m.user_id = u.id
-        JOIN roles r ON m.role_id = r.id
+        FROM member m
+        JOIN user u ON m.user_id = u.id
+        JOIN role r ON m.role_id = r.id
         WHERE m.association_id = ${raw.id}
     ` as {
         member_id: number;

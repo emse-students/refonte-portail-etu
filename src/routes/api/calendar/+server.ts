@@ -19,8 +19,8 @@ export async function GET(event: RequestEvent) {
             e.location,
             e.association_id,
             a.color
-        FROM events e
-        LEFT JOIN associations a ON e.association_id = a.id
+        FROM event e
+        LEFT JOIN association a ON e.association_id = a.id
         WHERE e.start_date >= ${start} AND e.end_date <= ${end}
     `;
 

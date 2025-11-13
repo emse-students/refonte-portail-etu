@@ -6,7 +6,7 @@ import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/data
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
 	const associations =
-		await db`SELECT id, name, description FROM associations WHERE id = ${id}`;
+		await db`SELECT id, name, description FROM association WHERE id = ${id}`;
 	
 	if (associations.length === 0) {
 		return new Response(
@@ -45,7 +45,7 @@ export const GET = async (event: RequestEvent) => {
 
 export const DELETE = async (event: RequestEvent) => {
     const id = event.params.id;
-    await db`DELETE FROM associations WHERE id = ${id}`;
+    await db`DELETE FROM association WHERE id = ${id}`;
 
     return new Response(null, { status: 204 });
 }
@@ -56,7 +56,7 @@ export const PUT = async (event: RequestEvent) => {
     const name = body.name;
     const description = body.description;
 
-    await db`UPDATE associations SET name = ${name}, description = ${description} WHERE id = ${id}`;
+    await db`UPDATE association SET name = ${name}, description = ${description} WHERE id = ${id}`;
 
     return new Response(null, { status: 204 });
 }
