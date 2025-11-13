@@ -20,8 +20,8 @@
 
     <main class="sites-grid">
         {#each sites as site}
-            <a href={asset(site.url)} class="site-card" target="_blank" rel="noopener noreferrer">
-                <img src={site.icon} alt={`${site.name} logo`} class="site-icon" />
+            <a href={site.url} class="site-card" target="_blank" rel="noopener noreferrer">
+                <img src={asset(site.icon)} alt={`${site.name} logo`} class="site-icon" />
                 <div class="card-content">
                     <h3>{site.name}</h3>
                     <p>{site.description}</p>
