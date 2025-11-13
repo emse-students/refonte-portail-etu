@@ -1,4 +1,4 @@
-import { type RawUser } from "$lib/databasetypes";
+import type { RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { json, type RequestEvent } from '@sveltejs/kit'
 
