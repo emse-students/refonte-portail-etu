@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { pushState } from "$app/navigation";
+	import { resolve } from "$app/paths";
 	import { page } from "$app/state";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 
@@ -57,29 +58,29 @@
 	<nav class="header-nav">
 		<div class="nav-drawer" class:open={navOpen}>
 			<ul>
-				<li aria-current={page.url.pathname === "/" ? "page" : undefined}>
-					<a href="/">Accueil</a>
+				<li aria-current={page.url.pathname === resolve("/") ? "page" : undefined}>
+					<a href={resolve("/")}>Accueil</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith("/associations")
+					aria-current={page.url.pathname.startsWith(resolve("/associations"))
 						? "page"
 						: undefined}
 				>
-					<a href="/associations">Associations</a>
+					<a href={resolve("/associations")}>Associations</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith("/autres-sites")
+					aria-current={page.url.pathname.startsWith(resolve("/autres-sites"))
 						? "page"
 						: undefined}
 				>
-					<a href="/autres-sites">Autres Sites</a>
+					<a href={resolve("/autres-sites")}>Autres Sites</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith("/partenariats")
+					aria-current={page.url.pathname.startsWith(resolve("/partenariats"))
 						? "page"
 						: undefined}
 				>
-					<a href="/partenariats">Partenariats</a>
+					<a href={resolve("/partenariats")}>Partenariats</a>
 				</li>
 			</ul>
 		</div>
