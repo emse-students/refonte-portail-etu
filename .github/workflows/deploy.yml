@@ -32,7 +32,7 @@ jobs:
         run: |
           cd ~/portail-etu
           # Remove all files except .env
-          find . -mindepth 1 -not -name ".env" -exec rm -rf {} +
+          find . -mindepth 1 -maxdepth 1 -not -name ".env" -exec rm -rf {} +
           cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/* . -r
 
       - name: Restart server
