@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { pushState } from "$app/navigation";
-	import { resolve } from "$app/paths";
+	import { asset, resolve } from "$app/paths";
 	import { page } from "$app/state";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 
@@ -51,7 +51,7 @@
 			<span class="icon">☰</span>
 		</button>
 		<a href="/">
-			<img src="logo.png" alt="Logo BDE EMSE" class="logo-bde" />
+			<img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" />
 			<span class="site-title">Portail des Étudiants</span>
 		</a>
 	</div>
