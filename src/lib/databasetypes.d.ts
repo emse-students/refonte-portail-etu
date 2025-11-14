@@ -34,9 +34,9 @@ export type RawRole = {
 export type RawMember = {
 	id: number;
 	visible: boolean;
-	user_id: number;
-	association_id: number;
-	role_id: number;
+	id_user: number;
+	id_asso: number;
+	id_role: number;
 	created_at: Date;
 	updated_at: Date;
 };
