@@ -5,9 +5,9 @@ import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/data
 import { json } from "@sveltejs/kit";
 
 export const GET = async (event: RequestEvent) => {
-    const id = event.params.id;
+    const handle = event.params.handle;
     const associations =
-        await db`SELECT * FROM association WHERE id = ${id}`;
+        await db`SELECT * FROM association WHERE handle = ${handle}`;
 
     if (associations.length === 0) {
         return new Response(
