@@ -3,6 +3,7 @@
 	import { resolve } from "$app/paths";
 
 	let { associations }: {associations: Association[]} = $props();
+	console.log(associations);
 </script>
 
 <svelte:head>
@@ -22,7 +23,9 @@
 	<div class="grid">
 		{#each associations as association}
 			<a class="card" href={resolve(`/associations/${association.handle}`)}>
-				<img src={association.icon} alt={`Logo de ${association.name}`} class="logo" />
+				{#if association.icon}
+					<img src={association.icon} alt={`Logo de ${association.name}`} class="logo" />
+				{/if}
 				<div class="card-content">
 					<h2>{association.name}</h2>
 					<p>{association.description}</p>
