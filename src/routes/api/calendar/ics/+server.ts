@@ -20,13 +20,11 @@ function escapeICS(text: string | null | undefined) {
 }
 
 export async function GET(event: RequestEvent) {
-  const now = new Date();
-
   const rows = await db`
     SELECT e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, a.name as association_name
     FROM event e
     LEFT JOIN association a ON e.association_id = a.id
-    WHERE e.end_date >= ${now}
+    WHERE e.end_date >= CURRENT_TIMESTAMP
     ORDER BY e.start_date ASC
   `;
 

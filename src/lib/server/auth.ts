@@ -11,10 +11,11 @@ export const { handle } = SvelteKitAuth({
 			clientId: process.env.AUTH_CLIENT_ID, // from the provider's dashboard
 			clientSecret: process.env.AUTH_CLIENT_SECRET, // from the provider's dashboard
 			authorization: {
-				scope: "openid profile email ",
+				scope: "openid profile email",
 			},
 		},
 	],
 	trustHost: process.env.AUTH_TRUSTED_HOST === 'true',
 	secret: process.env.AUTH_SECRET,
+	basePath: '/dev/auth'
 });

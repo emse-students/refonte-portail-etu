@@ -13,6 +13,10 @@
 		console.log("Events updated:", events);
 	});
 
+	$effect(() => {
+		console.log("Week start changed:", weekStart);
+	});
+
 	function getStartOfWeek(date: Date) {
 		const d = new Date(date);
 		const day = (d.getDay() + 6) % 7;
@@ -47,12 +51,7 @@
 		const response = await fetch(
 			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}`
 		);
-		let data: CalendarEvent[] = (await response.json()).calendar;
-		data = data.map((event) => ({
-			...event,
-			start: new Date(event.start_time),
-			end: new Date(event.end_time),
-		}));
+		let data: CalendarEvent[] = (await response.json());
 		return data;
 	}
 	function loadWeeks(start: Date) {
@@ -182,7 +181,7 @@
 			const now = new Date();
 			await loadMobileMonth(now.getFullYear(), now.getMonth());
 		} else {
-			await loadWeeks(getStartOfWeek(new Date()));
+			loadWeeks(getStartOfWeek(new Date()));
 		}
 	});
 </script>
@@ -320,7 +319,7 @@
 							})}
 						</div>
 						<div class="mobile-day-cell">
-							{#each m.events.filter((event) => event.start_time.getDate() === dayIdx + 1) as event}
+							{#each m.events.filter((event) => event.start_date.getDate() === dayIdx + 1) as event}
 								<Event {...event} />
 							{/each}
 						</div>

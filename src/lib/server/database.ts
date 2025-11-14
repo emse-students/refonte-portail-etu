@@ -4,8 +4,7 @@ import type { Association, RawAssociation } from "$lib/databasetypes";
 
 let pool: Pool | null = null;
 
-export default async function db<T = any>(strings: TemplateStringsArray, ...values: any[]) {
-
+function ensurePool() {
     if (!pool) {
         pool = createPool({
             host: process.env.DB_HOST,
@@ -16,11 +15,20 @@ export default async function db<T = any>(strings: TemplateStringsArray, ...valu
             connectionLimit: 10,
         });
     }
+}
 
+export default async function db<T = any>(strings: TemplateStringsArray, ...values: any[]) {
     const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
-    const [rows] = await pool.query<RowDataPacket[]>(query, values);
+    const rows = (await getPool().query<RowDataPacket[]>(query, values))[0];
     return rows as T[];
 }
+
+export function getPool(): Pool {
+    ensurePool();
+    return pool as Pool;
+}
+
+export { escape } from "mysql2/promise";
 
 
 export async function getBasicAssociation(raw: RawAssociation): Promise<Association> {

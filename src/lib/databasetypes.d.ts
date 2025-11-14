@@ -45,8 +45,8 @@ export type RawEvent = {
 	association_id: number;
 	name: string;
 	description: string;
-	start_time: Date;
-	end_time: Date;
+	start_date: Date;
+	end_date: Date;
 	location: string;
 	created_at: Date;
 	updated_at: Date;
@@ -85,9 +85,3 @@ export type Member = {
 	association: number;
 	visible: boolean;
 };
-
-
-
-
-
-

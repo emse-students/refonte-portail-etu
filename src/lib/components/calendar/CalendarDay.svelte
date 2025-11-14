@@ -8,9 +8,9 @@
 	const eventsForDay = $derived(
 		events.filter(
 			(event) =>
-				event.start_time.getFullYear() === dayDate.getFullYear() &&
-				event.start_time.getMonth() === dayDate.getMonth() &&
-				event.start_time.getDate() === dayDate.getDate()
+				event.start_date.getFullYear() === dayDate.getFullYear() &&
+				event.start_date.getMonth() === dayDate.getMonth() &&
+				event.start_date.getDate() === dayDate.getDate()
 		)
 	);
 
