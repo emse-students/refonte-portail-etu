@@ -7,7 +7,7 @@ import { json } from "@sveltejs/kit";
 export const GET = async (event: RequestEvent) => {
     const id = event.params.id;
     const associations =
-        await db`SELECT id, name, description FROM association WHERE id = ${id}`;
+        await db`SELECT * FROM association WHERE id = ${id}`;
 
     if (associations.length === 0) {
         return new Response(
