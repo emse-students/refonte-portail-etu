@@ -1,4 +1,4 @@
-import type { RequestEvent } from "@sveltejs/kit";
+import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawAssociation } from "$lib/databasetypes";
 import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
@@ -27,17 +27,11 @@ export const GET = async (event: RequestEvent) => {
     const includeMembers = url.searchParams.get("includeMembers") === "true";
     
     if (includeMembers) {
-        const asso = getAssociationWithMembers(associationData);
-        return new Response(JSON.stringify(asso), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
+        const asso = await getAssociationWithMembers(associationData);
+        return json(asso);
     } else {
-        const asso = getBasicAssociation(associationData);
-        return new Response(JSON.stringify(asso), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
+        const asso = await getBasicAssociation(associationData);
+        return json(asso);
     }
 
 };

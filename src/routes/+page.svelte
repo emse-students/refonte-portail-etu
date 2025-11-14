@@ -4,7 +4,6 @@
 	// load session
 	import { page } from "$app/state";
 	let session = page.data.session;
-	console.log(session);
 </script>
 
 <svelte:head>

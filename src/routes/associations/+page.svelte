@@ -2,8 +2,9 @@
 	import type { Association } from "$lib/databasetypes";
 	import { resolve } from "$app/paths";
 
-	let { associations }: {associations: Association[]} = $props();
-	console.log(associations);
+	let { data } = $props();
+	const associations: Association[] = data.associations || [];
+	console.log("Associations loaded:", associations);
 </script>
 
 <svelte:head>
