@@ -49,7 +49,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 
     const membersData = await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
-               r.id as role_id, r.name as role_name, r.permissions as role_permissions
+               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy
         FROM member m
         JOIN user u ON m.user_id = u.id
         JOIN role r ON m.role_id = r.id
@@ -65,6 +65,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         role_id: number;
         role_name: string;
         role_permissions: number;
+        hierarchy: number;
     }[];
     const members = membersData.map((m) => ({
         user: {
@@ -78,7 +79,8 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         role: {
             id: m.role_id,
             name: m.role_name,
-            permissions: m.role_permissions
+            permissions: m.role_permissions,
+            hierarchy: m.hierarchy,
         },
         id: m.member_id,
         visible: m.visible,

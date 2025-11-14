@@ -104,6 +104,7 @@ export type Role = {
 	id: number;
 	name: string;
 	permissions: number;
+	hierarchy: number;
 };
 
 export type Member = {
