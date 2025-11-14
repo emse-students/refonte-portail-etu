@@ -14,7 +14,7 @@
 		)
 	);
 
-	const count = $derived(Math.max(eventsForDay.length, 3));
+	const count = $derived(Math.min(eventsForDay.length, 3));
 </script>
 
 <div class="calendar-cell">

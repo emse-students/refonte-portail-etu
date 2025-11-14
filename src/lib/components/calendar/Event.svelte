@@ -10,7 +10,6 @@
 		location,
 		description,
 		association_id,
-		id,
 		i,
 		count
 	}: RawEvent & { i?: number, count?: number } = $props();
@@ -74,7 +73,7 @@
 				>&times;</button
 			>
 			<div class="modal-content">
-				<h2>{name}</h2>
+				<h2>{title}</h2>
 				<div class="modal-section">
 					<strong>Date :</strong>
 					{start_date.toLocaleDateString()}
@@ -117,7 +116,7 @@
 	title="Voir les détails"
 	style="background: {color}; border-radius: 0; --stack-index: {i}; --stack-count: {count};"
 >
-	{name}
+	{title}
 </div>
 
 <style>
