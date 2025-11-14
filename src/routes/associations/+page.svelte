@@ -50,8 +50,12 @@
 
 	header h1 {
 		font-size: 2.5rem;
-		font-weight: 700;
-		margin-bottom: 0.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
 	}
 
 	header p {
