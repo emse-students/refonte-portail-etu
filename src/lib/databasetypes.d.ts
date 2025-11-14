@@ -43,7 +43,7 @@ export type RawMember = {
 export type RawEvent = {
 	id: number;
 	association_id: number;
-	name: string;
+	title: string;
 	description: string;
 	start_date: Date;
 	end_date: Date;

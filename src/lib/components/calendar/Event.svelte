@@ -4,7 +4,7 @@
 	import { page } from "$app/state";
 	import { resolve } from "$app/paths";
 	let {
-		name,
+		title,
 		start_date,
 		end_date,
 		location,
@@ -39,8 +39,8 @@
 	let color =
 		palette[
 			(association_id
-				? Array.from(name).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: name.length) % palette.length
+				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
+				: title.length) % palette.length
 		];
 
 	let showModal = $state(false);
