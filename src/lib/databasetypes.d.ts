@@ -5,8 +5,20 @@ export type RawAssociation = {
 	handle: string;
 	name: string;
 	description: string;
-	is_list: boolean;
 	icon: number;
+	color: number;
+	created_at: Date;
+	updated_at: Date;
+};
+
+export type RawList = {
+	id: number;
+	name: string;
+	handle: string;
+	description: string;
+	association_id: number;
+	icon: number;
+	promo: number;
 	color: number;
 	created_at: Date;
 	updated_at: Date;
@@ -26,6 +38,7 @@ export type RawUser = {
 export type RawRole = {
 	id: number;
 	name: string;
+	hiererarchy: number;
 	permissions: number;
 	created_at: Date;
 	updated_at: Date;
@@ -34,9 +47,10 @@ export type RawRole = {
 export type RawMember = {
 	id: number;
 	visible: boolean;
-	id_user: number;
-	id_asso: number;
-	id_role: number;
+	user_id: number;
+	association_id: number | null;
+	role_id: number;
+	list_id: number | null;
 	created_at: Date;
 	updated_at: Date;
 };
@@ -61,8 +75,19 @@ export type Association = {
 	name: string;
 	description: string;
 	members: Member[];
-	is_list: boolean;
 	icon: string;
+	color: number;
+};
+
+export type List = {
+	id: number;
+	name: string;
+	handle: string;
+	description: string;
+	association_id: number;
+	icon: string;
+	members: Member[];
+	promo: number;
 	color: number;
 };
 
@@ -82,6 +107,7 @@ export type Role = {
 };
 
 export type Member = {
+	id: number;
 	user: User;
 	role: Role;
 	association: number;

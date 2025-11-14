@@ -40,7 +40,6 @@ export async function getBasicAssociation(raw: RawAssociation): Promise<Associat
         name: raw.name,
         description: raw.description,
         members: [],
-        is_list: raw.is_list,
         icon: iconUrl,
         color: raw.color,
     };
@@ -52,9 +51,9 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions
         FROM member m
-        JOIN user u ON m.id_user = u.id
-        JOIN role r ON m.id_role = r.id
-        WHERE m.id_asso = ${raw.id}
+        JOIN user u ON m.user_id = u.id
+        JOIN role r ON m.role_id = r.id
+        WHERE m.association_id = ${raw.id}
     ` as {
         member_id: number;
         visible: boolean;
@@ -81,6 +80,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
             name: m.role_name,
             permissions: m.role_permissions
         },
+        id: m.member_id,
         visible: m.visible,
         association: raw.id
     }) as Member);
@@ -93,7 +93,6 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         name: raw.name,
         description: raw.description,
         members: members,
-        is_list: raw.is_list,
         icon: iconUrl,
         color: raw.color,
     };
