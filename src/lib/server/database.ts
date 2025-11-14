@@ -83,7 +83,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         association: raw.id
     }));
     
-    const iconUrl = (await db`SELECT url FROM image WHERE id = ${raw.icon}` as { url: string }[])[0]?.url || "";
+    const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
 
     return {
         id: raw.id,

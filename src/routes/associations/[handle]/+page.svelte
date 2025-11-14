@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Association } from "$lib/databasetypes";
-    import Event from "$lib/components/calendar/Event.svelte";
 
-    let { association }: { association: Association } = $props();
+    let { data } = $props();
+    const association: Association = data.association;
 </script>
 
 <svelte:head>
