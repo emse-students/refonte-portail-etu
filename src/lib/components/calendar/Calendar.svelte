@@ -52,7 +52,11 @@
 			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}`
 		);
 		let data: CalendarEvent[] = (await response.json());
-		return data;
+		return data.map((event) => {
+			event.start_date = new Date(event.start_date);
+			event.end_date = new Date(event.end_date);
+			return event;
+		});
 	}
 	function loadWeeks(start: Date) {
 		const end = addDays(start, 27);

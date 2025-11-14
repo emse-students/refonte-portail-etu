@@ -5,8 +5,8 @@
 	import { resolve } from "$app/paths";
 	let {
 		name,
-		start_time,
-		end_time,
+		start_date,
+		end_date,
 		location,
 		description,
 		association_id,
@@ -77,12 +77,12 @@
 				<h2>{name}</h2>
 				<div class="modal-section">
 					<strong>Date :</strong>
-					{start_time.toLocaleDateString()}
-					{start_time.toLocaleTimeString([], {
+					{start_date.toLocaleDateString()}
+					{start_date.toLocaleTimeString([], {
 						hour: "2-digit",
 						minute: "2-digit",
-					})} - {end_time.toLocaleDateString()}
-					{end_time.toLocaleTimeString([], {
+					})} - {end_date.toLocaleDateString()}
+					{end_date.toLocaleTimeString([], {
 						hour: "2-digit",
 						minute: "2-digit",
 					})}

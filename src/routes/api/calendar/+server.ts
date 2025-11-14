@@ -3,7 +3,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 // GET /api/calendar?start=YYYY-MM-DD&end=YYYY-MM-DD
 
 import { escape, getPool } from "$lib/server/database";
-import { json, text } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 import type { RawEvent } from "$lib/databasetypes";
 
 export async function GET(event: RequestEvent) {
@@ -46,8 +46,5 @@ export async function GET(event: RequestEvent) {
         ORDER BY e.start_date ASC
     `))[0] as RawEvent[];
 
-    return text(rows[0].toString());
+	return json(rows);
 }
-
-
-
