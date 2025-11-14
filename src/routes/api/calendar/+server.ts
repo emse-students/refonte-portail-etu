@@ -3,7 +3,8 @@ import type { RequestEvent } from "@sveltejs/kit";
 // GET /api/calendar?start=YYYY-MM-DD&end=YYYY-MM-DD
 
 import { escape, getPool } from "$lib/server/database";
-import { json } from "@sveltejs/kit";
+import { json, text } from "@sveltejs/kit";
+import type { RawEvent } from "$lib/databasetypes";
 
 export async function GET(event: RequestEvent) {
     const startParam = event.url.searchParams.get("start");
@@ -43,7 +44,10 @@ export async function GET(event: RequestEvent) {
         LEFT JOIN association a ON e.association_id = a.id
         WHERE ${whereClause}
         ORDER BY e.start_date ASC
-    `))[0];
+    `))[0] as RawEvent[];
 
-	return json(rows);
+    return text(rows[0].toString());
 }
+
+
+
