@@ -1,6 +1,6 @@
 import { createPool, type Pool, type RowDataPacket } from "mysql2/promise";
 import "dotenv/config";
-import type { Association, RawAssociation } from "$lib/databasetypes";
+import type { Association, Member, RawAssociation } from "$lib/databasetypes";
 
 let pool: Pool | null = null;
 
@@ -49,7 +49,7 @@ export async function getBasicAssociation(raw: RawAssociation): Promise<Associat
 export async function getAssociationWithMembers(raw: RawAssociation): Promise<Association> {
 
     const membersData = await db`
-        SELECT m.id as member_id, m.visible, u.id as user_id, u.name as user_name, u.email as user_email, u.login as user_login, 
+        SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions
         FROM member m
         JOIN user u ON m.user_id = u.id
@@ -59,7 +59,8 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         member_id: number;
         visible: boolean;
         user_id: number;
-        user_name: string;
+        first_name: string;
+        last_name: string;
         user_email: string;
         user_login: string;
         role_id: number;
@@ -69,7 +70,8 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
     const members = membersData.map((m) => ({
         user: {
             id: m.user_id,
-            name: m.user_name,
+            first_name: m.first_name,
+            last_name: m.last_name,
             email: m.user_email,
             login: m.user_login,
             permissions: 0, // Not needed here
@@ -81,7 +83,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         },
         visible: m.visible,
         association: raw.id
-    }));
+    }) as Member);
     
     const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
 

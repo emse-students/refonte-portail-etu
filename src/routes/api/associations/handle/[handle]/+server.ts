@@ -1,7 +1,7 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawAssociation } from "$lib/databasetypes";
-import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
+import { getAssociationWithMembers } from "$lib/server/database";
 import { json } from "@sveltejs/kit";
 
 export const GET = async (event: RequestEvent) => {

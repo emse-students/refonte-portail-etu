@@ -20,7 +20,7 @@
     <h2>Membres</h2>
     <ul>
         {#each association.members as member}
-            <li>{member.user.name} - {member.role.name}</li>
+            <li>{member.user.first_name} {member.user.last_name} - {member.role.name}</li>
         {/each}
     </ul>
     <h2>Evenement à venir</h2>

@@ -14,7 +14,8 @@ export type RawAssociation = {
 
 export type RawUser = {
 	id: number;
-	name: string;
+	first_name: string;
+	last_name: string;
 	email: string;
 	login: string;
 	permissions: number;
@@ -67,7 +68,8 @@ export type Association = {
 
 export type User = {
 	id: number;
-	name: string;
+	first_name: string;
+	last_name: string;
 	login: string;
 	email: string;
 	permissions: number;
