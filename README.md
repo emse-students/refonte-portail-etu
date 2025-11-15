@@ -53,9 +53,6 @@ Create a `.env` file with the variables listed in `.env.example`. Key variables 
 - `DB_PORT` — database port (optional, default 3306)
 - `AUTH_SECRET` — secret used by the authentication library (if configured)
 
-CI/CD deploy secrets (for optional GitHub Action deploy workflow):
-- `SSH_HOST`, `SSH_USERNAME`, `SSH_PRIVATE_KEY`, `SSH_PORT`, `REMOTE_PATH`
-
 See `.env.example` for a template.
 
 ## Scripts
@@ -91,7 +88,7 @@ Explore `src/routes/api` for the full list of endpoints.
 - Protect auth secrets and database credentials. Don't commit `.env` to git.
 
 ## CI / CD
-- A GitHub Actions workflow `/.github/workflows/deploy.yml` (example) uploads build output to a server via SSH and restarts the app (example using `pm2`). Configure the required repository secrets before enabling the workflow.
+- A GitHub Actions workflow `/.github/workflows/deploy.yml` (example) builds on a remote server and restarts the app (example using `pm2`). Configure the self-hosted runner on
 
 ## Troubleshooting
 - `associations is null` on page: ensure the `+page` load function returns `associations` and the API `GET /api/associations` returns processed objects (including `icon` URL). See `src/routes/api/associations/+server.ts`.
