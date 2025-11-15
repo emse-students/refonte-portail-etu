@@ -76,8 +76,8 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 2.5rem;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		gap: 2rem;
 		animation: fadeIn 0.8s ease-out 0.2s backwards;
 	}
 
@@ -124,8 +124,8 @@
 		}
 
 		.grid {
-			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-			gap: 2rem;
+			grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+			gap: 1.5rem;
 		}
 	}
 

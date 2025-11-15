@@ -13,7 +13,13 @@
 
 <div class="association-card">
     <a href={resolve(`/associations/${association.handle}`)} aria-label={`Voir les détails de ${association.name}`}>
-    <img src={getLogoUrl(association.icon)} alt={`${association.name} logo`} class="association-logo" />
+    {#if association.icon}
+        <img src={getLogoUrl(association.icon)} alt={`${association.name} logo`} class="association-logo" />
+    {:else}
+        <div class="association-logo-placeholder">
+            <span class="placeholder-text">{association.name.charAt(0).toUpperCase()}</span>
+        </div>
+    {/if}
     <div class="association-info">
         <h2 class="association-name">{association.name}</h2>
     </div>
@@ -71,7 +77,26 @@
         transition: transform 0.3s ease;
     }
 
-    .association-card:hover .association-logo {
+    .association-logo-placeholder {
+        width: 100%;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+        transition: transform 0.3s ease;
+    }
+
+    .placeholder-text {
+        font-size: 5rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        user-select: none;
+    }
+
+    .association-card:hover .association-logo,
+    .association-card:hover .association-logo-placeholder {
         transform: scale(1.05);
     }
 
@@ -98,8 +123,13 @@
     }
 
     @media (max-width: 768px) {
-        .association-logo {
+        .association-logo,
+        .association-logo-placeholder {
             height: 160px;
+        }
+
+        .placeholder-text {
+            font-size: 4rem;
         }
 
         .association-info {
