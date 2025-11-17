@@ -7,8 +7,14 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Portail Étudiant</title>
+	<meta name="description" content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école." />
+	<meta name="keywords" content="emse, portail étudiant, vie associative, calendrier étudiant, gestion étudiante, ressources étudiantes" />
+	<meta name="og:title" content="Portail Étudiant - Votre Espace Personnel" />
+	<meta name="og:description" content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école." />
+	<meta name="og:type" content="website" />
+	<meta name="og:url" content="https://portail-etu.emse.fr/" />
+	<meta name="og:image" content="https://portail-etu.emse.fr/dev/logo.png" />
 </svelte:head>
 
 <section>
