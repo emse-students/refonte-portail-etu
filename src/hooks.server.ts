@@ -5,12 +5,8 @@ import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 
 export const handle = async ({ event, resolve }) => {
-	// Gérer l'authentification via Auth.js
-	const response = await authHandle({ event, resolve });
-	
-	// Récupérer la session Auth.js
+	// Récupérer la session Auth.js AVANT de générer la réponse
 	const session = await event.locals.auth();
-
 	
 	// Toujours définir la session dans locals
 	if (session) {
@@ -106,6 +102,9 @@ export const handle = async ({ event, resolve }) => {
 	if (userData) {
 		event.locals.userData = userData;
 	}
+	
+	// Gérer l'authentification via Auth.js APRÈS avoir configuré les cookies
+	const response = await authHandle({ event, resolve });
 	
 	return response;
 };
