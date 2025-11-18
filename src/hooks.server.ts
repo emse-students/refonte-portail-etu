@@ -2,7 +2,6 @@ import { handle as authHandle } from "$lib/server/auth";
 import 'dotenv/config';
 import { resolve as resolvePath } from "$app/paths";
 import type { FullUser } from "$lib/databasetypes";
-import type { Session } from "@auth/sveltekit";
 
 export const handle = async ({ event, resolve }) => {
 	// Gérer l'authentification via Auth.js
@@ -11,14 +10,22 @@ export const handle = async ({ event, resolve }) => {
 	// Récupérer la session Auth.js
 	// const session = await event.locals.auth();
 
-	const session = await mockSession(); // À remplacer par la ligne au-dessus en production
+	const session = {
+		user: {
+			id: "leon.muselli",
+			email: "leon.muselli@etu.emse.fr",
+			name: "Léon Muselli",
+			image: null
+		},
+		expires: "2099-12-31T23:59:59.999Z"
+	}; // À remplacer par la ligne au-dessus en production
 	
 	// Si session existe, charger et mettre en cache les données utilisateur complètes
 	if (session?.user?.id) {
 		const userId = session.user.id;
 		
 		// Charger les données utilisateur depuis la DB avec ses memberships
-		const response = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
+		const response = await fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
 		const data = await response.json();
 		const userData: FullUser = data.user;
 		
@@ -31,17 +38,3 @@ export const handle = async ({ event, resolve }) => {
 	
 	return response;
 };
-
-
-
-const mockSession = () => (new Promise<Session>((resolve) => {
-	return resolve({
-		user: {
-			id: "leon.muselli",
-			email: "leon.muselli@etu.emse.fr",
-			name: "Léon Muselli",
-			image: null
-		},
-		expires: "2099-12-31T23:59:59.999Z"
-	})
-}));
