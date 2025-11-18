@@ -11,7 +11,11 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
 	const session = await event.locals.auth();
 	
-	console.log(`[${event.url.pathname}] Auth session:`, session ? `user=${session.user?.id}` : 'none');
+	if (session) {
+		console.log(`[${event.url.pathname}] Auth session found:`, JSON.stringify(session.user, null, 2));
+	} else {
+		console.log(`[${event.url.pathname}] Auth session: none`);
+	}
 	
 	// Toujours définir la session dans locals
 	if (session) {
@@ -29,9 +33,12 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 		userData = null;
 	}
 	
+	// Extraire l'ID utilisateur de la session (peut être dans id, sub, ou autre propriété)
+	const userId = session?.user?.id || (session?.user as any)?.sub || session?.user?.name;
+	console.log(`[${event.url.pathname}] Extracted userId:`, userId);
+	
 	// Si pas de données en session ou si la session Auth.js ne correspond pas
-	if (session?.user?.id && (!userData || String(userData.login) !== String(session.user.id))) {
-		const userId = session.user.id;
+	if (userId && (!userData || String(userData.login) !== String(userId))) {
 		
 		try {
 			// Charger les données utilisateur directement depuis la DB
