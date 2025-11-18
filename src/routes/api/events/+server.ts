@@ -1,7 +1,7 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import Permission from "$lib/permissions";
-import { checkPermission, requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+import { checkPermission, requireAuth, getAuthorizedAssociationIds, checkAssociationPermission } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
     // Si l'utilisateur est authentifié et demande ses événements éditables
@@ -20,7 +20,7 @@ export const GET = async (event: RequestEvent) => {
             const events = await db`
                 SELECT
                     e.id, e.association_id, e.title, e.description, e.start_date, 
-                    e.end_date, e.location, e.created_at, e.updated_at,
+                    e.end_date, e.location,
                     a.name as association_name
                 FROM
                     event e
@@ -38,7 +38,7 @@ export const GET = async (event: RequestEvent) => {
         const events = await db`
             SELECT
                 e.id, e.association_id, e.title, e.description, e.start_date, 
-                e.end_date, e.location, e.created_at, e.updated_at,
+                e.end_date, e.location,
                 a.name as association_name
             FROM
                 event e
@@ -53,7 +53,7 @@ export const GET = async (event: RequestEvent) => {
     const events = await db`
         SELECT
             e.id, e.association_id, e.title, e.description, e.start_date, 
-            e.end_date, e.location, e.created_at, e.updated_at,
+            e.end_date, e.location,
             a.name as association_name
         FROM
             event e
@@ -73,7 +73,6 @@ export const POST = async (event: RequestEvent) => {
     }
 
     // Vérifier que l'utilisateur a la permission EVENTS pour cette association spécifique
-    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
     const authCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
     if (!authCheck.authorized) {
         return authCheck.response;
@@ -108,7 +107,6 @@ export const PUT = async (event: RequestEvent) => {
     }
 
     // Vérifier la permission pour l'association actuelle de l'événement
-    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
     const authCheck = await checkAssociationPermission(event, existingEvent.association_id, Permission.EVENTS);
     if (!authCheck.authorized) {
         return authCheck.response;
@@ -153,7 +151,6 @@ export const DELETE = async (event: RequestEvent) => {
     }
 
     // Vérifier la permission pour l'association de l'événement
-    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
     const authCheck = await checkAssociationPermission(event, existingEvent.association_id, Permission.EVENTS);
     if (!authCheck.authorized) {
         return authCheck.response;

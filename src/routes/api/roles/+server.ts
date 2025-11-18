@@ -8,7 +8,7 @@ export const GET = async (event: RequestEvent) => {
     // Liste des rôles accessible à tous les utilisateurs authentifiés
     const roles = await db<RawRole>`
         SELECT
-            id, name, hiererarchy, permissions, created_at, updated_at
+            id, name, hiererarchy, permissions
         FROM
             role
         ORDER BY hiererarchy DESC

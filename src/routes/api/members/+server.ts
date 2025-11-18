@@ -2,7 +2,7 @@ import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawMember } from "$lib/databasetypes";
 import Permission from "$lib/permissions";
-import { requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+import { requireAuth, getAuthorizedAssociationIds, checkAssociationPermission } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
     // Liste des membres : filtrer selon les associations autorisées
@@ -18,7 +18,6 @@ export const GET = async (event: RequestEvent) => {
         const members = await db`
             SELECT
                 m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
-                m.created_at, m.updated_at,
                 u.first_name, u.last_name, u.email,
                 a.name as association_name,
                 r.name as role_name
@@ -40,7 +39,6 @@ export const GET = async (event: RequestEvent) => {
     const members = await db`
         SELECT
             m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
-            m.created_at, m.updated_at,
             u.first_name, u.last_name, u.email,
             a.name as association_name,
             r.name as role_name
@@ -100,7 +98,6 @@ export const PUT = async (event: RequestEvent) => {
     }
 
     // Vérifier la permission pour l'association actuelle du membre
-    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
     const authCheck = await checkAssociationPermission(event, existingMember.association_id, Permission.MEMBERS);
     if (!authCheck.authorized) {
         return authCheck.response;
