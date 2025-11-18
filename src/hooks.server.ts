@@ -1,11 +1,14 @@
 import { handle as authHandle } from "$lib/server/auth";
+import { sequence } from "@sveltejs/kit/hooks";
+import type { Handle } from "@sveltejs/kit";
 import 'dotenv/config';
 import type { FullUser, Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 
-export const handle = async ({ event, resolve }) => {
-	// Récupérer la session Auth.js AVANT de générer la réponse
+// Notre propre handler pour gérer les données utilisateur
+const userDataHandle: Handle = async ({ event, resolve }) => {
+	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
 	const session = await event.locals.auth();
 	
 	// Toujours définir la session dans locals
@@ -103,8 +106,9 @@ export const handle = async ({ event, resolve }) => {
 		event.locals.userData = userData;
 	}
 	
-	// Gérer l'authentification via Auth.js APRÈS avoir configuré les cookies
-	const response = await authHandle({ event, resolve });
-	
-	return response;
+	// Continuer avec la résolution de la requête
+	return resolve(event);
 };
+
+// Enchaîner les handlers : d'abord authHandle (qui configure event.locals.auth), puis userDataHandle
+export const handle = sequence(authHandle, userDataHandle);
