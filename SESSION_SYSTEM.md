@@ -192,12 +192,12 @@ Pour migrer d'un système à l'autre, aucune action requise. Le système détect
 Le système fonctionne en développement avec des cookies non-sécurisés (HTTP) :
 
 ```typescript
-secure: process.env.NODE_ENV === 'production'
+secure: process.env.PROD === 'true'
 ```
 
 ### Production
 
 En production, assurez-vous que :
-- `NODE_ENV=production` est défini
+- `PROD=true` est défini
 - Le site utilise HTTPS
 - `AUTH_SECRET` est un secret fort et unique

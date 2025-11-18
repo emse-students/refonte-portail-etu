@@ -62,7 +62,7 @@ describe('Cookie Security', () => {
 	it('should have secure cookie configuration', () => {
 		const cookieConfig = {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
+			secure: process.env.PROD === 'true',
 			sameSite: 'lax' as const,
 			maxAge: 60 * 60 * 24 * 7 // 7 days
 		};

@@ -205,7 +205,7 @@ export function setSessionCookie(event: RequestEvent, userData: FullUser): void 
 	event.cookies.set(SESSION_COOKIE_NAME, sessionValue, {
 		path: '/',
 		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
+		secure: process.env.PROD === 'true',
 		sameSite: 'lax',
 		maxAge: SESSION_MAX_AGE
 	});
