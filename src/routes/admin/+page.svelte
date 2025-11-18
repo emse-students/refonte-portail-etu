@@ -27,8 +27,8 @@
 		},
 		roles: {
 			name: 'Rôles',
-			columns: ['id', 'name', 'hiererarchy', 'permissions'],
-			editableColumns: ['name', 'hiererarchy', 'permissions']
+			columns: ['id', 'name', 'hierarchy', 'permissions'],
+			editableColumns: ['name', 'hierarchy', 'permissions']
 		},
 		members: {
 			name: 'Membres',

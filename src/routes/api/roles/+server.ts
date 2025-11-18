@@ -8,10 +8,10 @@ export const GET = async (event: RequestEvent) => {
     // Liste des rôles accessible à tous les utilisateurs authentifiés
     const roles = await db<RawRole>`
         SELECT
-            id, name, hiererarchy, permissions
+            id, name, hierarchy, permissions
         FROM
             role
-        ORDER BY hiererarchy DESC
+        ORDER BY hierarchy DESC
     `;
 
     return json(roles);
@@ -25,11 +25,11 @@ export const POST = async (event: RequestEvent) => {
     }
 
     const body = await event.request.json();
-    const { name, hiererarchy, permissions } = body;
+    const { name, hierarchy, permissions } = body;
 
     await db`
-        INSERT INTO role (name, hiererarchy, permissions)
-        VALUES (${name}, ${hiererarchy || 0}, ${permissions || 0})
+        INSERT INTO role (name, hierarchy, permissions)
+        VALUES (${name}, ${hierarchy || 0}, ${permissions || 0})
     `;
 
     return new Response(JSON.stringify({ success: true }), {
@@ -46,11 +46,11 @@ export const PUT = async (event: RequestEvent) => {
     }
 
     const body = await event.request.json();
-    const { id, name, hiererarchy, permissions } = body;
+    const { id, name, hierarchy, permissions } = body;
 
     await db`
         UPDATE role 
-        SET name = ${name}, hiererarchy = ${hiererarchy}, permissions = ${permissions}
+        SET name = ${name}, hierarchy = ${hierarchy}, permissions = ${permissions}
         WHERE id = ${id}
     `;
 

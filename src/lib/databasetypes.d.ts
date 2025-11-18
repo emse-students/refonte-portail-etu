@@ -38,7 +38,7 @@ export type RawUser = {
 export type RawRole = {
 	id: number;
 	name: string;
-	hiererarchy: number;
+	hierarchy: number;
 	permissions: number;
 	created_at: Date;
 	updated_at: Date;
