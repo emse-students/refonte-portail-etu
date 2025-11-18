@@ -8,14 +8,24 @@ export const handle = async ({ event, resolve }) => {
 	const response = await authHandle({ event, resolve });
 	
 	// Récupérer la session Auth.js
-	const session = await event.locals.auth();
+	// const session = await event.locals.auth();
+
+	const session = {
+		user: {
+			id: "leon.muselli",
+			email: "leon.muselli@etu.emse.fr",
+			name: "Léon Muselli",
+			image: null
+		},
+		expires: "2099-12-31T23:59:59.999Z"
+	}
 	
 	// Si session existe, charger et mettre en cache les données utilisateur complètes
 	if (session?.user?.id) {
 		const userId = session.user.id;
 		
 		// Charger les données utilisateur depuis la DB avec ses memberships
-		const response = await event.fetch(resolvePath(`/api/users/${userId}?fullUser=true`));
+		const response = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
 		const data = await response.json();
 		const userData: FullUser = data.user;
 		
