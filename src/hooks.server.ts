@@ -21,11 +21,11 @@ export const handle = async ({ event, resolve }) => {
 	}; // À remplacer par la ligne au-dessus en production
 	
 	// Si session existe, charger et mettre en cache les données utilisateur complètes
-	if (session?.user?.id && !event.locals.userData) {
+	if (session?.user?.id && !event.locals.userData && !event.request.headers.get('internal')) {
 		const userId = session.user.id;
 		
 		// Charger les données utilisateur depuis la DB avec ses memberships
-		const userResponse = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
+		const userResponse = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`), { headers: { internal: 'true' } });
 		const data = await userResponse.json();
 		const userData: FullUser = data.user;
 		
