@@ -1,3 +1,5 @@
+export const prerender = false;
+
 import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { json, type RequestEvent } from '@sveltejs/kit'
