@@ -1,7 +1,8 @@
 import { handle as authHandle } from "$lib/server/auth";
 import 'dotenv/config';
-import { resolve as resolvePath } from "$app/paths";
-import type { FullUser } from "$lib/databasetypes";
+import type { FullUser, Member, RawUser } from "$lib/databasetypes";
+import db from "$lib/server/database";
+import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 
 export const handle = async ({ event, resolve }) => {
 	// Gérer l'authentification via Auth.js
@@ -28,28 +29,94 @@ export const handle = async ({ event, resolve }) => {
 		event.locals.session = session;
 	}
 	
-	// Si session existe, charger et mettre en cache les données utilisateur complètes
-	// Éviter la boucle : ne charger que si userData n'existe pas déjà
-	// Et ne pas charger depuis l'endpoint qui charge les données lui-même
-	if (session?.user?.id && !event.locals.userData && !event.url.pathname.includes('/api/users/login/')) {
+	// Essayer d'abord de récupérer les données depuis le cookie de session
+	let userData = getSessionData(event);
+	
+	// Si pas de session Auth.js mais qu'il y a un cookie user_session, l'invalider
+	if (!session?.user?.id && userData) {
+		console.log('Session Auth.js invalide mais cookie user_session présent → suppression du cookie');
+		clearSessionCookie(event);
+		userData = null;
+	}
+	
+	// Si pas de données en session ou si la session Auth.js ne correspond pas
+	if (session?.user?.id && (!userData || String(userData.login) !== String(session.user.id))) {
 		const userId = session.user.id;
 		
 		try {
-			// Charger les données utilisateur depuis la DB avec ses memberships
-			const userResponse = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
+			// Charger les données utilisateur directement depuis la DB
+			const user = await db<RawUser>`SELECT * FROM user WHERE login = ${userId}`.then(rows => rows?.[0]) || null;
 			
-			if (userResponse.ok) {
-				const data = await userResponse.json();
-				const userData: FullUser = data.user;
+			if (user) {
+				// Récupérer les memberships avec un JOIN
+				const membershipsData = await db`
+					SELECT 
+						m.id as member_id, 
+						m.visible, 
+						m.association_id,
+						u.id as user_id, 
+						u.first_name, 
+						u.last_name, 
+						u.email as user_email, 
+						u.login as user_login,
+						u.permissions as user_permissions,
+						r.id as role_id, 
+						r.name as role_name, 
+						r.permissions as role_permissions, 
+						r.hierarchy as hierarchy
+					FROM member m
+					JOIN user u ON m.user_id = u.id
+					JOIN role r ON m.role_id = r.id
+					WHERE m.user_id = ${user.id}
+				` as {
+					member_id: number;
+					visible: boolean;
+					association_id: number;
+					user_id: number;
+					first_name: string;
+					last_name: string;
+					user_email: string;
+					user_login: string;
+					user_permissions: number;
+					role_id: number;
+					role_name: string;
+					role_permissions: number;
+					hierarchy: number;
+				}[];
+
+				const memberships: Member[] = membershipsData.map((m) => ({
+					id: m.member_id,
+					visible: m.visible,
+					association: m.association_id,
+					user: {
+						id: m.user_id,
+						first_name: m.first_name,
+						last_name: m.last_name,
+						email: m.user_email,
+						login: m.user_login,
+						permissions: m.user_permissions,
+					},
+					role: {
+						id: m.role_id,
+						name: m.role_name,
+						permissions: m.role_permissions,
+						hierarchy: m.hierarchy,
+					}
+				}));
+
+				userData = { ...user, memberships };
 				
-				if (userData) {
-					// Mettre les données complètes en cache dans locals (inclut les memberships)
-					event.locals.userData = userData;
-				}
+				// Stocker dans un cookie de session sécurisé
+				setSessionCookie(event, userData);
 			}
 		} catch (error) {
 			console.error('Erreur lors du chargement de userData:', error);
 		}
+	}
+	
+	// Mettre les données complètes en cache dans locals
+	if (userData) {
+		event.locals.userData = userData;
 	}
 	
 	return response;
