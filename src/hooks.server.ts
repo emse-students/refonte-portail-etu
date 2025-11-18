@@ -11,6 +11,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
 	const session = await event.locals.auth();
 	
+	console.log(`[${event.url.pathname}] Auth session:`, session ? `user=${session.user?.id}` : 'none');
+	
 	// Toujours définir la session dans locals
 	if (session) {
 		event.locals.session = session;
@@ -18,6 +20,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	
 	// Essayer d'abord de récupérer les données depuis le cookie de session
 	let userData = getSessionData(event);
+	console.log(`[${event.url.pathname}] Cookie userData:`, userData ? `login=${userData.login}` : 'none');
 	
 	// Si pas de session Auth.js mais qu'il y a un cookie user_session, l'invalider
 	if (!session?.user?.id && userData) {
@@ -94,6 +97,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				userData = { ...user, memberships };
 				
 				// Stocker dans un cookie de session sécurisé
+				console.log(`[${event.url.pathname}] ✅ Setting user_session cookie for user:`, user.login);
 				setSessionCookie(event, userData);
 			}
 		} catch (error) {

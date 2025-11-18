@@ -100,6 +100,16 @@ export function readUserSession(cookieValue: string): FullUser | null {
 export function setSessionCookie(event: RequestEvent, userData: FullUser): void {
 	const sessionValue = createUserSession(userData);
 	
+	console.log('[setSessionCookie] Setting cookie:', {
+		name: SESSION_COOKIE_NAME,
+		path: '/',
+		httpOnly: true,
+		secure: process.env.NODE_ENV === 'production',
+		sameSite: 'lax',
+		maxAge: SESSION_MAX_AGE,
+		valueLength: sessionValue.length
+	});
+	
 	event.cookies.set(SESSION_COOKIE_NAME, sessionValue, {
 		path: '/',
 		httpOnly: true,
@@ -107,6 +117,8 @@ export function setSessionCookie(event: RequestEvent, userData: FullUser): void 
 		sameSite: 'lax',
 		maxAge: SESSION_MAX_AGE
 	});
+	
+	console.log('[setSessionCookie] Cookie set complete');
 }
 
 /**
