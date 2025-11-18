@@ -9,9 +9,50 @@ const ENCRYPTION_KEY = Buffer.from(SESSION_SECRET.padEnd(32, '0').slice(0, 32));
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 jours en secondes
 
 /**
- * Sérialise et chiffre les données utilisateur
+ * Structure compacte pour stocker les permissions d'association/liste dans le cookie
  */
-function encryptData(data: FullUser): string {
+type CompactMembership = {
+	associationId?: number;
+	listId?: number;
+	permissions: number;
+};
+
+/**
+ * Données minimales stockées dans le cookie
+ */
+type SessionData = {
+	id: number;
+	first_name: string;
+	last_name: string;
+	email: string;
+	login: string;
+	permissions: number;
+	memberships: CompactMembership[];
+};
+
+/**
+ * Convertit FullUser en SessionData compact
+ */
+function compactUserData(userData: FullUser): SessionData {
+	return {
+		id: userData.id,
+		first_name: userData.first_name,
+		last_name: userData.last_name,
+		email: userData.email,
+		login: userData.login,
+		permissions: userData.permissions,
+		memberships: userData.memberships.map(m => ({
+			associationId: m.association,
+			listId: m.list,
+			permissions: m.role.permissions
+		}))
+	};
+}
+
+/**
+ * Sérialise et chiffre les données utilisateur compactes
+ */
+function encryptData(data: SessionData): string {
 	const iv = randomBytes(16);
 	const cipher = createCipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
 	
@@ -26,7 +67,7 @@ function encryptData(data: FullUser): string {
 /**
  * Déchiffre et désérialise les données utilisateur
  */
-function decryptData(encryptedData: string): FullUser | null {
+function decryptData(encryptedData: string): SessionData | null {
 	try {
 		const [ivHex, encrypted] = encryptedData.split(':');
 		if (!ivHex || !encrypted) return null;
@@ -37,11 +78,45 @@ function decryptData(encryptedData: string): FullUser | null {
 		let decrypted = decipher.update(encrypted, 'hex', 'utf8');
 		decrypted += decipher.final('utf8');
 		
-		return JSON.parse(decrypted) as FullUser;
+		return JSON.parse(decrypted) as SessionData;
 	} catch (error) {
 		console.error('Erreur lors du déchiffrement des données de session:', error);
 		return null;
 	}
+}
+
+/**
+ * Reconstitue un FullUser depuis SessionData
+ */
+function expandSessionData(sessionData: SessionData): FullUser {
+	return {
+		id: sessionData.id,
+		first_name: sessionData.first_name,
+		last_name: sessionData.last_name,
+		email: sessionData.email,
+		login: sessionData.login,
+		permissions: sessionData.permissions,
+		memberships: sessionData.memberships.map(m => ({
+			id: 0, // ID du membership non nécessaire pour les checks de permissions
+			visible: true,
+			association: m.associationId,
+			list: m.listId,
+			user: {
+				id: sessionData.id,
+				first_name: sessionData.first_name,
+				last_name: sessionData.last_name,
+				email: sessionData.email,
+				login: sessionData.login,
+				permissions: sessionData.permissions
+			},
+			role: {
+				id: 0, // ID du rôle non nécessaire pour les checks de permissions
+				name: '', // Nom du rôle non nécessaire
+				permissions: m.permissions,
+				hierarchy: 0
+			}
+		}))
+	};
 }
 
 /**
@@ -65,7 +140,8 @@ function verifySignature(data: string, signature: string): boolean {
  * Crée un cookie de session sécurisé avec les données utilisateur
  */
 export function createUserSession(userData: FullUser): string {
-	const encrypted = encryptData(userData);
+	const compactData = compactUserData(userData);
+	const encrypted = encryptData(compactData);
 	const signature = signData(encrypted);
 	
 	// Format: encrypted_data.signature
@@ -90,8 +166,11 @@ export function readUserSession(cookieValue: string): FullUser | null {
 		return null;
 	}
 	
-	// Déchiffrer les données
-	return decryptData(encrypted);
+	// Déchiffrer les données compactes et les reconvertir en FullUser
+	const sessionData = decryptData(encrypted);
+	if (!sessionData) return null;
+	
+	return expandSessionData(sessionData);
 }
 
 /**
