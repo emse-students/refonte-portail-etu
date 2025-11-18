@@ -111,7 +111,8 @@ export type Member = {
 	id: number;
 	user: User;
 	role: Role;
-	association: number;
+	association?: number;
+	list?: number;
 	visible: boolean;
 };
 

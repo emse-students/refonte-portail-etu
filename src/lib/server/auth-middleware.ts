@@ -199,5 +199,5 @@ export function getAuthorizedAssociationIds(
 
 	return user.memberships
 		.filter(membership => hasPermission(membership.role.permissions, permission))
-		.map(membership => membership.association);
+		.map(membership => membership.association).filter(m => m !== undefined);
 }
