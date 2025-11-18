@@ -13,9 +13,34 @@ export const { handle } = SvelteKitAuth({
 			authorization: {
 				scope: "openid profile email",
 			},
+			
 		},
 	],
 	trustHost: env.AUTH_TRUSTED_HOST === 'true',
 	secret: env.AUTH_SECRET,
-	basePath: '/dev/auth'
+	callbacks: {
+		async jwt({ token, user }) {
+
+			console.log("AUTH/JWT :", user)
+			// First time jwt callback is run, user object is available
+			if (user) {
+				token.id = user.id;
+				token.email = user.email;
+				token.name = user.name;
+			}
+			return token;
+		},
+		async session({ session, token }) {
+
+			console.log("AUTH/SESSION :", token);
+
+			// Attach the user id from token to the session
+			if (token) {
+				session.user.id = token.sub as string;
+				session.user.email = token.email as string;
+				session.user.name = token.name as string;
+			}
+			return session;
+		}
+	}
 });
