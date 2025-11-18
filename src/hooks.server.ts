@@ -21,12 +21,12 @@ export const handle = async ({ event, resolve }) => {
 	}; // À remplacer par la ligne au-dessus en production
 	
 	// Si session existe, charger et mettre en cache les données utilisateur complètes
-	if (session?.user?.id) {
+	if (session?.user?.id && !event.locals.userData) {
 		const userId = session.user.id;
 		
 		// Charger les données utilisateur depuis la DB avec ses memberships
-		const response = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
-		const data = await response.json();
+		const userResponse = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
+		const data = await userResponse.json();
 		const userData: FullUser = data.user;
 		
 		if (userData) {

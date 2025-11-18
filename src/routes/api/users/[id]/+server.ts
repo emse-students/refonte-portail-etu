@@ -26,7 +26,7 @@ export const GET = async (event: RequestEvent) => {
                 r.id as role_id, 
                 r.name as role_name, 
                 r.permissions as role_permissions, 
-                r.hiererarchy as hierarchy
+                r.hierarchy as hierarchy
             FROM member m
             JOIN user u ON m.user_id = u.id
             JOIN role r ON m.role_id = r.id
