@@ -1,6 +1,6 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import type { RawAssociation, RawList } from "$lib/databasetypes";
+import type { RawList } from "$lib/databasetypes";
 import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
 
 export const GET = async (event: RequestEvent) => {

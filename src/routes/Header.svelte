@@ -72,6 +72,13 @@
 					<a href={resolve("/associations")}>Associations</a>
 				</li>
 				<li
+					aria-current={page.url.pathname.startsWith(resolve("/lists"))
+						? "page"
+						: undefined}
+				>
+					<a href={resolve("/lists")}>Listes</a>
+				</li>
+				<li
 					aria-current={page.url.pathname.startsWith(resolve("/autres-sites"))
 						? "page"
 						: undefined}
