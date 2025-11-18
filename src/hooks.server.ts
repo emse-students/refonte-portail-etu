@@ -6,6 +6,9 @@ import type { FullUser } from "$lib/databasetypes";
 export const handle = async ({ event, resolve }) => {
 	// Gérer l'authentification via Auth.js
 	const response = await authHandle({ event, resolve });
+
+	console.log('Handling request for:', event.url.pathname);
+	console.log('Current locals before processing:', event.locals);
 	
 	// Récupérer la session Auth.js
 	// const session = await event.locals.auth();
