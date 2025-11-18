@@ -25,7 +25,7 @@ export const handle = async ({ event, resolve }) => {
 		const userId = session.user.id;
 		
 		// Charger les données utilisateur depuis la DB avec ses memberships
-		const response = await fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
+		const response = await event.fetch(resolvePath(`/api/users/login/${userId}?fullUser=true`));
 		const data = await response.json();
 		const userData: FullUser = data.user;
 		
