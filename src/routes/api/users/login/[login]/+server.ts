@@ -12,7 +12,7 @@ export const GET = async (event: RequestEvent) => {
 
 
 
-    const user = await db<RawUser>`SELECT * FROM users WHERE login = ${login}`.then(rows => rows?.[0]) || null;
+    const user = await db<RawUser>`SELECT * FROM user WHERE login = ${login}`.then(rows => rows?.[0]) || null;
 
     if (fullUser === 'true' && user) {
         // Fetch memberships (type Member[]) for the user with a JOIN to get association and role details
