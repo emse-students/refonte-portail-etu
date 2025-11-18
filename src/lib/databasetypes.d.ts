@@ -8,7 +8,7 @@ export type RawAssociation = {
 	icon: number;
 	color: number;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 export type RawList = {
@@ -21,7 +21,7 @@ export type RawList = {
 	promo: number;
 	color: number;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 export type RawUser = {
@@ -32,7 +32,7 @@ export type RawUser = {
 	login: string;
 	permissions: number;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 export type RawRole = {
@@ -41,7 +41,7 @@ export type RawRole = {
 	hierarchy: number;
 	permissions: number;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 export type RawMember = {
@@ -52,7 +52,7 @@ export type RawMember = {
 	role_id: number;
 	list_id: number | null;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 export type RawEvent = {
@@ -64,7 +64,7 @@ export type RawEvent = {
 	end_date: Date;
 	location: string;
 	created_at: Date;
-	updated_at: Date;
+	edited_at: Date;
 };
 
 // Processed types :

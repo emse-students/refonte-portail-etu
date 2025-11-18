@@ -7,7 +7,7 @@ import { checkPermission } from "$lib/server/auth-middleware";
 export const GET = async (event: RequestEvent) => {
     const users = await db<RawUser>`
         SELECT
-            id, first_name, last_name, email, login, permissions, created_at, updated_at
+            id, first_name, last_name, email, login, permissions, created_at, edited_at
         FROM
             user
         ORDER BY id DESC
