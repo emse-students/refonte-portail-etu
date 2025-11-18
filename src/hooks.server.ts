@@ -7,22 +7,10 @@ import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/serve
 export const handle = async ({ event, resolve }) => {
 	// Gérer l'authentification via Auth.js
 	const response = await authHandle({ event, resolve });
-
-	console.log('Handling request for:', event.url.pathname);
-	console.log('Current locals before processing:', event.locals);
 	
 	// Récupérer la session Auth.js
-	// const session = await event.locals.auth();
+	const session = await event.locals.auth();
 
-	const session = {
-		user: {
-			id: "leon.muselli",
-			email: "leon.muselli@etu.emse.fr",
-			name: "Léon Muselli",
-			image: null
-		},
-		expires: "2099-12-31T23:59:59.999Z"
-	}; // À remplacer par la ligne au-dessus en production
 	
 	// Toujours définir la session dans locals
 	if (session) {

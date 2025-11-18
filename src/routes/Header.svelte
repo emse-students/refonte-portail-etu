@@ -11,10 +11,6 @@
 	const user = data.user;
 	const userData: FullUser | null = data.userData;
 
-	const aggregatedPermissions = userData?.memberships
-		.reduce((perms, membership) => {
-			return perms | membership.role.permissions;
-		}, userData.permissions) ?? 0;
 
 	// Mobile nav menu state
 	let navOpen = $state(false);
