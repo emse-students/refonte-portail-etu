@@ -109,6 +109,7 @@
 
 <style>
 	header {
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -122,6 +123,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		flex: 1;
 	}
 
 	.header-left > a {
@@ -144,6 +146,12 @@
 		letter-spacing: 0.02em;
 		white-space: nowrap;
 		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	}
+
+	.header-nav {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
 	}
 
 	.header-nav ul {
@@ -179,6 +187,8 @@
 	.header-right {
 		display: flex;
 		align-items: center;
+		flex: 1;
+		justify-content: flex-end;
 	}
 
 	.login-btn {
