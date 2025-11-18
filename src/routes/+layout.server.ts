@@ -1,9 +1,7 @@
-
-export const load = async ({ fetch, locals }) => {
-
-	const session = await locals.auth();
-
+export const load = async ({ locals }) => {
+	// Les données sont déjà chargées et mises en cache dans locals par hooks.server.ts
 	return {
-		session
+		session: locals.session,
+		userData: locals.userData
 	};
-}
+};

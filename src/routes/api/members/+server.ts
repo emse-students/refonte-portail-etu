@@ -1,0 +1,157 @@
+import { json, type RequestEvent } from "@sveltejs/kit";
+import db from "$lib/server/database";
+import type { RawMember } from "$lib/databasetypes";
+import Permission from "$lib/permissions";
+import { requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+
+export const GET = async (event: RequestEvent) => {
+    // Liste des membres : filtrer selon les associations autorisées
+    const user = await requireAuth(event);
+    if (!user) {
+        return json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MEMBERS);
+    
+    // Si null, l'utilisateur est admin et peut tout voir
+    if (authorizedAssociations === null) {
+        const members = await db`
+            SELECT
+                m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
+                m.created_at, m.updated_at,
+                u.first_name, u.last_name, u.email,
+                a.name as association_name,
+                r.name as role_name
+            FROM
+                member m
+            LEFT JOIN user u ON m.user_id = u.id
+            LEFT JOIN association a ON m.association_id = a.id
+            LEFT JOIN role r ON m.role_id = r.id
+            ORDER BY m.id DESC
+        `;
+        return json(members);
+    }
+
+    // Sinon, filtrer par les associations autorisées
+    if (authorizedAssociations.length === 0) {
+        return json([]);
+    }
+
+    const members = await db`
+        SELECT
+            m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
+            m.created_at, m.updated_at,
+            u.first_name, u.last_name, u.email,
+            a.name as association_name,
+            r.name as role_name
+        FROM
+            member m
+        LEFT JOIN user u ON m.user_id = u.id
+        LEFT JOIN association a ON m.association_id = a.id
+        LEFT JOIN role r ON m.role_id = r.id
+        WHERE m.association_id = ANY(${authorizedAssociations})
+        ORDER BY m.id DESC
+    `;
+
+    return json(members);
+};
+
+export const POST = async (event: RequestEvent) => {
+    const body = await event.request.json();
+    const { user_id, association_id, role_id, list_id, visible } = body;
+
+    if (!association_id) {
+        return json({ error: "association_id is required" }, { status: 400 });
+    }
+
+    // Vérifier que l'utilisateur a la permission MEMBERS pour cette association spécifique
+    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
+    const authCheck = await checkAssociationPermission(event, association_id, Permission.MEMBERS);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
+    await db`
+        INSERT INTO member (user_id, association_id, role_id, list_id, visible)
+        VALUES (${user_id}, ${association_id || null}, ${role_id}, ${list_id || null}, ${visible !== false})
+    `;
+
+    return new Response(JSON.stringify({ success: true }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" }
+    });
+};
+
+export const PUT = async (event: RequestEvent) => {
+    const body = await event.request.json();
+    const { id, user_id, association_id, role_id, list_id, visible } = body;
+
+    if (!id || !association_id) {
+        return json({ error: "id and association_id are required" }, { status: 400 });
+    }
+
+    // Récupérer le membre existant pour vérifier son association
+    const existingMember = await db`
+        SELECT association_id FROM member WHERE id = ${id}
+    `.then(rows => rows?.[0]);
+
+    if (!existingMember) {
+        return json({ error: "Member not found" }, { status: 404 });
+    }
+
+    // Vérifier la permission pour l'association actuelle du membre
+    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
+    const authCheck = await checkAssociationPermission(event, existingMember.association_id, Permission.MEMBERS);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
+    // Si on change l'association, vérifier aussi la permission pour la nouvelle association
+    if (existingMember.association_id !== association_id) {
+        const newAssocAuthCheck = await checkAssociationPermission(event, association_id, Permission.MEMBERS);
+        if (!newAssocAuthCheck.authorized) {
+            return json({ 
+                error: "Forbidden", 
+                message: "Vous n'avez pas la permission de déplacer ce membre vers cette association" 
+            }, { status: 403 });
+        }
+    }
+
+    await db`
+        UPDATE member 
+        SET user_id = ${user_id}, association_id = ${association_id || null}, 
+            role_id = ${role_id}, list_id = ${list_id || null}, visible = ${visible !== false}
+        WHERE id = ${id}
+    `;
+
+    return json({ success: true });
+};
+
+export const DELETE = async (event: RequestEvent) => {
+    const body = await event.request.json();
+    const { id } = body;
+
+    if (!id) {
+        return json({ error: "id is required" }, { status: 400 });
+    }
+
+    // Récupérer le membre pour vérifier son association
+    const existingMember = await db`
+        SELECT association_id FROM member WHERE id = ${id}
+    `.then(rows => rows?.[0]);
+
+    if (!existingMember) {
+        return json({ error: "Member not found" }, { status: 404 });
+    }
+
+    // Vérifier la permission pour l'association du membre
+    const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
+    const authCheck = await checkAssociationPermission(event, existingMember.association_id, Permission.MEMBERS);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
+    await db`DELETE FROM member WHERE id = ${id}`;
+
+    return json({ success: true });
+};

@@ -1,14 +1,9 @@
 enum Permission {
-	CREATE_EVENT = 1 << 0,
-	EDIT_EVENT = 1 << 1,
-	DELETE_EVENT = 1 << 2,
-	CREATE_ROLE = 1 << 3,
-	EDIT_ROLE = 1 << 4,
-	DELETE_ROLE = 1 << 5,
-	ASSIGN_ROLE = 1 << 6,
-	EDIT_ASSOCIATION = 1 << 7,
-	CREATE_ASSOCIATION = 1 << 8,
-	DELETE_ASSOCIATION = 1 << 9,
+	ROLES = 1 << 0,
+	MEMBERS = 1 << 1,
+	EVENTS = 1 << 2,
+	ADMIN = 1 << 3,
+	SITE_ADMIN = 1 << 4,
 }
 
 export default Permission;
@@ -17,7 +12,7 @@ export function hasPermission(
 	userPermissions: number,
 	permissionToCheck: Permission
 ): boolean {
-	return (userPermissions & permissionToCheck) === permissionToCheck;
+	return ((userPermissions & permissionToCheck) | (userPermissions & Permission.SITE_ADMIN)) !== 0;
 }
 
 export function addPermission(

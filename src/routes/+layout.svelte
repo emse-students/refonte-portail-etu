@@ -8,10 +8,11 @@
 
 	let { children } = $props();
 	const session = page.data.session;
+	const userData = page.data.userData;
 </script>
 
 <div class="app">
-	<Header user={session?.user} />
+	<Header user={session?.user} userData={userData} />
 
 	<main>
 		{@render children()}

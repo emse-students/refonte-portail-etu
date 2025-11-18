@@ -2,12 +2,19 @@
 	import { pushState } from "$app/navigation";
 	import { asset, resolve } from "$app/paths";
 	import { page } from "$app/state";
+	import type { FullUser } from "$lib/databasetypes";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 
 	// Load the associations and lists from the api
 
-	let data = $props();
-	let user = data.user;
+	const data = $props();
+	const user = data.user;
+	const userData: FullUser | null = data.userData;
+
+	const aggregatedPermissions = userData?.memberships
+		.reduce((perms, membership) => {
+			return perms | membership.role.permissions;
+		}, userData.permissions) ?? 0;
 
 	// Mobile nav menu state
 	let navOpen = $state(false);

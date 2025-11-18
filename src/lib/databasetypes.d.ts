@@ -114,3 +114,7 @@ export type Member = {
 	association: number;
 	visible: boolean;
 };
+
+export type FullUser = User & {
+	memberships: Member[];
+};

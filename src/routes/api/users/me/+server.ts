@@ -6,10 +6,10 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 
 
 export const GET = async (event: RequestEvent) => {
-    if (event.locals.user) {
-        const userId = event.locals.user.id;
+    if (event.locals.userData) {
+        const userId = event.locals.userData.id;
         
-        const user: User = await fetch(resolve('/api/user/') + userId + '?withPermissions=true')
+        const user: User = await fetch(resolve('/api/users/') + userId + '?withPermissions=true')
             .then(res => res.json())
             .catch(() => null);
         
