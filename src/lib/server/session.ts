@@ -12,8 +12,7 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 jours en secondes
  * Structure compacte pour stocker les permissions d'association/liste dans le cookie
  */
 type CompactMembership = {
-	associationId?: number;
-	listId?: number;
+	id: number;
 	permissions: number;
 };
 
@@ -27,7 +26,8 @@ type SessionData = {
 	email: string;
 	login: string;
 	permissions: number;
-	memberships: CompactMembership[];
+	lists: CompactMembership[];
+	associations: CompactMembership[];
 };
 
 /**
@@ -41,9 +41,12 @@ function compactUserData(userData: FullUser): SessionData {
 		email: userData.email,
 		login: userData.login,
 		permissions: userData.permissions,
-		memberships: userData.memberships.map(m => ({
-			associationId: m.association,
-			listId: m.list,
+		lists: userData.memberships.filter(m => m.list !== null && m.list !== undefined).map(m => ({
+			id: m.list as number,
+			permissions: m.role.permissions
+		})),
+		associations: userData.memberships.filter(m => m.association !== null && m.association !== undefined).map(m => ({
+			id: m.association as number,
 			permissions: m.role.permissions
 		}))
 	};
@@ -96,26 +99,46 @@ function expandSessionData(sessionData: SessionData): FullUser {
 		email: sessionData.email,
 		login: sessionData.login,
 		permissions: sessionData.permissions,
-		memberships: sessionData.memberships.map(m => ({
-			id: 0, // ID du membership non nécessaire pour les checks de permissions
-			visible: true,
-			association: m.associationId,
-			list: m.listId,
-			user: {
-				id: sessionData.id,
-				first_name: sessionData.first_name,
-				last_name: sessionData.last_name,
-				email: sessionData.email,
-				login: sessionData.login,
-				permissions: sessionData.permissions
-			},
-			role: {
-				id: 0, // ID du rôle non nécessaire pour les checks de permissions
-				name: '', // Nom du rôle non nécessaire
-				permissions: m.permissions,
-				hierarchy: 0
-			}
-		}))
+		memberships: [
+			...sessionData.lists.map(m => ({
+				id: 0, // ID de membre inconnu
+				user: {
+					id: sessionData.id,
+					first_name: sessionData.first_name,
+					last_name: sessionData.last_name,
+					email: sessionData.email,
+					login: sessionData.login,
+					permissions: sessionData.permissions,
+				},
+				role: {
+					id: 0, // ID de rôle inconnu
+					name: '',
+					permissions: m.permissions,
+					hierarchy: 0,
+				},
+				list: m.id,
+				visible: true,
+			})),
+			...sessionData.associations.map(m => ({
+				id: 0, // ID de membre inconnu
+				user: {
+					id: sessionData.id,
+					first_name: sessionData.first_name,
+					last_name: sessionData.last_name,
+					email: sessionData.email,
+					login: sessionData.login,
+					permissions: sessionData.permissions,
+				},
+				role: {
+					id: 0, // ID de rôle inconnu
+					name: '',
+					permissions: m.permissions,
+					hierarchy: 0,
+				},
+				association: m.id,
+				visible: true,
+			}))
+		]
 	};
 }
 

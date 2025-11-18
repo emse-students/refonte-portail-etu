@@ -20,11 +20,13 @@ export const GET = async (event: RequestEvent) => {
                 m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
                 u.first_name, u.last_name, u.email,
                 a.name as association_name,
+                l.name as list_name,
                 r.name as role_name
             FROM
                 member m
             LEFT JOIN user u ON m.user_id = u.id
             LEFT JOIN association a ON m.association_id = a.id
+            LEFT JOIN list l ON m.list_id = l.id
             LEFT JOIN role r ON m.role_id = r.id
             ORDER BY m.id DESC
         `;
@@ -41,11 +43,13 @@ export const GET = async (event: RequestEvent) => {
             m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
             u.first_name, u.last_name, u.email,
             a.name as association_name,
+            l.name as list_name,
             r.name as role_name
         FROM
             member m
         LEFT JOIN user u ON m.user_id = u.id
         LEFT JOIN association a ON m.association_id = a.id
+        LEFT JOIN list l ON m.list_id = l.id
         LEFT JOIN role r ON m.role_id = r.id
         WHERE m.association_id = ANY(${authorizedAssociations})
         ORDER BY m.id DESC

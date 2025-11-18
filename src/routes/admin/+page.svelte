@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 
-	type TableName = 'users' | 'associations' | 'roles' | 'members' | 'events';
+	type TableName = 'users' | 'associations' | 'roles' | 'members' | 'events' | 'lists';
 
 	let selectedTable = $state<TableName>('users');
 	let data = $state<any[]>([]);
@@ -13,6 +13,7 @@
 	let associations = $state<any[]>([]);
 	let users = $state<any[]>([]);
 	let roles = $state<any[]>([]);
+	let lists = $state<any[]>([]);
 
 	const tableConfig = {
 		users: {
@@ -25,6 +26,11 @@
 			columns: ['id', 'handle', 'name', 'description', 'color'],
 			editableColumns: ['handle', 'name', 'description', 'color']
 		},
+		lists: {
+			name: 'Listes',
+			columns: ['id', 'handle', 'name', 'description', 'association_id', 'promo', 'color', 'association_name'],
+			editableColumns: ['handle', 'name', 'description', 'association_id', 'promo', 'color']
+		},
 		roles: {
 			name: 'Rôles',
 			columns: ['id', 'name', 'hierarchy', 'permissions'],
@@ -32,8 +38,8 @@
 		},
 		members: {
 			name: 'Membres',
-			columns: ['id', 'user_id', 'association_id', 'role_id', 'visible', 'first_name', 'last_name', 'association_name', 'role_name'],
-			editableColumns: ['user_id', 'association_id', 'role_id', 'visible']
+			columns: ['id', 'user_id', 'association_id', 'list_id', 'role_id', 'visible', 'first_name', 'last_name', 'association_name', 'list_name', 'role_name'],
+			editableColumns: ['user_id', 'association_id', 'list_id', 'role_id', 'visible']
 		},
 		events: {
 			name: 'Événements',
@@ -58,14 +64,16 @@
 
 	async function fetchReferenceData() {
 		try {
-			const [assocResp, usersResp, rolesResp] = await Promise.all([
+			const [assocResp, usersResp, rolesResp, listsResp] = await Promise.all([
 				fetch(resolve('/api/associations')),
 				fetch(resolve('/api/users')),
-				fetch(resolve('/api/roles'))
+				fetch(resolve('/api/roles')),
+				fetch(resolve('/api/lists'))
 			]);
 			associations = await assocResp.json();
 			users = await usersResp.json();
 			roles = await rolesResp.json();
+			lists = await listsResp.json();
 		} catch (e) {
 			console.error('Erreur lors du chargement des données de référence', e);
 		}
@@ -165,6 +173,12 @@
 			Associations
 		</button>
 		<button
+			class:active={selectedTable === 'lists'}
+			onclick={() => (selectedTable = 'lists')}
+		>
+			Listes
+		</button>
+		<button
 			class:active={selectedTable === 'roles'}
 			onclick={() => (selectedTable = 'roles')}
 		>
@@ -240,6 +254,13 @@
 													<option value={role.id}>{role.name}</option>
 												{/each}
 											</select>
+										{:else if column === 'list_id'}
+											<select bind:value={editingRow[column]}>
+												<option value="">-</option>
+												{#each lists as list}
+													<option value={list.id}>{list.name}</option>
+												{/each}
+											</select>
 										{:else if column.includes('date')}
 											<input
 												type="datetime-local"
@@ -294,6 +315,13 @@
 													<option value="">-</option>
 													{#each roles as role}
 														<option value={role.id}>{role.name}</option>
+													{/each}
+												</select>
+											{:else if column === 'list_id'}
+												<select bind:value={editingRow[column]}>
+													<option value="">-</option>
+													{#each lists as list}
+														<option value={list.id}>{list.name}</option>
 													{/each}
 												</select>
 											{:else if column.includes('date')}
