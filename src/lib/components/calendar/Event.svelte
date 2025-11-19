@@ -190,8 +190,6 @@
 	.event-title-only.clickable:hover,
 	.event-title-only.clickable:focus {
 		filter: brightness(0.95);
-		box-shadow: inset 0 0 0 2px #7c3aed;
-		transform: scale(1.02);
 	}
 	.modal-overlay {
 		position: fixed;
