@@ -353,7 +353,7 @@
 		justify-content: center;
 		gap: 2rem;
 		margin: 0 0 1.5rem 0;
-		background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+		background: #f9fafb;
 		border-radius: 12px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 		padding: 1rem 2rem;
@@ -438,7 +438,7 @@
 			display: block;
 			text-align: center;
 			padding: 1rem;
-			background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+			background: #f9fafb;
 			border-radius: 12px;
 			margin-bottom: 1rem;
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -455,7 +455,7 @@
 			overflow: hidden;
 		}
 		.mobile-day-header {
-			background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+			background: #f9fafb;
 			font-weight: 600;
 			font-size: 0.95rem;
 			color: #1a202c;
@@ -528,7 +528,7 @@
 	}
 
 	.calendar-weekdays-row {
-		background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+		background: #f9fafb;
 	}
 	.calendar-weekday-header {
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

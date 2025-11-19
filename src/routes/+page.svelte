@@ -47,10 +47,7 @@
 		font-size: 2.5rem;
 		font-weight: 700;
 		margin-bottom: 2rem;
-		background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		color: #7c3aed;
 		letter-spacing: -0.02em;
 		animation: fadeInDown 0.6s ease-out;
 	}

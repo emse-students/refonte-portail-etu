@@ -4,6 +4,14 @@
 
 	let { data } = $props();
 	const association: Association = data.association;
+	
+	// Séparer le bureau (hierarchy >= 6) des autres membres
+	const bureauMembers = $derived(
+		association.members?.filter(m => m.role.hierarchy >= 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+	);
+	const otherMembers = $derived(
+		association.members?.filter(m => m.role.hierarchy < 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+	);
 </script>
 
 <svelte:head>
@@ -27,11 +35,27 @@
 			</section>
 		{/if}
 
-		{#if association.members && association.members.length > 0}
+		{#if bureauMembers.length > 0}
+			<section class="members-section bureau-section">
+				<h2>Bureau</h2>
+				<div class="members-grid bureau-grid">
+					{#each bureauMembers as member}
+						<div class="member-card bureau-card">
+							<div class="member-name">
+								{member.user.first_name} {member.user.last_name}
+							</div>
+							<div class="member-role">{member.role.name}</div>
+						</div>
+					{/each}
+				</div>
+			</section>
+		{/if}
+
+		{#if otherMembers.length > 0}
 			<section class="members-section">
-				<h2>Membres de l'association</h2>
+				<h2>Membres</h2>
 				<div class="members-grid">
-					{#each association.members as member}
+					{#each otherMembers as member}
 						<div class="member-card">
 							<div class="member-name">
 								{member.user.first_name} {member.user.last_name}
@@ -80,10 +104,7 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin: 0;
-		background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		color: #7c3aed;
 		letter-spacing: -0.02em;
 	}
 
@@ -140,18 +161,38 @@
 		gap: 1.25rem;
 	}
 
+	.bureau-section {
+		background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+		border: 2px solid #7c3aed;
+	}
+
+	.bureau-grid {
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	}
+
 	.member-card {
-		background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		padding: 1.25rem;
 		transition: all 0.2s ease;
 	}
 
+	.bureau-card {
+		background: white;
+		border: 2px solid #7c3aed;
+		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+	}
+
 	.member-card:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
 		border-color: #c4b5fd;
+	}
+
+	.bureau-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25);
 	}
 
 	.member-name {
@@ -215,8 +256,15 @@
 			margin-bottom: 1.25rem;
 		}
 
-		.members-grid {
-			grid-template-columns: 1fr;
+		.members-grid,
+		.bureau-grid {
+			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+			gap: 1rem;
+		}
+
+		.member-card,
+		.bureau-card {
+			padding: 1rem;
 		}
 	}
 </style>

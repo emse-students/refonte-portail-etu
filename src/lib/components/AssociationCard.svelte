@@ -32,9 +32,9 @@
         border-radius: 16px;
         padding: 0;
         overflow: hidden;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        border: 1px solid rgba(124, 58, 237, 0.1);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.08);
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -44,17 +44,17 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #7c3aed 0%, #ec4899 100%);
+        height: 3px;
+        background: #7c3aed;
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s ease;
     }
 
     .association-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.15), 0 6px 12px rgba(236, 72, 153, 0.1);
-        border-color: rgba(124, 58, 237, 0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        border-color: #7c3aed;
     }
 
     .association-card:hover::before {
@@ -73,7 +73,7 @@
         width: 100%;
         height: 200px;
         object-fit: cover;
-        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        background: #f9fafb;
         transition: transform 0.3s ease;
     }
 
@@ -83,21 +83,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+        background: #7c3aed;
         transition: transform 0.3s ease;
     }
 
     .placeholder-text {
         font-size: 5rem;
         font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        color: white;
         user-select: none;
     }
 
     .association-card:hover .association-logo,
     .association-card:hover .association-logo-placeholder {
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     .association-info {

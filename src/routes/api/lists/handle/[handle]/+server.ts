@@ -1,17 +1,17 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import type { RawAssociation } from "$lib/databasetypes";
-import { getAssociationWithMembers } from "$lib/server/database";
+import type { RawList } from "$lib/databasetypes";
+import { getListWithMembers } from "$lib/server/database";
 import { json } from "@sveltejs/kit";
 
 export const GET = async (event: RequestEvent) => {
     const handle = event.params.handle;
-    const associations =
+    const lists =
         await db`SELECT * FROM list WHERE handle = ${handle}`;
 
-    if (associations.length === 0) {
+    if (lists.length === 0) {
         return new Response(
-            JSON.stringify({ error: "Association not found" }),
+            JSON.stringify({ error: "List not found" }),
             {
                 status: 404,
                 headers: { "Content-Type": "application/json" },
@@ -19,10 +19,10 @@ export const GET = async (event: RequestEvent) => {
         );
     }
 
-    const associationData: RawAssociation = associations[0];
+    const listData: RawList = lists[0];
 
 
-    const asso = await getAssociationWithMembers(associationData);
-    return json(asso);
+    const listWithMembers = await getListWithMembers(listData);
+    return json(listWithMembers);
 
 };

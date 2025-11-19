@@ -93,10 +93,7 @@
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #7c3aed;
         letter-spacing: -0.02em;
         line-height: 1.2;
     }
@@ -163,7 +160,7 @@
     }
 
     .logo-container {
-        background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+        background: #f9fafb;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -204,7 +201,7 @@
 
     .category-badge {
         align-self: flex-start;
-        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        background: #f3e8ff;
         color: #7c3aed;
         font-size: 0.8rem;
         font-weight: 600;

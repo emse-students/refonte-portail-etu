@@ -117,10 +117,7 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin-bottom: 1rem;
-		background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		color: #7c3aed;
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
@@ -144,18 +141,19 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 1.5rem 2rem;
-		background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+		background: #7c3aed;
 		border: none;
 		border-radius: 12px;
 		cursor: pointer;
 		transition: all 0.3s ease;
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+		box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
 		margin-bottom: 1.5rem;
 	}
 
 	.promo-header:hover {
+		background: #6d28d9;
 		transform: translateY(-2px);
-		box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 	}
 
 	.promo-header h2 {
@@ -163,7 +161,6 @@
 		font-size: 1.75rem;
 		font-weight: 700;
 		color: white;
-		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.toggle-icon {

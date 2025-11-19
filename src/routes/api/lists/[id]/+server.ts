@@ -1,7 +1,7 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawList } from "$lib/databasetypes";
-import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
+import { getListWithMembers, getBasicList } from "$lib/server/database";
 
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
@@ -10,7 +10,7 @@ export const GET = async (event: RequestEvent) => {
 	
 	if (lists.length === 0) {
 		return new Response(
-			JSON.stringify({ error: "Association not found" }),
+			JSON.stringify({ error: "List not found" }),
 			{
 				status: 404,
 				headers: { "Content-Type": "application/json" },
@@ -27,10 +27,10 @@ export const GET = async (event: RequestEvent) => {
     const includeMembers = url.searchParams.get("includeMembers") === "true";
     
     if (includeMembers) {
-        const asso = await getAssociationWithMembers(listData);
+        const asso = await getListWithMembers(listData);
         return json(asso);
     } else {
-        const asso = await getBasicAssociation(listData);
+        const asso = await getBasicList(listData);
         return json(asso);
     }
 
@@ -39,7 +39,7 @@ export const GET = async (event: RequestEvent) => {
 
 export const DELETE = async (event: RequestEvent) => {
     const id = event.params.id;
-    await db`DELETE FROM association WHERE id = ${id}`;
+    await db`DELETE FROM list WHERE id = ${id}`;
 
     return new Response(null, { status: 204 });
 }
@@ -50,7 +50,7 @@ export const PUT = async (event: RequestEvent) => {
     const name = body.name;
     const description = body.description;
 
-    await db`UPDATE association SET name = ${name}, description = ${description} WHERE id = ${id}`;
+    await db`UPDATE list SET name = ${name}, description = ${description} WHERE id = ${id}`;
 
     return new Response(null, { status: 204 });
 }
