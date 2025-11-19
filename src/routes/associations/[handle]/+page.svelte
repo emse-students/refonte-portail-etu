@@ -1,10 +1,12 @@
 <script lang="ts">
-	import type { Association } from "$lib/databasetypes";
+	import type { Association, RawEvent } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
+	import EventCard from "$lib/components/EventCard.svelte";
 
 	let { data } = $props();
 	const association: Association = data.association;
+	const events: RawEvent[] = data.events || [];
 	
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
@@ -60,7 +62,15 @@
 
 		<section class="events-section">
 			<h2>Événements à venir</h2>
-			<p class="empty-state">Aucun événement prévu pour le moment</p>
+			{#if events.length === 0}
+				<p class="empty-state">Aucun événement à venir pour cette association.</p>
+			{:else}
+				<div class="events-list">
+					{#each events as event}
+						<EventCard {event} />
+					{/each}
+				</div>
+			{/if}
 		</section>
 	</div>
 </div>
@@ -165,6 +175,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	}
 
+	.events-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1.25rem;
+	}
+
 	.empty-state {
 		color: #718096;
 		font-style: italic;
@@ -221,6 +237,10 @@
 		.bureau-grid {
 			grid-template-columns: 1fr;
 			gap: 1rem;
+		}
+
+		.events-list {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
