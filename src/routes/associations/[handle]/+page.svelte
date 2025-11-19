@@ -162,7 +162,7 @@
 
 	.members-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 		gap: 1.25rem;
 	}
 
@@ -198,11 +198,11 @@
 		}
 
 		.members-grid {
-			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 		}
 
 		.bureau-grid {
-			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 		}
 	}
 

@@ -117,7 +117,7 @@
 	onclick={openModal}
 	onkeydown={(e) => e.key === "Enter" && openModal()}
 	title="Voir les détails"
-	style="background: {color}; border-radius: 0; --stack-index: {i}; --stack-count: {count};"
+	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
 >
 	{title}
 </div>
@@ -190,8 +190,7 @@
 	.event-title-only.clickable:hover,
 	.event-title-only.clickable:focus {
 		filter: brightness(0.95);
-		outline: 2px solid #7c3aed;
-		outline-offset: -2px;
+		box-shadow: inset 0 0 0 2px #7c3aed;
 		transform: scale(1.02);
 	}
 	.modal-overlay {
