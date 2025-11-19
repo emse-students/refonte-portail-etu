@@ -4,6 +4,12 @@ import { env } from "$env/dynamic/private";
 export const GET = async (event: RequestEvent) => {
     const login = event.params.login;
 
+    // Authentication check
+
+    if (!event.locals.session?.user) {
+        return new Response(null, { status: 401 });
+    }
+
     // Fetch user by login from migallery (with api key if needed)
 
     const avatar = await event.fetch(`https://gallery.mitv.fr/api/users/${login}/avatar`,

@@ -89,14 +89,14 @@
 
 	.avatar-container {
 		position: relative;
-		width: 48px;
-		height: 48px;
+		width: 56px;
+		height: 56px;
 		flex-shrink: 0;
 	}
 
 	.member-avatar {
-		width: 48px;
-		height: 48px;
+		width: 56px;
+		height: 56px;
 		border-radius: 50%;
 		object-fit: cover;
 		border: 2px solid #e5e7eb;
@@ -121,8 +121,8 @@
 	}
 
 	.avatar-placeholder {
-		width: 48px;
-		height: 48px;
+		width: 56px;
+		height: 56px;
 		border-radius: 50%;
 		background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
 		border: 2px solid #e5e7eb;
@@ -130,7 +130,7 @@
 		align-items: center;
 		justify-content: center;
 		font-weight: 600;
-		font-size: 1rem;
+		font-size: 1.1rem;
 		color: #6b7280;
 		position: absolute;
 		top: 0;
@@ -153,18 +153,18 @@
 		font-weight: 600;
 		color: #1a202c;
 		margin-bottom: 0.25rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		line-height: 1.3;
 	}
 
 	.member-role {
 		font-size: 0.9rem;
 		color: #7c3aed;
 		font-weight: 500;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		line-height: 1.3;
 	}
 
 	@media (max-width: 768px) {
@@ -174,15 +174,15 @@
 		}
 
 		.avatar-container {
-			width: 40px;
-			height: 40px;
+			width: 48px;
+			height: 48px;
 		}
 
 		.member-avatar,
 		.avatar-placeholder {
-			width: 40px;
-			height: 40px;
-			font-size: 0.875rem;
+			width: 48px;
+			height: 48px;
+			font-size: 0.95rem;
 		}
 
 		.member-header {
