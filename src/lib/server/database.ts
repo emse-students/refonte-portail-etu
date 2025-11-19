@@ -157,6 +157,8 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
         visible: m.visible,
         list: raw.id
     }) as Member);
+
+    console.log(`Fetched ${members.length} members for list ${raw.handle}`);
     
     const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
 
