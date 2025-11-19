@@ -4,6 +4,7 @@
 	import { page } from "$app/state";
 	import type { FullUser } from "$lib/databasetypes";
 	import { signIn, signOut } from "@auth/sveltekit/client";
+	import { onMount, tick } from "svelte";
 
 	// Load the associations and lists from the api
 
@@ -46,6 +47,41 @@
 			}
 		});
 	}
+
+	// Animated underline indicator
+	let navUl: HTMLUListElement;
+	let underlineStyle = $state('');
+
+	function updateUnderline() {
+		if (typeof window === 'undefined' || !navUl) return;
+
+		const activeItem = navUl.querySelector('li[aria-current="page"]');
+		if (activeItem) {
+			const link = activeItem.querySelector('a');
+			if (link) {
+				const ulRect = navUl.getBoundingClientRect();
+				const linkRect = link.getBoundingClientRect();
+				const left = linkRect.left - ulRect.left;
+				const width = linkRect.width;
+				underlineStyle = `left: ${left}px; width: ${width}px; opacity: 1;`;
+			}
+		} else {
+			underlineStyle = 'opacity: 0;';
+		}
+	}
+
+	onMount(() => {
+		updateUnderline();
+		// Update on window resize
+		window.addEventListener('resize', updateUnderline);
+		return () => window.removeEventListener('resize', updateUnderline);
+	});
+
+	$effect(() => {
+		// Update when page changes
+		page.url.pathname;
+		tick().then(updateUnderline);
+	});
 </script>
 
 <header class:menu-open={navOpen}>
@@ -60,7 +96,7 @@
 	</div>
 	<nav class="header-nav">
 		<div class="nav-drawer" class:open={navOpen}>
-			<ul>
+			<ul bind:this={navUl}>
 				<li aria-current={page.url.pathname === resolve("/") ? "page" : undefined}>
 					<a href={resolve("/")} onclick={closeNav}>Accueil</a>
 				</li>
@@ -92,6 +128,7 @@
 				>
 					<a href={resolve("/partenariats")} onclick={closeNav}>Partenariats</a>
 				</li>
+				<div class="nav-underline" style={underlineStyle}></div>
 			</ul>
 		</div>
 		{#if navOpen}
@@ -109,15 +146,22 @@
 
 <style>
 	header {
-		position: relative;
+		position: sticky;
+		top: 0;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #6d28d9 100%);
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-		padding: 0 2rem;
-		min-height: 64px;
+		box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+		padding: 0.75rem 2rem;
+		min-height: 70px;
 		z-index: 100;
+		backdrop-filter: blur(10px);
+		transition: box-shadow 0.3s ease;
+	}
+
+	header:hover {
+		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
 	}
 
 	.header-left {
@@ -141,12 +185,17 @@
 	}
 
 	.site-title {
-		font-size: 1.3rem;
-		font-weight: bold;
-		color: #f0abfc; /* Rose-violet clair chaleureux */
-		letter-spacing: 0.02em;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #ffffff;
+		letter-spacing: -0.01em;
 		white-space: nowrap;
-		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		transition: color 0.2s ease;
+	}
+
+	.header-left > a:hover .site-title {
+		color: #f0abfc;
 	}
 
 	.header-nav {
@@ -157,10 +206,11 @@
 
 	.header-nav ul {
 		display: flex;
-		gap: 1.5rem;
+		gap: 2rem;
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		position: relative;
 	}
 
 	.header-nav li {
@@ -168,21 +218,33 @@
 	}
 
 	.header-nav li[aria-current="page"] a {
-		color: #f0abfc;
-		font-weight: bold;
-		border-bottom: 2px solid #f0abfc;
+		color: #ffffff;
+		font-weight: 600;
+	}
+
+	.nav-underline {
+		position: absolute;
+		bottom: -4px;
+		height: 2px;
+		background: #f0abfc;
+		border-radius: 2px;
+		transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+		pointer-events: none;
+		opacity: 0;
 	}
 
 	header a {
-		color: #f3e8ff;
+		color: rgba(255, 255, 255, 0.9);
 		text-decoration: none;
-		font-size: 1rem;
+		font-size: 0.95rem;
+		font-weight: 500;
 		padding: 0.5rem 0;
-		transition: color 0.2s, transform 0.2s;
+		position: relative;
+		transition: color 0.2s ease;
 	}
 
 	header a:hover {
-		color: #f0abfc;
+		color: #ffffff;
 	}
 
 	.header-right {
@@ -193,22 +255,25 @@
 	}
 
 	.login-btn {
-		background: linear-gradient(135deg, #d946ef 0%, #ec4899 100%);
+		background: rgba(255, 255, 255, 0.15);
 		color: #ffffff;
-		border: none;
+		border: 1px solid rgba(255, 255, 255, 0.3);
 		border-radius: 8px;
-		padding: 0.6rem 1.4rem;
-		font-size: 1rem;
-		font-weight: 600;
+		padding: 0.5rem 1.25rem;
+		font-size: 0.95rem;
+		font-weight: 500;
 		text-decoration: none;
-		transition: background 0.3s ease;
-		box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		cursor: pointer;
+		backdrop-filter: blur(10px);
 	}
 
 	.login-btn:hover {
-		background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-		box-shadow: 0 6px 16px rgba(217, 70, 239, 0.4);
+		background: rgba(255, 255, 255, 0.25);
+		border-color: rgba(255, 255, 255, 0.5);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+		transform: translateY(-1px);
 	}
 
 	/* Collapsible menu for mobile */
@@ -216,7 +281,7 @@
 
 	@media (max-width: 768px) {
 		header {
-			padding: 0.5rem 1rem;
+			padding: 0.75rem 1rem;
 		}
 		.header-nav {
 			position: fixed;
@@ -226,6 +291,7 @@
 			height: 100%;
 			pointer-events: none;
 			transform: none;
+			z-index: 100;
 		}
 		.header-nav > * {
 			pointer-events: auto;
@@ -233,42 +299,42 @@
 		.header-left {
 			display: flex;
 			align-items: center;
+			z-index: 210;
+			position: relative;
+		}
+		.header-right {
+			z-index: 50;
+			position: relative;
 		}
 		.mobile-menu-btn {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: rgba(255, 255, 255, 0.1);
-			border: 2px solid #f0abfc;
-			border-radius: 50%;
-			width: 48px;
-			height: 48px;
-			margin-right: 0.5rem;
-			font-size: 2rem;
-			color: #f0abfc;
-			box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
-			transition: all 0.3s ease;
+			background: rgba(255, 255, 255, 0.15);
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			border-radius: 8px;
+			width: 40px;
+			height: 40px;
+			margin-right: 0.75rem;
+			font-size: 1.5rem;
+			color: white;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			transition: all 0.2s ease;
 			backdrop-filter: blur(10px);
 			cursor: pointer;
 			-webkit-tap-highlight-color: transparent;
 		}
 		.mobile-menu-btn:active, .mobile-menu-btn:focus {
-			background: #d946ef;
-			border-color: #ec4899;
-			color: #ffffff;
+			background: rgba(255, 255, 255, 0.25);
+			border-color: rgba(255, 255, 255, 0.5);
 			outline: none;
 		}
 		.logo-bde {
-			height: 48px;
+			height: 40px;
 			width: auto;
-			max-width: 80px;
-			margin-right: 0;
-			border-radius: 10px;
+			max-width: 70px;
 			object-fit: contain;
-			background: none;
-			box-shadow: none;
-			display: block;
-			padding: 2px 8px;
+			border-radius: 8px;
 		}
 		.site-title {
 			display: none;
@@ -278,11 +344,11 @@
 			top: 0;
 			left: 0;
 			height: 100vh;
-			width: 270px;
+			width: 280px;
 			background: linear-gradient(180deg, #6d28d9 0%, #5b21b6 100%);
-			box-shadow: 2px 0 20px rgba(124, 58, 237, 0.3);
+			box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
 			transform: translateX(-100%);
-			transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 			z-index: 200;
 			display: flex;
 			flex-direction: column;
@@ -297,29 +363,33 @@
 			gap: 0;
 			list-style: none;
 			margin: 0;
-			padding: 0;
+			padding: 1rem;
 		}
 		.nav-drawer li {
 			padding: 0;
 			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 		}
+		.nav-drawer li:last-of-type {
+			border-bottom: none;
+		}
 		.nav-drawer li a {
 			display: block;
-			padding: 1rem 1.5rem;
-			color: #f3e8ff;
-			font-size: 1.1rem;
-			transition: background 0.2s ease;
+			padding: 1rem 1.25rem;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 1rem;
+			font-weight: 500;
+			transition: all 0.2s ease;
 		}
 		.nav-drawer li a:hover {
-			background: rgba(255, 255, 255, 0.1);
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
 			text-decoration: none;
 		}
 		.nav-drawer li[aria-current="page"] a {
 			background: rgba(240, 171, 252, 0.2);
 			color: #f0abfc;
-			font-weight: bold;
-			border-left: 4px solid #f0abfc;
-			border-bottom: none;
+			font-weight: 600;
+			border-left: 3px solid #f0abfc;
 		}
 		.nav-overlay {
 			position: fixed;
@@ -327,9 +397,9 @@
 			left: 0;
 			width: 100vw;
 			height: 100vh;
-			background: rgba(0, 0, 0, 0.5);
+			background: rgba(0, 0, 0, 0.6);
 			z-index: 150;
-			backdrop-filter: blur(2px);
+			backdrop-filter: blur(4px);
 		}
 	}
 

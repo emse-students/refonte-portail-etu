@@ -33,61 +33,83 @@
 
 <style>
     .container {
-        max-width: 1200px;
-        min-width: 70%;
-        margin: 2rem auto;
-        padding: 0 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
         min-height: calc(100vh - 8rem);
     }
 
     header {
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: 4rem;
         padding: 2rem 0;
+        animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     header h1 {
-        font-size: 2.5rem;
+        font-size: 3rem;
         font-weight: 700;
         margin-bottom: 1rem;
         background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
 
     header p {
-        font-size: 1.1rem;
-        color: #666;
-        max-width: 600px;
+        font-size: 1.2rem;
+        color: #6b7280;
+        max-width: 700px;
         margin: 0 auto;
         line-height: 1.6;
     }
 
     .sites-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 2rem;
         padding-bottom: 3rem;
-        place-items: center;
+        animation: fadeIn 0.8s ease-out 0.2s backwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
     .site-card {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 280px;
-        height: 210px;
+        justify-content: center;
         padding: 2rem 1.5rem;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        background: white;
         border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         text-decoration: none;
         color: inherit;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
+        min-height: 240px;
     }
 
     .site-card::before {
@@ -152,19 +174,41 @@
         line-height: 1.5;
     }
 
+    @media (max-width: 1024px) {
+        .container {
+            padding: 2rem 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+    }
+
     @media (max-width: 768px) {
+        .container {
+            padding: 1.5rem 1rem;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            padding: 1rem 0;
+        }
+
         header h1 {
             font-size: 2rem;
         }
 
+        header p {
+            font-size: 1.05rem;
+        }
+
         .sites-grid {
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: 1fr;
             gap: 1.5rem;
         }
 
         .site-card {
-            width: 240px;
-            height: 240px;
+            min-height: 220px;
             padding: 1.5rem 1rem;
         }
 

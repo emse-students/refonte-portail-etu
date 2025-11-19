@@ -6,7 +6,7 @@ import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/data
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
 	const associations =
-		await db`SELECT id, name, description FROM association WHERE id = ${id}`;
+		await db`SELECT id, name, description, handle FROM association WHERE id = ${id}`;
 	
 	if (associations.length === 0) {
 		return new Response(

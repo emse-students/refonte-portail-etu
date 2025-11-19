@@ -294,21 +294,18 @@
 	<div
 		class="calendar mobile-view"
 		onscroll={handleMobileScroll}
-		style="overflow-y: auto; max-height: 70vh;"
 	>
 		{#if loadingPrev}
 			<div class="spinner spinner-mobile"></div>
 		{/if}
 		{#each mobileMonths as m}
 			<div class="mobile-month">
-				<div class="calendar-nav">
-					<span class="calendar-month-label"
-						>{new Date(m.year, m.month).toLocaleString(undefined, {
-							month: "long",
-							year: "numeric",
-						})}</span
-					>
-				</div>
+				<h2 class="calendar-month-label">
+					{new Date(m.year, m.month).toLocaleString(undefined, {
+						month: "long",
+						year: "numeric",
+					})}
+				</h2>
 				{#each Array(new Date(m.year, m.month + 1, 0).getDate()) as _, dayIdx}
 					<div class="mobile-day">
 						<div class="mobile-day-header">
@@ -339,6 +336,7 @@
 
 <style lang="scss">
 	.calendar {
+		width: 100%;
 		max-width: 100%;
 		margin: auto;
 		border-collapse: collapse;
@@ -346,70 +344,76 @@
 	}
 	.calendar-responsive {
 		width: 100%;
+		max-width: 100%;
+		overflow: hidden;
 	}
 	.calendar-nav {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 2.2rem;
-		margin: 1.5rem 0 1.2rem 0;
-		background: linear-gradient(90deg, #f7f3ff 0%, #f3f7ff 100%);
-		border-radius: 18px;
-		box-shadow: 0 2px 12px rgba(179, 136, 255, 0.07);
-		padding: 1.1rem 2.2rem 1.1rem 2.2rem;
+		gap: 2rem;
+		margin: 0 0 1.5rem 0;
+		background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		padding: 1rem 2rem;
 	}
 	.calendar-title {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.18em;
-		font-family: "Inter", "Segoe UI", Arial, sans-serif;
+		gap: 0.25rem;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 	}
 	.calendar-title-main {
-		font-size: 1.45rem;
-		font-weight: 800;
-		color: #6c3fc5;
-		letter-spacing: 0.01em;
-		margin-bottom: 0.1em;
-		text-shadow:
-			0 1px 0 #fff,
-			0 2px 8px #e6d6ff44;
+		font-size: 1.35rem;
+		font-weight: 700;
+		color: #7c3aed;
+		letter-spacing: -0.01em;
 	}
 	.calendar-title-sub {
-		font-size: 1.05rem;
-		color: #232946;
+		font-size: 0.95rem;
+		color: #4a5568;
 		font-weight: 500;
-		letter-spacing: 0.01em;
-		margin-top: 0.1em;
+		letter-spacing: 0;
 		b {
-			color: #b388ff;
-			font-weight: 700;
+			color: #7c3aed;
+			font-weight: 600;
 		}
 	}
 	.calendar-arrow {
-		background: none;
-		border: none;
+		background: white;
+		border: 1px solid #e5e7eb;
 		border-radius: 50%;
-		width: 2.8rem;
-		height: 2.8rem;
+		width: 2.5rem;
+		height: 2.5rem;
 		padding: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		transition:
-			box-shadow 0.18s,
-			background 0.18s;
-		box-shadow: 0 1px 6px #b388ff22;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 		outline: none;
-		:hover, :focus {
-			background: #f3eaff;
-			box-shadow: 0 2px 12px #b388ff44;
-		}
+	}
+	
+	.calendar-arrow:hover {
+		background: #7c3aed;
+		border-color: #7c3aed;
+		box-shadow: 0 4px 8px rgba(124, 58, 237, 0.2);
+		transform: translateY(-1px);
+	}
 
-		svg {
-			display: block;
-		}
+	.calendar-arrow:hover svg circle {
+		stroke: white;
+	}
+
+	.calendar-arrow:hover svg path {
+		stroke: white;
+	}
+
+	.calendar-arrow svg {
+		display: block;
 	}
 
 	.mobile-view {
@@ -417,31 +421,59 @@
 	}
 
 	@media (max-width: 700px) {
+		.calendar-nav {
+			display: none;
+		}
 		.desktop-view {
 			display: none;
 		}
 		.mobile-view {
 			display: block;
 		}
+		.calendar-month-label {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: #7c3aed;
+			text-transform: capitalize;
+			display: block;
+			text-align: center;
+			padding: 1rem;
+			background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+			border-radius: 12px;
+			margin-bottom: 1rem;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		}
 		.mobile-month {
 			margin-bottom: 2rem;
 		}
 		.mobile-day {
-			border: 1px solid #ddd;
-			border-radius: 8px;
-			margin-bottom: 1.2rem;
+			border: 1px solid #e5e7eb;
+			border-radius: 12px;
+			margin-bottom: 1rem;
 			background: #fff;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+			overflow: hidden;
 		}
 		.mobile-day-header {
-			background: #f4f4f4;
-			font-weight: bold;
-			padding: 0.7rem 1rem;
-			border-bottom: 1px solid #eee;
-			border-radius: 8px 8px 0 0;
+			background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
+			font-weight: 600;
+			font-size: 0.95rem;
+			color: #1a202c;
+			padding: 0.875rem 1rem;
+			border-bottom: 1px solid #e5e7eb;
+			text-transform: capitalize;
 		}
 		.mobile-day-cell {
-			padding: 0.7rem 1rem 0.5rem 1rem;
+			padding: 0.75rem 1rem;
+			min-height: 2.5rem;
+		}
+		.mobile-day-cell:empty::after {
+			content: 'Aucun événement';
+			color: #9ca3af;
+			font-size: 0.875rem;
+			font-style: italic;
+			display: block;
+			padding: 0.5rem 0;
 		}
 	}
 
@@ -472,20 +504,41 @@
 
 	.calendar-table-wrapper {
 		position: relative;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+	}
+	
+	.calendar-table-wrapper::-webkit-scrollbar {
+		height: 8px;
+	}
+	
+	.calendar-table-wrapper::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 4px;
+	}
+	
+	.calendar-table-wrapper::-webkit-scrollbar-thumb {
+		background: #c4b5fd;
+		border-radius: 4px;
+	}
+	
+	.calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
+		background: #a78bfa;
 	}
 
 	.calendar-weekdays-row {
-		background: linear-gradient(90deg, #f7f3ff 0%, #f7f3ff 100%);
+		background: linear-gradient(135deg, #f8f9fa 0%, #f3f4f6 100%);
 	}
 	.calendar-weekday-header {
-		font-family: "Inter", "Segoe UI", Arial, sans-serif;
-		font-size: 1.08rem;
-		font-weight: 700;
-		color: #6c3fc5;
-		letter-spacing: 0.01em;
-		padding: 0.7em 0 0.7em 0;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: #7c3aed;
+		letter-spacing: 0;
+		padding: 0.75rem 0;
 		text-align: center;
-		border-bottom: 2px solid #e6d6ff;
+		border-bottom: 1px solid #e5e7eb;
 		background: none;
 		text-transform: capitalize;
 	}

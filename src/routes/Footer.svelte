@@ -13,24 +13,37 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		padding: 12px;
+		padding: 2rem 1.5rem;
 		text-align: center;
-		padding: 1em 0;
-		background-color: #482c65;
+		background: linear-gradient(135deg, #5b21b6 0%, #482c65 100%);
+		box-shadow: 0 -2px 8px rgba(124, 58, 237, 0.1);
+		margin-top: auto;
+	}
+
+	footer p {
+		margin: 0.35rem 0;
+		color: rgba(255, 255, 255, 0.75);
+		font-size: 0.9rem;
+		line-height: 1.5;
+	}
+
+	footer a {
+		color: #f0abfc;
+		font-weight: 500;
+		transition: color 0.2s ease;
+	}
+
+	footer a:hover {
+		color: #ffffff;
 	}
 
 	@media (min-width: 480px) {
 		footer {
-			padding: 12px 0;
+			padding: 2.5rem 2rem;
 		}
-	}
 
-	footer p {
-		margin: 0.5em 0;
-		color: #ad83f1;
-	}
-
-	a { /* other color for links*/
-		color: #f0a500;
+		footer p {
+			font-size: 0.95rem;
+		}
 	}
 </style>

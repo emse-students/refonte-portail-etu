@@ -38,13 +38,12 @@
 
 <style>
 	:root {
-		--calendar-cell-size: 175px;
-		--calendar-max-cell-size: 225px;
+		--calendar-cell-size: 150px;
+		--calendar-max-cell-size: 200px;
 	}
 	.calendar-cell {
-		width: calc(100% / 7);
 		min-height: var(--calendar-cell-size);
-		min-width: var(--calendar-cell-size);
+		min-width: 120px;
 		max-width: var(--calendar-max-cell-size);
 		vertical-align: top;
 		position: relative;
@@ -52,7 +51,15 @@
 		box-sizing: border-box;
 		overflow: hidden;
 		word-break: break-word;
-		background-color: #f0f0f0;
+		background-color: #fafbfc;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+	}
+
+	.calendar-cell:hover {
+		background-color: #ffffff;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	}
 	.event-stack {
 		position: absolute;
@@ -70,32 +77,38 @@
 		position: absolute;
 		left: 0;
 		right: 0;
-		bottom: 24px;
+		bottom: 8px;
 		width: 100%;
 		text-align: center;
-		font-size: 0.85em;
-		color: #232946;
-		background: rgba(255, 255, 255, 0.7);
+		font-size: 0.8em;
+		color: #7c3aed;
+		background: rgba(255, 255, 255, 0.9);
+		backdrop-filter: blur(4px);
 		z-index: 3;
 		pointer-events: none;
+		padding: 4px 0;
+		border-radius: 4px;
+		margin: 0 8px;
+		width: calc(100% - 16px);
+		font-weight: 600;
 	}
 	.date-badge {
 		position: absolute;
-		top: 6px;
-		left: 8px;
+		top: 8px;
+		left: 10px;
 		z-index: 3;
-		background: #fff;
-		color: #232946;
-		border-radius: 8px;
-		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
-		padding: 2px 10px 2px 8px;
-		font-size: 1.05em;
+		background: white;
+		color: #1a202c;
+		border-radius: 6px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		padding: 4px 10px;
+		font-size: 0.95em;
 		font-weight: 600;
 		display: flex;
 		align-items: baseline;
-		gap: 0.3em;
+		gap: 0.35em;
 		pointer-events: none;
-		border: 1px solid #e0e0e0;
+		border: 1px solid #e5e7eb;
 		user-select: none;
 	}
 	.date-badge .day-number,
@@ -103,20 +116,20 @@
 		user-select: none;
 	}
 	.date-badge .day-number {
-		font-size: 1.15em;
+		font-size: 1.1em;
 		font-weight: 700;
-		margin-right: 0.15em;
+		color: #7c3aed;
 	}
 	.date-badge .month {
-		font-size: 0.95em;
+		font-size: 0.9em;
 		text-transform: lowercase;
-		color: #888;
+		color: #718096;
 		font-weight: 500;
 	}
 
 	.fade-on-hover {
-		transition: opacity 0.3s 0.15s;
-		opacity: 0.4;
+		transition: opacity 0.2s ease;
+		opacity: 0.5;
 	}
 
 	
