@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Association } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
+	import MemberCard from "$lib/components/MemberCard.svelte";
 
 	let { data } = $props();
 	const association: Association = data.association;
@@ -40,12 +41,7 @@
 				<h2>Bureau</h2>
 				<div class="members-grid bureau-grid">
 					{#each bureauMembers as member}
-						<div class="member-card bureau-card">
-							<div class="member-name">
-								{member.user.first_name} {member.user.last_name}
-							</div>
-							<div class="member-role">{member.role.name}</div>
-						</div>
+						<MemberCard {member} isBureau={true} />
 					{/each}
 				</div>
 			</section>
@@ -56,12 +52,7 @@
 				<h2>Membres</h2>
 				<div class="members-grid">
 					{#each otherMembers as member}
-						<div class="member-card">
-							<div class="member-name">
-								{member.user.first_name} {member.user.last_name}
-							</div>
-							<div class="member-role">{member.role.name}</div>
-						</div>
+						<MemberCard {member} />
 					{/each}
 				</div>
 			</section>
@@ -174,44 +165,6 @@
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	}
 
-	.member-card {
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		padding: 1.25rem;
-		transition: all 0.2s ease;
-	}
-
-	.bureau-card {
-		background: white;
-		border: 2px solid #7c3aed;
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
-	}
-
-	.member-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
-		border-color: #c4b5fd;
-	}
-
-	.bureau-card:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25);
-	}
-
-	.member-name {
-		font-size: 1.05rem;
-		font-weight: 600;
-		color: #1a202c;
-		margin-bottom: 0.5rem;
-	}
-
-	.member-role {
-		font-size: 0.9rem;
-		color: #7c3aed;
-		font-weight: 500;
-	}
-
 	.empty-state {
 		color: #718096;
 		font-style: italic;
@@ -268,11 +221,6 @@
 		.bureau-grid {
 			grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 			gap: 1rem;
-		}
-
-		.member-card,
-		.bureau-card {
-			padding: 1rem;
 		}
 	}
 </style>

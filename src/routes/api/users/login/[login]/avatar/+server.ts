@@ -1,0 +1,37 @@
+import type { RequestEvent } from "@sveltejs/kit";
+import { env } from "$env/dynamic/private";
+
+export const GET = async (event: RequestEvent) => {
+    const login = event.params.login;
+
+    // Fetch user by login from migallery (with api key if needed)
+
+    const avatar = await event.fetch(`https://gallery.mitv.fr/api/users/${login}/thumbnail`,
+        {
+            method: 'GET',
+            headers: {
+                'Accept': 'image/jpeg',
+                'X-Api-Key': env.MIGALLERY_API_KEY as string,
+            },
+
+        }
+    ).then(res => {
+        if (res.ok) {
+            return res.arrayBuffer();
+        } else {
+            return null;
+        }
+    });
+
+    if (avatar) {
+        return new Response(avatar, {
+            headers: {
+                'Content-Type': 'image/jpeg',
+            }
+        });
+    } else {
+        return new Response(null, {
+            status: 404,
+        });
+    }
+};
