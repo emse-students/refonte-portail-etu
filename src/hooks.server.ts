@@ -110,5 +110,14 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+// Clear old cookies handle
+const clearOldCookiesHandle: Handle = async ({ event, resolve }) => {
+	// Ici, on pourrait vérifier et nettoyer les anciens cookies si nécessaire
+	if (event.cookies.get('PHPSESSID')) {
+		event.cookies.delete('PHPSESSID', { path: '/' });
+	}
+	return resolve(event);
+};
+
 // Enchaîner les handlers : d'abord authHandle (qui configure event.locals.auth), puis userDataHandle
-export const handle = sequence(authHandle, userDataHandle);
+export const handle = sequence(clearOldCookiesHandle, authHandle, userDataHandle);

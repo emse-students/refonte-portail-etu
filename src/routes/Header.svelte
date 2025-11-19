@@ -40,8 +40,8 @@
 
 	// Listen for popstate to close menu on back
 	if (typeof window !== 'undefined') {
-		window.addEventListener('popstate', (event) => {
-			if (navOpen && event.state && event.state.navMenu) {
+		window.addEventListener('popstate', () => {
+			if (navOpen) {
 				closeNav();
 			}
 		});
@@ -62,35 +62,35 @@
 		<div class="nav-drawer" class:open={navOpen}>
 			<ul>
 				<li aria-current={page.url.pathname === resolve("/") ? "page" : undefined}>
-					<a href={resolve("/")}>Accueil</a>
+					<a href={resolve("/")} onclick={closeNav}>Accueil</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith(resolve("/associations"))
 						? "page"
 						: undefined}
 				>
-					<a href={resolve("/associations")}>Associations</a>
+					<a href={resolve("/associations")} onclick={closeNav}>Associations</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith(resolve("/lists"))
 						? "page"
 						: undefined}
 				>
-					<a href={resolve("/lists")}>Listes</a>
+					<a href={resolve("/lists")} onclick={closeNav}>Listes</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith(resolve("/autres-sites"))
 						? "page"
 						: undefined}
 				>
-					<a href={resolve("/autres-sites")}>Autres Sites</a>
+					<a href={resolve("/autres-sites")} onclick={closeNav}>Autres Sites</a>
 				</li>
 				<li
 					aria-current={page.url.pathname.startsWith(resolve("/partenariats"))
 						? "page"
 						: undefined}
 				>
-					<a href={resolve("/partenariats")}>Partenariats</a>
+					<a href={resolve("/partenariats")} onclick={closeNav}>Partenariats</a>
 				</li>
 			</ul>
 		</div>
@@ -117,6 +117,7 @@
 		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 		padding: 0 2rem;
 		min-height: 64px;
+		z-index: 100;
 	}
 
 	.header-left {
@@ -214,8 +215,20 @@
 
 
 	@media (max-width: 768px) {
+		header {
+			padding: 0.5rem 1rem;
+		}
 		.header-nav {
-			position: relative;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			transform: none;
+		}
+		.header-nav > * {
+			pointer-events: auto;
 		}
 		.header-left {
 			display: flex;
@@ -236,6 +249,8 @@
 			box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
 			transition: all 0.3s ease;
 			backdrop-filter: blur(10px);
+			cursor: pointer;
+			-webkit-tap-highlight-color: transparent;
 		}
 		.mobile-menu-btn:active, .mobile-menu-btn:focus {
 			background: #d946ef;
@@ -244,7 +259,7 @@
 			outline: none;
 		}
 		.logo-bde {
-			height: 64px;
+			height: 48px;
 			width: auto;
 			max-width: 80px;
 			margin-right: 0;
@@ -271,20 +286,40 @@
 			z-index: 200;
 			display: flex;
 			flex-direction: column;
-			padding-top: 64px;
+			padding-top: 80px;
+			overflow-y: auto;
 		}
 		.nav-drawer.open {
 			transform: translateX(0);
 		}
 		.nav-drawer ul {
 			flex-direction: column;
-			gap: 1.2rem;
+			gap: 0;
 			list-style: none;
 			margin: 0;
-			padding: 0 1.5rem;
+			padding: 0;
 		}
 		.nav-drawer li {
-			padding: 0.5rem 0;
+			padding: 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+		.nav-drawer li a {
+			display: block;
+			padding: 1rem 1.5rem;
+			color: #f3e8ff;
+			font-size: 1.1rem;
+			transition: background 0.2s ease;
+		}
+		.nav-drawer li a:hover {
+			background: rgba(255, 255, 255, 0.1);
+			text-decoration: none;
+		}
+		.nav-drawer li[aria-current="page"] a {
+			background: rgba(240, 171, 252, 0.2);
+			color: #f0abfc;
+			font-weight: bold;
+			border-left: 4px solid #f0abfc;
+			border-bottom: none;
 		}
 		.nav-overlay {
 			position: fixed;
@@ -292,8 +327,9 @@
 			left: 0;
 			width: 100vw;
 			height: 100vh;
-			background: rgba(0,0,0,0.25);
+			background: rgba(0, 0, 0, 0.5);
 			z-index: 150;
+			backdrop-filter: blur(2px);
 		}
 	}
 
