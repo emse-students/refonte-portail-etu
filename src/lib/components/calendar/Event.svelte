@@ -172,7 +172,6 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		cursor: pointer;
-		border-radius: 6px;
 		transition: all 0.2s ease;
 		background: var(--event-bg, inherit);
 		padding: 0.5rem;
@@ -235,7 +234,6 @@
 		right: 1rem;
 		background: #f3f4f6;
 		border: none;
-		border-radius: 8px;
 		width: 36px;
 		height: 36px;
 		font-size: 1.5rem;
