@@ -76,10 +76,12 @@
 
 <style>
 	.container {
-		max-width: 1200px;
+		width: 100%;
+		max-width: 1400px;
 		margin: 0 auto;
 		padding: 3rem 2rem;
 		min-height: calc(100vh - 8rem);
+		box-sizing: border-box;
 	}
 
 	.page-header {
@@ -125,10 +127,12 @@
 	}
 
 	section {
+		width: 100%;
 		background: white;
 		border-radius: 16px;
 		padding: 2rem;
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+		box-sizing: border-box;
 	}
 
 	h2 {
@@ -157,7 +161,7 @@
 
 	.members-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 		gap: 1.25rem;
 	}
 
@@ -167,7 +171,7 @@
 	}
 
 	.bureau-grid {
-		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	}
 
 	.member-card {
@@ -225,11 +229,11 @@
 		}
 
 		.members-grid {
-			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 		}
 
 		.bureau-grid {
-			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 		}
 	}
 
@@ -262,7 +266,7 @@
 
 		.members-grid,
 		.bureau-grid {
-			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+			grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 			gap: 1rem;
 		}
 
