@@ -219,7 +219,7 @@
 
 		.members-grid,
 		.bureau-grid {
-			grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+			grid-template-columns: 1fr;
 			gap: 1rem;
 		}
 	}
