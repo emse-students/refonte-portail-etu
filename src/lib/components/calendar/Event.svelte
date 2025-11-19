@@ -16,11 +16,14 @@
 
 	// get the association name from id (either from page data or fetch it if not available)
 	let association_name = $state("");
+	let association_handle = $state("");
+	let association_link = $derived(resolve(`/associations/${association_handle}`));
 
 	fetch(resolve(`/api/associations/${association_id}`))
 				.then((res) => res.json())
 				.then((data: Association) => {
 					association_name = data.name;
+					association_handle = data.handle;
 				});
 
 	const palette = [
@@ -95,7 +98,7 @@
 				{#if association_name}
 					<div class="modal-section">
 						<strong>Association :</strong>
-						{association_name}
+						<a href={association_link}>{association_name}</a>
 					</div>
 				{/if}
 				{#if description}
