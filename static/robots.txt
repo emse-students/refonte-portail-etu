@@ -75,5 +75,5 @@ Allow: /api/calendar/ics
 # Crawl delay (optional - adjust as needed)
 # Crawl-delay: 1
 
-# Sitemap location (update when sitemap is added)
-# Sitemap: https://portail-etu.emse.fr/sitemap.xml
+# Sitemap location
+Sitemap: https://portail-etu.emse.fr/sitemap.xml
