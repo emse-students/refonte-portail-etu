@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Generate SvelteKit files
+        run: bunx svelte-kit sync
+
       - name: Run tests
         run: bun run vitest
