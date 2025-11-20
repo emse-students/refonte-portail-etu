@@ -5,14 +5,13 @@
 
 	import { page } from "$app/state";
 
-
 	let { children } = $props();
 	const session = page.data.session;
 	const userData = page.data.userData;
 </script>
 
 <div class="app">
-	<Header user={session?.user} userData={userData} />
+	<Header user={session?.user} {userData} />
 
 	<main>
 		{@render children()}
@@ -22,7 +21,6 @@
 </div>
 
 <style>
-	
 	.app {
 		display: flex;
 		flex-direction: column;

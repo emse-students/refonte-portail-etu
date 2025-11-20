@@ -2,7 +2,6 @@
 	import { pushState } from "$app/navigation";
 	import { asset, resolve } from "$app/paths";
 	import { page } from "$app/state";
-	import type { FullUser } from "$lib/databasetypes";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 	import { onMount, tick } from "svelte";
 
@@ -10,8 +9,6 @@
 
 	const data = $props();
 	const user = data.user;
-	const userData: FullUser | null = data.userData;
-
 
 	// Mobile nav menu state
 	let navOpen = $state(false);
@@ -19,7 +16,7 @@
 	function openNavWithHistory() {
 		if (!navOpen) {
 			navOpen = true;
-			pushState('', { navMenu: true });
+			pushState("", { navMenu: true });
 		}
 	}
 
@@ -40,8 +37,8 @@
 	}
 
 	// Listen for popstate to close menu on back
-	if (typeof window !== 'undefined') {
-		window.addEventListener('popstate', () => {
+	if (typeof window !== "undefined") {
+		window.addEventListener("popstate", () => {
 			if (navOpen) {
 				closeNav();
 			}
@@ -50,14 +47,14 @@
 
 	// Animated underline indicator
 	let navUl: HTMLUListElement;
-	let underlineStyle = $state('');
+	let underlineStyle = $state("");
 
 	function updateUnderline() {
-		if (typeof window === 'undefined' || !navUl) return;
+		if (typeof window === "undefined" || !navUl) return;
 
 		const activeItem = navUl.querySelector('li[aria-current="page"]');
 		if (activeItem) {
-			const link = activeItem.querySelector('a');
+			const link = activeItem.querySelector("a");
 			if (link) {
 				const ulRect = navUl.getBoundingClientRect();
 				const linkRect = link.getBoundingClientRect();
@@ -66,27 +63,33 @@
 				underlineStyle = `left: ${left}px; width: ${width}px; opacity: 1;`;
 			}
 		} else {
-			underlineStyle = 'opacity: 0;';
+			underlineStyle = "opacity: 0;";
 		}
 	}
 
 	onMount(() => {
 		updateUnderline();
 		// Update on window resize
-		window.addEventListener('resize', updateUnderline);
-		return () => window.removeEventListener('resize', updateUnderline);
+		window.addEventListener("resize", updateUnderline);
+		return () => window.removeEventListener("resize", updateUnderline);
 	});
 
 	$effect(() => {
-		// Update when page changes
-		page.url.pathname;
+		// Update when page changes (accessing pathname to make effect reactive)
+		void page.url.pathname;
 		tick().then(updateUnderline);
 	});
 </script>
 
 <header class:menu-open={navOpen}>
 	<div class="header-left">
-		<button aria-label="Menu" aria-haspopup="true" aria-expanded={navOpen} onclick={toggleNav} class="mobile-menu-btn">
+		<button
+			aria-label="Menu"
+			aria-haspopup="true"
+			aria-expanded={navOpen}
+			onclick={toggleNav}
+			class="mobile-menu-btn"
+		>
 			<span class="icon">☰</span>
 		</button>
 		<a href="/">
@@ -101,30 +104,20 @@
 					<a href={resolve("/")} onclick={closeNav}>Accueil</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith(resolve("/associations"))
-						? "page"
-						: undefined}
+					aria-current={page.url.pathname.startsWith(resolve("/associations")) ? "page" : undefined}
 				>
 					<a href={resolve("/associations")} onclick={closeNav}>Associations</a>
 				</li>
-				<li
-					aria-current={page.url.pathname.startsWith(resolve("/lists"))
-						? "page"
-						: undefined}
-				>
+				<li aria-current={page.url.pathname.startsWith(resolve("/lists")) ? "page" : undefined}>
 					<a href={resolve("/lists")} onclick={closeNav}>Listes</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith(resolve("/autres-sites"))
-						? "page"
-						: undefined}
+					aria-current={page.url.pathname.startsWith(resolve("/autres-sites")) ? "page" : undefined}
 				>
 					<a href={resolve("/autres-sites")} onclick={closeNav}>Autres Sites</a>
 				</li>
 				<li
-					aria-current={page.url.pathname.startsWith(resolve("/partenariats"))
-						? "page"
-						: undefined}
+					aria-current={page.url.pathname.startsWith(resolve("/partenariats")) ? "page" : undefined}
 				>
 					<a href={resolve("/partenariats")} onclick={closeNav}>Partenariats</a>
 				</li>
@@ -228,7 +221,10 @@
 		height: 2px;
 		background: #f0abfc;
 		border-radius: 2px;
-		transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+		transition:
+			left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.3s ease;
 		pointer-events: none;
 		opacity: 0;
 	}
@@ -278,7 +274,6 @@
 
 	/* Collapsible menu for mobile */
 
-
 	@media (max-width: 768px) {
 		header {
 			padding: 0.75rem 1rem;
@@ -324,7 +319,8 @@
 			cursor: pointer;
 			-webkit-tap-highlight-color: transparent;
 		}
-		.mobile-menu-btn:active, .mobile-menu-btn:focus {
+		.mobile-menu-btn:active,
+		.mobile-menu-btn:focus {
 			background: rgba(255, 255, 255, 0.25);
 			border-color: rgba(255, 255, 255, 0.5);
 			outline: none;
@@ -402,7 +398,6 @@
 			backdrop-filter: blur(4px);
 		}
 	}
-
 
 	/* Hide menu button on desktop, show only on mobile */
 	.mobile-menu-btn {

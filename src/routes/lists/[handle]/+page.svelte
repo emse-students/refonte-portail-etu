@@ -5,36 +5,38 @@
 
 	let { data } = $props();
 	const list: List = data.list;
-	
+
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
-		list.members?.filter(m => m.role.hierarchy >= 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		list.members
+			?.filter((m) => m.role.hierarchy >= 6)
+			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
 	);
 	const otherMembers = $derived(
-		list.members?.filter(m => m.role.hierarchy < 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		list.members
+			?.filter((m) => m.role.hierarchy < 6)
+			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
 	);
 </script>
 
 <svelte:head>
 	<title>{list.name}</title>
-	<meta
-		name="description"
-		content="Découvrez la vie associative de notre campus."
-	/>
+	<meta name="description" content="Découvrez la vie associative de notre campus." />
 </svelte:head>
 <div class="container">
 	<header class="page-header">
 		<h1>{list.name}</h1>
 		{#if list.association}
 			<p class="subtitle">
-                Liste 
+				Liste
 				<a href="/associations/{list.association.handle}" class="association-link">
 					{list.association.name}
-				</a> {list.promo > 0 ? `- Promo ${list.promo}` : ''}
+				</a>
+				{list.promo > 0 ? `- Promo ${list.promo}` : ""}
 			</p>
 		{/if}
 	</header>
-	
+
 	<div class="content-wrapper">
 		{#if list.description}
 			<section class="description-section">

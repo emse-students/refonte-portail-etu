@@ -2,8 +2,7 @@
 	import type { RawEvent as CalendarEvent } from "$lib/databasetypes";
 	import Event from "./Event.svelte";
 
-	let { dayDate, events }: { dayDate: Date; events: CalendarEvent[] } =
-		$props();
+	let { dayDate, events }: { dayDate: Date; events: CalendarEvent[] } = $props();
 
 	const eventsForDay = $derived(
 		events.filter(
@@ -21,14 +20,10 @@
 	<div class="event-stack">
 		<div class="date-badge {eventsForDay.length > 0 ? 'fade-on-hover' : ''}">
 			<span class="day-number">{dayDate.getDate()}</span>
-			<span class="month"
-				>{dayDate.toLocaleString(undefined, { month: "short" })}</span
-			>
+			<span class="month">{dayDate.toLocaleString(undefined, { month: "short" })}</span>
 		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
-			
 			<Event {...event} {i} {count} />
-			
 		{/each}
 		{#if eventsForDay.length > 3}
 			<div class="event-overflow">+{eventsForDay.length - 3} autres</div>
@@ -71,7 +66,6 @@
 		height: 100%;
 		pointer-events: none;
 	}
-
 
 	.event-overflow {
 		position: absolute;
@@ -132,7 +126,6 @@
 		opacity: 0.5;
 	}
 
-	
 	.event-stack:hover .fade-on-hover,
 	.event-stack:focus-within .fade-on-hover,
 	:global .fade-on-hover:has(~ .modal-overlay) {

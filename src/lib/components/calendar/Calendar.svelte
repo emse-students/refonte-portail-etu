@@ -51,7 +51,7 @@
 		const response = await fetch(
 			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}`
 		);
-		let data: CalendarEvent[] = (await response.json());
+		let data: CalendarEvent[] = await response.json();
 		return data.map((event) => {
 			event.start_date = new Date(event.start_date);
 			event.end_date = new Date(event.end_date);
@@ -81,10 +81,7 @@
 	}
 	async function loadMobileMonth(y: number, m: number, prepend = false) {
 		const key = `${y}-${m}`;
-		if (
-			loadingMonths.has(key) ||
-			mobileMonths.some((mm) => mm.year === y && mm.month === m)
-		) {
+		if (loadingMonths.has(key) || mobileMonths.some((mm) => mm.year === y && mm.month === m)) {
 			return;
 		}
 		loadingMonths.add(key);
@@ -98,22 +95,15 @@
 		}
 		const data = await fetchEvents(y, m);
 		if (prepend) {
-			mobileMonths = [
-				{ month: m, year: y, events: data },
-				...mobileMonths,
-			];
+			mobileMonths = [{ month: m, year: y, events: data }, ...mobileMonths];
 			loadingPrev = false;
 			await tick();
 			if (container) {
 				const newScrollHeight = container.scrollHeight;
-				container.scrollTop =
-					newScrollHeight - prevScrollHeight + prevScrollTop;
+				container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
 			}
 		} else {
-			mobileMonths = [
-				...mobileMonths,
-				{ month: m, year: y, events: data },
-			];
+			mobileMonths = [...mobileMonths, { month: m, year: y, events: data }];
 			loadingNext = false;
 		}
 		loadingMonths.delete(key);
@@ -161,17 +151,12 @@
 			const keepEnd = Math.min(mobileMonths.length, lastVisible + 3);
 			if (keepStart > 0 || keepEnd < mobileMonths.length) {
 				const firstKept = months[keepStart];
-				const prevTop = firstKept
-					? (firstKept as HTMLElement).getBoundingClientRect().top
-					: 0;
+				const prevTop = firstKept ? (firstKept as HTMLElement).getBoundingClientRect().top : 0;
 				mobileMonths = mobileMonths.slice(keepStart, keepEnd);
 				tick().then(() => {
-					const newFirstKept =
-						el.querySelectorAll(".mobile-month")[0];
+					const newFirstKept = el.querySelectorAll(".mobile-month")[0];
 					if (newFirstKept) {
-						const newTop = (
-							newFirstKept as HTMLElement
-						).getBoundingClientRect().top;
+						const newTop = (newFirstKept as HTMLElement).getBoundingClientRect().top;
 						el.scrollTop += newTop - prevTop;
 					}
 				});
@@ -193,11 +178,7 @@
 <div class="calendar-responsive">
 	<!-- Desktop: Month navigation -->
 	<div class="calendar-nav">
-		<button
-			class="calendar-arrow"
-			onclick={loadPrevWeek}
-			aria-label="Semaine précédente"
-		>
+		<button class="calendar-arrow" onclick={loadPrevWeek} aria-label="Semaine précédente">
 			<svg
 				width="28"
 				height="28"
@@ -205,14 +186,7 @@
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<circle
-					cx="14"
-					cy="14"
-					r="13"
-					stroke="#b388ff"
-					stroke-width="2"
-					fill="#fff"
-				/>
+				<circle cx="14" cy="14" r="13" stroke="#b388ff" stroke-width="2" fill="#fff" />
 				<path
 					d="M16.5 9L12 14L16.5 19"
 					stroke="#b388ff"
@@ -234,11 +208,7 @@
 				>
 			</span>
 		</span>
-		<button
-			class="calendar-arrow"
-			onclick={loadNextWeek}
-			aria-label="Semaine suivante"
-		>
+		<button class="calendar-arrow" onclick={loadNextWeek} aria-label="Semaine suivante">
 			<svg
 				width="28"
 				height="28"
@@ -246,14 +216,7 @@
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<circle
-					cx="14"
-					cy="14"
-					r="13"
-					stroke="#b388ff"
-					stroke-width="2"
-					fill="#fff"
-				/>
+				<circle cx="14" cy="14" r="13" stroke="#b388ff" stroke-width="2" fill="#fff" />
 				<path
 					d="M11.5 9L16 14L11.5 19"
 					stroke="#b388ff"
@@ -265,36 +228,32 @@
 		</button>
 	</div>
 	<div class="calendar-table-wrapper">
-		
-			<table class="calendar desktop-view">
-				<thead>
-					<tr class="calendar-weekdays-row">
-						{#each getWeekDays(weekStart) as dayDate}
-							<th class="calendar-weekday-header">
-								{dayDate.toLocaleDateString(undefined, { weekday: 'long' })}
-							</th>
+		<table class="calendar desktop-view">
+			<thead>
+				<tr class="calendar-weekdays-row">
+					{#each getWeekDays(weekStart) as dayDate}
+						<th class="calendar-weekday-header">
+							{dayDate.toLocaleDateString(undefined, { weekday: "long" })}
+						</th>
+					{/each}
+				</tr>
+			</thead>
+			<tbody>
+				{#each getVisibleWeeks(weekStart) as weekStartDate}
+					<tr>
+						{#each getWeekDays(weekStartDate) as dayDate}
+							<td>
+								<CalendarDay {dayDate} {events} />
+							</td>
 						{/each}
 					</tr>
-				</thead>
-				<tbody>
-					{#each getVisibleWeeks(weekStart) as weekStartDate}
-						<tr>
-							{#each getWeekDays(weekStartDate) as dayDate}
-								<td>
-									<CalendarDay {dayDate} {events} />
-								</td>
-							{/each}
-						</tr>
-					{/each}
-				</tbody>
-			</table>
+				{/each}
+			</tbody>
+		</table>
 	</div>
 
 	<!-- Mobile vertical view with infinite scroll -->
-	<div
-		class="calendar mobile-view"
-		onscroll={handleMobileScroll}
-	>
+	<div class="calendar mobile-view" onscroll={handleMobileScroll}>
 		{#if loadingPrev}
 			<div class="spinner spinner-mobile"></div>
 		{/if}
@@ -309,11 +268,7 @@
 				{#each Array(new Date(m.year, m.month + 1, 0).getDate()) as _, dayIdx}
 					<div class="mobile-day">
 						<div class="mobile-day-header">
-							{new Date(
-								m.year,
-								m.month,
-								dayIdx + 1
-							).toLocaleDateString(undefined, {
+							{new Date(m.year, m.month, dayIdx + 1).toLocaleDateString(undefined, {
 								weekday: "long",
 								day: "numeric",
 								month: "short",
@@ -396,7 +351,7 @@
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 		outline: none;
 	}
-	
+
 	.calendar-arrow:hover {
 		background: #7c3aed;
 		border-color: #7c3aed;
@@ -468,7 +423,7 @@
 			min-height: 2.5rem;
 		}
 		.mobile-day-cell:empty::after {
-			content: 'Aucun événement';
+			content: "Aucun événement";
 			color: #9ca3af;
 			font-size: 0.875rem;
 			font-style: italic;
@@ -508,21 +463,21 @@
 		overflow-x: auto;
 		overflow-y: hidden;
 	}
-	
+
 	.calendar-table-wrapper::-webkit-scrollbar {
 		height: 8px;
 	}
-	
+
 	.calendar-table-wrapper::-webkit-scrollbar-track {
 		background: #f1f1f1;
 		border-radius: 4px;
 	}
-	
+
 	.calendar-table-wrapper::-webkit-scrollbar-thumb {
 		background: #c4b5fd;
 		border-radius: 4px;
 	}
-	
+
 	.calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
 		background: #a78bfa;
 	}

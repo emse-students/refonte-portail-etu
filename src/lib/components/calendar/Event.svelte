@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Association, RawEvent } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
-	import { page } from "$app/state";
 	import { resolve } from "$app/paths";
 	let {
 		title,
@@ -11,8 +10,8 @@
 		description,
 		association_id,
 		i,
-		count
-	}: RawEvent & { i?: number, count?: number } = $props();
+		count,
+	}: RawEvent & { i?: number; count?: number } = $props();
 
 	// get the association name from id (either from page data or fetch it if not available)
 	let association_name = $state("");
@@ -20,11 +19,11 @@
 	let association_link = $derived(resolve(`/associations/${association_handle}`));
 
 	fetch(resolve(`/api/associations/${association_id}`))
-				.then((res) => res.json())
-				.then((data: Association) => {
-					association_name = data.name;
-					association_handle = data.handle;
-				});
+		.then((res) => res.json())
+		.then((data: Association) => {
+			association_name = data.name;
+			association_handle = data.handle;
+		});
 
 	const palette = [
 		"#f7c873",
@@ -40,9 +39,8 @@
 	];
 	let color =
 		palette[
-			(association_id
-				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: title.length) % palette.length
+			(association_id ? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) : title.length) %
+				palette.length
 		];
 
 	let showModal = $state(false);
@@ -52,13 +50,11 @@
 	}
 	function closeModal() {
 		showModal = false;
-		if (page.state?.modalOpen) {
-			history.back();
-		}
+		history.back();
 	}
 	if (typeof window !== "undefined") {
-		window.addEventListener("popstate", (event) => {
-			if (showModal && event.state && event.state.modalOpen) {
+		window.addEventListener("popstate", () => {
+			if (showModal) {
 				closeModal();
 			}
 		});
@@ -67,14 +63,8 @@
 
 {#if showModal}
 	<div class="modal-overlay" role="presentation" onclick={closeModal}>
-		<div
-			class="modal"
-			role="presentation"
-			onclick={(event) => event.stopPropagation()}
-		>
-			<button class="close-btn" onclick={closeModal} aria-label="Fermer"
-				>&times;</button
-			>
+		<div class="modal" role="presentation" onclick={(event) => event.stopPropagation()}>
+			<button class="close-btn" onclick={closeModal} aria-label="Fermer">&times;</button>
 			<div class="modal-content">
 				<h2>{title}</h2>
 				<div class="modal-section">
@@ -123,7 +113,6 @@
 </div>
 
 <style>
-
 	.event-stack-item {
 		position: absolute;
 		left: 0;

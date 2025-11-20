@@ -8,24 +8,32 @@
 
 <svelte:head>
 	<title>Portail Étudiant</title>
-	<meta name="description" content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école." />
-	<meta name="keywords" content="emse, portail étudiant, vie associative, calendrier étudiant, gestion étudiante, ressources étudiantes" />
+	<meta
+		name="description"
+		content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école."
+	/>
+	<meta
+		name="keywords"
+		content="emse, portail étudiant, vie associative, calendrier étudiant, gestion étudiante, ressources étudiantes"
+	/>
 	<meta name="og:title" content="Portail Étudiant - Votre Espace Personnel" />
-	<meta name="og:description" content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école." />
+	<meta
+		name="og:description"
+		content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école."
+	/>
 	<meta name="og:type" content="website" />
 	<meta name="og:url" content="https://portail-etu.emse.fr/" />
-	<meta name="og:image" content="https://portail-etu.emse.fr/dev/logo.png" />
+	<meta name="og:image" content="https://portail-etu.emse.fr/logo.png" />
 </svelte:head>
 
 <section>
 	<h1>
-		Bienvenue {session?.user?.name ?? 'dans le portail étudiant'} !
+		Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
 	</h1>
 
 	<div class="calendar-fixed-container">
 		<Calendar />
 	</div>
-
 </section>
 
 <style>
@@ -62,7 +70,7 @@
 			transform: translateY(0);
 		}
 	}
-	
+
 	.calendar-fixed-container {
 		width: 100%;
 		max-width: 1200px;
@@ -79,7 +87,7 @@
 		overflow: hidden;
 		box-sizing: border-box;
 	}
-	
+
 	.calendar-fixed-container :global(.calendar-responsive) {
 		width: 100%;
 		max-width: 100%;
@@ -115,12 +123,12 @@
 			min-height: 400px;
 		}
 	}
-	
+
 	@media (max-width: 480px) {
 		section {
 			padding: 1.5rem 0.5rem;
 		}
-		
+
 		.calendar-fixed-container {
 			padding: 0.75rem;
 			border-radius: 12px;

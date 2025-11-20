@@ -1,51 +1,90 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
+	import { resolve } from "$app/paths";
+	import { onMount } from "svelte";
 
-	type TableName = 'users' | 'associations' | 'roles' | 'members' | 'events' | 'lists';
+	type TableName = "users" | "associations" | "roles" | "members" | "events" | "lists";
 
-	let selectedTable = $state<TableName>('users');
-	let data = $state<any[]>([]);
+	type DataRow = Record<string, string | number | boolean | null | undefined>;
+
+	let selectedTable = $state<TableName>("users");
+	let data = $state<DataRow[]>([]);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
-	let editingRow = $state<any | null>(null);
+	let editingRow = $state<DataRow | null>(null);
 	let showAddForm = $state(false);
-	let associations = $state<any[]>([]);
-	let users = $state<any[]>([]);
-	let roles = $state<any[]>([]);
-	let lists = $state<any[]>([]);
+	let associations = $state<DataRow[]>([]);
+	let users = $state<DataRow[]>([]);
+	let roles = $state<DataRow[]>([]);
+	let lists = $state<DataRow[]>([]);
 
 	const tableConfig = {
 		users: {
-			name: 'Utilisateurs',
-			columns: ['id', 'first_name', 'last_name', 'email', 'login', 'permissions'],
-			editableColumns: ['first_name', 'last_name', 'email', 'login', 'permissions']
+			name: "Utilisateurs",
+			columns: ["id", "first_name", "last_name", "email", "login", "permissions"],
+			editableColumns: ["first_name", "last_name", "email", "login", "permissions"],
 		},
 		associations: {
-			name: 'Associations',
-			columns: ['id', 'handle', 'name', 'description', 'color'],
-			editableColumns: ['handle', 'name', 'description', 'color']
+			name: "Associations",
+			columns: ["id", "handle", "name", "description", "color"],
+			editableColumns: ["handle", "name", "description", "color"],
 		},
 		lists: {
-			name: 'Listes',
-			columns: ['id', 'handle', 'name', 'description', 'association_id', 'promo', 'color', 'association_name'],
-			editableColumns: ['handle', 'name', 'description', 'association_id', 'promo', 'color']
+			name: "Listes",
+			columns: [
+				"id",
+				"handle",
+				"name",
+				"description",
+				"association_id",
+				"promo",
+				"color",
+				"association_name",
+			],
+			editableColumns: ["handle", "name", "description", "association_id", "promo", "color"],
 		},
 		roles: {
-			name: 'Rôles',
-			columns: ['id', 'name', 'hierarchy', 'permissions'],
-			editableColumns: ['name', 'hierarchy', 'permissions']
+			name: "Rôles",
+			columns: ["id", "name", "hierarchy", "permissions"],
+			editableColumns: ["name", "hierarchy", "permissions"],
 		},
 		members: {
-			name: 'Membres',
-			columns: ['id', 'user_id', 'association_id', 'list_id', 'role_id', 'visible', 'first_name', 'last_name', 'association_name', 'list_name', 'role_name'],
-			editableColumns: ['user_id', 'association_id', 'list_id', 'role_id', 'visible']
+			name: "Membres",
+			columns: [
+				"id",
+				"user_id",
+				"association_id",
+				"list_id",
+				"role_id",
+				"visible",
+				"first_name",
+				"last_name",
+				"association_name",
+				"list_name",
+				"role_name",
+			],
+			editableColumns: ["user_id", "association_id", "list_id", "role_id", "visible"],
 		},
 		events: {
-			name: 'Événements',
-			columns: ['id', 'association_id', 'title', 'description', 'start_date', 'end_date', 'location', 'association_name'],
-			editableColumns: ['association_id', 'title', 'description', 'start_date', 'end_date', 'location']
-		}
+			name: "Événements",
+			columns: [
+				"id",
+				"association_id",
+				"title",
+				"description",
+				"start_date",
+				"end_date",
+				"location",
+				"association_name",
+			],
+			editableColumns: [
+				"association_id",
+				"title",
+				"description",
+				"start_date",
+				"end_date",
+				"location",
+			],
+		},
 	};
 
 	async function fetchData() {
@@ -53,10 +92,10 @@
 		error = null;
 		try {
 			const response = await fetch(resolve(`/api/${selectedTable}`));
-			if (!response.ok) throw new Error('Erreur lors du chargement');
+			if (!response.ok) throw new Error("Erreur lors du chargement");
 			data = await response.json();
-		} catch (e: any) {
-			error = e.message;
+		} catch (e) {
+			error = e instanceof Error ? e.message : "Erreur inconnue";
 		} finally {
 			loading = false;
 		}
@@ -65,64 +104,64 @@
 	async function fetchReferenceData() {
 		try {
 			const [assocResp, usersResp, rolesResp, listsResp] = await Promise.all([
-				fetch(resolve('/api/associations')),
-				fetch(resolve('/api/users')),
-				fetch(resolve('/api/roles')),
-				fetch(resolve('/api/lists'))
+				fetch(resolve("/api/associations")),
+				fetch(resolve("/api/users")),
+				fetch(resolve("/api/roles")),
+				fetch(resolve("/api/lists")),
 			]);
 			associations = await assocResp.json();
 			users = await usersResp.json();
 			roles = await rolesResp.json();
 			lists = await listsResp.json();
 		} catch (e) {
-			console.error('Erreur lors du chargement des données de référence', e);
+			console.error("Erreur lors du chargement des données de référence", e);
 		}
 	}
 
-	async function deleteRow(row: any) {
-		if (!confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) return;
+	async function deleteRow(row: DataRow) {
+		if (!confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) return;
 
 		try {
 			const response = await fetch(resolve(`/api/${selectedTable}`), {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id: row.id })
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ id: row.id }),
 			});
 
-			if (!response.ok) throw new Error('Erreur lors de la suppression');
+			if (!response.ok) throw new Error("Erreur lors de la suppression");
 			await fetchData();
-		} catch (e: any) {
-			alert('Erreur: ' + e.message);
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
 		}
 	}
 
-	async function saveRow(row: any) {
+	async function saveRow(row: DataRow) {
 		try {
-			const method = row.id ? 'PUT' : 'POST';
-			const apiPath = `/api/${selectedTable}` as any;
-			const response = await fetch(resolve(apiPath), {
+			const method = row.id ? "PUT" : "POST";
+			const apiPath = `/api/${selectedTable}`;
+			const response = await fetch(apiPath, {
 				method,
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(row)
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(row),
 			});
 
-			if (!response.ok) throw new Error('Erreur lors de la sauvegarde');
+			if (!response.ok) throw new Error("Erreur lors de la sauvegarde");
 			await fetchData();
 			editingRow = null;
 			showAddForm = false;
-		} catch (e: any) {
-			alert('Erreur: ' + e.message);
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
 		}
 	}
 
-	function startEdit(row: any) {
+	function startEdit(row: DataRow) {
 		editingRow = { ...row };
 	}
 
 	function startAdd() {
 		const config = tableConfig[selectedTable];
-		editingRow = config.editableColumns.reduce((acc: any, col: string) => {
-			acc[col] = '';
+		editingRow = config.editableColumns.reduce((acc: DataRow, col: string) => {
+			acc[col] = "";
 			return acc;
 		}, {});
 		showAddForm = true;
@@ -133,12 +172,15 @@
 		showAddForm = false;
 	}
 
-	function formatValue(value: any, column: string): string {
-		if (value === null || value === undefined) return '-';
-		if (column.includes('date') && value) {
-			return new Date(value).toLocaleString('fr-FR');
+	function formatValue(
+		value: string | number | boolean | null | undefined,
+		column: string
+	): string {
+		if (value === null || value === undefined) return "-";
+		if (typeof value === "boolean") return value ? "✓" : "✗";
+		if (column.includes("date") && value) {
+			return new Date(value as string | number).toLocaleString("fr-FR");
 		}
-		if (typeof value === 'boolean') return value ? '✓' : '✗';
 		return String(value);
 	}
 
@@ -160,40 +202,25 @@
 	<h1>Administration Base de Données</h1>
 
 	<div class="table-selector">
-		<button
-			class:active={selectedTable === 'users'}
-			onclick={() => (selectedTable = 'users')}
-		>
+		<button class:active={selectedTable === "users"} onclick={() => (selectedTable = "users")}>
 			Utilisateurs
 		</button>
 		<button
-			class:active={selectedTable === 'associations'}
-			onclick={() => (selectedTable = 'associations')}
+			class:active={selectedTable === "associations"}
+			onclick={() => (selectedTable = "associations")}
 		>
 			Associations
 		</button>
-		<button
-			class:active={selectedTable === 'lists'}
-			onclick={() => (selectedTable = 'lists')}
-		>
+		<button class:active={selectedTable === "lists"} onclick={() => (selectedTable = "lists")}>
 			Listes
 		</button>
-		<button
-			class:active={selectedTable === 'roles'}
-			onclick={() => (selectedTable = 'roles')}
-		>
+		<button class:active={selectedTable === "roles"} onclick={() => (selectedTable = "roles")}>
 			Rôles
 		</button>
-		<button
-			class:active={selectedTable === 'members'}
-			onclick={() => (selectedTable = 'members')}
-		>
+		<button class:active={selectedTable === "members"} onclick={() => (selectedTable = "members")}>
 			Membres
 		</button>
-		<button
-			class:active={selectedTable === 'events'}
-			onclick={() => (selectedTable = 'events')}
-		>
+		<button class:active={selectedTable === "events"} onclick={() => (selectedTable = "events")}>
 			Événements
 		</button>
 	</div>
@@ -202,9 +229,7 @@
 		<button class="btn-add" onclick={startAdd}>
 			➕ Ajouter {tableConfig[selectedTable].name}
 		</button>
-		<button class="btn-refresh" onclick={fetchData}>
-			🔄 Rafraîchir
-		</button>
+		<button class="btn-refresh" onclick={fetchData}> 🔄 Rafraîchir </button>
 	</div>
 
 	{#if loading}
@@ -223,56 +248,52 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#if showAddForm}
+					{#if showAddForm && editingRow}
 						<tr class="editing-row">
 							{#each tableConfig[selectedTable].columns as column}
 								<td>
 									{#if tableConfig[selectedTable].editableColumns.includes(column)}
-										{#if column === 'visible'}
+										{#if column === "visible"}
 											<input
 												type="checkbox"
-												bind:checked={editingRow[column]}
+												checked={!!editingRow[column]}
+												onchange={(e) =>
+													editingRow && (editingRow[column] = e.currentTarget.checked)}
 											/>
-										{:else if column === 'association_id'}
+										{:else if column === "association_id"}
 											<select bind:value={editingRow[column]}>
 												<option value="">-</option>
 												{#each associations as assoc}
 													<option value={assoc.id}>{assoc.name}</option>
 												{/each}
 											</select>
-										{:else if column === 'user_id'}
+										{:else if column === "user_id"}
 											<select bind:value={editingRow[column]}>
 												<option value="">-</option>
 												{#each users as user}
 													<option value={user.id}>{user.first_name} {user.last_name}</option>
 												{/each}
 											</select>
-										{:else if column === 'role_id'}
+										{:else if column === "role_id"}
 											<select bind:value={editingRow[column]}>
 												<option value="">-</option>
 												{#each roles as role}
 													<option value={role.id}>{role.name}</option>
 												{/each}
 											</select>
-										{:else if column === 'list_id'}
+										{:else if column === "list_id"}
 											<select bind:value={editingRow[column]}>
 												<option value="">-</option>
 												{#each lists as list}
 													<option value={list.id}>{list.name}</option>
 												{/each}
 											</select>
-										{:else if column.includes('date')}
-											<input
-												type="datetime-local"
-												bind:value={editingRow[column]}
-											/>
-										{:else if column === 'description'}
+										{:else if column.includes("date")}
+											<input type="datetime-local" bind:value={editingRow[column]} />
+										{:else if column === "description"}
 											<textarea bind:value={editingRow[column]}></textarea>
 										{:else}
-											<input
-												type="text"
-												bind:value={editingRow[column]}
-											/>
+											<input type="text" bind:value={editingRow[column]} />
 										{/if}
 									{:else}
 										-
@@ -280,7 +301,9 @@
 								</td>
 							{/each}
 							<td class="actions-cell">
-								<button class="btn-save" onclick={() => saveRow(editingRow)}>💾</button>
+								<button class="btn-save" onclick={() => editingRow && saveRow(editingRow)}
+									>💾</button
+								>
 								<button class="btn-cancel" onclick={cancelEdit}>❌</button>
 							</td>
 						</tr>
@@ -291,51 +314,47 @@
 								{#each tableConfig[selectedTable].columns as column}
 									<td>
 										{#if tableConfig[selectedTable].editableColumns.includes(column)}
-											{#if column === 'visible'}
+											{#if column === "visible"}
 												<input
 													type="checkbox"
-													bind:checked={editingRow[column]}
+													checked={!!editingRow[column]}
+													onchange={(e) =>
+														editingRow && (editingRow[column] = e.currentTarget.checked)}
 												/>
-											{:else if column === 'association_id'}
+											{:else if column === "association_id"}
 												<select bind:value={editingRow[column]}>
 													<option value="">-</option>
 													{#each associations as assoc}
 														<option value={assoc.id}>{assoc.name}</option>
 													{/each}
 												</select>
-											{:else if column === 'user_id'}
+											{:else if column === "user_id"}
 												<select bind:value={editingRow[column]}>
 													<option value="">-</option>
 													{#each users as user}
 														<option value={user.id}>{user.first_name} {user.last_name}</option>
 													{/each}
 												</select>
-											{:else if column === 'role_id'}
+											{:else if column === "role_id"}
 												<select bind:value={editingRow[column]}>
 													<option value="">-</option>
 													{#each roles as role}
 														<option value={role.id}>{role.name}</option>
 													{/each}
 												</select>
-											{:else if column === 'list_id'}
+											{:else if column === "list_id"}
 												<select bind:value={editingRow[column]}>
 													<option value="">-</option>
 													{#each lists as list}
 														<option value={list.id}>{list.name}</option>
 													{/each}
 												</select>
-											{:else if column.includes('date')}
-												<input
-													type="datetime-local"
-													bind:value={editingRow[column]}
-												/>
-											{:else if column === 'description'}
+											{:else if column.includes("date")}
+												<input type="datetime-local" bind:value={editingRow[column]} />
+											{:else if column === "description"}
 												<textarea bind:value={editingRow[column]}></textarea>
 											{:else}
-												<input
-													type="text"
-													bind:value={editingRow[column]}
-												/>
+												<input type="text" bind:value={editingRow[column]} />
 											{/if}
 										{:else}
 											{formatValue(row[column], column)}
@@ -343,7 +362,9 @@
 									</td>
 								{/each}
 								<td class="actions-cell">
-									<button class="btn-save" onclick={() => saveRow(editingRow)}>💾</button>
+									<button class="btn-save" onclick={() => editingRow && saveRow(editingRow)}
+										>💾</button
+									>
 									<button class="btn-cancel" onclick={cancelEdit}>❌</button>
 								</td>
 							</tr>
@@ -526,8 +547,8 @@
 		background: #fde047;
 	}
 
-	input[type='text'],
-	input[type='datetime-local'],
+	input[type="text"],
+	input[type="datetime-local"],
 	select,
 	textarea {
 		width: 100%;
@@ -542,7 +563,7 @@
 		resize: vertical;
 	}
 
-	input[type='checkbox'] {
+	input[type="checkbox"] {
 		width: auto;
 		cursor: pointer;
 	}

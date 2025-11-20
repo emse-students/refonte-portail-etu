@@ -41,30 +41,35 @@ Cette interface permet de gérer toutes les tables principales de la base de don
 Toutes les routes suivent le pattern REST standard :
 
 ### `/dev/api/users`
+
 - `GET` : Liste tous les utilisateurs
 - `POST` : Crée un nouvel utilisateur
 - `PUT` : Met à jour un utilisateur existant
 - `DELETE` : Supprime un utilisateur
 
 ### `/dev/api/roles`
+
 - `GET` : Liste tous les rôles
 - `POST` : Crée un nouveau rôle
 - `PUT` : Met à jour un rôle
 - `DELETE` : Supprime un rôle
 
 ### `/dev/api/members`
+
 - `GET` : Liste tous les membres avec JOIN sur users, associations et roles
 - `POST` : Crée un nouveau membre
 - `PUT` : Met à jour un membre
 - `DELETE` : Supprime un membre
 
 ### `/dev/api/events`
+
 - `GET` : Liste tous les événements avec JOIN sur associations
 - `POST` : Crée un nouvel événement
 - `PUT` : Met à jour un événement
 - `DELETE` : Supprime un événement
 
 ### Existantes (conservées)
+
 - `/dev/api/associations` : GET (liste), POST (création)
 - `/dev/api/associations/[id]` : GET, PUT, DELETE
 - `/dev/api/user/[id]` : GET (avec option fullUser)
@@ -96,6 +101,7 @@ Les opérations de lecture (GET) sont publiques pour faciliter la consultation.
 ## Responsive
 
 L'interface s'adapte aux écrans mobiles avec :
+
 - Boutons réorganisés
 - Tableau scrollable horizontalement
 - Actions réduites en colonnes sur petit écran

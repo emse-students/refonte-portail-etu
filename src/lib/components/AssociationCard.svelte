@@ -1,142 +1,149 @@
 <script lang="ts">
-    import type { Association } from "$lib/databasetypes";
+	import type { Association } from "$lib/databasetypes";
 
-    export let association: Association;
+	export let association: Association;
 
-    import { resolve, asset } from "$app/paths";
+	import { resolve, asset } from "$app/paths";
 
-    // Function to get the full URL for the association logo
-    function getLogoUrl(logoPath: string): string {
-        return asset(logoPath);
-    }
+	// Function to get the full URL for the association logo
+	function getLogoUrl(logoPath: string): string {
+		return asset(logoPath);
+	}
 </script>
 
 <div class="association-card">
-    <a href={resolve(`/associations/${association.handle}`)} aria-label={`Voir les détails de ${association.name}`}>
-    {#if association.icon}
-        <img src={getLogoUrl(association.icon)} alt={`${association.name} logo`} class="association-logo" />
-    {:else}
-        <div class="association-logo-placeholder">
-            <span class="placeholder-text">{association.name.charAt(0).toUpperCase()}</span>
-        </div>
-    {/if}
-    <div class="association-info">
-        <h2 class="association-name">{association.name}</h2>
-    </div>
-    </a>
+	<a
+		href={resolve(`/associations/${association.handle}`)}
+		aria-label={`Voir les détails de ${association.name}`}
+	>
+		{#if association.icon}
+			<img
+				src={getLogoUrl(association.icon)}
+				alt={`${association.name} logo`}
+				class="association-logo"
+			/>
+		{:else}
+			<div class="association-logo-placeholder">
+				<span class="placeholder-text">{association.name.charAt(0).toUpperCase()}</span>
+			</div>
+		{/if}
+		<div class="association-info">
+			<h2 class="association-name">{association.name}</h2>
+		</div>
+	</a>
 </div>
 
 <style>
-    .association-card {
-        position: relative;
-        border-radius: 16px;
-        padding: 0;
-        overflow: hidden;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+	.association-card {
+		position: relative;
+		border-radius: 16px;
+		padding: 0;
+		overflow: hidden;
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	}
 
-    .association-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: #7c3aed;
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-    }
+	.association-card::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: #7c3aed;
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.3s ease;
+	}
 
-    .association-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-        border-color: #7c3aed;
-    }
+	.association-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+		border-color: #7c3aed;
+	}
 
-    .association-card:hover::before {
-        transform: scaleX(1);
-    }
+	.association-card:hover::before {
+		transform: scaleX(1);
+	}
 
-    .association-card a {
-        display: flex;
-        flex-direction: column;
-        text-decoration: none;
-        color: inherit;
-        height: 100%;
-    }
+	.association-card a {
+		display: flex;
+		flex-direction: column;
+		text-decoration: none;
+		color: inherit;
+		height: 100%;
+	}
 
-    .association-logo {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        background: #f9fafb;
-        transition: transform 0.3s ease;
-    }
+	.association-logo {
+		width: 100%;
+		height: 200px;
+		object-fit: cover;
+		background: #f9fafb;
+		transition: transform 0.3s ease;
+	}
 
-    .association-logo-placeholder {
-        width: 100%;
-        height: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #7c3aed;
-        transition: transform 0.3s ease;
-    }
+	.association-logo-placeholder {
+		width: 100%;
+		height: 200px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #7c3aed;
+		transition: transform 0.3s ease;
+	}
 
-    .placeholder-text {
-        font-size: 5rem;
-        font-weight: 700;
-        color: white;
-        user-select: none;
-    }
+	.placeholder-text {
+		font-size: 5rem;
+		font-weight: 700;
+		color: white;
+		user-select: none;
+	}
 
-    .association-card:hover .association-logo,
-    .association-card:hover .association-logo-placeholder {
-        transform: scale(1.02);
-    }
+	.association-card:hover .association-logo,
+	.association-card:hover .association-logo-placeholder {
+		transform: scale(1.02);
+	}
 
-    .association-info {
-        padding: 1.5rem;
-        text-align: center;
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+	.association-info {
+		padding: 1.5rem;
+		text-align: center;
+		flex-grow: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-    .association-name {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1a202c;
-        margin: 0;
-        line-height: 1.4;
-        transition: color 0.2s ease;
-    }
+	.association-name {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #1a202c;
+		margin: 0;
+		line-height: 1.4;
+		transition: color 0.2s ease;
+	}
 
-    .association-card:hover .association-name {
-        color: #7c3aed;
-    }
+	.association-card:hover .association-name {
+		color: #7c3aed;
+	}
 
-    @media (max-width: 768px) {
-        .association-logo,
-        .association-logo-placeholder {
-            height: 160px;
-        }
+	@media (max-width: 768px) {
+		.association-logo,
+		.association-logo-placeholder {
+			height: 160px;
+		}
 
-        .placeholder-text {
-            font-size: 4rem;
-        }
+		.placeholder-text {
+			font-size: 4rem;
+		}
 
-        .association-info {
-            padding: 1rem;
-        }
+		.association-info {
+			padding: 1rem;
+		}
 
-        .association-name {
-            font-size: 1.1rem;
-        }
-    }
+		.association-name {
+			font-size: 1.1rem;
+		}
+	}
 </style>

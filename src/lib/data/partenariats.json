@@ -1,0 +1,14 @@
+[
+	{
+		"name": "Partenariat A",
+		"description": "Description du partenariat A",
+		"url": "https://partenariat-a.example.com",
+		"logo": "/images/partenariat-a-logo.png"
+	},
+	{
+		"name": "Partenariat B",
+		"description": "Description du partenariat B",
+		"url": "https://partenariat-b.example.com",
+		"logo": "/images/partenariat-b-logo.png"
+	}
+]

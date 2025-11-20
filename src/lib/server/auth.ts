@@ -1,5 +1,5 @@
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { env } from '$env/dynamic/private';
+import { env } from "$env/dynamic/private";
 
 export const { handle } = SvelteKitAuth({
 	providers: [
@@ -13,10 +13,9 @@ export const { handle } = SvelteKitAuth({
 			authorization: {
 				scope: "openid profile email",
 			},
-			
 		},
 	],
-	trustHost: env.AUTH_TRUSTED_HOST === 'true',
+	trustHost: env.AUTH_TRUSTED_HOST === "true",
 	secret: env.AUTH_SECRET,
 	callbacks: {
 		async jwt({ token, user, profile }) {
@@ -24,7 +23,6 @@ export const { handle } = SvelteKitAuth({
 
 			if (user) {
 				token.id = profile?.sub;
-
 			}
 			return token;
 		},
@@ -35,6 +33,6 @@ export const { handle } = SvelteKitAuth({
 				session.user.name = token.name as string;
 			}
 			return session;
-		}
-	}
+		},
+	},
 });

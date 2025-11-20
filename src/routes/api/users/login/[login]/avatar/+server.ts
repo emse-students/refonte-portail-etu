@@ -2,42 +2,41 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
 
 export const GET = async (event: RequestEvent) => {
-    const login = event.params.login;
+	const login = event.params.login;
 
-    // Authentication check
+	// Authentication check
 
-    if (!event.locals.session?.user) {
-        return new Response(null, { status: 401 });
-    }
+	if (!event.locals.session?.user) {
+		return new Response(null, { status: 401 });
+	}
 
-    // Fetch user by login from migallery (with api key if needed)
+	// Fetch user by login from migallery (with api key if needed)
 
-    const avatar = await event.fetch(`https://gallery.mitv.fr/api/users/${login}/avatar`,
-        {
-            method: 'GET',
-            headers: {
-                'Accept': 'image/jpeg',
-                'X-Api-Key': env.MIGALLERY_API_KEY as string,
-            },
+	const avatar = await event
+		.fetch(`https://gallery.mitv.fr/api/users/${login}/avatar`, {
+			method: "GET",
+			headers: {
+				Accept: "image/jpeg",
+				"X-Api-Key": env.MIGALLERY_API_KEY as string,
+			},
+		})
+		.then((res) => {
+			if (res.ok) {
+				return res.arrayBuffer();
+			} else {
+				return null;
+			}
+		});
 
-        }
-    ).then(res => {
-        if (res.ok) {
-            return res.arrayBuffer();
-        } else {
-            return null;
-        }
-    });
-
-    if (avatar) {
-        return new Response(avatar, {
-            headers: {
-                'Content-Type': 'image/jpeg',
-            }
-        });
-    } else {
-        return new Response(null, {
-            status: 404,
-        });
-    }
+	if (avatar) {
+		return new Response(avatar, {
+			headers: {
+				"Content-Type": "image/jpeg",
+			},
+		});
+	} else {
+		return new Response(null, {
+			status: 404,
+		});
+	}
 };

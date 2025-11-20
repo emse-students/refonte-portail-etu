@@ -1,4 +1,4 @@
-// Raw types : 
+// Raw types :
 
 export type RawAssociation = {
 	id: number;

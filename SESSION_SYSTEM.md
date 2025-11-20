@@ -56,6 +56,7 @@ Le portail étudiant utilise un système de session avec cookies sécurisés pou
 ```
 
 Exemple :
+
 ```
 a1b2c3d4e5f6...:<encrypted_data>.<hmac_signature>
 ```
@@ -67,19 +68,19 @@ a1b2c3d4e5f6...:<encrypted_data>.<hmac_signature>
 Dans n'importe quel endpoint serveur :
 
 ```typescript
-import { requireAuth } from '$lib/server/auth-middleware';
+import { requireAuth } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
-  const user = await requireAuth(event);
-  
-  if (!user) {
-    return json({ error: 'Non autorisé' }, { status: 401 });
-  }
-  
-  // user contient toutes les données, incluant les memberships
-  console.log(user.memberships);
-  
-  return json({ user });
+	const user = await requireAuth(event);
+
+	if (!user) {
+		return json({ error: "Non autorisé" }, { status: 401 });
+	}
+
+	// user contient toutes les données, incluant les memberships
+	console.log(user.memberships);
+
+	return json({ user });
 };
 ```
 
@@ -88,7 +89,7 @@ export const GET = async (event: RequestEvent) => {
 Après modification des permissions ou du profil utilisateur :
 
 ```typescript
-import { clearSessionCookie } from '$lib/server/session';
+import { clearSessionCookie } from "$lib/server/session";
 
 // Dans votre endpoint
 clearSessionCookie(event);
@@ -99,7 +100,7 @@ Ou via l'API :
 
 ```javascript
 // Côté client
-await fetch('/api/auth/refresh', { method: 'POST' });
+await fetch("/api/auth/refresh", { method: "POST" });
 ```
 
 ## Variables d'environnement
@@ -149,10 +150,10 @@ AUTH_SECRET=votre-secret-tres-securise-de-32-caracteres-minimum
 
 ```typescript
 // Déconnexion
-await fetch('/api/auth/logout', { method: 'POST' });
+await fetch("/api/auth/logout", { method: "POST" });
 
 // Ou forcer le rafraîchissement
-await fetch('/api/auth/refresh', { method: 'POST' });
+await fetch("/api/auth/refresh", { method: "POST" });
 ```
 
 ## Logs et debugging
@@ -165,6 +166,7 @@ Current locals before processing: { session: {...}, userData: {...} }
 ```
 
 En cas d'erreur :
+
 ```
 Erreur lors du chargement de userData: <erreur>
 Signature de session invalide
@@ -192,12 +194,13 @@ Pour migrer d'un système à l'autre, aucune action requise. Le système détect
 Le système fonctionne en développement avec des cookies non-sécurisés (HTTP) :
 
 ```typescript
-secure: process.env.PROD === 'true'
+secure: process.env.PROD === "true";
 ```
 
 ### Production
 
 En production, assurez-vous que :
+
 - `PROD=true` est défini
 - Le site utilise HTTPS
 - `AUTH_SECRET` est un secret fort et unique

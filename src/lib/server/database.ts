@@ -5,176 +5,188 @@ import type { Association, List, Member, RawAssociation, RawList } from "$lib/da
 let pool: Pool | null = null;
 
 function ensurePool() {
-    if (!pool) {
-        pool = createPool({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            port: Number(process.env.DB_PORT) || 3306,
-            connectionLimit: 10,
-        });
-    }
+	if (!pool) {
+		pool = createPool({
+			host: process.env.DB_HOST,
+			user: process.env.DB_USER,
+			password: process.env.DB_PASSWORD,
+			database: process.env.DB_NAME,
+			port: Number(process.env.DB_PORT) || 3306,
+			connectionLimit: 10,
+		});
+	}
 }
 
-export default async function db<T = any>(strings: TemplateStringsArray, ...values: any[]) {
-    const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
-    const rows = (await getPool().query<RowDataPacket[]>(query, values))[0];
-    return rows as T[];
+export default async function db<T = RowDataPacket>(
+	strings: TemplateStringsArray,
+	...values: unknown[]
+) {
+	const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
+	const rows = (await getPool().query<RowDataPacket[]>(query, values))[0];
+	return rows as T[];
 }
 
 export function getPool(): Pool {
-    ensurePool();
-    return pool as Pool;
+	ensurePool();
+	return pool as Pool;
 }
 
 export { escape } from "mysql2/promise";
 
-
 export async function getBasicAssociation(raw: RawAssociation): Promise<Association> {
-
-    const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
-    return {
-        id: raw.id,
-        handle: raw.handle,
-        name: raw.name,
-        description: raw.description,
-        members: [],
-        icon: iconUrl,
-        color: raw.color,
-    };
+	const iconUrl =
+		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
+			?.filename || "";
+	return {
+		id: raw.id,
+		handle: raw.handle,
+		name: raw.name,
+		description: raw.description,
+		members: [],
+		icon: iconUrl,
+		color: raw.color,
+	};
 }
 
 export async function getAssociationWithMembers(raw: RawAssociation): Promise<Association> {
-
-    const membersData = await db`
+	const membersData = (await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
         JOIN role r ON m.role_id = r.id
         WHERE m.association_id = ${raw.id}
-    ` as {
-        member_id: number;
-        visible: boolean;
-        user_id: number;
-        first_name: string;
-        last_name: string;
-        user_email: string;
-        user_login: string;
-        role_id: number;
-        role_name: string;
-        role_permissions: number;
-        hierarchy: number;
-        user_promo: number;
-    }[];
-    const members = membersData.map((m) => ({
-        user: {
-            id: m.user_id,
-            first_name: m.first_name,
-            last_name: m.last_name,
-            email: m.user_email,
-            login: m.user_login,
-            promo: m.user_promo,
-            permissions: 0, // Not needed here
-        },
-        role: {
-            id: m.role_id,
-            name: m.role_name,
-            permissions: m.role_permissions,
-            hierarchy: m.hierarchy,
-        },
-        id: m.member_id,
-        visible: m.visible,
-        association: raw.id
-    }) as Member);
-    
-    const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
+    `) as {
+		member_id: number;
+		visible: boolean;
+		user_id: number;
+		first_name: string;
+		last_name: string;
+		user_email: string;
+		user_login: string;
+		role_id: number;
+		role_name: string;
+		role_permissions: number;
+		hierarchy: number;
+		user_promo: number;
+	}[];
+	const members = membersData.map(
+		(m) =>
+			({
+				user: {
+					id: m.user_id,
+					first_name: m.first_name,
+					last_name: m.last_name,
+					email: m.user_email,
+					login: m.user_login,
+					promo: m.user_promo,
+					permissions: 0, // Not needed here
+				},
+				role: {
+					id: m.role_id,
+					name: m.role_name,
+					permissions: m.role_permissions,
+					hierarchy: m.hierarchy,
+				},
+				id: m.member_id,
+				visible: m.visible,
+				association: raw.id,
+			}) as Member
+	);
 
-    return {
-        id: raw.id,
-        handle: raw.handle,
-        name: raw.name,
-        description: raw.description,
-        members: members,
-        icon: iconUrl,
-        color: raw.color,
-    };
+	const iconUrl =
+		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
+			?.filename || "";
+
+	return {
+		id: raw.id,
+		handle: raw.handle,
+		name: raw.name,
+		description: raw.description,
+		members: members,
+		icon: iconUrl,
+		color: raw.color,
+	};
 }
 
 export async function getBasicList(raw: RawList): Promise<List> {
-
-    const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
-    return {
-        id: raw.id,
-        handle: raw.handle,
-        name: raw.name,
-        description: raw.description,
-        members: [],
-        icon: iconUrl,
-        color: raw.color,
-        promo: raw.promo,
-        association_id: raw.association_id
-    };
+	const iconUrl =
+		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
+			?.filename || "";
+	return {
+		id: raw.id,
+		handle: raw.handle,
+		name: raw.name,
+		description: raw.description,
+		members: [],
+		icon: iconUrl,
+		color: raw.color,
+		promo: raw.promo,
+		association_id: raw.association_id,
+	};
 }
 
 export async function getListWithMembers(raw: RawList): Promise<List> {
-
-    const membersData = await db`
+	const membersData = (await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
         JOIN role r ON m.role_id = r.id
         WHERE m.list_id = ${raw.id}
-    ` as {
-        member_id: number;
-        visible: boolean;
-        user_id: number;
-        first_name: string;
-        last_name: string;
-        user_email: string;
-        user_login: string;
-        role_id: number;
-        role_name: string;
-        role_permissions: number;
-        hierarchy: number;
-        user_promo: number;
-    }[];
-    const members = membersData.map((m) => ({
-        user: {
-            id: m.user_id,
-            first_name: m.first_name,
-            last_name: m.last_name,
-            email: m.user_email,
-            login: m.user_login,
-            promo: m.user_promo,
-            permissions: 0, // Not needed here
-        },
-        role: {
-            id: m.role_id,
-            name: m.role_name,
-            permissions: m.role_permissions,
-            hierarchy: m.hierarchy,
-        },
-        id: m.member_id,
-        visible: m.visible,
-        list: raw.id
-    }) as Member);
+    `) as {
+		member_id: number;
+		visible: boolean;
+		user_id: number;
+		first_name: string;
+		last_name: string;
+		user_email: string;
+		user_login: string;
+		role_id: number;
+		role_name: string;
+		role_permissions: number;
+		hierarchy: number;
+		user_promo: number;
+	}[];
+	const members = membersData.map(
+		(m) =>
+			({
+				user: {
+					id: m.user_id,
+					first_name: m.first_name,
+					last_name: m.last_name,
+					email: m.user_email,
+					login: m.user_login,
+					promo: m.user_promo,
+					permissions: 0, // Not needed here
+				},
+				role: {
+					id: m.role_id,
+					name: m.role_name,
+					permissions: m.role_permissions,
+					hierarchy: m.hierarchy,
+				},
+				id: m.member_id,
+				visible: m.visible,
+				list: raw.id,
+			}) as Member
+	);
 
-    console.log(`Fetched ${members.length} members for list ${raw.handle}`);
-    
-    const iconUrl = (await db`SELECT filename FROM image WHERE id = ${raw.icon}` as { filename: string }[])[0]?.filename || "";
+	console.log(`Fetched ${members.length} members for list ${raw.handle}`);
 
-    return {
-        id: raw.id,
-        handle: raw.handle,
-        name: raw.name,
-        description: raw.description,
-        members: members,
-        icon: iconUrl,
-        color: raw.color,
-        association_id: raw.association_id,
-        promo: raw.promo
-    };
+	const iconUrl =
+		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
+			?.filename || "";
+
+	return {
+		id: raw.id,
+		handle: raw.handle,
+		name: raw.name,
+		description: raw.description,
+		members: members,
+		icon: iconUrl,
+		color: raw.color,
+		association_id: raw.association_id,
+		promo: raw.promo,
+	};
 }

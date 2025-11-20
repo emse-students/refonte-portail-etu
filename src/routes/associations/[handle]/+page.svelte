@@ -7,28 +7,29 @@
 	let { data } = $props();
 	const association: Association = data.association;
 	const events: RawEvent[] = data.events || [];
-	
+
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
-		association.members?.filter(m => m.role.hierarchy >= 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		association.members
+			?.filter((m) => m.role.hierarchy >= 6)
+			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
 	);
 	const otherMembers = $derived(
-		association.members?.filter(m => m.role.hierarchy < 6).sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		association.members
+			?.filter((m) => m.role.hierarchy < 6)
+			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
 	);
 </script>
 
 <svelte:head>
 	<title>{association.name}</title>
-	<meta
-		name="description"
-		content="Découvrez la vie associative de notre campus."
-	/>
+	<meta name="description" content="Découvrez la vie associative de notre campus." />
 </svelte:head>
 <div class="container">
 	<header class="page-header">
 		<h1>{association.name}</h1>
 	</header>
-	
+
 	<div class="content-wrapper">
 		{#if association.description}
 			<section class="description-section">

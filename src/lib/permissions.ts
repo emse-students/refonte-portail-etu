@@ -8,31 +8,20 @@ enum Permission {
 
 export default Permission;
 
-export function hasPermission(
-	userPermissions: number,
-	permissionToCheck: Permission
-): boolean {
+export function hasPermission(userPermissions: number, permissionToCheck: Permission): boolean {
 	return ((userPermissions & permissionToCheck) | (userPermissions & Permission.SITE_ADMIN)) !== 0;
 }
 
-export function addPermission(
-	userPermissions: number,
-	permissionToAdd: Permission
-): number {
+export function addPermission(userPermissions: number, permissionToAdd: Permission): number {
 	return userPermissions | permissionToAdd;
 }
 
-export function removePermission(
-	userPermissions: number,
-	permissionToRemove: Permission
-): number {
+export function removePermission(userPermissions: number, permissionToRemove: Permission): number {
 	return userPermissions & ~permissionToRemove;
 }
 
 export function listPermissions(userPermissions: number): Permission[] {
 	return Object.values(Permission).filter(
-		(value) =>
-			typeof value === "number" &&
-			hasPermission(userPermissions, value as Permission)
+		(value) => typeof value === "number" && hasPermission(userPermissions, value as Permission)
 	) as Permission[];
 }

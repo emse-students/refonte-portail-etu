@@ -1,8 +1,8 @@
 import { handle as authHandle } from "$lib/server/auth";
 import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
-import 'dotenv/config';
-import type { FullUser, Member, RawUser } from "$lib/databasetypes";
+import "dotenv/config";
+import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 
@@ -10,33 +10,36 @@ import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/serve
 const userDataHandle: Handle = async ({ event, resolve }) => {
 	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
 	const session = await event.locals.auth();
-	
+
 	// Toujours définir la session dans locals
 	if (session) {
 		event.locals.session = session;
 	}
-	
+
 	// Essayer d'abord de récupérer les données depuis le cookie de session
 	let userData = getSessionData(event);
-	
+
 	// Si pas de session Auth.js mais qu'il y a un cookie user_session, l'invalider
-	if ((!session?.user?.id && userData) || (session?.user?.id !== userData?.login)) {
-		console.log('Session Auth.js invalide mais cookie user_session présent → suppression du cookie');
+	if ((!session?.user?.id && userData) || session?.user?.id !== userData?.login) {
+		console.log(
+			"Session Auth.js invalide mais cookie user_session présent → suppression du cookie"
+		);
 		clearSessionCookie(event);
 		userData = null;
 	}
-	
-	
+
 	// Si pas de données en session ou si la session Auth.js ne correspond pas
 	if (session?.user?.id && !userData) {
-		
 		try {
 			// Charger les données utilisateur directement depuis la DB
-			const user = await db<RawUser>`SELECT * FROM user WHERE login = ${session.user.id}`.then(rows => rows?.[0]) || null;
-			
+			const user =
+				(await db<RawUser>`SELECT * FROM user WHERE login = ${session.user.id}`.then(
+					(rows) => rows?.[0]
+				)) || null;
+
 			if (user) {
 				// Récupérer les memberships avec un JOIN
-				const membershipsData = await db`
+				const membershipsData = (await db`
 					SELECT 
 						m.id as member_id, 
 						m.visible, 
@@ -56,7 +59,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					JOIN user u ON m.user_id = u.id
 					JOIN role r ON m.role_id = r.id
 					WHERE m.user_id = ${user.id}
-				` as {
+				`) as {
 					member_id: number;
 					visible: boolean;
 					association_id: number;
@@ -91,24 +94,24 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						name: m.role_name,
 						permissions: m.role_permissions,
 						hierarchy: m.hierarchy,
-					}
+					},
 				}));
 
 				userData = { ...user, memberships };
-				
+
 				// Stocker dans un cookie de session sécurisé
 				setSessionCookie(event, userData);
 			}
 		} catch (error) {
-			console.error('Erreur lors du chargement de userData:', error);
+			console.error("Erreur lors du chargement de userData:", error);
 		}
 	}
-	
+
 	// Mettre les données complètes en cache dans locals
 	if (userData) {
 		event.locals.userData = userData;
 	}
-	
+
 	// Continuer avec la résolution de la requête
 	return resolve(event);
 };
@@ -116,8 +119,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 // Clear old cookies handle
 const clearOldCookiesHandle: Handle = async ({ event, resolve }) => {
 	// Ici, on pourrait vérifier et nettoyer les anciens cookies si nécessaire
-	if (event.cookies.get('PHPSESSID')) {
-		event.cookies.delete('PHPSESSID', { path: '/' });
+	if (event.cookies.get("PHPSESSID")) {
+		event.cookies.delete("PHPSESSID", { path: "/" });
 	}
 	return resolve(event);
 };

@@ -9,9 +9,10 @@
 	let searchQuery = $state("");
 
 	const filteredAssociations = $derived(
-		associations.filter(association => 
-			association.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			association.description?.toLowerCase().includes(searchQuery.toLowerCase())
+		associations.filter(
+			(association) =>
+				association.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				association.description?.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 	);
 </script>
@@ -30,7 +31,18 @@
 		</p>
 
 		<div class="search-container">
-			<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				class="search-icon"
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<circle cx="11" cy="11" r="8"></circle>
 				<path d="m21 21-4.35-4.35"></path>
 			</svg>
@@ -41,8 +53,22 @@
 				bind:value={searchQuery}
 			/>
 			{#if searchQuery}
-				<button class="clear-btn" onclick={() => searchQuery = ""} aria-label="Effacer la recherche">
-					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<button
+					class="clear-btn"
+					onclick={() => (searchQuery = "")}
+					aria-label="Effacer la recherche"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
 					</svg>
@@ -59,7 +85,17 @@
 		</div>
 	{:else}
 		<div class="no-results">
-			<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="64"
+				height="64"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<circle cx="11" cy="11" r="8"></circle>
 				<path d="m21 21-4.35-4.35"></path>
 			</svg>
@@ -216,13 +252,27 @@
 		animation: slideUp 0.6s ease-out backwards;
 	}
 
-	.grid :global(.association-card:nth-child(1)) { animation-delay: 0.1s; }
-	.grid :global(.association-card:nth-child(2)) { animation-delay: 0.15s; }
-	.grid :global(.association-card:nth-child(3)) { animation-delay: 0.2s; }
-	.grid :global(.association-card:nth-child(4)) { animation-delay: 0.25s; }
-	.grid :global(.association-card:nth-child(5)) { animation-delay: 0.3s; }
-	.grid :global(.association-card:nth-child(6)) { animation-delay: 0.35s; }
-	.grid :global(.association-card:nth-child(n+7)) { animation-delay: 0.4s; }
+	.grid :global(.association-card:nth-child(1)) {
+		animation-delay: 0.1s;
+	}
+	.grid :global(.association-card:nth-child(2)) {
+		animation-delay: 0.15s;
+	}
+	.grid :global(.association-card:nth-child(3)) {
+		animation-delay: 0.2s;
+	}
+	.grid :global(.association-card:nth-child(4)) {
+		animation-delay: 0.25s;
+	}
+	.grid :global(.association-card:nth-child(5)) {
+		animation-delay: 0.3s;
+	}
+	.grid :global(.association-card:nth-child(6)) {
+		animation-delay: 0.35s;
+	}
+	.grid :global(.association-card:nth-child(n + 7)) {
+		animation-delay: 0.4s;
+	}
 
 	@keyframes slideUp {
 		from {

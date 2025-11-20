@@ -3,6 +3,7 @@
 ## Résumé des Vérifications
 
 ✅ **Fichiers vérifiés sans erreurs TypeScript :**
+
 - `src/lib/server/auth-middleware.ts` - Toutes les fonctions de permissions
 - `src/hooks.server.ts` - Chargement des memberships
 - `src/routes/api/events/+server.ts` - Permissions par association pour événements
@@ -45,31 +46,39 @@
 ## Scénarios de Test
 
 ### Scénario 1 : Admin Global
+
 **Utilisateur :** Permissions = ADMIN ou SITE_ADMIN
 **Résultat attendu :** Accès à toutes les associations
 
 ### Scénario 2 : Membre avec EVENTS pour Association A
+
 **Utilisateur :** Membership dans Association A avec rôle contenant EVENTS
 **Résultat attendu :**
+
 - ✅ Peut créer/modifier/supprimer événements de l'Association A
 - ❌ Ne peut pas créer/modifier/supprimer événements d'autres associations
 - GET avec `?editable=true` retourne uniquement événements de l'Association A
 
 ### Scénario 3 : Membre avec MEMBERS pour Associations A et B
+
 **Utilisateur :** Memberships dans A et B avec rôles contenant MEMBERS
 **Résultat attendu :**
+
 - ✅ Peut gérer membres des Associations A et B
 - ❌ Ne peut pas gérer membres d'autres associations
 - GET retourne uniquement membres de A et B
 
 ### Scénario 4 : Changement d'Association
+
 **Utilisateur :** EVENTS pour Association A uniquement
 **Action :** PUT événement de A vers B
 **Résultat attendu :** ❌ 403 Forbidden (pas de permission pour B)
 
 ### Scénario 5 : Utilisateur sans Permissions
+
 **Utilisateur :** Aucune permission, aucun membership
 **Résultat attendu :**
+
 - GET events (public) : ✅ Tous les événements
 - GET events?editable=true : ✅ Liste vide
 - POST/PUT/DELETE : ❌ 401 ou 403
@@ -86,18 +95,19 @@ Pour tester complètement le système, il faudrait :
      - User 3 : MEMBERS pour Associations A et B
 
 2. **Tests API avec authentification** :
+
    ```bash
    # En tant que User 2 (EVENTS pour A)
    curl -X POST /api/events \
      -H "Content-Type: application/json" \
      -d '{"association_id": 1, "title": "Event A", ...}'
    # Attendu: 201 Created
-   
+
    curl -X POST /api/events \
      -H "Content-Type: application/json" \
      -d '{"association_id": 2, "title": "Event B", ...}'
    # Attendu: 403 Forbidden
-   
+
    # GET avec filtrage
    curl /api/events?editable=true
    # Attendu: Uniquement événements de Association A
@@ -120,6 +130,7 @@ Pour tester complètement le système, il faudrait :
 ✅ **Le système de permissions par association est fonctionnel et prêt à l'emploi.**
 
 Toutes les vérifications de code passent, le serveur démarre, et la logique de permissions est correctement implémentée selon les spécifications :
+
 - Admins globaux : accès complet
 - Membres : accès limité à leurs associations
 - Vérifications à la création, modification et suppression

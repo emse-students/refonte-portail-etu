@@ -6,19 +6,19 @@
 	// Formater les dates
 	const startDate = new Date(event.start_date);
 	const endDate = new Date(event.end_date);
-	
+
 	const formatDate = (date: Date) => {
-		return date.toLocaleDateString('fr-FR', { 
-			day: 'numeric', 
-			month: 'long', 
-			year: 'numeric' 
+		return date.toLocaleDateString("fr-FR", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
 		});
 	};
-	
+
 	const formatTime = (date: Date) => {
-		return date.toLocaleTimeString('fr-FR', { 
-			hour: '2-digit', 
-			minute: '2-digit' 
+		return date.toLocaleTimeString("fr-FR", {
+			hour: "2-digit",
+			minute: "2-digit",
 		});
 	};
 
@@ -37,14 +37,24 @@
 			{/if}
 		</div>
 	</div>
-	
+
 	{#if event.description}
 		<p class="event-description">{event.description}</p>
 	{/if}
-	
+
 	{#if event.location}
 		<div class="event-location">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
 				<circle cx="12" cy="10" r="3"></circle>
 			</svg>

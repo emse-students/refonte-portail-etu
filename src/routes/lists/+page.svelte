@@ -11,20 +11,23 @@
 	console.log("Lists loaded:", lists);
 
 	// Grouper les listes par promotion
-	const listsByPromo = lists.reduce((acc, list) => {
-		const promo = list.promo || 0;
-		if (!acc[promo]) {
-			acc[promo] = [];
-		}
-		acc[promo].push(list);
-		return acc;
-	}, {} as Record<number, ListWithAssociation[]>);
+	const listsByPromo = lists.reduce(
+		(acc, list) => {
+			const promo = list.promo || 0;
+			if (!acc[promo]) {
+				acc[promo] = [];
+			}
+			acc[promo].push(list);
+			return acc;
+		},
+		{} as Record<number, ListWithAssociation[]>
+	);
 
 	// Trier chaque groupe par nom d'association
-	Object.values(listsByPromo).forEach(promoLists => {
+	Object.values(listsByPromo).forEach((promoLists) => {
 		promoLists.sort((a, b) => {
-			const nameA = a.association_name || '';
-			const nameB = b.association_name || '';
+			const nameA = a.association_name || "";
+			const nameB = b.association_name || "";
 			return nameA.localeCompare(nameB);
 		});
 	});
@@ -35,7 +38,7 @@
 		.sort((a, b) => b.promo - a.promo);
 
 	// État pour gérer les sections ouvertes/fermées
-	let openPromos = $state<Set<number>>(new Set(promoSections.map(s => s.promo)));
+	let openPromos = $state<Set<number>>(new Set(promoSections.map((s) => s.promo)));
 
 	function togglePromo(promo: number) {
 		if (openPromos.has(promo)) {
@@ -63,19 +66,29 @@
 
 	{#each promoSections as { promo, lists }}
 		<section class="promo-section">
-			<button 
-				class="promo-header" 
+			<button
+				class="promo-header"
 				onclick={() => togglePromo(promo)}
 				aria-expanded={openPromos.has(promo)}
 			>
 				<h2>Promotion {promo}</h2>
 				<span class="toggle-icon" class:open={openPromos.has(promo)}>
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
 						<polyline points="6 9 12 15 18 9"></polyline>
 					</svg>
 				</span>
 			</button>
-			
+
 			{#if openPromos.has(promo)}
 				<div class="grid">
 					{#each lists as list}
@@ -196,13 +209,27 @@
 		animation: slideUp 0.6s ease-out backwards;
 	}
 
-	.grid :global(.list-card:nth-child(1)) { animation-delay: 0.1s; }
-	.grid :global(.list-card:nth-child(2)) { animation-delay: 0.15s; }
-	.grid :global(.list-card:nth-child(3)) { animation-delay: 0.2s; }
-	.grid :global(.list-card:nth-child(4)) { animation-delay: 0.25s; }
-	.grid :global(.list-card:nth-child(5)) { animation-delay: 0.3s; }
-	.grid :global(.list-card:nth-child(6)) { animation-delay: 0.35s; }
-	.grid :global(.list-card:nth-child(n+7)) { animation-delay: 0.4s; }
+	.grid :global(.list-card:nth-child(1)) {
+		animation-delay: 0.1s;
+	}
+	.grid :global(.list-card:nth-child(2)) {
+		animation-delay: 0.15s;
+	}
+	.grid :global(.list-card:nth-child(3)) {
+		animation-delay: 0.2s;
+	}
+	.grid :global(.list-card:nth-child(4)) {
+		animation-delay: 0.25s;
+	}
+	.grid :global(.list-card:nth-child(5)) {
+		animation-delay: 0.3s;
+	}
+	.grid :global(.list-card:nth-child(6)) {
+		animation-delay: 0.35s;
+	}
+	.grid :global(.list-card:nth-child(n + 7)) {
+		animation-delay: 0.4s;
+	}
 
 	@keyframes slideUp {
 		from {

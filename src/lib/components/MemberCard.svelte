@@ -28,8 +28,8 @@
 					{initials}
 				</div>
 			{/if}
-			<img 
-				src="/api/users/login/{member.user.login}/avatar" 
+			<img
+				src="/api/users/login/{member.user.login}/avatar"
 				alt="{member.user.first_name} {member.user.last_name}"
 				class="member-avatar"
 				class:loaded={imageLoaded}
@@ -46,7 +46,8 @@
 		</div>
 		<div class="member-info">
 			<div class="member-name">
-				{member.user.first_name} {member.user.last_name}
+				{member.user.first_name}
+				{member.user.last_name}
 			</div>
 			<div class="member-role-container">
 				<span class="member-role">{member.role.name}</span>
