@@ -49,7 +49,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 
     const membersData = await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
-               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy
+               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
         JOIN role r ON m.role_id = r.id
@@ -66,6 +66,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
         role_name: string;
         role_permissions: number;
         hierarchy: number;
+        user_promo: number;
     }[];
     const members = membersData.map((m) => ({
         user: {
@@ -74,6 +75,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
             last_name: m.last_name,
             email: m.user_email,
             login: m.user_login,
+            promo: m.user_promo,
             permissions: 0, // Not needed here
         },
         role: {
@@ -120,7 +122,7 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 
     const membersData = await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
-               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy
+               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
         JOIN role r ON m.role_id = r.id
@@ -137,6 +139,7 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
         role_name: string;
         role_permissions: number;
         hierarchy: number;
+        user_promo: number;
     }[];
     const members = membersData.map((m) => ({
         user: {
@@ -145,6 +148,7 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
             last_name: m.last_name,
             email: m.user_email,
             login: m.user_login,
+            promo: m.user_promo,
             permissions: 0, // Not needed here
         },
         role: {
