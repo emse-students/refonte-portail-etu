@@ -1,3 +1,79 @@
-# allow crawling everything by default
+# Portail des Étudiants - EMSE
+# Robots.txt
+
+# Block AI/LLM crawlers from training on our content
+User-agent: CCBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+# Allow crawling of public pages by default
 User-agent: *
-Disallow:
+Allow: /
+Allow: /associations
+Allow: /associations/*
+Allow: /lists
+Allow: /lists/*
+Allow: /autres-sites
+Allow: /partenariats
+
+# Disallow crawling of API endpoints
+Disallow: /api/
+
+# Disallow crawling of admin pages
+Disallow: /admin
+
+# Disallow crawling of authentication endpoints
+Disallow: /auth/
+
+# Allow crawling of public calendar ICS feed
+Allow: /api/calendar/ics
+
+# Crawl delay (optional - adjust as needed)
+# Crawl-delay: 1
+
+# Sitemap location (update when sitemap is added)
+# Sitemap: https://portail-etu.emse.fr/sitemap.xml
