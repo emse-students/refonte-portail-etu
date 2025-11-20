@@ -7,7 +7,7 @@ import { checkPermission } from "$lib/server/auth-middleware";
 export const GET = async (event: RequestEvent) => {
     const users = await db<RawUser>`
         SELECT
-            id, first_name, last_name, email, login, permissions, created_at, edited_at
+            id, first_name, last_name, email, login, permissions, promo
         FROM
             user
         ORDER BY id DESC
@@ -24,11 +24,11 @@ export const POST = async (event: RequestEvent) => {
     }
 
     const body = await event.request.json();
-    const { first_name, last_name, email, login, permissions } = body;
+    const { first_name, last_name, email, login, permissions, promo } = body;
 
     await db`
-        INSERT INTO user (first_name, last_name, email, login, permissions)
-        VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${permissions || 0})
+        INSERT INTO user (first_name, last_name, email, login, permissions, promo)
+        VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${permissions || 0}, ${promo || null})
     `;
 
     return new Response(JSON.stringify({ success: true }), {
@@ -45,12 +45,12 @@ export const PUT = async (event: RequestEvent) => {
     }
 
     const body = await event.request.json();
-    const { id, first_name, last_name, email, login, permissions } = body;
+    const { id, first_name, last_name, email, login, permissions, promo } = body;
 
     await db`
         UPDATE user 
         SET first_name = ${first_name}, last_name = ${last_name}, email = ${email}, 
-            login = ${login}, permissions = ${permissions}
+            login = ${login}, permissions = ${permissions}, promo = ${promo}
         WHERE id = ${id}
     `;
 

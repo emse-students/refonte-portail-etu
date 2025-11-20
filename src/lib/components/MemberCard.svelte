@@ -48,7 +48,12 @@
 			<div class="member-name">
 				{member.user.first_name} {member.user.last_name}
 			</div>
-			<div class="member-role">{member.role.name}</div>
+			<div class="member-role-container">
+				<span class="member-role">{member.role.name}</span>
+				{#if member.user.promo}
+					<span class="member-promo">{member.user.promo}</span>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
@@ -158,6 +163,13 @@
 		line-height: 1.3;
 	}
 
+	.member-role-container {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
 	.member-role {
 		font-size: 0.9rem;
 		color: #7c3aed;
@@ -165,6 +177,23 @@
 		word-wrap: break-word;
 		overflow-wrap: break-word;
 		line-height: 1.3;
+	}
+
+	.member-promo {
+		font-size: 0.75rem;
+		color: #6b7280;
+		font-weight: 500;
+		padding: 0.15rem 0.5rem;
+		border: 1.5px solid #d1d5db;
+		border-radius: 6px;
+		background: #f9fafb;
+		white-space: nowrap;
+	}
+
+	.bureau-card .member-promo {
+		border-color: #c4b5fd;
+		background: #f5f3ff;
+		color: #7c3aed;
 	}
 
 	@media (max-width: 768px) {
@@ -195,6 +224,11 @@
 
 		.member-role {
 			font-size: 0.85rem;
+		}
+
+		.member-promo {
+			font-size: 0.7rem;
+			padding: 0.125rem 0.4rem;
 		}
 	}
 </style>

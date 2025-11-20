@@ -30,6 +30,7 @@ export type RawUser = {
 	last_name: string;
 	email: string;
 	login: string;
+	promo: number;
 	permissions: number;
 	created_at: Date;
 	edited_at: Date;
@@ -99,6 +100,7 @@ export type User = {
 	login: string;
 	email: string;
 	permissions: number;
+	promo: number;
 };
 
 export type Role = {

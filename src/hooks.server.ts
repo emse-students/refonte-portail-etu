@@ -43,7 +43,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						m.association_id,
 						u.id as user_id, 
 						u.first_name, 
-						u.last_name, 
+						u.last_name,
+						u.promo as user_promo,
 						u.email as user_email, 
 						u.login as user_login,
 						u.permissions as user_permissions,
@@ -69,6 +70,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					role_name: string;
 					role_permissions: number;
 					hierarchy: number;
+					user_promo: number;
 				}[];
 
 				const memberships: Member[] = membershipsData.map((m) => ({
@@ -82,6 +84,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						email: m.user_email,
 						login: m.user_login,
 						permissions: m.user_permissions,
+						promo: m.user_promo,
 					},
 					role: {
 						id: m.role_id,
