@@ -16,6 +16,7 @@
 	let users = $state<DataRow[]>([]);
 	let roles = $state<DataRow[]>([]);
 	let lists = $state<DataRow[]>([]);
+	let eventSubmissionOpen = $state(false);
 
 	const tableConfig = {
 		users: {
@@ -74,6 +75,7 @@
 				"start_date",
 				"end_date",
 				"location",
+				"validated",
 				"association_name",
 			],
 			editableColumns: [
@@ -83,6 +85,7 @@
 				"start_date",
 				"end_date",
 				"location",
+				"validated",
 			],
 		},
 	};
@@ -103,18 +106,39 @@
 
 	async function fetchReferenceData() {
 		try {
-			const [assocResp, usersResp, rolesResp, listsResp] = await Promise.all([
+			const [assocResp, usersResp, rolesResp, listsResp, configResp] = await Promise.all([
 				fetch(resolve("/api/associations")),
 				fetch(resolve("/api/users")),
 				fetch(resolve("/api/roles")),
 				fetch(resolve("/api/lists")),
+				fetch(resolve("/api/config")),
 			]);
 			associations = await assocResp.json();
 			users = await usersResp.json();
 			roles = await rolesResp.json();
 			lists = await listsResp.json();
+
+			const config = await configResp.json();
+			eventSubmissionOpen = config.event_submission_open === "true";
 		} catch (e) {
 			console.error("Erreur lors du chargement des données de référence", e);
+		}
+	}
+
+	async function toggleEventSubmission() {
+		try {
+			const newValue = !eventSubmissionOpen;
+			const response = await fetch("/api/config", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ key: "event_submission_open", value: newValue }),
+			});
+
+			if (!response.ok) throw new Error("Erreur lors de la mise à jour de la configuration");
+
+			eventSubmissionOpen = newValue;
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
 		}
 	}
 
@@ -230,6 +254,15 @@
 			➕ Ajouter {tableConfig[selectedTable].name}
 		</button>
 		<button class="btn-refresh" onclick={fetchData}> 🔄 Rafraîchir </button>
+
+		{#if selectedTable === "events"}
+			<div class="config-toggle">
+				<label>
+					<input type="checkbox" checked={eventSubmissionOpen} onchange={toggleEventSubmission} />
+					Soumission d'événements ouverte
+				</label>
+			</div>
+		{/if}
 	</div>
 
 	{#if loading}
@@ -253,7 +286,7 @@
 							{#each tableConfig[selectedTable].columns as column}
 								<td>
 									{#if tableConfig[selectedTable].editableColumns.includes(column)}
-										{#if column === "visible"}
+										{#if column === "visible" || column === "validated"}
 											<input
 												type="checkbox"
 												checked={!!editingRow[column]}
@@ -579,6 +612,23 @@
 		color: #dc2626;
 		background: #fee2e2;
 		border-radius: 8px;
+	}
+
+	.config-toggle {
+		display: inline-flex;
+		align-items: center;
+		margin-left: 1rem;
+		background: #f0f0f0;
+		padding: 0.5rem 1rem;
+		border-radius: 4px;
+	}
+
+	.config-toggle label {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
 	}
 
 	@media (max-width: 768px) {

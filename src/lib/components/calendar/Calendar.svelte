@@ -5,9 +5,14 @@
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
 
+	let { onDayClick, initialDate } = $props<{
+		onDayClick?: (date: Date) => void;
+		initialDate?: Date;
+	}>();
+
 	// Desktop state
 	let events: CalendarEvent[] = $state([]);
-	let weekStart: Date = $state(getStartOfWeek(new Date()));
+	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
 
 	$effect(() => {
 		console.log("Events updated:", events);
@@ -242,7 +247,7 @@
 				{#each getVisibleWeeks(weekStart) as weekStartDate}
 					<tr>
 						{#each getWeekDays(weekStartDate) as dayDate}
-							<td>
+							<td onclick={() => onDayClick?.(dayDate)} class:clickable={!!onDayClick}>
 								<CalendarDay {dayDate} {events} />
 							</td>
 						{/each}
@@ -496,5 +501,11 @@
 		border-bottom: 1px solid #e5e7eb;
 		background: none;
 		text-transform: capitalize;
+	}
+	td.clickable {
+		cursor: pointer;
+	}
+	td.clickable:hover {
+		background-color: #f0f0f0;
 	}
 </style>

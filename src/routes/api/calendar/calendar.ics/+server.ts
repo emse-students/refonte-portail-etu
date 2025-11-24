@@ -23,7 +23,7 @@ export async function GET() {
     SELECT e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, a.name as association_name
     FROM event e
     LEFT JOIN association a ON e.association_id = a.id
-    WHERE e.end_date >= CURRENT_TIMESTAMP
+    WHERE e.end_date >= CURRENT_TIMESTAMP AND e.validated = true
     ORDER BY e.start_date ASC
   `;
 
@@ -70,7 +70,7 @@ export async function GET() {
 		status: 200,
 		headers: {
 			"Content-Type": "text/calendar; charset=utf-8",
-			"Content-Disposition": `attachment; filename="events.ics"`,
+			"Content-Disposition": `attachment; filename="calendar.ics"`,
 		},
 	});
 }

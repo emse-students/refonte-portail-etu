@@ -58,7 +58,8 @@ export type RawMember = {
 
 export type RawEvent = {
 	id: number;
-	association_id: number;
+	association_id?: number;
+	list_id?: number;
 	title: string;
 	description: string;
 	start_date: Date;
@@ -66,6 +67,7 @@ export type RawEvent = {
 	location: string;
 	created_at: Date;
 	edited_at: Date;
+	validated: boolean;
 };
 
 // Processed types :
@@ -121,4 +123,21 @@ export type Member = {
 
 export type FullUser = User & {
 	memberships: Member[];
+};
+
+export type Event = {
+	id: number;
+	association: Association;
+
+	title: string;
+	description: string;
+	start_date: Date;
+	end_date: Date;
+	location: string;
+	validated: boolean;
+};
+
+export type ConfigRow = {
+	key_name: string;
+	value: string;
 };

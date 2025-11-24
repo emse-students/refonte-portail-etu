@@ -5,6 +5,8 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { escape, getPool } from "$lib/server/database";
 import { json } from "@sveltejs/kit";
 import type { RawEvent } from "$lib/databasetypes";
+import { requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+import Permission from "$lib/permissions";
 
 export async function GET(event: RequestEvent) {
 	const startParam = event.url.searchParams.get("start");
@@ -20,6 +22,21 @@ export async function GET(event: RequestEvent) {
 	const hasEnd = end && !isNaN(end.getTime());
 	const hasAssoc = assocId && assocId > 0;
 
+	// Check permissions to see unvalidated events
+	const user = await requireAuth(event);
+	let showUnvalidated = false;
+
+	if (user) {
+		const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+		if (authorizedAssociations === null) {
+			// Global admin
+			showUnvalidated = true;
+		} else if (hasAssoc && authorizedAssociations.includes(assocId!)) {
+			// Association admin for this specific association
+			showUnvalidated = true;
+		}
+	}
+
 	// Construction dynamique des conditions SQL avec escape
 	const conditions: string[] = ["1=1"];
 
@@ -32,13 +49,16 @@ export async function GET(event: RequestEvent) {
 	if (hasAssoc) {
 		conditions.push(`e.association_id = ${escape(assocId!)}`);
 	}
+	if (!showUnvalidated) {
+		conditions.push("e.validated = true");
+	}
 
 	const whereClause = conditions.join(" AND ");
 
 	const rows = (
 		await getPool()!.query(`
         SELECT 
-            e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id,
+            e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, e.validated,
             a.name as association_name, a.color as association_color
         FROM event e
         LEFT JOIN association a ON e.association_id = a.id

@@ -24,7 +24,7 @@ export const GET = async (event: RequestEvent) => {
 			const events = await db`
                 SELECT
                     e.id, e.association_id, e.title, e.description, e.start_date, 
-                    e.end_date, e.location,
+                    e.end_date, e.location, e.validated,
                     a.name as association_name
                 FROM
                     event e
@@ -42,7 +42,7 @@ export const GET = async (event: RequestEvent) => {
 		const events = await db`
             SELECT
                 e.id, e.association_id, e.title, e.description, e.start_date, 
-                e.end_date, e.location,
+                e.end_date, e.location, e.validated,
                 a.name as association_name
             FROM
                 event e
@@ -62,6 +62,7 @@ export const GET = async (event: RequestEvent) => {
         FROM
             event e
         LEFT JOIN association a ON e.association_id = a.id
+		WHERE e.validated = true
         ORDER BY e.start_date DESC
     `;
 
@@ -70,10 +71,15 @@ export const GET = async (event: RequestEvent) => {
 
 export const POST = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { association_id, title, description, start_date, end_date, location } = body;
+	const { association_id, title, description, start_date, end_date, location, validated } = body;
 
 	if (!association_id) {
 		return json({ error: "association_id is required" }, { status: 400 });
+	}
+
+	const user = await requireAuth(event);
+	if (!user) {
+		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
 	// Vérifier que l'utilisateur a la permission EVENTS pour cette association spécifique
@@ -82,9 +88,31 @@ export const POST = async (event: RequestEvent) => {
 		return authCheck.response;
 	}
 
+	// Check if event submission is open
+	// Global managers bypass this check
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const isGlobalManager = authorizedAssociations === null;
+
+	if (!isGlobalManager) {
+		const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
+		const isOpen = configRows.length > 0 && configRows[0].value === "true";
+
+		if (!isOpen) {
+			return json(
+				{ error: "Forbidden", message: "La soumission d'événements est actuellement fermée." },
+				{ status: 403 }
+			);
+		}
+	}
+
+	// Determine validation status
+
+	// Global managers can set validation status directly, otherwise it defaults to false (proposal)
+	const isValidated = isGlobalManager ? (validated ?? true) : false;
+
 	await db`
-        INSERT INTO event (association_id, title, description, start_date, end_date, location)
-        VALUES (${association_id}, ${title}, ${description}, ${start_date}, ${end_date}, ${location})
+        INSERT INTO event (association_id, title, description, start_date, end_date, location, validated)
+        VALUES (${association_id}, ${title}, ${description}, ${start_date}, ${end_date}, ${location}, ${isValidated})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -95,15 +123,21 @@ export const POST = async (event: RequestEvent) => {
 
 export const PUT = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { id, association_id, title, description, start_date, end_date, location } = body;
+	const { id, association_id, title, description, start_date, end_date, location, validated } =
+		body;
 
 	if (!id || !association_id) {
 		return json({ error: "id and association_id are required" }, { status: 400 });
 	}
 
+	const user = await requireAuth(event);
+	if (!user) {
+		return json({ error: "Unauthorized" }, { status: 401 });
+	}
+
 	// Récupérer l'événement existant pour vérifier son association
 	const existingEvent = await db`
-        SELECT association_id FROM event WHERE id = ${id}
+        SELECT association_id, validated FROM event WHERE id = ${id}
     `.then((rows) => rows?.[0]);
 
 	if (!existingEvent) {
@@ -138,10 +172,24 @@ export const PUT = async (event: RequestEvent) => {
 		}
 	}
 
+	// Determine validation status update
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const isGlobalManager = authorizedAssociations === null;
+
+	let newValidatedStatus = false;
+	if (isGlobalManager) {
+		// Global manager can update validation status
+		newValidatedStatus = validated !== undefined ? validated : existingEvent.validated;
+	} else {
+		// Association manager: editing resets validation to false (proposal modified)
+		newValidatedStatus = false;
+	}
+
 	await db`
         UPDATE event 
         SET association_id = ${association_id}, title = ${title}, description = ${description},
-            start_date = ${start_date}, end_date = ${end_date}, location = ${location}
+            start_date = ${start_date}, end_date = ${end_date}, location = ${location},
+            validated = ${newValidatedStatus}
         WHERE id = ${id}
     `;
 
