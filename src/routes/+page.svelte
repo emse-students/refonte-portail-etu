@@ -19,33 +19,6 @@
 		}
 		return false;
 	});
-
-	const isGlobalEventManager = $derived.by(() => {
-		if (!user) return false;
-		return hasPermission(user.permissions, Permission.EVENTS);
-	});
-
-	async function closeAndValidate() {
-		if (!confirm("Voulez-vous clôturer la soumission et valider TOUS les événements proposés ?"))
-			return;
-
-		try {
-			const response = await fetch("/api/events/finalize-submission", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-			});
-
-			if (!response.ok) throw new Error("Erreur lors de l'opération");
-
-			const result = await response.json();
-			alert(result.message || "Opération réussie");
-
-			// Reload page to reflect changes (button disappearance)
-			window.location.reload();
-		} catch (e) {
-			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
-		}
-	}
 </script>
 
 <svelte:head>
@@ -75,10 +48,7 @@
 		</h1>
 		<div class="actions">
 			{#if canProposeEvent && eventSubmissionOpen}
-				<a href="/events/propose" class="btn-primary">Proposer un événement</a>
-			{/if}
-			{#if isGlobalEventManager}
-				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
+				<a href="/events/propose" class="btn-primary">Proposition d'événement</a>
 			{/if}
 		</div>
 	</div>
@@ -114,18 +84,22 @@
 
 	.header-row {
 		width: 100%;
-		display: flex;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
 		margin-bottom: 2rem;
 	}
 
 	.header-row h1 {
+		grid-column: 2;
 		margin-bottom: 0;
 		width: auto;
+		text-align: center;
 	}
 
 	.actions {
+		grid-column: 3;
+		justify-self: end;
 		display: flex;
 		gap: 1rem;
 		align-items: center;
@@ -144,23 +118,6 @@
 
 	.btn-primary:hover {
 		background-color: #6d28d9;
-	}
-
-	.btn-secondary {
-		background-color: #ef4444;
-		color: white;
-		padding: 0.75rem 1.5rem;
-		border-radius: 8px;
-		border: none;
-		cursor: pointer;
-		font-weight: 600;
-		transition: background-color 0.2s;
-		white-space: nowrap;
-		font-size: 1rem;
-	}
-
-	.btn-secondary:hover {
-		background-color: #dc2626;
 	}
 
 	@keyframes fadeInDown {

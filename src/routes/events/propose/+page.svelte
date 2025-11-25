@@ -67,6 +67,33 @@
 	const nextMonth = new Date();
 	nextMonth.setMonth(nextMonth.getMonth() + 1);
 	nextMonth.setDate(1);
+
+	const isGlobalEventManager = $derived.by(() => {
+		if (!user) return false;
+		return hasPermission(user.permissions, Permission.EVENTS);
+	});
+
+	async function closeAndValidate() {
+		if (!confirm("Voulez-vous clôturer la soumission et valider TOUS les événements proposés ?"))
+			return;
+
+		try {
+			const response = await fetch("/api/events/finalize-submission", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (!response.ok) throw new Error("Erreur lors de l'opération");
+
+			const result = await response.json();
+			alert(result.message || "Opération réussie");
+
+			// Reload page to reflect changes (button disappearance)
+			window.location.reload();
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
+		}
+	}
 </script>
 
 <svelte:head>
@@ -77,6 +104,9 @@
 	<header class="page-header">
 		<h1>Proposer un événement</h1>
 		<div class="actions">
+			{#if isGlobalEventManager}
+				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
+			{/if}
 			<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
 		</div>
 	</header>
@@ -123,5 +153,18 @@
 	}
 	.btn-primary:hover {
 		background-color: #0056b3;
+	}
+	.btn-secondary {
+		background-color: #ef4444;
+		color: white;
+		border: none;
+		padding: 0.5rem 1rem;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 1rem;
+		margin-right: 1rem;
+	}
+	.btn-secondary:hover {
+		background-color: #dc2626;
 	}
 </style>
