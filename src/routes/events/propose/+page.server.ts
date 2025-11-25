@@ -12,17 +12,17 @@ import db from "$lib/server/database";
 export const load: PageServerLoad = async (event) => {
 	const user = await requireAuth(event);
 	if (!user) {
-		throw redirect(302, "/api/auth/login");
+		throw redirect(302, "/auth/login");
 	}
+
+	const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
+	const isOpen = configRows.length > 0 && configRows[0].value === "true";
 
 	const authorizedAssocIds = getAuthorizedAssociationIds(user, Permission.EVENTS);
 	const authorizedListIds = getAuthorizedListIds(user, Permission.EVENTS);
 
 	// Check if submission is open
 	if (authorizedAssocIds !== null) {
-		const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
-		const isOpen = configRows.length > 0 && configRows[0].value === "true";
-
 		if (!isOpen) {
 			throw redirect(302, "/");
 		}
@@ -59,6 +59,7 @@ export const load: PageServerLoad = async (event) => {
 	associations = associations.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {
+		isOpen,
 		associations,
 		lists,
 	};

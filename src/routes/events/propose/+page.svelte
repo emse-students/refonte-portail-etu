@@ -10,6 +10,7 @@
 	let associations = data.associations as Association[];
 	let lists = data.lists as List[];
 	let user = page.data.userData;
+	const isOpen = data.isOpen as boolean;
 
 	let showForm = $state(false);
 	let selectedDate = $state<Date | undefined>(undefined);
@@ -114,7 +115,7 @@
 	<header class="page-header">
 		<h1>Proposer un événement</h1>
 		<div class="actions">
-			{#if isGlobalEventManager}
+			{#if isGlobalEventManager && !isOpen}
 				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
 			{/if}
 			<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
@@ -138,6 +139,7 @@
 		{lists}
 		initialDate={selectedDate}
 		event={selectedEvent}
+		{isOpen}
 		onClose={() => (showForm = false)}
 		onSuccess={() => {
 			showForm = false;

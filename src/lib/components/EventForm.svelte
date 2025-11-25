@@ -1,15 +1,17 @@
 <script lang="ts">
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
 
-	let { association, associations, lists, initialDate, onClose, onSuccess, event } = $props<{
-		association?: Association;
-		associations?: Association[];
-		lists?: List[];
-		initialDate?: Date;
-		onClose: () => void;
-		onSuccess: () => void;
-		event?: RawEvent;
-	}>();
+	let { association, associations, lists, initialDate, onClose, onSuccess, event, isOpen } =
+		$props<{
+			association?: Association;
+			associations?: Association[];
+			lists?: List[];
+			initialDate?: Date;
+			onClose: () => void;
+			onSuccess: () => void;
+			event?: RawEvent;
+			isOpen: boolean;
+		}>();
 
 	let entityType = $state<"association" | "list">(event?.list_id ? "list" : "association");
 
@@ -73,7 +75,7 @@
 				start_date: new Date(startDate),
 				end_date: new Date(endDate),
 				location,
-				validated: event?.validated ?? false,
+				validated: event?.validated ?? !isOpen,
 			};
 
 			if (entityType === "association") {

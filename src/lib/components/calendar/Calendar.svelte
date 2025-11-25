@@ -187,7 +187,7 @@
 			const now = new Date();
 			await loadMobileMonth(now.getFullYear(), now.getMonth());
 		} else {
-			loadWeeks(getStartOfWeek(new Date()));
+			loadWeeks(weekStart);
 		}
 	});
 
