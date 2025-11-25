@@ -5,13 +5,18 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { escape, getPool } from "$lib/server/database";
 import { json } from "@sveltejs/kit";
 import type { RawEvent } from "$lib/databasetypes";
-import { requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+import {
+	requireAuth,
+	getAuthorizedAssociationIds,
+	getAuthorizedListIds,
+} from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 
 export async function GET(event: RequestEvent) {
 	const startParam = event.url.searchParams.get("start");
 	const endParam = event.url.searchParams.get("end");
 	const assocIdParam = event.url.searchParams.get("asso");
+	const requestUnvalidated = event.url.searchParams.get("unvalidated") === "true";
 
 	// Validation et préparation des paramètres
 	const start = startParam ? new Date(startParam) : null;
@@ -24,16 +29,20 @@ export async function GET(event: RequestEvent) {
 
 	// Check permissions to see unvalidated events
 	const user = await requireAuth(event);
-	let showUnvalidated = false;
+	let canSeeAllUnvalidated = false;
+	let authorizedAssociationIds: number[] = [];
+	let authorizedListIds: number[] = [];
 
 	if (user) {
-		const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
-		if (authorizedAssociations === null) {
+		const authAssocs = getAuthorizedAssociationIds(user, Permission.EVENTS);
+		const authLists = getAuthorizedListIds(user, Permission.EVENTS);
+
+		if (authAssocs === null || authLists === null) {
 			// Global admin
-			showUnvalidated = true;
-		} else if (hasAssoc && authorizedAssociations.includes(assocId!)) {
-			// Association admin for this specific association
-			showUnvalidated = true;
+			canSeeAllUnvalidated = true;
+		} else {
+			authorizedAssociationIds = authAssocs;
+			authorizedListIds = authLists;
 		}
 	}
 
@@ -49,8 +58,24 @@ export async function GET(event: RequestEvent) {
 	if (hasAssoc) {
 		conditions.push(`e.association_id = ${escape(assocId!)}`);
 	}
-	if (!showUnvalidated) {
+
+	if (!requestUnvalidated) {
 		conditions.push("e.validated = 1");
+	} else {
+		if (canSeeAllUnvalidated) {
+			// Global admin sees everything
+		} else {
+			const orConditions = ["e.validated = 1"];
+
+			if (authorizedAssociationIds.length > 0) {
+				orConditions.push(`e.association_id IN (${authorizedAssociationIds.join(",")})`);
+			}
+			if (authorizedListIds.length > 0) {
+				orConditions.push(`e.list_id IN (${authorizedListIds.join(",")})`);
+			}
+
+			conditions.push(`(${orConditions.join(" OR ")})`);
+		}
 	}
 
 	const whereClause = conditions.join(" AND ");
@@ -58,10 +83,12 @@ export async function GET(event: RequestEvent) {
 	const rows = (
 		await getPool()!.query(`
         SELECT 
-            e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, e.validated,
-            a.name as association_name, a.color as association_color
+            e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, e.list_id, e.validated,
+            a.name as association_name, a.color as association_color,
+            l.name as list_name, l.color as list_color
         FROM event e
         LEFT JOIN association a ON e.association_id = a.id
+        LEFT JOIN list l ON e.list_id = l.id
         WHERE ${whereClause}
         ORDER BY e.start_date ASC
     `)

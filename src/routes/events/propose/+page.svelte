@@ -127,6 +127,7 @@
 			onDayClick={openForm}
 			initialDate={nextMonth}
 			onEventClick={handleEventClick}
+			showUnvalidated={true}
 		/>
 	</div>
 </div>

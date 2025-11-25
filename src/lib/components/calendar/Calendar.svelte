@@ -5,10 +5,16 @@
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
 
-	let { onDayClick, initialDate, onEventClick } = $props<{
+	let {
+		onDayClick,
+		initialDate,
+		onEventClick,
+		showUnvalidated = false,
+	} = $props<{
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
 		onEventClick?: (event: CalendarEvent) => boolean;
+		showUnvalidated?: boolean;
 	}>();
 
 	// Desktop state
@@ -55,7 +61,7 @@
 
 	async function fetchEventsRange(start: Date, end: Date) {
 		const response = await fetch(
-			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}`
+			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}${showUnvalidated ? "&unvalidated=true" : ""}`
 		);
 		let data: CalendarEvent[] = await response.json();
 		return data.map((event) => {
