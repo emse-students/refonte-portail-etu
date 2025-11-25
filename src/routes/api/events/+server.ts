@@ -112,7 +112,7 @@ export const POST = async (event: RequestEvent) => {
 
 	await db`
         INSERT INTO event (association_id, title, description, start_date, end_date, location, validated)
-        VALUES (${association_id}, ${title}, ${description}, ${start_date}, ${end_date}, ${location}, ${isValidated})
+        VALUES (${association_id}, ${title}, ${description}, ${new Date(start_date)}, ${new Date(end_date)}, ${location}, ${isValidated})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
