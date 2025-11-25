@@ -44,6 +44,9 @@ export const GET = async (event: RequestEvent) => {
 			return json([]);
 		}
 
+		const safeAssocIds = authorizedAssociations.length > 0 ? authorizedAssociations : [-1];
+		const safeListIds = authorizedLists.length > 0 ? authorizedLists : [-1];
+
 		const events = await db`
             SELECT
                 e.id, e.association_id, e.list_id, e.title, e.description, e.start_date, 
@@ -55,9 +58,9 @@ export const GET = async (event: RequestEvent) => {
             LEFT JOIN association a ON e.association_id = a.id
 			LEFT JOIN list l ON e.list_id = l.id
             WHERE 
-				(e.association_id = ANY(${authorizedAssociations}) AND e.association_id IS NOT NULL)
+				(e.association_id IN (${safeAssocIds}) AND e.association_id IS NOT NULL)
 				OR 
-				(e.list_id = ANY(${authorizedLists}) AND e.list_id IS NOT NULL)
+				(e.list_id IN (${safeListIds}) AND e.list_id IS NOT NULL)
             ORDER BY e.start_date DESC
         `;
 		return json(events);

@@ -36,19 +36,21 @@ export const load: PageServerLoad = async (event) => {
 		associations = await db`
             SELECT id, name, handle 
             FROM association 
-            WHERE id = ANY(${authorizedAssocIds})
+            WHERE id IN (${authorizedAssocIds}) 
+            ORDER BY name ASC
         `;
 	}
 
 	let lists: List[] = [];
 	if (authorizedListIds === null) {
 		// Global admin: fetch all lists
-		lists = await db`SELECT id, name, handle, association_id FROM list`;
+		lists = await db`SELECT id, name, handle, association_id FROM list ORDER BY name ASC`;
 	} else if (authorizedListIds.length > 0) {
 		lists = await db`
             SELECT id, name, handle, association_id
             FROM list 
-            WHERE id = ANY(${authorizedListIds})
+            WHERE id IN (${authorizedListIds}) 
+            ORDER BY name ASC
         `;
 	}
 
