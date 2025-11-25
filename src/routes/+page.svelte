@@ -19,6 +19,11 @@
 		}
 		return false;
 	});
+
+	const isGlobalEventManager = $derived.by(() => {
+		if (!user) return false;
+		return hasPermission(user.permissions, Permission.EVENTS);
+	});
 </script>
 
 <svelte:head>
@@ -47,7 +52,7 @@
 			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
 		</h1>
 		<div class="actions">
-			{#if canProposeEvent && eventSubmissionOpen}
+			{#if canProposeEvent && (eventSubmissionOpen || isGlobalEventManager)}
 				<a href="/events/propose" class="btn-primary">Proposition d'événement</a>
 			{/if}
 		</div>

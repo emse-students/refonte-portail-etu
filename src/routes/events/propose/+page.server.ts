@@ -18,6 +18,16 @@ export const load: PageServerLoad = async (event) => {
 	const authorizedAssocIds = getAuthorizedAssociationIds(user, Permission.EVENTS);
 	const authorizedListIds = getAuthorizedListIds(user, Permission.EVENTS);
 
+	// Check if submission is open
+	if (authorizedAssocIds !== null) {
+		const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
+		const isOpen = configRows.length > 0 && configRows[0].value === "true";
+
+		if (!isOpen) {
+			throw redirect(302, "/");
+		}
+	}
+
 	let associations: Association[] = [];
 	if (authorizedAssocIds === null) {
 		// Global admin: fetch all associations
