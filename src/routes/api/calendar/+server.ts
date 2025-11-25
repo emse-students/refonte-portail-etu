@@ -17,6 +17,7 @@ export async function GET(event: RequestEvent) {
 	const endParam = event.url.searchParams.get("end");
 	const assocIdParam = event.url.searchParams.get("asso");
 	const requestUnvalidated = event.url.searchParams.get("unvalidated") === "true";
+	const requestAll = event.url.searchParams.get("all") === "true";
 
 	// Validation et préparation des paramètres
 	const start = startParam ? new Date(startParam) : null;
@@ -62,19 +63,23 @@ export async function GET(event: RequestEvent) {
 	if (!requestUnvalidated) {
 		conditions.push("e.validated = 1");
 	} else {
-		if (canSeeAllUnvalidated) {
-			// Global admin sees everything
+		if (requestAll && user) {
+			// Global admin or proposition page sees everything
 		} else {
-			const orConditions = ["e.validated = 1"];
+			if (canSeeAllUnvalidated) {
+				// Global admin sees everything
+			} else {
+				const orConditions = ["e.validated = 1"];
 
-			if (authorizedAssociationIds.length > 0) {
-				orConditions.push(`e.association_id IN (${authorizedAssociationIds.join(",")})`);
-			}
-			if (authorizedListIds.length > 0) {
-				orConditions.push(`e.list_id IN (${authorizedListIds.join(",")})`);
-			}
+				if (authorizedAssociationIds.length > 0) {
+					orConditions.push(`e.association_id IN (${authorizedAssociationIds.join(",")})`);
+				}
+				if (authorizedListIds.length > 0) {
+					orConditions.push(`e.list_id IN (${authorizedListIds.join(",")})`);
+				}
 
-			conditions.push(`(${orConditions.join(" OR ")})`);
+				conditions.push(`(${orConditions.join(" OR ")})`);
+			}
 		}
 	}
 

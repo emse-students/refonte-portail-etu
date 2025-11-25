@@ -59,7 +59,7 @@
 	</div>
 
 	<div class="calendar-fixed-container">
-		<Calendar />
+		<Calendar showUnvalidated={true} />
 	</div>
 </section>
 

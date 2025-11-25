@@ -10,14 +10,14 @@
 		initialDate,
 		onEventClick,
 		showUnvalidated = false,
+		showAllUnvalidated = false,
 	} = $props<{
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
 		onEventClick?: (event: CalendarEvent) => boolean;
 		showUnvalidated?: boolean;
-	}>();
-
-	// Desktop state
+		showAllUnvalidated?: boolean;
+	}>(); // Desktop state
 	let events: CalendarEvent[] = $state([]);
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
 
@@ -60,9 +60,14 @@
 	let isMobile = false;
 
 	async function fetchEventsRange(start: Date, end: Date) {
-		const response = await fetch(
-			`${resolve("/api/calendar")}?start=${start.toISOString()}&end=${end.toISOString()}${showUnvalidated ? "&unvalidated=true" : ""}`
-		);
+		const params = new URLSearchParams({
+			start: start.toISOString(),
+			end: end.toISOString(),
+		});
+		if (showUnvalidated || showAllUnvalidated) params.set("unvalidated", "true");
+		if (showAllUnvalidated) params.set("all", "true");
+
+		const response = await fetch(`${resolve("/api/calendar")}?${params.toString()}`);
 		let data: CalendarEvent[] = await response.json();
 		return data.map((event) => {
 			event.start_date = new Date(event.start_date);
