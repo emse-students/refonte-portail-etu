@@ -54,7 +54,7 @@ export const GET = async (event: RequestEvent) => {
         LEFT JOIN association a ON m.association_id = a.id
         LEFT JOIN list l ON m.list_id = l.id
         LEFT JOIN role r ON m.role_id = r.id
-        WHERE m.association_id = ANY(${authorizedAssociations})
+        WHERE m.association_id IN (${authorizedAssociations})
         ORDER BY m.id DESC
     `;
 

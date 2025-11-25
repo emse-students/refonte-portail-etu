@@ -33,6 +33,7 @@ export const load: PageServerLoad = async (event) => {
 		// Global admin: fetch all associations
 		associations = await db`SELECT id, name, handle FROM association`;
 	} else if (authorizedAssocIds.length > 0) {
+		// Fetch authorized associations
 		associations = await db`
             SELECT id, name, handle 
             FROM association 
