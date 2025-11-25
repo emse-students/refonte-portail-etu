@@ -50,7 +50,7 @@ export async function GET(event: RequestEvent) {
 		conditions.push(`e.association_id = ${escape(assocId!)}`);
 	}
 	if (!showUnvalidated) {
-		conditions.push("e.validated = true");
+		conditions.push("e.validated = 1");
 	}
 
 	const whereClause = conditions.join(" AND ");
@@ -67,5 +67,9 @@ export async function GET(event: RequestEvent) {
     `)
 	)[0] as RawEvent[];
 
-	return json(rows);
+	return json(rows, {
+		headers: {
+			"Cache-Control": "no-store, max-age=0",
+		},
+	});
 }
