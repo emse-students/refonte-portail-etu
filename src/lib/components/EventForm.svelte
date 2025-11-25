@@ -106,6 +106,33 @@
 			loading = false;
 		}
 	}
+
+	async function handleDelete() {
+		if (!event || !confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) return;
+
+		loading = true;
+		error = "";
+
+		try {
+			const response = await fetch("/api/events", {
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ id: event.id }),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Erreur lors de la suppression de l'événement");
+			}
+
+			onSuccess();
+			onClose();
+		} catch (e) {
+			error = e instanceof Error ? e.message : "Erreur inconnue";
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -197,9 +224,14 @@
 			</div>
 
 			<div class="actions">
+				{#if event}
+					<button type="button" class="btn-danger" onclick={handleDelete} disabled={loading}>
+						Supprimer
+					</button>
+				{/if}
 				<button type="button" onclick={onClose}>Annuler</button>
 				<button type="submit" disabled={loading}>
-					{loading ? "Envoi..." : "Proposer"}
+					{loading ? "Envoi..." : event ? "Modifier" : "Proposer"}
 				</button>
 			</div>
 		</form>
@@ -262,5 +294,14 @@
 		gap: 0.5rem;
 		font-weight: normal;
 		cursor: pointer;
+	}
+	.btn-danger {
+		background-color: #ef4444;
+		color: white;
+		border: none;
+		margin-right: auto;
+	}
+	.btn-danger:hover {
+		background-color: #dc2626;
 	}
 </style>
