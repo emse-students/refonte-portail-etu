@@ -179,6 +179,21 @@
 			loadWeeks(getStartOfWeek(new Date()));
 		}
 	});
+
+	export function refresh() {
+		if (isMobile) {
+			// Refresh all currently loaded months
+			const promises = mobileMonths.map(async (m) => {
+				const data = await fetchEvents(m.year, m.month);
+				return { ...m, events: data };
+			});
+			Promise.all(promises).then((updatedMonths) => {
+				mobileMonths = updatedMonths;
+			});
+		} else {
+			loadWeeks(weekStart);
+		}
+	}
 </script>
 
 <div class="calendar-responsive">

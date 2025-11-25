@@ -31,28 +31,29 @@ export const load: PageServerLoad = async (event) => {
 	let associations: Association[] = [];
 	if (authorizedAssocIds === null) {
 		// Global admin: fetch all associations
-		associations = await db`SELECT id, name, handle FROM association ORDER BY name ASC`;
+		associations = await db`SELECT id, name, handle FROM association`;
 	} else if (authorizedAssocIds.length > 0) {
 		associations = await db`
             SELECT id, name, handle 
             FROM association 
-            WHERE id = ANY(${authorizedAssocIds}) 
-            ORDER BY name ASC
+            WHERE id = ANY(${authorizedAssocIds})
         `;
 	}
 
 	let lists: List[] = [];
 	if (authorizedListIds === null) {
 		// Global admin: fetch all lists
-		lists = await db`SELECT id, name, handle, association_id FROM list ORDER BY name ASC`;
+		lists = await db`SELECT id, name, handle, association_id FROM list`;
 	} else if (authorizedListIds.length > 0) {
 		lists = await db`
             SELECT id, name, handle, association_id
             FROM list 
-            WHERE id = ANY(${authorizedListIds}) 
-            ORDER BY name ASC
+            WHERE id = ANY(${authorizedListIds})
         `;
 	}
+
+	lists = lists.sort((a, b) => a.name.localeCompare(b.name));
+	associations = associations.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {
 		associations,

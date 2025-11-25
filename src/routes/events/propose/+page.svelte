@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
 	import EventForm from "$lib/components/EventForm.svelte";
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
@@ -13,6 +14,15 @@
 	let showForm = $state(false);
 	let selectedDate = $state<Date | undefined>(undefined);
 	let selectedEvent = $state<RawEvent | undefined>(undefined);
+	let calendarComponent = $state<Calendar | undefined>(undefined);
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			calendarComponent?.refresh();
+		}, 5000);
+
+		return () => clearInterval(interval);
+	});
 
 	function openForm(date?: Date) {
 		if (associations.length === 0 && lists.length === 0) {
@@ -112,7 +122,12 @@
 	</header>
 
 	<div class="calendar-wrapper">
-		<Calendar onDayClick={openForm} initialDate={nextMonth} onEventClick={handleEventClick} />
+		<Calendar
+			bind:this={calendarComponent}
+			onDayClick={openForm}
+			initialDate={nextMonth}
+			onEventClick={handleEventClick}
+		/>
 	</div>
 </div>
 
