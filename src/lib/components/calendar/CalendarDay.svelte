@@ -2,7 +2,17 @@
 	import type { RawEvent as CalendarEvent } from "$lib/databasetypes";
 	import Event from "./Event.svelte";
 
-	let { dayDate, events }: { dayDate: Date; events: CalendarEvent[] } = $props();
+	let {
+		dayDate,
+		events,
+		onAddEvent,
+		onEventClick,
+	}: {
+		dayDate: Date;
+		events: CalendarEvent[];
+		onAddEvent?: () => void;
+		onEventClick?: (event: CalendarEvent) => boolean;
+	} = $props();
 
 	const eventsForDay = $derived(
 		events.filter(
@@ -23,12 +33,24 @@
 			<span class="month">{dayDate.toLocaleString(undefined, { month: "short" })}</span>
 		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
-			<Event {...event} {i} {count} />
+			<Event {...event} {i} {count} {onEventClick} />
 		{/each}
 		{#if eventsForDay.length > 3}
 			<div class="event-overflow">+{eventsForDay.length - 3} autres</div>
 		{/if}
 	</div>
+	{#if onAddEvent}
+		<button
+			class="add-event-btn"
+			onclick={(e) => {
+				e.stopPropagation();
+				onAddEvent();
+			}}
+			aria-label="Ajouter un événement"
+		>
+			+
+		</button>
+	{/if}
 </div>
 
 <style>
@@ -130,5 +152,39 @@
 	.event-stack:focus-within .fade-on-hover,
 	:global .fade-on-hover:has(~ .modal-overlay) {
 		opacity: 1;
+	}
+
+	.add-event-btn {
+		position: absolute;
+		bottom: 8px;
+		left: 8px;
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		background-color: #7c3aed;
+		color: white;
+		border: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 18px;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0;
+		transform: scale(0.8);
+		transition: all 0.2s ease;
+		z-index: 10;
+		padding: 0;
+		padding-bottom: 2px; /* Visual adjustment for + sign */
+	}
+
+	.calendar-cell:hover .add-event-btn {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	.add-event-btn:hover {
+		background-color: #6d28d9;
+		transform: scale(1.1);
 	}
 </style>

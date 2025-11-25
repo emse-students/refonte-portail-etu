@@ -129,11 +129,8 @@ export function hasAssociationPermission(
 	associationId: number,
 	permission: Permission
 ): boolean {
-	// Les admins globaux ont toutes les permissions
-	if (
-		hasPermission(user.permissions, Permission.ADMIN) ||
-		hasPermission(user.permissions, Permission.SITE_ADMIN)
-	) {
+	// Si l'utilisateur a la permission globalement, il l'a pour toutes les associations
+	if (hasPermission(user.permissions, permission)) {
 		return true;
 	}
 
@@ -146,6 +143,34 @@ export function hasAssociationPermission(
 		(membership) =>
 			membership.association === associationId &&
 			hasPermission(membership.role.permissions, permission)
+	);
+}
+
+/**
+ * Vérifie qu'un utilisateur a une permission spécifique pour une liste donnée
+ *
+ * @param user Utilisateur authentifié
+ * @param listId ID de la liste
+ * @param permission Permission requise
+ * @returns true si autorisé
+ */
+export function hasListPermission(
+	user: AuthenticatedUser,
+	listId: number,
+	permission: Permission
+): boolean {
+	// Global permission overrides
+	if (hasPermission(user.permissions, permission)) {
+		return true;
+	}
+
+	if (!user.memberships || user.memberships.length === 0) {
+		return false;
+	}
+
+	return user.memberships.some(
+		(membership) =>
+			membership.list === listId && hasPermission(membership.role.permissions, permission)
 	);
 }
 
@@ -184,6 +209,32 @@ export async function checkAssociationPermission(
 }
 
 /**
+ * Middleware pour vérifier l'authentification et les permissions au niveau d'une liste
+ */
+export async function checkListPermission(
+	event: RequestEvent,
+	listId: number,
+	permission: Permission
+): Promise<
+	{ authorized: true; user: AuthenticatedUser } | { authorized: false; response: Response }
+> {
+	const user = await requireAuth(event);
+
+	if (!user) {
+		return { authorized: false, response: unauthorizedResponse() };
+	}
+
+	if (!hasListPermission(user, listId, permission)) {
+		return {
+			authorized: false,
+			response: forbiddenResponse(`Vous n'avez pas la permission nécessaire pour cette liste`),
+		};
+	}
+
+	return { authorized: true, user };
+}
+
+/**
  * Récupère la liste des IDs d'associations pour lesquelles l'utilisateur a une permission donnée
  * Les admins globaux ont accès à toutes les associations
  *
@@ -195,11 +246,8 @@ export function getAuthorizedAssociationIds(
 	user: AuthenticatedUser,
 	permission: Permission
 ): number[] | null {
-	// Les admins globaux ont accès à toutes les associations
-	if (
-		hasPermission(user.permissions, Permission.ADMIN) ||
-		hasPermission(user.permissions, Permission.SITE_ADMIN)
-	) {
+	// Si l'utilisateur a la permission globalement, il a accès à toutes les associations
+	if (hasPermission(user.permissions, permission)) {
 		return null; // null = toutes les associations
 	}
 
@@ -211,5 +259,26 @@ export function getAuthorizedAssociationIds(
 	return user.memberships
 		.filter((membership) => hasPermission(membership.role.permissions, permission))
 		.map((membership) => membership.association)
-		.filter((m) => m !== undefined);
+		.filter((m) => m !== undefined) as number[];
+}
+
+/**
+ * Récupère la liste des IDs de listes pour lesquelles l'utilisateur a une permission donnée
+ */
+export function getAuthorizedListIds(
+	user: AuthenticatedUser,
+	permission: Permission
+): number[] | null {
+	if (hasPermission(user.permissions, permission)) {
+		return null;
+	}
+
+	if (!user.memberships || user.memberships.length === 0) {
+		return [];
+	}
+
+	return user.memberships
+		.filter((membership) => hasPermission(membership.role.permissions, permission))
+		.map((membership) => membership.list)
+		.filter((l) => l !== undefined) as number[];
 }

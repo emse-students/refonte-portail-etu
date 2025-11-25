@@ -1,7 +1,11 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type { Association } from "$lib/databasetypes";
-import { requireAuth, getAuthorizedAssociationIds } from "$lib/server/auth-middleware";
+import type { Association, List } from "$lib/databasetypes";
+import {
+	requireAuth,
+	getAuthorizedAssociationIds,
+	getAuthorizedListIds,
+} from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import db from "$lib/server/database";
 
@@ -11,22 +15,37 @@ export const load: PageServerLoad = async (event) => {
 		throw redirect(302, "/api/auth/login");
 	}
 
-	const authorizedIds = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const authorizedAssocIds = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const authorizedListIds = getAuthorizedListIds(user, Permission.EVENTS);
 
 	let associations: Association[] = [];
-	if (authorizedIds === null) {
+	if (authorizedAssocIds === null) {
 		// Global admin: fetch all associations
 		associations = await db`SELECT id, name, handle FROM association ORDER BY name ASC`;
-	} else if (authorizedIds.length > 0) {
+	} else if (authorizedAssocIds.length > 0) {
 		associations = await db`
             SELECT id, name, handle 
             FROM association 
-            WHERE id = ANY(${authorizedIds}) 
+            WHERE id = ANY(${authorizedAssocIds}) 
+            ORDER BY name ASC
+        `;
+	}
+
+	let lists: List[] = [];
+	if (authorizedListIds === null) {
+		// Global admin: fetch all lists
+		lists = await db`SELECT id, name, handle, association_id FROM list ORDER BY name ASC`;
+	} else if (authorizedListIds.length > 0) {
+		lists = await db`
+            SELECT id, name, handle, association_id
+            FROM list 
+            WHERE id = ANY(${authorizedListIds}) 
             ORDER BY name ASC
         `;
 	}
 
 	return {
 		associations,
+		lists,
 	};
 };

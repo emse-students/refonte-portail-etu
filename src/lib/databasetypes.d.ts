@@ -127,8 +127,8 @@ export type FullUser = User & {
 
 export type Event = {
 	id: number;
-	association: Association;
-
+	association_id?: number;
+	list_id?: number;
 	title: string;
 	description: string;
 	start_date: Date;

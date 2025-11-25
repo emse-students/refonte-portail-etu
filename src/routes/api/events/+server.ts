@@ -4,7 +4,9 @@ import Permission from "$lib/permissions";
 import {
 	requireAuth,
 	getAuthorizedAssociationIds,
+	getAuthorizedListIds,
 	checkAssociationPermission,
+	checkListPermission,
 } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
@@ -18,36 +20,44 @@ export const GET = async (event: RequestEvent) => {
 		}
 
 		const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+		const authorizedLists = getAuthorizedListIds(user, Permission.EVENTS);
 
 		// Si null, l'utilisateur est admin et peut tout voir
-		if (authorizedAssociations === null) {
+		if (authorizedAssociations === null || authorizedLists === null) {
 			const events = await db`
                 SELECT
-                    e.id, e.association_id, e.title, e.description, e.start_date, 
+                    e.id, e.association_id, e.list_id, e.title, e.description, e.start_date, 
                     e.end_date, e.location, e.validated,
-                    a.name as association_name
+                    a.name as association_name,
+					l.name as list_name
                 FROM
                     event e
                 LEFT JOIN association a ON e.association_id = a.id
+				LEFT JOIN list l ON e.list_id = l.id
                 ORDER BY e.start_date DESC
             `;
 			return json(events);
 		}
 
-		// Sinon, filtrer par les associations autorisées
-		if (authorizedAssociations.length === 0) {
+		// Sinon, filtrer par les associations et listes autorisées
+		if (authorizedAssociations.length === 0 && authorizedLists.length === 0) {
 			return json([]);
 		}
 
 		const events = await db`
             SELECT
-                e.id, e.association_id, e.title, e.description, e.start_date, 
+                e.id, e.association_id, e.list_id, e.title, e.description, e.start_date, 
                 e.end_date, e.location, e.validated,
-                a.name as association_name
+                a.name as association_name,
+				l.name as list_name
             FROM
                 event e
             LEFT JOIN association a ON e.association_id = a.id
-            WHERE e.association_id = ANY(${authorizedAssociations})
+			LEFT JOIN list l ON e.list_id = l.id
+            WHERE 
+				(e.association_id = ANY(${authorizedAssociations}) AND e.association_id IS NOT NULL)
+				OR 
+				(e.list_id = ANY(${authorizedLists}) AND e.list_id IS NOT NULL)
             ORDER BY e.start_date DESC
         `;
 		return json(events);
@@ -56,12 +66,14 @@ export const GET = async (event: RequestEvent) => {
 	// Liste des événements accessible publiquement
 	const events = await db`
         SELECT
-            e.id, e.association_id, e.title, e.description, e.start_date, 
+            e.id, e.association_id, e.list_id, e.title, e.description, e.start_date, 
             e.end_date, e.location,
-            a.name as association_name
+            a.name as association_name,
+			l.name as list_name
         FROM
             event e
         LEFT JOIN association a ON e.association_id = a.id
+		LEFT JOIN list l ON e.list_id = l.id
 		WHERE e.validated = true
         ORDER BY e.start_date DESC
     `;
@@ -71,10 +83,11 @@ export const GET = async (event: RequestEvent) => {
 
 export const POST = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { association_id, title, description, start_date, end_date, location, validated } = body;
+	const { association_id, list_id, title, description, start_date, end_date, location, validated } =
+		body;
 
-	if (!association_id) {
-		return json({ error: "association_id is required" }, { status: 400 });
+	if (!association_id && !list_id) {
+		return json({ error: "association_id or list_id is required" }, { status: 400 });
 	}
 
 	const user = await requireAuth(event);
@@ -82,16 +95,19 @@ export const POST = async (event: RequestEvent) => {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	// Vérifier que l'utilisateur a la permission EVENTS pour cette association spécifique
-	const authCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
-	if (!authCheck.authorized) {
-		return authCheck.response;
+	// Vérifier les permissions
+	if (association_id) {
+		const authCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
+		if (!authCheck.authorized) return authCheck.response;
+	} else if (list_id) {
+		const authCheck = await checkListPermission(event, list_id, Permission.EVENTS);
+		if (!authCheck.authorized) return authCheck.response;
 	}
 
 	// Check if event submission is open
 	// Global managers bypass this check
 	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
-	const isGlobalManager = authorizedAssociations === null;
+	const isGlobalManager = authorizedAssociations === null; // null means global access
 
 	if (!isGlobalManager) {
 		const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
@@ -106,13 +122,11 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	// Determine validation status
-
-	// Global managers can set validation status directly, otherwise it defaults to false (proposal)
 	const isValidated = isGlobalManager ? (validated ?? true) : false;
 
 	await db`
-        INSERT INTO event (association_id, title, description, start_date, end_date, location, validated)
-        VALUES (${association_id}, ${title}, ${description}, ${new Date(start_date)}, ${new Date(end_date)}, ${location}, ${isValidated})
+        INSERT INTO event (association_id, list_id, title, description, start_date, end_date, location, validated)
+        VALUES (${association_id || null}, ${list_id || null}, ${title}, ${description}, ${new Date(start_date)}, ${new Date(end_date)}, ${location}, ${isValidated})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -123,11 +137,20 @@ export const POST = async (event: RequestEvent) => {
 
 export const PUT = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { id, association_id, title, description, start_date, end_date, location, validated } =
-		body;
+	const {
+		id,
+		association_id,
+		list_id,
+		title,
+		description,
+		start_date,
+		end_date,
+		location,
+		validated,
+	} = body;
 
-	if (!id || !association_id) {
-		return json({ error: "id and association_id are required" }, { status: 400 });
+	if (!id || (!association_id && !list_id)) {
+		return json({ error: "id and (association_id or list_id) are required" }, { status: 400 });
 	}
 
 	const user = await requireAuth(event);
@@ -135,41 +158,44 @@ export const PUT = async (event: RequestEvent) => {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	// Récupérer l'événement existant pour vérifier son association
+	// Récupérer l'événement existant
 	const existingEvent = await db`
-        SELECT association_id, validated FROM event WHERE id = ${id}
+        SELECT association_id, list_id, validated FROM event WHERE id = ${id}
     `.then((rows) => rows?.[0]);
 
 	if (!existingEvent) {
 		return json({ error: "Event not found" }, { status: 404 });
 	}
 
-	// Vérifier la permission pour l'association actuelle de l'événement
-	const authCheck = await checkAssociationPermission(
-		event,
-		existingEvent.association_id,
-		Permission.EVENTS
-	);
-	if (!authCheck.authorized) {
-		return authCheck.response;
-	}
-
-	// Si on change l'association, vérifier aussi la permission pour la nouvelle association
-	if (existingEvent.association_id !== association_id) {
-		const newAssocAuthCheck = await checkAssociationPermission(
+	// Vérifier la permission pour l'entité actuelle de l'événement
+	if (existingEvent.association_id) {
+		const authCheck = await checkAssociationPermission(
 			event,
-			association_id,
+			existingEvent.association_id,
 			Permission.EVENTS
 		);
-		if (!newAssocAuthCheck.authorized) {
+		if (!authCheck.authorized) return authCheck.response;
+	} else if (existingEvent.list_id) {
+		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.EVENTS);
+		if (!authCheck.authorized) return authCheck.response;
+	}
+
+	// Si on change d'entité, vérifier aussi la permission pour la nouvelle
+	if (association_id && existingEvent.association_id !== association_id) {
+		const newAuthCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
+		if (!newAuthCheck.authorized)
 			return json(
-				{
-					error: "Forbidden",
-					message: "Vous n'avez pas la permission de déplacer cet événement vers cette association",
-				},
+				{ error: "Forbidden", message: "Pas de permission pour la nouvelle association" },
 				{ status: 403 }
 			);
-		}
+	}
+	if (list_id && existingEvent.list_id !== list_id) {
+		const newAuthCheck = await checkListPermission(event, list_id, Permission.EVENTS);
+		if (!newAuthCheck.authorized)
+			return json(
+				{ error: "Forbidden", message: "Pas de permission pour la nouvelle liste" },
+				{ status: 403 }
+			);
 	}
 
 	// Determine validation status update
@@ -178,16 +204,15 @@ export const PUT = async (event: RequestEvent) => {
 
 	let newValidatedStatus = false;
 	if (isGlobalManager) {
-		// Global manager can update validation status
 		newValidatedStatus = validated !== undefined ? validated : existingEvent.validated;
 	} else {
-		// Association manager: editing resets validation to false (proposal modified)
 		newValidatedStatus = false;
 	}
 
 	await db`
         UPDATE event 
-        SET association_id = ${association_id}, title = ${title}, description = ${description},
+        SET association_id = ${association_id || null}, list_id = ${list_id || null},
+            title = ${title}, description = ${description},
             start_date = ${start_date}, end_date = ${end_date}, location = ${location},
             validated = ${newValidatedStatus}
         WHERE id = ${id}
@@ -204,23 +229,24 @@ export const DELETE = async (event: RequestEvent) => {
 		return json({ error: "id is required" }, { status: 400 });
 	}
 
-	// Récupérer l'événement pour vérifier son association
 	const existingEvent = await db`
-        SELECT association_id FROM event WHERE id = ${id}
+        SELECT association_id, list_id FROM event WHERE id = ${id}
     `.then((rows) => rows?.[0]);
 
 	if (!existingEvent) {
 		return json({ error: "Event not found" }, { status: 404 });
 	}
 
-	// Vérifier la permission pour l'association de l'événement
-	const authCheck = await checkAssociationPermission(
-		event,
-		existingEvent.association_id,
-		Permission.EVENTS
-	);
-	if (!authCheck.authorized) {
-		return authCheck.response;
+	if (existingEvent.association_id) {
+		const authCheck = await checkAssociationPermission(
+			event,
+			existingEvent.association_id,
+			Permission.EVENTS
+		);
+		if (!authCheck.authorized) return authCheck.response;
+	} else if (existingEvent.list_id) {
+		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.EVENTS);
+		if (!authCheck.authorized) return authCheck.response;
 	}
 
 	await db`DELETE FROM event WHERE id = ${id}`;

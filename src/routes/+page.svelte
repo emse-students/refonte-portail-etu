@@ -1,9 +1,51 @@
 <script lang="ts">
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
+	import Permission, { hasPermission } from "$lib/permissions";
 
 	// load session
 	import { page } from "$app/state";
 	let session = page.data.session;
+	let user = page.data.userData;
+	let eventSubmissionOpen = $derived(page.data.eventSubmissionOpen);
+
+	const canProposeEvent = $derived.by(() => {
+		if (!user) return false;
+		// Global permission
+		if (hasPermission(user.permissions, Permission.EVENTS)) return true;
+
+		// Association permission
+		if (user.memberships) {
+			return user.memberships.some((m) => hasPermission(m.role.permissions, Permission.EVENTS));
+		}
+		return false;
+	});
+
+	const isGlobalEventManager = $derived.by(() => {
+		if (!user) return false;
+		return hasPermission(user.permissions, Permission.EVENTS);
+	});
+
+	async function closeAndValidate() {
+		if (!confirm("Voulez-vous clôturer la soumission et valider TOUS les événements proposés ?"))
+			return;
+
+		try {
+			const response = await fetch("/api/events/finalize-submission", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (!response.ok) throw new Error("Erreur lors de l'opération");
+
+			const result = await response.json();
+			alert(result.message || "Opération réussie");
+
+			// Reload page to reflect changes (button disappearance)
+			window.location.reload();
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
+		}
+	}
 </script>
 
 <svelte:head>
@@ -27,9 +69,19 @@
 </svelte:head>
 
 <section>
-	<h1>
-		Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
-	</h1>
+	<div class="header-row">
+		<h1>
+			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
+		</h1>
+		<div class="actions">
+			{#if canProposeEvent && eventSubmissionOpen}
+				<a href="/events/propose" class="btn-primary">Proposer un événement</a>
+			{/if}
+			{#if isGlobalEventManager}
+				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
+			{/if}
+		</div>
+	</div>
 
 	<div class="calendar-fixed-container">
 		<Calendar />
@@ -58,6 +110,57 @@
 		color: #7c3aed;
 		letter-spacing: -0.02em;
 		animation: fadeInDown 0.6s ease-out;
+	}
+
+	.header-row {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	.header-row h1 {
+		margin-bottom: 0;
+		width: auto;
+	}
+
+	.actions {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.btn-primary {
+		background-color: #7c3aed;
+		color: white;
+		padding: 0.75rem 1.5rem;
+		border-radius: 8px;
+		text-decoration: none;
+		font-weight: 600;
+		transition: background-color 0.2s;
+		white-space: nowrap;
+	}
+
+	.btn-primary:hover {
+		background-color: #6d28d9;
+	}
+
+	.btn-secondary {
+		background-color: #ef4444;
+		color: white;
+		padding: 0.75rem 1.5rem;
+		border-radius: 8px;
+		border: none;
+		cursor: pointer;
+		font-weight: 600;
+		transition: background-color 0.2s;
+		white-space: nowrap;
+		font-size: 1rem;
+	}
+
+	.btn-secondary:hover {
+		background-color: #dc2626;
 	}
 
 	@keyframes fadeInDown {

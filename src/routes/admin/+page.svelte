@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from "$app/paths";
 	import { onMount } from "svelte";
+	import { page } from "$app/state";
+	import Permission, { getPermissionName } from "$lib/permissions";
 
 	type TableName = "users" | "associations" | "roles" | "members" | "events" | "lists";
 
@@ -202,6 +204,9 @@
 	): string {
 		if (value === null || value === undefined) return "-";
 		if (typeof value === "boolean") return value ? "✓" : "✗";
+		if (column === "permissions" && typeof value === "number") {
+			return getPermissionName(value);
+		}
 		if (column.includes("date") && value) {
 			return new Date(value as string | number).toLocaleString("fr-FR");
 		}
@@ -209,6 +214,10 @@
 	}
 
 	onMount(() => {
+		const tab = page.url.searchParams.get("tab");
+		if (tab && Object.keys(tableConfig).includes(tab)) {
+			selectedTable = tab as TableName;
+		}
 		fetchData();
 		fetchReferenceData();
 	});
@@ -320,6 +329,14 @@
 												{#each lists as list}
 													<option value={list.id}>{list.name}</option>
 												{/each}
+											</select>
+										{:else if column === "permissions"}
+											<select bind:value={editingRow[column]}>
+												<option value={Permission.MEMBER}>Membre</option>
+												<option value={Permission.ROLES}>Gestion Rôles & Membres</option>
+												<option value={Permission.EVENTS}>Gestion Événements</option>
+												<option value={Permission.ADMIN}>Administration</option>
+												<option value={Permission.SITE_ADMIN}>Super Admin</option>
 											</select>
 										{:else if column.includes("date")}
 											<input type="datetime-local" bind:value={editingRow[column]} />

@@ -14,7 +14,7 @@ export const GET = async (event: RequestEvent) => {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MEMBERS);
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.ROLES);
 
 	// Si null, l'utilisateur est admin et peut tout voir
 	if (authorizedAssociations === null) {
@@ -69,9 +69,9 @@ export const POST = async (event: RequestEvent) => {
 		return json({ error: "association_id is required" }, { status: 400 });
 	}
 
-	// Vérifier que l'utilisateur a la permission MEMBERS pour cette association spécifique
+	// Vérifier que l'utilisateur a la permission ROLES pour cette association spécifique
 	const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
-	const authCheck = await checkAssociationPermission(event, association_id, Permission.MEMBERS);
+	const authCheck = await checkAssociationPermission(event, association_id, Permission.ROLES);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}
@@ -108,7 +108,7 @@ export const PUT = async (event: RequestEvent) => {
 	const authCheck = await checkAssociationPermission(
 		event,
 		existingMember.association_id,
-		Permission.MEMBERS
+		Permission.ROLES
 	);
 	if (!authCheck.authorized) {
 		return authCheck.response;
@@ -119,7 +119,7 @@ export const PUT = async (event: RequestEvent) => {
 		const newAssocAuthCheck = await checkAssociationPermission(
 			event,
 			association_id,
-			Permission.MEMBERS
+			Permission.ROLES
 		);
 		if (!newAssocAuthCheck.authorized) {
 			return json(
@@ -164,7 +164,7 @@ export const DELETE = async (event: RequestEvent) => {
 	const authCheck = await checkAssociationPermission(
 		event,
 		existingMember.association_id,
-		Permission.MEMBERS
+		Permission.ROLES
 	);
 	if (!authCheck.authorized) {
 		return authCheck.response;

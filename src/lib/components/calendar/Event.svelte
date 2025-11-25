@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Association, RawEvent } from "$lib/databasetypes";
+	import type { Association, List, RawEvent } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { resolve } from "$app/paths";
 	let {
@@ -9,21 +9,44 @@
 		location,
 		description,
 		association_id,
+		list_id,
+		id,
+		validated,
+		created_at,
+		edited_at,
 		i,
 		count,
-	}: RawEvent & { i?: number; count?: number } = $props();
+		onEventClick,
+	}: RawEvent & {
+		i?: number;
+		count?: number;
+		onEventClick?: (event: RawEvent) => boolean;
+	} = $props();
 
-	// get the association name from id (either from page data or fetch it if not available)
-	let association_name = $state("");
-	let association_handle = $state("");
-	let association_link = $derived(resolve(`/associations/${association_handle}`));
+	// get the association or list name from id
+	let entity_name = $state("");
+	let entity_handle = $state("");
+	let entity_link = $state("");
+	let is_list = $state(false);
 
-	fetch(resolve(`/api/associations/${association_id}`))
-		.then((res) => res.json())
-		.then((data: Association) => {
-			association_name = data.name;
-			association_handle = data.handle;
-		});
+	if (association_id) {
+		fetch(resolve(`/api/associations/${association_id}`))
+			.then((res) => res.json())
+			.then((data: Association) => {
+				entity_name = data.name;
+				entity_handle = data.handle;
+				entity_link = resolve(`/associations/${entity_handle}`);
+			});
+	} else if (list_id) {
+		is_list = true;
+		fetch(resolve(`/api/lists/${list_id}`))
+			.then((res) => res.json())
+			.then((data: List) => {
+				entity_name = data.name;
+				entity_handle = data.handle;
+				entity_link = resolve(`/lists/${entity_handle}`);
+			});
+	}
 
 	const palette = [
 		"#f7c873",
@@ -39,14 +62,33 @@
 	];
 	let color =
 		palette[
-			(association_id ? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) : title.length) %
-				palette.length
+			(association_id || list_id
+				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
+				: title.length) % palette.length
 		];
 
 	let showModal = $state(false);
 	function openModal() {
 		showModal = true;
 		pushState("", { modalOpen: true });
+	}
+	function handleClick() {
+		if (onEventClick) {
+			const handled = onEventClick({
+				title,
+				start_date,
+				end_date,
+				location,
+				description,
+				association_id,
+				id,
+				validated,
+				created_at,
+				edited_at,
+			});
+			if (handled) return;
+		}
+		openModal();
 	}
 	function closeModal() {
 		showModal = false;
@@ -85,10 +127,10 @@
 						{location}
 					</div>
 				{/if}
-				{#if association_name}
+				{#if entity_name}
 					<div class="modal-section">
-						<strong>Association :</strong>
-						<a href={association_link}>{association_name}</a>
+						<strong>{is_list ? "Liste" : "Association"} :</strong>
+						<a href={entity_link}>{entity_name}</a>
 					</div>
 				{/if}
 				{#if description}
@@ -104,8 +146,8 @@
 <div
 	class="event-stack-item event-title-only clickable fill-cell"
 	role="presentation"
-	onclick={openModal}
-	onkeydown={(e) => e.key === "Enter" && openModal()}
+	onclick={handleClick}
+	onkeydown={(e) => e.key === "Enter" && handleClick()}
 	title="Voir les détails"
 	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
 >

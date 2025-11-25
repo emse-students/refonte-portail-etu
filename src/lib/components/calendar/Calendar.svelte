@@ -5,9 +5,10 @@
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
 
-	let { onDayClick, initialDate } = $props<{
+	let { onDayClick, initialDate, onEventClick } = $props<{
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
+		onEventClick?: (event: CalendarEvent) => boolean;
 	}>();
 
 	// Desktop state
@@ -247,8 +248,13 @@
 				{#each getVisibleWeeks(weekStart) as weekStartDate}
 					<tr>
 						{#each getWeekDays(weekStartDate) as dayDate}
-							<td onclick={() => onDayClick?.(dayDate)} class:clickable={!!onDayClick}>
-								<CalendarDay {dayDate} {events} />
+							<td>
+								<CalendarDay
+									{dayDate}
+									{events}
+									onAddEvent={onDayClick ? () => onDayClick?.(dayDate) : undefined}
+									{onEventClick}
+								/>
 							</td>
 						{/each}
 					</tr>
@@ -501,11 +507,5 @@
 		border-bottom: 1px solid #e5e7eb;
 		background: none;
 		text-transform: capitalize;
-	}
-	td.clickable {
-		cursor: pointer;
-	}
-	td.clickable:hover {
-		background-color: #f0f0f0;
 	}
 </style>

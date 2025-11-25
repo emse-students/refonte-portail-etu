@@ -1,19 +1,28 @@
 <script lang="ts">
-	import type { Association } from "$lib/databasetypes";
+	import type { Association, List, RawEvent } from "$lib/databasetypes";
 
-	let { association, associations, initialDate, onClose, onSuccess } = $props<{
+	let { association, associations, lists, initialDate, onClose, onSuccess, event } = $props<{
 		association?: Association;
 		associations?: Association[];
+		lists?: List[];
 		initialDate?: Date;
 		onClose: () => void;
 		onSuccess: () => void;
+		event?: RawEvent;
 	}>();
 
+	let entityType = $state<"association" | "list">(event?.list_id ? "list" : "association");
+
 	let selectedAssociationId = $state(
-		association?.id || (associations && associations.length === 1 ? associations[0].id : "")
+		event?.association_id ||
+			association?.id ||
+			(associations && associations.length === 1 ? associations[0].id : "")
 	);
-	let title = $state("");
-	let description = $state("");
+
+	let selectedListId = $state(event?.list_id || (lists && lists.length === 1 ? lists[0].id : ""));
+
+	let title = $state(event?.title || "");
+	let description = $state(event?.description || "");
 
 	// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
 	function formatDateForInput(date: Date) {
@@ -22,11 +31,21 @@
 		return d.toISOString().slice(0, 16);
 	}
 
-	let startDate = $state(initialDate ? formatDateForInput(initialDate) : "");
+	let startDate = $state(
+		event
+			? formatDateForInput(event.start_date)
+			: initialDate
+				? formatDateForInput(initialDate)
+				: ""
+	);
 	let endDate = $state(
-		initialDate ? formatDateForInput(new Date(initialDate.getTime() + 3600000)) : ""
+		event
+			? formatDateForInput(event.end_date)
+			: initialDate
+				? formatDateForInput(new Date(initialDate.getTime() + 3600000))
+				: ""
 	); // Default +1 hour
-	let location = $state("");
+	let location = $state(event?.location || "");
 	let error = $state("");
 	let loading = $state(false);
 
@@ -35,29 +54,48 @@
 		loading = true;
 		error = "";
 
-		if (!selectedAssociationId) {
+		if (entityType === "association" && !selectedAssociationId) {
 			error = "Veuillez sélectionner une association";
+			loading = false;
+			return;
+		}
+		if (entityType === "list" && !selectedListId) {
+			error = "Veuillez sélectionner une liste";
 			loading = false;
 			return;
 		}
 
 		try {
+			const method = event ? "PUT" : "POST";
+			const body: Partial<RawEvent> = {
+				title,
+				description,
+				start_date: new Date(startDate),
+				end_date: new Date(endDate),
+				location,
+			};
+
+			if (entityType === "association") {
+				body.association_id = selectedAssociationId;
+				body.list_id = undefined;
+			} else {
+				body.list_id = selectedListId;
+				body.association_id = undefined;
+			}
+
+			if (event) {
+				body.id = event.id;
+			}
+
 			const response = await fetch("/api/events", {
-				method: "POST",
+				method,
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					association_id: selectedAssociationId,
-					title,
-					description,
-					start_date: new Date(startDate).toISOString(),
-					end_date: new Date(endDate).toISOString(),
-					location,
-				}),
+				body: JSON.stringify(body),
 			});
 
 			if (!response.ok) {
 				const data = await response.json();
-				throw new Error(data.error || "Erreur lors de la création de l'événement");
+				throw new Error(data.error || "Erreur lors de l'enregistrement de l'événement");
 			}
 
 			onSuccess();
@@ -88,24 +126,48 @@
 	}}
 >
 	<div class="modal" role="document">
-		<h2>Proposer un événement</h2>
+		<h2>{event ? "Modifier l'événement" : "Proposer un événement"}</h2>
 
 		{#if error}
 			<div class="error">{error}</div>
 		{/if}
 
 		<form onsubmit={handleSubmit}>
-			{#if !association && associations && associations.length > 1}
+			{#if !association}
 				<div class="form-group">
-					<label for="association">Association</label>
-					<select id="association" bind:value={selectedAssociationId} required>
-						<option value="" disabled selected>Choisir une association</option>
-						{#each associations as assoc}
-							<option value={assoc.id}>{assoc.name}</option>
-						{/each}
-					</select>
+					<span class="label">Type d'entité</span>
+					<div class="radio-group">
+						<label>
+							<input type="radio" bind:group={entityType} value="association" /> Association
+						</label>
+						<label>
+							<input type="radio" bind:group={entityType} value="list" /> Liste
+						</label>
+					</div>
 				</div>
-			{:else if association}
+
+				{#if entityType === "association"}
+					<div class="form-group">
+						<label for="association">Association</label>
+						<select id="association" bind:value={selectedAssociationId} required>
+							<option value="" disabled selected>Choisir une association</option>
+							{#each associations || [] as assoc}
+								<option value={assoc.id}>{assoc.name}</option>
+							{/each}
+						</select>
+					</div>
+				{:else}
+					<div class="form-group">
+						<label for="list">Liste</label>
+						<select id="list" bind:value={selectedListId} required>
+							<option value="" disabled selected>Choisir une liste</option>
+							{#each lists || [] as list}
+								<option value={list.id}>{list.name}</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
+			{:else}
 				<p>Pour : <strong>{association.name}</strong></p>
 			{/if}
 
@@ -168,7 +230,8 @@
 	.form-group {
 		margin-bottom: 1rem;
 	}
-	label {
+	label,
+	.label {
 		display: block;
 		margin-bottom: 0.5rem;
 	}
@@ -188,5 +251,16 @@
 	.error {
 		color: red;
 		margin-bottom: 1rem;
+	}
+	.radio-group {
+		display: flex;
+		gap: 1rem;
+	}
+	.radio-group label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: normal;
+		cursor: pointer;
 	}
 </style>

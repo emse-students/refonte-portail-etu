@@ -1,27 +1,30 @@
 enum Permission {
-	ROLES = 1 << 0,
-	MEMBERS = 1 << 1,
-	EVENTS = 1 << 2,
-	ADMIN = 1 << 3,
-	SITE_ADMIN = 1 << 4,
+	MEMBER = 0,
+	ROLES = 1,
+	EVENTS = 2,
+	ADMIN = 3,
+	SITE_ADMIN = 4,
 }
 
 export default Permission;
 
 export function hasPermission(userPermissions: number, permissionToCheck: Permission): boolean {
-	return ((userPermissions & permissionToCheck) | (userPermissions & Permission.SITE_ADMIN)) !== 0;
+	return userPermissions >= permissionToCheck;
 }
 
-export function addPermission(userPermissions: number, permissionToAdd: Permission): number {
-	return userPermissions | permissionToAdd;
-}
-
-export function removePermission(userPermissions: number, permissionToRemove: Permission): number {
-	return userPermissions & ~permissionToRemove;
-}
-
-export function listPermissions(userPermissions: number): Permission[] {
-	return Object.values(Permission).filter(
-		(value) => typeof value === "number" && hasPermission(userPermissions, value as Permission)
-	) as Permission[];
+export function getPermissionName(level: number): string {
+	switch (level) {
+		case Permission.MEMBER:
+			return "Membre";
+		case Permission.ROLES:
+			return "Gestion Rôles & Membres";
+		case Permission.EVENTS:
+			return "Gestion Événements";
+		case Permission.ADMIN:
+			return "Administration";
+		case Permission.SITE_ADMIN:
+			return "Super Admin";
+		default:
+			return "Inconnu (" + level + ")";
+	}
 }
