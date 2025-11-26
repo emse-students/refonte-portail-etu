@@ -2,6 +2,8 @@ import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawAssociation } from "$lib/databasetypes";
 import { getAssociationWithMembers, getBasicAssociation } from "$lib/server/database";
+import { checkAssociationPermission } from "$lib/server/auth-middleware";
+import Permission from "$lib/permissions";
 
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
@@ -31,14 +33,26 @@ export const GET = async (event: RequestEvent) => {
 };
 
 export const DELETE = async (event: RequestEvent) => {
-	const id = event.params.id;
+	const id = Number(event.params.id);
+
+	const authCheck = await checkAssociationPermission(event, id, Permission.ADMIN);
+	if (!authCheck.authorized) {
+		return authCheck.response;
+	}
+
 	await db`DELETE FROM association WHERE id = ${id}`;
 
 	return new Response(null, { status: 204 });
 };
 
 export const PUT = async (event: RequestEvent) => {
-	const id = event.params.id;
+	const id = Number(event.params.id);
+
+	const authCheck = await checkAssociationPermission(event, id, Permission.ADMIN);
+	if (!authCheck.authorized) {
+		return authCheck.response;
+	}
+
 	const body = await event.request.json();
 	const name = body.name;
 	const description = body.description;

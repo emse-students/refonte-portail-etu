@@ -92,6 +92,48 @@
 		return hasPermission(membership.role.permissions, Permission.ROLES);
 	});
 
+	const canEditDetails = $derived.by(() => {
+		if (!userData) return false;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
+		const membership = userData.memberships.find((m) => m.association === association.id);
+		if (!membership) return false;
+		return hasPermission(membership.role.permissions, Permission.ADMIN);
+	});
+
+	const adminButtonText = $derived.by(() => {
+		if (editMode) return "Terminer l'édition";
+		if (canEditDetails) return "Administration";
+		return "Gérer les membres";
+	});
+
+	let showEditAssociationModal = $state(false);
+	let editAssociationName = $state("");
+	let editAssociationDescription = $state("");
+
+	function openEditAssociationModal() {
+		editAssociationName = association.name;
+		editAssociationDescription = association.description;
+		showEditAssociationModal = true;
+	}
+
+	async function updateAssociation() {
+		const res = await fetch(`/api/associations/${association.id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: editAssociationName,
+				description: editAssociationDescription,
+			}),
+		});
+
+		if (res.ok) {
+			showEditAssociationModal = false;
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la modification de l'association");
+		}
+	}
+
 	function requestRemoveMember(id: number) {
 		const member = association.members.find((m) => m.id === id);
 		if (member) {
@@ -239,9 +281,16 @@
 	<header class="page-header">
 		<h1>{association.name}</h1>
 		{#if canEdit}
-			<button class="action-btn" onclick={() => (editMode = !editMode)}>
-				{editMode ? "Terminer l'édition" : "Gérer les membres"}
-			</button>
+			<div class="header-actions">
+				<button class="action-btn" onclick={() => (editMode = !editMode)}>
+					{adminButtonText}
+				</button>
+				{#if editMode && canEditDetails}
+					<button class="action-btn secondary" onclick={openEditAssociationModal}>
+						Éditer les informations
+					</button>
+				{/if}
+			</div>
 		{/if}
 	</header>
 
@@ -460,6 +509,26 @@
 		</div>
 	</Modal>
 
+	<Modal bind:open={showEditAssociationModal} title="Modifier l'association">
+		<div class="form-group">
+			<label for="asso-name">Nom de l'association</label>
+			<input type="text" id="asso-name" bind:value={editAssociationName} />
+		</div>
+		<div class="form-group">
+			<label for="asso-desc">Description (Markdown supporté)</label>
+			<textarea
+				id="asso-desc"
+				bind:value={editAssociationDescription}
+				rows="10"
+				style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; resize: vertical;"
+			></textarea>
+		</div>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showEditAssociationModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={updateAssociation}>Enregistrer</button>
+		</div>
+	</Modal>
+
 	<Modal bind:open={showDeleteConfirmModal} title="Confirmer la suppression">
 		{#if memberToDelete}
 			<p>
@@ -478,7 +547,6 @@
 <style>
 	/* ... existing styles ... */
 	.action-btn {
-		margin-top: 1rem;
 		padding: 0.5rem 1rem;
 		background: #7c3aed;
 		color: white;
@@ -491,6 +559,21 @@
 
 	.action-btn:hover {
 		background: #6d28d9;
+	}
+
+	.action-btn.secondary {
+		background: #4a5568;
+	}
+
+	.action-btn.secondary:hover {
+		background: #2d3748;
+	}
+
+	.header-actions {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		margin-top: 1rem;
 	}
 
 	.admin-actions {
