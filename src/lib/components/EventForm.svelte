@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
+	import Modal from "$lib/components/Modal.svelte";
 
 	let { association, associations, lists, initialDate, onClose, onSuccess, event, isOpen } =
 		$props<{
@@ -25,6 +26,7 @@
 
 	let title = $state(event?.title || "");
 	let description = $state(event?.description || "");
+	let showDeleteConfirm = $state(false);
 
 	// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
 	function formatDateForInput(date: Date) {
@@ -110,8 +112,13 @@
 		}
 	}
 
-	async function handleDelete() {
-		if (!event || !confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) return;
+	function handleDelete() {
+		if (!event) return;
+		showDeleteConfirm = true;
+	}
+
+	async function confirmDelete() {
+		if (!event) return;
 
 		loading = true;
 		error = "";
@@ -128,10 +135,12 @@
 				throw new Error(data.error || "Erreur lors de la suppression de l'événement");
 			}
 
+			showDeleteConfirm = false;
 			onSuccess();
 			onClose();
 		} catch (e) {
 			error = e instanceof Error ? e.message : "Erreur inconnue";
+			showDeleteConfirm = false;
 		} finally {
 			loading = false;
 		}
@@ -221,11 +230,50 @@
 			</button>
 		</div>
 	</form>
+
+	<Modal bind:open={showDeleteConfirm} title="Confirmer la suppression">
+		<p>Êtes-vous sûr de vouloir supprimer cet événement ?</p>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showDeleteConfirm = false)}>Annuler</button>
+			<button class="remove-btn" onclick={confirmDelete}>Supprimer</button>
+		</div>
+	</Modal>
 </div>
 
 <style>
 	.event-form-container {
 		color: #1a202c;
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.cancel-btn {
+		padding: 0.75rem 1.5rem;
+		background: #edf2f7;
+		color: #4a5568;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.remove-btn {
+		padding: 0.75rem 1.5rem;
+		background: #fee2e2;
+		color: #c53030;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.remove-btn:hover {
+		background: #fecaca;
 	}
 
 	.form-group {

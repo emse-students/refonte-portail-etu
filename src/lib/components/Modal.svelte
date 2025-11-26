@@ -116,4 +116,18 @@
 		padding: 0 2rem 2rem;
 		overflow: visible;
 	}
+
+	@media (max-width: 640px) {
+		.modal {
+			width: 95%;
+		}
+
+		.modal-header {
+			padding: 1rem 1.25rem 0.5rem;
+		}
+
+		.modal-content {
+			padding: 0 1.25rem 1.25rem;
+		}
+	}
 </style>

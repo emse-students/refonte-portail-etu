@@ -17,10 +17,12 @@
 		i,
 		count,
 		onEventClick,
+		mode = "stack",
 	}: RawEvent & {
 		i?: number;
 		count?: number;
 		onEventClick?: (event: RawEvent) => boolean;
+		mode?: "stack" | "list";
 	} = $props();
 
 	// get the association or list name from id
@@ -145,6 +147,7 @@
 
 <div
 	class="event-stack-item event-title-only clickable fill-cell"
+	class:list-mode={mode === "list"}
 	role="presentation"
 	onclick={handleClick}
 	onkeydown={(e) => e.key === "Enter" && handleClick()}
@@ -178,6 +181,21 @@
 		will-change: top, height, max-height, z-index;
 	}
 
+	.event-stack-item.list-mode {
+		position: relative;
+		top: auto;
+		height: auto;
+		max-height: none;
+		margin-bottom: 0.5rem;
+		border-radius: 6px;
+		padding: 0.75rem;
+		text-align: left;
+		display: block;
+		white-space: normal;
+		overflow: visible;
+		z-index: 1;
+	}
+
 	.event-stack-item:hover,
 	.event-stack-item:focus-within,
 	.modal-overlay + .event-stack-item {
@@ -191,6 +209,18 @@
 			top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 			height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 			max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	}
+
+	.event-stack-item.list-mode:hover,
+	.event-stack-item.list-mode:focus-within {
+		top: auto !important;
+		height: auto !important;
+		max-height: none !important;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
 	}
 
 	.event-title-only {

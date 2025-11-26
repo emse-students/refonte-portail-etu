@@ -313,7 +313,7 @@
 						</div>
 						<div class="mobile-day-cell">
 							{#each m.events.filter((event) => event.start_date.getDate() === dayIdx + 1) as event}
-								<Event {...event} />
+								<Event {...event} mode="list" />
 							{/each}
 						</div>
 					</div>
