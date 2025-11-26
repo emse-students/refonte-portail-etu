@@ -1,44 +1,38 @@
 <script lang="ts">
-	import type { Association, RawEvent, Role, FullUser, Member, RawUser } from "$lib/databasetypes";
+	import type { Member, RawUser } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import EventCard from "$lib/components/EventCard.svelte";
-	import Permission, { hasPermission } from "$lib/permissions";
+	import Permission from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
 	import { hasAssociationPermission } from "$lib/server/auth-middleware.js";
 
 	let { data } = $props();
-	const association: Association = data.association;
-	const events: RawEvent[] = data.events || [];
-	const roles: Role[] = data.roles || [];
-	const userData: FullUser | undefined = data.userData;
-
+	const association = $derived(data.association);
+	const events = $derived(data.events || []);
+	const roles = $derived(data.roles || []);
+	const userData = $derived(data.userData);
 	let editMode = $state(false);
 	let showAddMemberModal = $state(false);
 	let showEditRoleModal = $state(false);
 	let selectedMember: Member | null = $state(null);
-	let selectedRole = $state(roles[0]?.id);
+	let selectedRole = $state();
 
 	// For adding member
 	let searchQuery = $state("");
 	let searchResults: RawUser[] = $state([]);
 	let selectedUserToAdd: RawUser | null = $state(null);
-	let newMemberRoleId = $state(roles[0]?.id);
+	let newMemberRoleId = $state();
 
-	const canEdit = $derived.by(() => {
-		if (!userData) return false;
-		if (hasPermission(userData.permissions, Permission.ROLES)) return true;
-		// Check if user is a member of this association with ROLES permission
-		// Note: userData.memberships contains memberships for the user.
-		// We need to find the membership for THIS association.
-		// association.id is the id of the current association.
-		// Member object has 'association' field which is the ID (based on databasetypes.d.ts Member type: association?: number)
-		// Wait, let's check databasetypes.d.ts again.
-		// Member = { ..., association?: number, ... }
-		// So yes, we check m.association === association.id
-
-		return hasAssociationPermission(userData, association.id, Permission.ROLES);
+	$effect(() => {
+		if (roles.length > 0 && !newMemberRoleId) {
+			newMemberRoleId = roles[0].id;
+		}
 	});
+
+	const canEdit = $derived(
+		userData ? hasAssociationPermission(userData, association.id, Permission.ROLES) : false
+	);
 
 	async function removeMember(id: number) {
 		const res = await fetch("/api/members", {

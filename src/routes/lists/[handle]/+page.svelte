@@ -1,27 +1,32 @@
 <script lang="ts">
-	import type { List, Role, FullUser, Member, RawUser } from "$lib/databasetypes";
+	import type { Member, RawUser } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
 
 	let { data } = $props();
-	const list: List = data.list;
-	const roles: Role[] = data.roles || [];
-	const userData: FullUser | undefined = data.userData;
+	const list = $derived(data.list);
+	const roles = $derived(data.roles || []);
+	const userData = $derived(data.userData);
 
 	let editMode = $state(false);
 	let showAddMemberModal = $state(false);
 	let showEditRoleModal = $state(false);
 	let selectedMember: Member | null = $state(null);
-	let selectedRole = $state(roles[0]?.id);
+	let selectedRole = $state();
 
 	// For adding member
 	let searchQuery = $state("");
 	let searchResults: RawUser[] = $state([]);
 	let selectedUserToAdd: RawUser | null = $state(null);
-	let newMemberRoleId = $state(roles[0]?.id);
+	let newMemberRoleId = $state();
 
+	$effect(() => {
+		if (roles.length > 0 && !newMemberRoleId) {
+			newMemberRoleId = roles[0].id;
+		}
+	});
 	const canEdit = $derived.by(() => {
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
