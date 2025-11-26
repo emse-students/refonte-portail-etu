@@ -79,7 +79,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				const memberships: Member[] = membershipsData.map((m) => ({
 					id: m.member_id,
 					visible: m.visible,
-					association: m.association_id,
+					association_id: m.association_id,
+					list_id: null,
 					user: {
 						id: m.user_id,
 						first_name: m.first_name,

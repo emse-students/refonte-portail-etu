@@ -38,3 +38,8 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
+
+# Coverage
+coverage
+test-results
+tests/__**

@@ -44,15 +44,15 @@ function compactUserData(userData: FullUser): SessionData {
 		permissions: userData.permissions,
 		promo: userData.promo,
 		lists: userData.memberships
-			.filter((m) => m.list !== null && m.list !== undefined)
+			.filter((m) => m.list_id !== null && m.list_id !== undefined)
 			.map((m) => ({
-				id: m.list as number,
+				id: m.list_id as number,
 				permissions: m.role.permissions,
 			})),
 		associations: userData.memberships
-			.filter((m) => m.association !== null && m.association !== undefined)
+			.filter((m) => m.association_id !== null && m.association_id !== undefined)
 			.map((m) => ({
-				id: m.association as number,
+				id: m.association_id as number,
 				permissions: m.role.permissions,
 			})),
 	};
@@ -124,7 +124,8 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					permissions: m.permissions,
 					hierarchy: 0,
 				},
-				list: m.id,
+				list_id: m.id,
+				association_id: null,
 				visible: true,
 			})),
 			...sessionData.associations.map((m) => ({
@@ -144,7 +145,8 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					permissions: m.permissions,
 					hierarchy: 0,
 				},
-				association: m.id,
+				association_id: m.id,
+				list_id: null,
 				visible: true,
 			})),
 		],

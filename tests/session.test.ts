@@ -17,7 +17,8 @@ describe("Session System", () => {
 			{
 				id: 1,
 				visible: true,
-				association: 1,
+				association_id: 1,
+				list_id: null,
 				user: {
 					id: 1,
 					first_name: "Test",
@@ -47,7 +48,7 @@ describe("Session System", () => {
 	it("should have memberships with correct structure", () => {
 		const membership = mockUser.memberships[0];
 		expect(membership).toHaveProperty("id");
-		expect(membership).toHaveProperty("association");
+		expect(membership).toHaveProperty("association_id");
 		expect(membership).toHaveProperty("role");
 		expect(membership.role).toHaveProperty("permissions");
 	});

@@ -9,7 +9,15 @@ import globals from "globals";
 export default [
 	js.configs.recommended,
 	{
-		ignores: ["build/", ".svelte-kit/", "dist/", "node_modules/", "*.config.*"],
+		ignores: [
+			"build/",
+			".svelte-kit/",
+			"dist/",
+			"node_modules/",
+			"*.config.*",
+			"tests/",
+			"coverage/",
+		],
 	},
 	{
 		files: ["**/*.js", "**/*.ts"],

@@ -1,10 +1,14 @@
 import { createPool, type Pool, type RowDataPacket } from "mysql2/promise";
 import "dotenv/config";
 import type { Association, List, Member, RawAssociation, RawList } from "$lib/databasetypes";
+import * as mockDbModule from "./database-mock";
+
+const USE_MOCK = process.env.MOCK_DB === "true";
 
 let pool: Pool | null = null;
 
 function ensurePool() {
+	if (USE_MOCK) return;
 	if (!pool) {
 		pool = createPool({
 			host: process.env.DB_HOST,
@@ -21,12 +25,18 @@ export default async function db<T = RowDataPacket>(
 	strings: TemplateStringsArray,
 	...values: unknown[]
 ) {
+	if (USE_MOCK) {
+		return mockDbModule.default<T>(strings, ...values);
+	}
 	const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
 	const rows = (await getPool().query<RowDataPacket[]>(query, values))[0];
 	return rows as T[];
 }
 
 export function getPool(): Pool {
+	if (USE_MOCK) {
+		return mockDbModule.getPool() as unknown as Pool;
+	}
 	ensurePool();
 	return pool as Pool;
 }
@@ -34,6 +44,9 @@ export function getPool(): Pool {
 export { escape } from "mysql2/promise";
 
 export async function getBasicAssociation(raw: RawAssociation): Promise<Association> {
+	if (USE_MOCK) {
+		return mockDbModule.getBasicAssociation(raw);
+	}
 	const iconUrl =
 		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
 			?.filename || "";
@@ -49,6 +62,9 @@ export async function getBasicAssociation(raw: RawAssociation): Promise<Associat
 }
 
 export async function getAssociationWithMembers(raw: RawAssociation): Promise<Association> {
+	if (USE_MOCK) {
+		return mockDbModule.getAssociationWithMembers(raw);
+	}
 	const membersData = (await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
                r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
@@ -90,7 +106,8 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 				},
 				id: m.member_id,
 				visible: m.visible,
-				association: raw.id,
+				association_id: raw.id,
+				list_id: null,
 			}) as Member
 	);
 
@@ -168,7 +185,8 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 				},
 				id: m.member_id,
 				visible: m.visible,
-				list: raw.id,
+				list_id: raw.id,
+				association_id: null,
 			}) as Member
 	);
 

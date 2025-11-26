@@ -5,7 +5,7 @@ export type RawAssociation = {
 	handle: string;
 	name: string;
 	description: string;
-	icon: number;
+	icon: number | null;
 	color: number;
 	created_at: Date;
 	edited_at: Date;
@@ -58,8 +58,8 @@ export type RawMember = {
 
 export type RawEvent = {
 	id: number;
-	association_id?: number;
-	list_id?: number;
+	association_id: number | null;
+	list_id: number | null;
 	title: string;
 	description: string;
 	start_date: Date;
@@ -116,8 +116,8 @@ export type Member = {
 	id: number;
 	user: User;
 	role: Role;
-	association?: number;
-	list?: number;
+	association_id: number | null;
+	list_id: number | null;
 	visible: boolean;
 };
 
@@ -127,8 +127,8 @@ export type FullUser = User & {
 
 export type Event = {
 	id: number;
-	association_id?: number;
-	list_id?: number;
+	association_id: number | null;
+	list_id: number | null;
 	title: string;
 	description: string;
 	start_date: Date;

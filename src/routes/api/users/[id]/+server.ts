@@ -16,6 +16,7 @@ export const GET = async (event: RequestEvent) => {
                 m.id as member_id, 
                 m.visible, 
                 m.association_id,
+                m.list_id,
                 u.id as user_id, 
                 u.first_name, 
                 u.last_name, 
@@ -34,7 +35,8 @@ export const GET = async (event: RequestEvent) => {
         `) as {
 			member_id: number;
 			visible: boolean;
-			association_id: number;
+			association_id: number | null;
+			list_id: number | null;
 			user_id: number;
 			first_name: string;
 			last_name: string;
@@ -51,7 +53,8 @@ export const GET = async (event: RequestEvent) => {
 		const memberships: Member[] = membershipsData.map((m) => ({
 			id: m.member_id,
 			visible: m.visible,
-			association: m.association_id,
+			association_id: m.association_id,
+			list_id: m.list_id,
 			user: {
 				id: m.user_id,
 				first_name: m.first_name,
