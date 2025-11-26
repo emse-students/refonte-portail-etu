@@ -30,7 +30,7 @@
 	<div class="event-stack">
 		<div class="date-badge {eventsForDay.length > 0 ? 'fade-on-hover' : ''}">
 			<span class="day-number">{dayDate.getDate()}</span>
-			<span class="month">{dayDate.toLocaleString(undefined, { month: "short" })}</span>
+			<span class="month">{dayDate.toLocaleString("fr-FR", { month: "short" })}</span>
 		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
 			<Event {...event} {i} {count} {onEventClick} />
