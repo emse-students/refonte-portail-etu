@@ -105,6 +105,25 @@
 			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
 		}
 	}
+
+	async function openSubmissions() {
+		try {
+			const response = await fetch("/api/events/open-submission", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (!response.ok) throw new Error("Erreur lors de l'opération");
+
+			const result = await response.json();
+			alert(result.message || "Opération réussie");
+
+			// Reload page to reflect changes (button disappearance)
+			window.location.reload();
+		} catch (e) {
+			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
+		}
+	}
 </script>
 
 <svelte:head>
@@ -115,8 +134,11 @@
 	<header class="page-header">
 		<h1>Proposer un événement</h1>
 		<div class="actions">
-			{#if isGlobalEventManager && !isOpen}
+			{#if isGlobalEventManager && isOpen}
 				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
+			{/if}
+			{#if isGlobalEventManager && !isOpen}
+				<button class="btn-primary" onclick={openSubmissions}>Ouvrir les soumissions</button>
 			{/if}
 			<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
 		</div>
