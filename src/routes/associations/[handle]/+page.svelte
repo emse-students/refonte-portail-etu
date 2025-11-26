@@ -24,9 +24,29 @@
 
 	// Role search
 	let roleSearchQuery = $state("");
+	let showRoleResults = $state(false);
 	const filteredRoles = $derived(
 		roles.filter((r: Role) => r.name.toLowerCase().includes(roleSearchQuery.toLowerCase()))
 	);
+
+	function selectRole(role: Role, context: "add" | "edit") {
+		if (context === "add") {
+			newMemberRoleId = role.id;
+		} else {
+			selectedRole = role.id;
+		}
+		roleSearchQuery = role.name;
+		showRoleResults = false;
+	}
+
+	function handleCreateRoleClick(context: "add" | "edit") {
+		createRoleContext = context;
+		newRoleName = roleSearchQuery; // Pre-fill with search query
+		newRoleHierarchy = 0;
+		newRolePermissions = 0;
+		showCreateRoleModal = true;
+		showRoleResults = false;
+	}
 
 	// For adding member
 	let searchQuery = $state("");
@@ -99,7 +119,8 @@
 	function openEditRoleModal(member: Member) {
 		selectedMember = member;
 		selectedRole = member.role.id;
-		roleSearchQuery = "";
+		roleSearchQuery = member.role.name;
+		showRoleResults = false;
 		showEditRoleModal = true;
 	}
 
@@ -190,22 +211,10 @@
 			} else if (createRoleContext === "edit") {
 				selectedRole = data.id;
 			}
+			roleSearchQuery = newRoleName;
 		} else {
 			const err = await res.json();
 			alert(err.message || "Erreur lors de la création du rôle");
-		}
-	}
-
-	function handleRoleSelectChange(
-		e: Event & { currentTarget: EventTarget & HTMLSelectElement },
-		context: "add" | "edit"
-	) {
-		if (e.currentTarget.value === "new") {
-			createRoleContext = context;
-			newRoleName = "";
-			newRoleHierarchy = 0;
-			newRolePermissions = 0;
-			showCreateRoleModal = true;
 		}
 	}
 
@@ -337,28 +346,30 @@
 		</div>
 		{#if selectedUserToAdd}
 			<div class="form-group">
-				<label for="role-search-add">Filtrer les rôles</label>
+				<label for="role-search-add">Rôle</label>
 				<input
 					id="role-search-add"
 					type="text"
 					bind:value={roleSearchQuery}
-					placeholder="Rechercher un rôle..."
+					placeholder="Rechercher ou créer un rôle..."
+					onfocus={() => (showRoleResults = true)}
+					autocomplete="off"
 				/>
-			</div>
-			<div class="form-group">
-				<label for="role-select">Rôle</label>
-				<select
-					id="role-select"
-					bind:value={newMemberRoleId}
-					onchange={(e) => handleRoleSelectChange(e, "add")}
-				>
-					{#each filteredRoles as role}
-						<option value={role.id}>{role.name}</option>
-					{/each}
-					<option value="new" style="font-weight: bold; color: #7c3aed;"
-						>+ Créer un nouveau rôle...</option
-					>
-				</select>
+				{#if showRoleResults && roleSearchQuery}
+					<div class="search-results">
+						{#each filteredRoles as role}
+							<button class="search-result-item" onclick={() => selectRole(role, "add")}>
+								{role.name}
+							</button>
+						{/each}
+						<button
+							class="search-result-item create-role-item"
+							onclick={() => handleCreateRoleClick("add")}
+						>
+							+ Créer un nouveau rôle...
+						</button>
+					</div>
+				{/if}
 			</div>
 			<div class="modal-actions">
 				<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
@@ -375,28 +386,30 @@
 	>
 		{#if selectedMember}
 			<div class="form-group">
-				<label for="role-search-edit">Filtrer les rôles</label>
+				<label for="role-search-edit">Rôle</label>
 				<input
 					id="role-search-edit"
 					type="text"
 					bind:value={roleSearchQuery}
-					placeholder="Rechercher un rôle..."
+					placeholder="Rechercher ou créer un rôle..."
+					onfocus={() => (showRoleResults = true)}
+					autocomplete="off"
 				/>
-			</div>
-			<div class="form-group">
-				<label for="edit-role-select">Rôle</label>
-				<select
-					id="edit-role-select"
-					bind:value={selectedRole}
-					onchange={(e) => handleRoleSelectChange(e, "edit")}
-				>
-					{#each filteredRoles as role}
-						<option value={role.id}>{role.name}</option>
-					{/each}
-					<option value="new" style="font-weight: bold; color: #7c3aed;"
-						>+ Créer un nouveau rôle...</option
-					>
-				</select>
+				{#if showRoleResults && roleSearchQuery}
+					<div class="search-results">
+						{#each filteredRoles as role}
+							<button class="search-result-item" onclick={() => selectRole(role, "edit")}>
+								{role.name}
+							</button>
+						{/each}
+						<button
+							class="search-result-item create-role-item"
+							onclick={() => handleCreateRoleClick("edit")}
+						>
+							+ Créer un nouveau rôle...
+						</button>
+					</div>
+				{/if}
 			</div>
 			<div class="modal-actions">
 				<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
@@ -548,6 +561,16 @@
 
 	.search-result-item:hover {
 		background: #f7fafc;
+	}
+
+	.create-role-item {
+		font-weight: 600;
+		color: #7c3aed;
+		border-top: 1px solid #e2e8f0;
+	}
+
+	.create-role-item:hover {
+		background: #f5f3ff;
 	}
 
 	.modal-actions {
