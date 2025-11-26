@@ -43,3 +43,4 @@ pnpm-debug.log*
 coverage
 test-results
 tests/__**
+playwright-report
