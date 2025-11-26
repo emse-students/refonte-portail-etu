@@ -19,19 +19,42 @@
 	let showDeleteConfirmModal = $state(false);
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
-	let selectedRole = $state();
+	let selectedRole = $state<number | "new">();
 
 	// For adding member
 	let searchQuery = $state("");
 	let searchResults: RawUser[] = $state([]);
 	let selectedUserToAdd: RawUser | null = $state(null);
-	let newMemberRoleId = $state();
+	let newMemberRoleId = $state<number | "new">();
 
 	$effect(() => {
 		if (roles.length > 0 && !newMemberRoleId) {
 			newMemberRoleId = roles[0].id;
 		}
 	});
+
+	// Role creation
+	let showCreateRoleModal = $state(false);
+	let newRoleName = $state("");
+	let newRoleHierarchy = $state(0);
+	let newRolePermissions = $state(0);
+	let createRoleContext: "add" | "edit" | null = $state(null);
+
+	const maxPermissionLevel = $derived.by(() => {
+		if (!userData) return 0;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
+		const membership = userData.memberships.find((m) => m.association === association.id);
+		return membership ? membership.role.permissions : 0;
+	});
+
+	const availablePermissions = $derived(
+		[
+			{ value: Permission.MEMBER, label: "Membre (0)" },
+			{ value: Permission.ROLES, label: "Gestion Rôles & Membres (1)" },
+			{ value: Permission.EVENTS, label: "Gestion Événements (2)" },
+			{ value: Permission.ADMIN, label: "Administration (3)" },
+		].filter((p) => p.value <= maxPermissionLevel)
+	);
 
 	const canEdit = $derived.by(() => {
 		if (!userData) return false;
@@ -113,6 +136,8 @@
 
 	async function addMember() {
 		if (!selectedUserToAdd) return;
+		if (newMemberRoleId === "new") return; // Should not happen if UI is correct
+
 		const res = await fetch("/api/members", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -131,6 +156,48 @@
 			invalidateAll();
 		} else {
 			alert("Erreur lors de l'ajout du membre");
+		}
+	}
+
+	async function createRole() {
+		const res = await fetch("/api/roles", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: newRoleName,
+				hierarchy: newRoleHierarchy,
+				permissions: newRolePermissions,
+				association_id: association.id,
+			}),
+		});
+
+		if (res.ok) {
+			const data = await res.json();
+			showCreateRoleModal = false;
+			// Invalidate to refresh roles list
+			await invalidateAll();
+			// Select the new role
+			if (createRoleContext === "add") {
+				newMemberRoleId = data.id;
+			} else if (createRoleContext === "edit") {
+				selectedRole = data.id;
+			}
+		} else {
+			const err = await res.json();
+			alert(err.message || "Erreur lors de la création du rôle");
+		}
+	}
+
+	function handleRoleSelectChange(
+		e: Event & { currentTarget: EventTarget & HTMLSelectElement },
+		context: "add" | "edit"
+	) {
+		if (e.currentTarget.value === "new") {
+			createRoleContext = context;
+			newRoleName = "";
+			newRoleHierarchy = 0;
+			newRolePermissions = 0;
+			showCreateRoleModal = true;
 		}
 	}
 
@@ -257,10 +324,17 @@
 		{#if selectedUserToAdd}
 			<div class="form-group">
 				<label for="role-select">Rôle</label>
-				<select id="role-select" bind:value={newMemberRoleId}>
+				<select
+					id="role-select"
+					bind:value={newMemberRoleId}
+					onchange={(e) => handleRoleSelectChange(e, "add")}
+				>
 					{#each roles as role}
 						<option value={role.id}>{role.name}</option>
 					{/each}
+					<option value="new" style="font-weight: bold; color: #7c3aed;"
+						>+ Créer un nouveau rôle...</option
+					>
 				</select>
 			</div>
 			<div class="modal-actions">
@@ -279,10 +353,17 @@
 		{#if selectedMember}
 			<div class="form-group">
 				<label for="edit-role-select">Rôle</label>
-				<select id="edit-role-select" bind:value={selectedRole}>
+				<select
+					id="edit-role-select"
+					bind:value={selectedRole}
+					onchange={(e) => handleRoleSelectChange(e, "edit")}
+				>
 					{#each roles as role}
 						<option value={role.id}>{role.name}</option>
 					{/each}
+					<option value="new" style="font-weight: bold; color: #7c3aed;"
+						>+ Créer un nouveau rôle...</option
+					>
 				</select>
 			</div>
 			<div class="modal-actions">
@@ -290,6 +371,48 @@
 				<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
 			</div>
 		{/if}
+	</Modal>
+
+	<Modal bind:open={showCreateRoleModal} title="Créer un nouveau rôle">
+		<div class="form-group">
+			<label for="new-role-name">Nom du rôle</label>
+			<input type="text" id="new-role-name" bind:value={newRoleName} placeholder="Ex: Trésorier" />
+		</div>
+		<div class="form-group">
+			<label for="new-role-hierarchy">Hiérarchie (0-10)</label>
+			<input
+				type="number"
+				id="new-role-hierarchy"
+				bind:value={newRoleHierarchy}
+				min="0"
+				max="10"
+				placeholder="0"
+			/>
+			<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;"
+				>Utilisé pour le tri (6+ = Bureau)</small
+			>
+		</div>
+		<div class="form-group">
+			<label for="new-role-permissions">Permissions</label>
+			<select id="new-role-permissions" bind:value={newRolePermissions}>
+				{#each availablePermissions as perm}
+					<option value={perm.value}>{perm.label}</option>
+				{/each}
+			</select>
+		</div>
+		<div class="modal-actions">
+			<button
+				class="cancel-btn"
+				onclick={() => {
+					showCreateRoleModal = false;
+					if (createRoleContext === "add" && newMemberRoleId === "new")
+						newMemberRoleId = roles[0]?.id;
+					if (createRoleContext === "edit" && selectedRole === "new")
+						selectedRole = selectedMember?.role.id;
+				}}>Annuler</button
+			>
+			<button class="primary-btn" onclick={createRole}>Créer</button>
+		</div>
 	</Modal>
 
 	<Modal bind:open={showDeleteConfirmModal} title="Confirmer la suppression">
