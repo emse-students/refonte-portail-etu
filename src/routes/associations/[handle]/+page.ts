@@ -12,8 +12,12 @@ export const load: PageLoad = async (event) => {
 		.fetch(`${resolve("/api/calendar")}?asso=${association.id}`)
 		.then((res) => res.json());
 
+	// Fetch roles
+	const roles = await event.fetch(resolve("/api/roles")).then((res) => res.json());
+
 	return {
 		association,
 		events,
+		roles,
 	};
 };

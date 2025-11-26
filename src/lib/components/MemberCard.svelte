@@ -1,7 +1,19 @@
 <script lang="ts">
 	import type { Member } from "$lib/databasetypes";
 
-	let { member, isBureau = false }: { member: Member; isBureau?: boolean } = $props();
+	let {
+		member,
+		isBureau = false,
+		editMode = false,
+		onRemove = (_id: number) => {},
+		onEditRole = (_member: Member) => {},
+	}: {
+		member: Member;
+		isBureau?: boolean;
+		editMode?: boolean;
+		onRemove?: (id: number) => void;
+		onEditRole?: (member: Member) => void;
+	} = $props();
 
 	let imageLoaded = $state(false);
 	let imageError = $state(false);
@@ -12,6 +24,20 @@
 
 	function handleImageError() {
 		imageError = true;
+	}
+
+	function handleRemove() {
+		if (
+			confirm(
+				`Êtes-vous sûr de vouloir retirer ${member.user.first_name} ${member.user.last_name} ?`
+			)
+		) {
+			onRemove(member.id);
+		}
+	}
+
+	function handleEditRole() {
+		onEditRole(member);
 	}
 
 	// Générer les initiales pour le placeholder
@@ -57,6 +83,13 @@
 			</div>
 		</div>
 	</div>
+
+	{#if editMode}
+		<div class="edit-controls">
+			<button class="edit-btn" onclick={handleEditRole}>Modifier rôle</button>
+			<button class="remove-btn" onclick={handleRemove}>Retirer</button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -195,6 +228,44 @@
 		border-color: #c4b5fd;
 		background: #f5f3ff;
 		color: #7c3aed;
+	}
+
+	.edit-controls {
+		margin-top: 1rem;
+		display: flex;
+		gap: 0.5rem;
+		justify-content: flex-end;
+		border-top: 1px solid #f3f4f6;
+		padding-top: 0.75rem;
+	}
+
+	.edit-btn,
+	.remove-btn {
+		padding: 0.35rem 0.75rem;
+		border-radius: 6px;
+		font-size: 0.85rem;
+		cursor: pointer;
+		border: none;
+		font-weight: 500;
+		transition: all 0.2s;
+	}
+
+	.edit-btn {
+		background: #edf2f7;
+		color: #2d3748;
+	}
+
+	.remove-btn {
+		background: #fee2e2;
+		color: #c53030;
+	}
+
+	.edit-btn:hover {
+		background: #e2e8f0;
+	}
+
+	.remove-btn:hover {
+		background: #fecaca;
 	}
 
 	@media (max-width: 768px) {

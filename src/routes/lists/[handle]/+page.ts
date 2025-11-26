@@ -7,7 +7,11 @@ export const load: PageLoad = async (event) => {
 		.fetch(resolve(`/api/lists/handle/${event.params.handle}`))
 		.then((res) => res.json());
 
+	// Fetch roles
+	const roles = await event.fetch(resolve("/api/roles")).then((res) => res.json());
+
 	return {
 		list,
+		roles,
 	};
 };

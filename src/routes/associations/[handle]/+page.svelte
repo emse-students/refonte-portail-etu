@@ -1,12 +1,125 @@
 <script lang="ts">
-	import type { Association, RawEvent } from "$lib/databasetypes";
+	import type { Association, RawEvent, Role, FullUser, Member, RawUser } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import EventCard from "$lib/components/EventCard.svelte";
+	import Permission, { hasPermission } from "$lib/permissions";
+	import { invalidateAll } from "$app/navigation";
+	import { hasAssociationPermission } from "$lib/server/auth-middleware.js";
 
 	let { data } = $props();
 	const association: Association = data.association;
 	const events: RawEvent[] = data.events || [];
+	const roles: Role[] = data.roles || [];
+	const userData: FullUser | undefined = data.userData;
+
+	let editMode = $state(false);
+	let showAddMemberModal = $state(false);
+	let showEditRoleModal = $state(false);
+	let selectedMember: Member | null = $state(null);
+	let selectedRole = $state(roles[0]?.id);
+
+	// For adding member
+	let searchQuery = $state("");
+	let searchResults: RawUser[] = $state([]);
+	let selectedUserToAdd: RawUser | null = $state(null);
+	let newMemberRoleId = $state(roles[0]?.id);
+
+	const canEdit = $derived.by(() => {
+		if (!userData) return false;
+		if (hasPermission(userData.permissions, Permission.ROLES)) return true;
+		// Check if user is a member of this association with ROLES permission
+		// Note: userData.memberships contains memberships for the user.
+		// We need to find the membership for THIS association.
+		// association.id is the id of the current association.
+		// Member object has 'association' field which is the ID (based on databasetypes.d.ts Member type: association?: number)
+		// Wait, let's check databasetypes.d.ts again.
+		// Member = { ..., association?: number, ... }
+		// So yes, we check m.association === association.id
+
+		return hasAssociationPermission(userData, association.id, Permission.ROLES);
+	});
+
+	async function removeMember(id: number) {
+		const res = await fetch("/api/members", {
+			method: "DELETE",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ id }),
+		});
+		if (res.ok) {
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la suppression du membre");
+		}
+	}
+
+	function openEditRoleModal(member: Member) {
+		selectedMember = member;
+		selectedRole = member.role.id;
+		showEditRoleModal = true;
+	}
+
+	async function updateMemberRole() {
+		if (!selectedMember) return;
+		const res = await fetch("/api/members", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				id: selectedMember.id,
+				user_id: selectedMember.user.id,
+				association_id: association.id,
+				role_id: selectedRole,
+				visible: selectedMember.visible,
+			}),
+		});
+		if (res.ok) {
+			showEditRoleModal = false;
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la modification du rôle");
+		}
+	}
+
+	async function searchUsers() {
+		if (searchQuery.length < 2) {
+			searchResults = [];
+			return;
+		}
+		// Fetch all users and filter client-side for now (as per API limitation)
+		const res = await fetch("/api/users");
+		const users: RawUser[] = await res.json();
+		searchResults = users
+			.filter(
+				(u) =>
+					u.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					u.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					u.login.toLowerCase().includes(searchQuery.toLowerCase())
+			)
+			.slice(0, 10);
+	}
+
+	async function addMember() {
+		if (!selectedUserToAdd) return;
+		const res = await fetch("/api/members", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				user_id: selectedUserToAdd.id,
+				association_id: association.id,
+				role_id: newMemberRoleId,
+				visible: true,
+			}),
+		});
+		if (res.ok) {
+			showAddMemberModal = false;
+			selectedUserToAdd = null;
+			searchQuery = "";
+			searchResults = [];
+			invalidateAll();
+		} else {
+			alert("Erreur lors de l'ajout du membre");
+		}
+	}
 
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
@@ -28,6 +141,11 @@
 <div class="container">
 	<header class="page-header">
 		<h1>{association.name}</h1>
+		{#if canEdit}
+			<button class="action-btn" onclick={() => (editMode = !editMode)}>
+				{editMode ? "Terminer l'édition" : "Gérer les membres"}
+			</button>
+		{/if}
 	</header>
 
 	<div class="content-wrapper">
@@ -39,12 +157,26 @@
 			</section>
 		{/if}
 
+		{#if editMode}
+			<div class="admin-actions">
+				<button class="add-member-btn" onclick={() => (showAddMemberModal = true)}>
+					+ Ajouter un membre
+				</button>
+			</div>
+		{/if}
+
 		{#if bureauMembers.length > 0}
 			<section class="members-section bureau-section">
 				<h2>Bureau</h2>
 				<div class="members-grid bureau-grid">
 					{#each bureauMembers as member}
-						<MemberCard {member} isBureau={true} />
+						<MemberCard
+							{member}
+							isBureau={true}
+							{editMode}
+							onRemove={removeMember}
+							onEditRole={openEditRoleModal}
+						/>
 					{/each}
 				</div>
 			</section>
@@ -55,7 +187,12 @@
 				<h2>Membres</h2>
 				<div class="members-grid">
 					{#each otherMembers as member}
-						<MemberCard {member} />
+						<MemberCard
+							{member}
+							{editMode}
+							onRemove={removeMember}
+							onEditRole={openEditRoleModal}
+						/>
 					{/each}
 				</div>
 			</section>
@@ -74,9 +211,232 @@
 			{/if}
 		</section>
 	</div>
+
+	{#if showAddMemberModal}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="modal-backdrop" onclick={() => (showAddMemberModal = false)}>
+			<div class="modal" onclick={(e) => e.stopPropagation()}>
+				<h3>Ajouter un membre</h3>
+				<div class="form-group">
+					<label for="search-user">Rechercher un utilisateur</label>
+					<input
+						id="search-user"
+						type="text"
+						bind:value={searchQuery}
+						oninput={searchUsers}
+						placeholder="Nom, prénom ou login..."
+						autocomplete="off"
+					/>
+					{#if searchResults.length > 0}
+						<div class="search-results">
+							{#each searchResults as user}
+								<button
+									class="search-result-item"
+									onclick={() => {
+										selectedUserToAdd = user;
+										searchResults = [];
+										searchQuery = `${user.first_name} ${user.last_name}`;
+									}}
+								>
+									{user.first_name}
+									{user.last_name} ({user.login})
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+				{#if selectedUserToAdd}
+					<div class="form-group">
+						<label for="role-select">Rôle</label>
+						<select id="role-select" bind:value={newMemberRoleId}>
+							{#each roles as role}
+								<option value={role.id}>{role.name}</option>
+							{/each}
+						</select>
+					</div>
+					<div class="modal-actions">
+						<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
+						<button class="primary-btn" onclick={addMember}>Ajouter</button>
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
+
+	{#if showEditRoleModal && selectedMember}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="modal-backdrop" onclick={() => (showEditRoleModal = false)}>
+			<div class="modal" onclick={(e) => e.stopPropagation()}>
+				<h3>Modifier le rôle de {selectedMember.user.first_name}</h3>
+				<div class="form-group">
+					<label for="edit-role-select">Rôle</label>
+					<select id="edit-role-select" bind:value={selectedRole}>
+						{#each roles as role}
+							<option value={role.id}>{role.name}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="modal-actions">
+					<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
+					<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
+	/* ... existing styles ... */
+	.action-btn {
+		margin-top: 1rem;
+		padding: 0.5rem 1rem;
+		background: #7c3aed;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.action-btn:hover {
+		background: #6d28d9;
+	}
+
+	.admin-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.add-member-btn {
+		padding: 0.75rem 1.5rem;
+		background: #10b981;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.add-member-btn:hover {
+		background: #059669;
+	}
+
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		backdrop-filter: blur(4px);
+	}
+
+	.modal {
+		background: white;
+		padding: 2rem;
+		border-radius: 16px;
+		width: 90%;
+		max-width: 500px;
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	}
+
+	.modal h3 {
+		margin-top: 0;
+		color: #2d3748;
+		font-size: 1.5rem;
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+		position: relative;
+	}
+
+	.form-group label {
+		display: block;
+		margin-bottom: 0.5rem;
+		color: #4a5568;
+		font-weight: 500;
+	}
+
+	.form-group input,
+	.form-group select {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		font-size: 1rem;
+		box-sizing: border-box;
+	}
+
+	.search-results {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		width: 100%;
+		background: white;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		max-height: 200px;
+		overflow-y: auto;
+		z-index: 10;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	.search-result-item {
+		width: 100%;
+		text-align: left;
+		padding: 0.75rem;
+		background: none;
+		border: none;
+		cursor: pointer;
+		transition: background 0.1s;
+	}
+
+	.search-result-item:hover {
+		background: #f7fafc;
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.cancel-btn {
+		padding: 0.75rem 1.5rem;
+		background: #edf2f7;
+		color: #4a5568;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn {
+		padding: 0.75rem 1.5rem;
+		background: #7c3aed;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn:hover {
+		background: #6d28d9;
+	}
+
 	.container {
 		width: 100%;
 		max-width: 1400px;
