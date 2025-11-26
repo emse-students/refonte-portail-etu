@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Member, RawUser } from "$lib/databasetypes";
+	import type { Member, RawUser, Role } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import EventCard from "$lib/components/EventCard.svelte";
@@ -20,6 +20,12 @@
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
 	let selectedRole = $state<number | "new">();
+
+	// Role search
+	let roleSearchQuery = $state("");
+	const filteredRoles = $derived(
+		roles.filter((r: Role) => r.name.toLowerCase().includes(roleSearchQuery.toLowerCase()))
+	);
 
 	// For adding member
 	let searchQuery = $state("");
@@ -92,6 +98,7 @@
 	function openEditRoleModal(member: Member) {
 		selectedMember = member;
 		selectedRole = member.role.id;
+		roleSearchQuery = "";
 		showEditRoleModal = true;
 	}
 
@@ -239,7 +246,13 @@
 
 		{#if editMode}
 			<div class="admin-actions">
-				<button class="add-member-btn" onclick={() => (showAddMemberModal = true)}>
+				<button
+					class="add-member-btn"
+					onclick={() => {
+						showAddMemberModal = true;
+						roleSearchQuery = "";
+					}}
+				>
 					+ Ajouter un membre
 				</button>
 			</div>
@@ -323,13 +336,22 @@
 		</div>
 		{#if selectedUserToAdd}
 			<div class="form-group">
+				<label for="role-search-add">Filtrer les rôles</label>
+				<input
+					id="role-search-add"
+					type="text"
+					bind:value={roleSearchQuery}
+					placeholder="Rechercher un rôle..."
+				/>
+			</div>
+			<div class="form-group">
 				<label for="role-select">Rôle</label>
 				<select
 					id="role-select"
 					bind:value={newMemberRoleId}
 					onchange={(e) => handleRoleSelectChange(e, "add")}
 				>
-					{#each roles as role}
+					{#each filteredRoles as role}
 						<option value={role.id}>{role.name}</option>
 					{/each}
 					<option value="new" style="font-weight: bold; color: #7c3aed;"
@@ -352,13 +374,22 @@
 	>
 		{#if selectedMember}
 			<div class="form-group">
+				<label for="role-search-edit">Filtrer les rôles</label>
+				<input
+					id="role-search-edit"
+					type="text"
+					bind:value={roleSearchQuery}
+					placeholder="Rechercher un rôle..."
+				/>
+			</div>
+			<div class="form-group">
 				<label for="edit-role-select">Rôle</label>
 				<select
 					id="edit-role-select"
 					bind:value={selectedRole}
 					onchange={(e) => handleRoleSelectChange(e, "edit")}
 				>
-					{#each roles as role}
+					{#each filteredRoles as role}
 						<option value={role.id}>{role.name}</option>
 					{/each}
 					<option value="new" style="font-weight: bold; color: #7c3aed;"
