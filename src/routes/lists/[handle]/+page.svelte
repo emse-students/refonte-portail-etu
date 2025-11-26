@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { Member, RawUser } from "$lib/databasetypes";
+	import type { Member, RawUser, Role } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
+	import EventCard from "$lib/components/EventCard.svelte";
 	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
@@ -9,6 +10,7 @@
 
 	let { data } = $props();
 	const list = $derived(data.list);
+	const events = $derived(data.events || []);
 	const roles = $derived(data.roles || []);
 	const userData = $derived(data.userData);
 
@@ -18,7 +20,33 @@
 	let showDeleteConfirmModal = $state(false);
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
-	let selectedRole = $state();
+	let selectedRole = $state<Role["id"] | "new">();
+
+	//Role search
+	let roleSearchQuery = $state("");
+	let showRoleResults = $state(false);
+	const filteredRoles = $derived(
+		roles.filter((r: Role) => r.name.toLowerCase().includes(roleSearchQuery.toLowerCase()))
+	);
+
+	function selectRole(role: Role, context: "add" | "edit") {
+		if (context === "add") {
+			newMemberRoleId = role.id;
+		} else {
+			selectedRole = role.id;
+		}
+		roleSearchQuery = role.name;
+		showRoleResults = false;
+	}
+
+	function handleCreateRoleClick(context: "add" | "edit") {
+		createRoleContext = context;
+		newRoleName = roleSearchQuery; // Pre-fill with search query
+		newRoleHierarchy = 0;
+		newRolePermissions = 0;
+		showCreateRoleModal = true;
+		showRoleResults = false;
+	}
 
 	// For adding member
 	let searchQuery = $state("");
@@ -31,21 +59,59 @@
 			newMemberRoleId = roles[0].id;
 		}
 	});
+
+	// Role creation
+	let showCreateRoleModal = $state(false);
+	let newRoleName = $state("");
+	let newRoleHierarchy = $state(0);
+	let newRolePermissions = $state(0);
+	let createRoleContext: "add" | "edit" | null = $state(null);
+
+	const maxPermissionLevel = $derived.by(() => {
+		if (!userData) return 0;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
+		const membership = userData.memberships.find((m) => m.list_id === list.id);
+		return membership ? membership.role.permissions : 0;
+	});
+
+	const availablePermissions = $derived(
+		[
+			{ value: Permission.MEMBER, label: "Membre (0)" },
+			{ value: Permission.ROLES, label: "Gestion Rôles & Membres (1)" },
+			{ value: Permission.EVENTS, label: "Gestion Événements (2)" },
+			{ value: Permission.ADMIN, label: "Administration (3)" },
+		].filter((p) => p.value <= maxPermissionLevel)
+	);
+
 	const canEdit = $derived.by(() => {
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
 
 		// Check if user is a member of this list with ROLES permission
-		const listMembership = userData.memberships.find((m) => m.list === list.id);
+		const listMembership = userData.memberships.find((m) => m.list_id === list.id);
 		if (listMembership && hasPermission(listMembership.role.permissions, Permission.ROLES))
 			return true;
 
-		// Also check if user is admin of the parent association
-		const assocMembership = userData.memberships.find((m) => m.association === list.association_id);
+		// Also check if user is admin of the parent list
+		const assocMembership = userData.memberships.find((m) => m.list_id === list.id);
 		if (assocMembership && hasPermission(assocMembership.role.permissions, Permission.ROLES))
 			return true;
 
 		return false;
+	});
+
+	const canEditDetails = $derived.by(() => {
+		if (!userData) return false;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
+		const membership = userData.memberships.find((m) => m.list_id === list.id);
+		if (!membership) return false;
+		return hasPermission(membership.role.permissions, Permission.ADMIN);
+	});
+
+	const adminButtonText = $derived.by(() => {
+		if (editMode) return "Terminer l'édition";
+		if (canEditDetails) return "Administration";
+		return "Gérer les membres";
 	});
 
 	function requestRemoveMember(id: number) {
@@ -53,6 +119,34 @@
 		if (member) {
 			memberToDelete = member;
 			showDeleteConfirmModal = true;
+		}
+	}
+
+	let showEditListModal = $state(false);
+	let editListName = $state("");
+	let editListDescription = $state("");
+
+	function openEditListModal() {
+		editListName = list.name;
+		editListDescription = list.description;
+		showEditListModal = true;
+	}
+
+	async function updateList() {
+		const res = await fetch(`/api/lists/${list.id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: editListName,
+				description: editListDescription,
+			}),
+		});
+
+		if (res.ok) {
+			showEditListModal = false;
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la modification de l'list");
 		}
 	}
 
@@ -86,7 +180,7 @@
 			body: JSON.stringify({
 				id: selectedMember.id,
 				user_id: selectedMember.user.id,
-				association_id: list.association_id,
+				association_id: null,
 				list_id: list.id,
 				role_id: selectedRole,
 				visible: selectedMember.visible,
@@ -124,7 +218,7 @@
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				user_id: selectedUserToAdd.id,
-				association_id: list.association_id,
+				association_id: null,
 				list_id: list.id,
 				role_id: newMemberRoleId,
 				visible: true,
@@ -138,6 +232,37 @@
 			invalidateAll();
 		} else {
 			alert("Erreur lors de l'ajout du membre");
+		}
+	}
+
+	async function createRole() {
+		const res = await fetch("/api/roles", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: newRoleName,
+				hierarchy: newRoleHierarchy,
+				permissions: newRolePermissions,
+				association_id: null,
+				list_id: list.id,
+			}),
+		});
+
+		if (res.ok) {
+			const data = await res.json();
+			showCreateRoleModal = false;
+			// Invalidate to refresh roles list
+			await invalidateAll();
+			// Select the new role
+			if (createRoleContext === "add") {
+				newMemberRoleId = data.id;
+			} else if (createRoleContext === "edit") {
+				selectedRole = data.id;
+			}
+			roleSearchQuery = newRoleName;
+		} else {
+			const err = await res.json();
+			alert(err.message || "Erreur lors de la création du rôle");
 		}
 	}
 
@@ -171,9 +296,16 @@
 			</p>
 		{/if}
 		{#if canEdit}
-			<button class="action-btn" onclick={() => (editMode = !editMode)}>
-				{editMode ? "Terminer l'édition" : "Gérer les membres"}
-			</button>
+			<div class="header-actions">
+				<button class="action-btn" onclick={() => (editMode = !editMode)}>
+					{adminButtonText}
+				</button>
+				{#if editMode && canEditDetails}
+					<button class="action-btn secondary" onclick={openEditListModal}>
+						Éditer les informations
+					</button>
+				{/if}
+			</div>
 		{/if}
 	</header>
 
@@ -188,7 +320,13 @@
 
 		{#if editMode}
 			<div class="admin-actions">
-				<button class="add-member-btn" onclick={() => (showAddMemberModal = true)}>
+				<button
+					class="add-member-btn"
+					onclick={() => {
+						showAddMemberModal = true;
+						roleSearchQuery = "";
+					}}
+				>
 					+ Ajouter un membre
 				</button>
 			</div>
@@ -229,7 +367,15 @@
 
 		<section class="events-section">
 			<h2>Événements à venir</h2>
-			<p class="empty-state">Aucun événement prévu pour le moment</p>
+			{#if events.length === 0}
+				<p class="empty-state">Aucun événement à venir pour cette liste.</p>
+			{:else}
+				<div class="events-list">
+					{#each events as event}
+						<EventCard {event} />
+					{/each}
+				</div>
+			{/if}
 		</section>
 	</div>
 
@@ -264,12 +410,30 @@
 		</div>
 		{#if selectedUserToAdd}
 			<div class="form-group">
-				<label for="role-select">Rôle</label>
-				<select id="role-select" bind:value={newMemberRoleId}>
-					{#each roles as role}
-						<option value={role.id}>{role.name}</option>
-					{/each}
-				</select>
+				<label for="role-search-add">Rôle</label>
+				<input
+					id="role-search-add"
+					type="text"
+					bind:value={roleSearchQuery}
+					placeholder="Rechercher ou créer un rôle..."
+					onfocus={() => (showRoleResults = true)}
+					autocomplete="off"
+				/>
+				{#if showRoleResults && roleSearchQuery}
+					<div class="search-results">
+						{#each filteredRoles as role}
+							<button class="search-result-item" onclick={() => selectRole(role, "add")}>
+								{role.name}
+							</button>
+						{/each}
+						<button
+							class="search-result-item create-role-item"
+							onclick={() => handleCreateRoleClick("add")}
+						>
+							+ Créer un nouveau rôle...
+						</button>
+					</div>
+				{/if}
 			</div>
 			<div class="modal-actions">
 				<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
@@ -286,18 +450,98 @@
 	>
 		{#if selectedMember}
 			<div class="form-group">
-				<label for="edit-role-select">Rôle</label>
-				<select id="edit-role-select" bind:value={selectedRole}>
-					{#each roles as role}
-						<option value={role.id}>{role.name}</option>
-					{/each}
-				</select>
+				<label for="role-search-edit">Rôle</label>
+				<input
+					id="role-search-edit"
+					type="text"
+					bind:value={roleSearchQuery}
+					placeholder="Rechercher ou créer un rôle..."
+					onfocus={() => (showRoleResults = true)}
+					autocomplete="off"
+				/>
+				{#if showRoleResults && roleSearchQuery}
+					<div class="search-results">
+						{#each filteredRoles as role}
+							<button class="search-result-item" onclick={() => selectRole(role, "edit")}>
+								{role.name}
+							</button>
+						{/each}
+						<button
+							class="search-result-item create-role-item"
+							onclick={() => handleCreateRoleClick("edit")}
+						>
+							+ Créer un nouveau rôle...
+						</button>
+					</div>
+				{/if}
 			</div>
 			<div class="modal-actions">
 				<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
 				<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
 			</div>
 		{/if}
+	</Modal>
+
+	<Modal bind:open={showCreateRoleModal} title="Créer un nouveau rôle">
+		<div class="form-group">
+			<label for="new-role-name">Nom du rôle</label>
+			<input type="text" id="new-role-name" bind:value={newRoleName} placeholder="Ex: Trésorier" />
+		</div>
+		<div class="form-group">
+			<label for="new-role-hierarchy">Hiérarchie (0-10)</label>
+			<input
+				type="number"
+				id="new-role-hierarchy"
+				bind:value={newRoleHierarchy}
+				min="0"
+				max="10"
+				placeholder="0"
+			/>
+			<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;"
+				>Utilisé pour le tri (6+ = Bureau)</small
+			>
+		</div>
+		<div class="form-group">
+			<label for="new-role-permissions">Permissions</label>
+			<select id="new-role-permissions" bind:value={newRolePermissions}>
+				{#each availablePermissions as perm}
+					<option value={perm.value}>{perm.label}</option>
+				{/each}
+			</select>
+		</div>
+		<div class="modal-actions">
+			<button
+				class="cancel-btn"
+				onclick={() => {
+					showCreateRoleModal = false;
+					if (createRoleContext === "add" && newMemberRoleId === "new")
+						newMemberRoleId = roles[0]?.id;
+					if (createRoleContext === "edit" && selectedRole === "new")
+						selectedRole = selectedMember?.role.id;
+				}}>Annuler</button
+			>
+			<button class="primary-btn" onclick={createRole}>Créer</button>
+		</div>
+	</Modal>
+
+	<Modal bind:open={showEditListModal} title="Modifier la liste">
+		<div class="form-group">
+			<label for="list-name">Nom de la liste</label>
+			<input type="text" id="list-name" bind:value={editListName} />
+		</div>
+		<div class="form-group">
+			<label for="list-desc">Description (Markdown supporté)</label>
+			<textarea
+				id="list-desc"
+				bind:value={editListDescription}
+				rows="10"
+				style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; resize: vertical;"
+			></textarea>
+		</div>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showEditListModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={updateList}>Enregistrer</button>
+		</div>
 	</Modal>
 
 	<Modal bind:open={showDeleteConfirmModal} title="Confirmer la suppression">
@@ -331,6 +575,21 @@
 
 	.action-btn:hover {
 		background: #6d28d9;
+	}
+
+	.action-btn.secondary {
+		background: #4a5568;
+	}
+
+	.action-btn.secondary:hover {
+		background: #2d3748;
+	}
+
+	.header-actions {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		margin-top: 1rem;
 	}
 
 	.admin-actions {
@@ -401,6 +660,16 @@
 
 	.search-result-item:hover {
 		background: #f7fafc;
+	}
+
+	.create-role-item {
+		font-weight: 600;
+		color: #7c3aed;
+		border-top: 1px solid #e2e8f0;
+	}
+
+	.create-role-item:hover {
+		background: #f5f3ff;
 	}
 
 	.modal-actions {
@@ -566,6 +835,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	}
 
+	.events-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1.25rem;
+	}
+
 	.empty-state {
 		color: #718096;
 		font-style: italic;
@@ -622,6 +897,10 @@
 		.bureau-grid {
 			grid-template-columns: 1fr;
 			gap: 1rem;
+		}
+
+		.events-list {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

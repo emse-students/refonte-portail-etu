@@ -83,6 +83,7 @@
 				location,
 				description,
 				association_id,
+				list_id,
 				id,
 				validated,
 				created_at,

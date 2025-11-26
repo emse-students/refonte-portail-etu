@@ -70,7 +70,7 @@
 	const maxPermissionLevel = $derived.by(() => {
 		if (!userData) return 0;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
-		const membership = userData.memberships.find((m) => m.association === association.id);
+		const membership = userData.memberships.find((m) => m.association_id === association.id);
 		return membership ? membership.role.permissions : 0;
 	});
 
@@ -87,7 +87,7 @@
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
 		// Check if user is a member of this association with ROLES permission
-		const membership = userData.memberships.find((m) => m.association === association.id);
+		const membership = userData.memberships.find((m) => m.association_id === association.id);
 		if (!membership) return false;
 		return hasPermission(membership.role.permissions, Permission.ROLES);
 	});
@@ -95,7 +95,7 @@
 	const canEditDetails = $derived.by(() => {
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
-		const membership = userData.memberships.find((m) => m.association === association.id);
+		const membership = userData.memberships.find((m) => m.association_id === association.id);
 		if (!membership) return false;
 		return hasPermission(membership.role.permissions, Permission.ADMIN);
 	});
@@ -175,6 +175,7 @@
 				id: selectedMember.id,
 				user_id: selectedMember.user.id,
 				association_id: association.id,
+				list_id: null,
 				role_id: selectedRole,
 				visible: selectedMember.visible,
 			}),
@@ -215,6 +216,7 @@
 			body: JSON.stringify({
 				user_id: selectedUserToAdd.id,
 				association_id: association.id,
+				list_id: null,
 				role_id: newMemberRoleId,
 				visible: true,
 			}),
@@ -239,6 +241,7 @@
 				hierarchy: newRoleHierarchy,
 				permissions: newRolePermissions,
 				association_id: association.id,
+				list_id: null,
 			}),
 		});
 
@@ -545,7 +548,6 @@
 </div>
 
 <style>
-	/* ... existing styles ... */
 	.action-btn {
 		padding: 0.5rem 1rem;
 		background: #7c3aed;

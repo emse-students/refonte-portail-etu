@@ -31,7 +31,7 @@ export const POST = async (event: RequestEvent) => {
 		}
 
 		// Récupérer le niveau de permission de l'utilisateur dans cette association
-		const membership = authCheck.user.memberships.find((m) => m.association === association_id);
+		const membership = authCheck.user.memberships.find((m) => m.association_id === association_id);
 		// Si l'utilisateur est admin global, il a toutes les permissions
 		if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
 			maxPermissions = Permission.SITE_ADMIN; // Ou une autre valeur max

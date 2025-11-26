@@ -16,6 +16,7 @@ export async function GET(event: RequestEvent) {
 	const startParam = event.url.searchParams.get("start");
 	const endParam = event.url.searchParams.get("end");
 	const assocIdParam = event.url.searchParams.get("asso");
+	const listIdParam = event.url.searchParams.get("list");
 	const requestUnvalidated = event.url.searchParams.get("unvalidated") === "true";
 	const requestAll = event.url.searchParams.get("all") === "true";
 
@@ -23,10 +24,12 @@ export async function GET(event: RequestEvent) {
 	const start = startParam ? new Date(startParam) : null;
 	const end = endParam ? new Date(endParam) : null;
 	const assocId = assocIdParam ? Number(assocIdParam) : null;
+	const listId = listIdParam ? Number(listIdParam) : null;
 
 	const hasStart = start && !isNaN(start.getTime());
 	const hasEnd = end && !isNaN(end.getTime());
 	const hasAssoc = assocId && assocId > 0;
+	const hasList = listId && listId > 0;
 
 	// Check permissions to see unvalidated events
 	const user = await requireAuth(event);
@@ -58,6 +61,9 @@ export async function GET(event: RequestEvent) {
 	}
 	if (hasAssoc) {
 		conditions.push(`e.association_id = ${escape(assocId!)}`);
+	}
+	if (hasList) {
+		conditions.push(`e.list_id = ${escape(listId!)}`);
 	}
 
 	if (!requestUnvalidated) {

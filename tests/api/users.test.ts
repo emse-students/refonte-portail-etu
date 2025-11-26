@@ -98,6 +98,26 @@ describe("Users API", () => {
 
 			expect(data).toEqual({ success: true });
 		});
+
+		it("should fail if unauthorized", async () => {
+			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response("Unauthorized", { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/users", {
+				method: "PUT",
+				body: JSON.stringify({
+					id: 1,
+					first_name: "John",
+				}),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+
+			expect(response.status).toBe(403);
+		});
 	});
 
 	describe("DELETE /api/users", () => {
@@ -117,6 +137,23 @@ describe("Users API", () => {
 			const data = await response.json();
 
 			expect(data).toEqual({ success: true });
+		});
+
+		it("should fail if unauthorized", async () => {
+			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response("Unauthorized", { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/users", {
+				method: "DELETE",
+				body: JSON.stringify({ id: 1 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await DELETE(event);
+
+			expect(response.status).toBe(403);
 		});
 	});
 });

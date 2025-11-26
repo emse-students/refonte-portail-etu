@@ -6,6 +6,10 @@ import {
 	hasAssociationPermission,
 	hasListPermission,
 	getAuthorizedAssociationIds,
+	verifySessionConsistency,
+	checkAssociationPermission,
+	checkListPermission,
+	getAuthorizedListIds,
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -192,6 +196,172 @@ describe("Auth Middleware", () => {
 		it("should return empty array if no permissions", () => {
 			const user = createMockUser(0, []);
 			expect(getAuthorizedAssociationIds(user, Permission.ROLES)).toEqual([]);
+		});
+	});
+
+	describe("verifySessionConsistency", () => {
+		it("should return true if no session and no userData", () => {
+			const event = createMockEvent(null);
+			// @ts-ignore
+			event.locals.session = null;
+			// @ts-ignore
+			expect(verifySessionConsistency(event)).toBe(true);
+		});
+
+		it("should return false if session exists but no userData", () => {
+			const event = createMockEvent(null);
+			// @ts-ignore
+			event.locals.session = { user: { id: "1" } };
+			// @ts-ignore
+			expect(verifySessionConsistency(event)).toBe(false);
+		});
+
+		it("should return true if session and userData match", () => {
+			const user = createMockUser();
+			const event = createMockEvent(user);
+			// @ts-ignore
+			expect(verifySessionConsistency(event)).toBe(true);
+		});
+
+		it("should return false if session and userData mismatch", () => {
+			const user = createMockUser();
+			const event = createMockEvent(user);
+			// @ts-ignore
+			event.locals.session.user.id = "999";
+			// @ts-ignore
+			expect(verifySessionConsistency(event)).toBe(false);
+		});
+	});
+
+	describe("hasListPermission", () => {
+		const listId = 10;
+		const otherListId = 20;
+
+		it("should return true if user is global admin", () => {
+			const user = createMockUser(Permission.ADMIN);
+			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(true);
+		});
+
+		it("should return true if user has permission in list", () => {
+			const user = createMockUser(0, [
+				{
+					id: 1,
+					association_id: null,
+					list_id: listId,
+					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					user: {} as any,
+					visible: true,
+				},
+			]);
+			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(true);
+		});
+
+		it("should return false if user has permission in OTHER list", () => {
+			const user = createMockUser(0, [
+				{
+					id: 1,
+					association_id: null,
+					list_id: otherListId,
+					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					user: {} as any,
+					visible: true,
+				},
+			]);
+			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(false);
+		});
+	});
+
+	describe("checkAssociationPermission", () => {
+		const assoId = 10;
+
+		it("should return authorized: true if has permission", async () => {
+			const user = createMockUser(Permission.ADMIN);
+			const event = createMockEvent(user);
+			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			expect(result).toEqual({ authorized: true, user });
+		});
+
+		it("should return authorized: false and 403 if no permission", async () => {
+			const user = createMockUser(Permission.MEMBER);
+			const event = createMockEvent(user);
+			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			expect(result.authorized).toBe(false);
+			if (!result.authorized) {
+				expect(result.response.status).toBe(403);
+			}
+		});
+
+		it("should return authorized: false and 401 if not authenticated", async () => {
+			const event = createMockEvent(null);
+			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			expect(result.authorized).toBe(false);
+			if (!result.authorized) {
+				expect(result.response.status).toBe(401);
+			}
+		});
+	});
+
+	describe("checkListPermission", () => {
+		const listId = 10;
+
+		it("should return authorized: true if has permission", async () => {
+			const user = createMockUser(Permission.ADMIN);
+			const event = createMockEvent(user);
+			const result = await checkListPermission(event, listId, Permission.ROLES);
+			expect(result).toEqual({ authorized: true, user });
+		});
+
+		it("should return authorized: false and 403 if no permission", async () => {
+			const user = createMockUser(Permission.MEMBER);
+			const event = createMockEvent(user);
+			const result = await checkListPermission(event, listId, Permission.ROLES);
+			expect(result.authorized).toBe(false);
+			if (!result.authorized) {
+				expect(result.response.status).toBe(403);
+			}
+		});
+
+		it("should return authorized: false and 401 if not authenticated", async () => {
+			const event = createMockEvent(null);
+			const result = await checkListPermission(event, listId, Permission.ROLES);
+			expect(result.authorized).toBe(false);
+			if (!result.authorized) {
+				expect(result.response.status).toBe(401);
+			}
+		});
+	});
+
+	describe("getAuthorizedListIds", () => {
+		it("should return null for global admin", () => {
+			const user = createMockUser(Permission.ADMIN);
+			expect(getAuthorizedListIds(user, Permission.ROLES)).toBeNull();
+		});
+
+		it("should return list of list IDs where user has permission", () => {
+			const user = createMockUser(0, [
+				{
+					id: 1,
+					association_id: null,
+					list_id: 10,
+					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					user: {} as any,
+					visible: true,
+				},
+				{
+					id: 2,
+					association_id: null,
+					list_id: 20,
+					role: { id: 2, name: "Member", permissions: Permission.MEMBER, hierarchy: 1 },
+					user: {} as any,
+					visible: true,
+				},
+			]);
+			expect(getAuthorizedListIds(user, Permission.ROLES)).toEqual([10]);
+		});
+
+		it("should return empty array if no permissions", () => {
+			const user = createMockUser(0, []);
+			expect(getAuthorizedListIds(user, Permission.ROLES)).toEqual([]);
 		});
 	});
 });

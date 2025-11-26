@@ -7,8 +7,8 @@ describe("MemberCard Component", () => {
 	const mockMember: Member = {
 		id: 1,
 		visible: true,
-		association: 1,
-		list: null,
+		association_id: 1,
+		list_id: null,
 		user: {
 			id: 1,
 			first_name: "John",

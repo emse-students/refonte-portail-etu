@@ -59,7 +59,7 @@
 		if (event.association_id && user.memberships) {
 			const hasAssocPerm = user.memberships.some(
 				(m) =>
-					m.association === event.association_id &&
+					m.association_id === event.association_id &&
 					hasPermission(m.role.permissions, Permission.EVENTS)
 			);
 			if (hasAssocPerm) {
@@ -72,7 +72,7 @@
 		// Check list permission
 		if (event.list_id && user.memberships) {
 			const hasListPerm = user.memberships.some(
-				(m) => m.list === event.list_id && hasPermission(m.role.permissions, Permission.EVENTS)
+				(m) => m.list_id === event.list_id && hasPermission(m.role.permissions, Permission.EVENTS)
 			);
 			if (hasListPerm) {
 				selectedEvent = event;

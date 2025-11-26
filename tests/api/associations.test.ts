@@ -192,5 +192,23 @@ describe("Associations API", () => {
 			expect(response.status).toBe(204);
 			expect(db).toHaveBeenCalled();
 		});
+
+		it("should fail if unauthorized", async () => {
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response("Unauthorized", { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/associations/1", {
+				method: "PUT",
+				body: JSON.stringify({ name: "Updated" }),
+			});
+			const event = { request, params: { id: "1" } } as unknown as RequestEvent;
+
+			const response = await PUT(event);
+
+			expect(response.status).toBe(403);
+			expect(db).not.toHaveBeenCalled();
+		});
 	});
 });
