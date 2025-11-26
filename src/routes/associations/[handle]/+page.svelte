@@ -6,6 +6,7 @@
 	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
+	import { of } from "$lib/utils.js";
 
 	let { data } = $props();
 	const association = $derived(data.association);
@@ -369,7 +370,7 @@
 	<Modal
 		bind:open={showEditRoleModal}
 		title={selectedMember
-			? `Modifier le rôle de ${selectedMember.user.first_name}`
+			? `Modifier le rôle ${of(selectedMember.user.first_name)}${selectedMember.user.first_name}`
 			: "Modifier le rôle"}
 	>
 		{#if selectedMember}

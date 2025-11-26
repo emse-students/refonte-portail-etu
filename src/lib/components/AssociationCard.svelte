@@ -4,6 +4,7 @@
 	export let association: Association;
 
 	import { resolve, asset } from "$app/paths";
+	import { of } from "$lib/utils";
 
 	// Function to get the full URL for the association logo
 	function getLogoUrl(logoPath: string): string {
@@ -14,7 +15,7 @@
 <div class="association-card">
 	<a
 		href={resolve(`/associations/${association.handle}`)}
-		aria-label={`Voir les détails de ${association.name}`}
+		aria-label={`Voir les détails ${of(association.name)}${association.name}`}
 	>
 		{#if association.icon}
 			<img

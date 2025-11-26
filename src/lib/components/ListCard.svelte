@@ -8,6 +8,7 @@
 	export let list: ListWithAssociation;
 
 	import { resolve, asset } from "$app/paths";
+	import { of } from "$lib/utils";
 
 	// Function to get the full URL for the list logo
 	function getLogoUrl(logoPath: string): string {
@@ -16,7 +17,10 @@
 </script>
 
 <div class="list-card">
-	<a href={resolve(`/lists/${list.handle}`)} aria-label={`Voir les détails de ${list.name}`}>
+	<a
+		href={resolve(`/lists/${list.handle}`)}
+		aria-label={`Voir les détails ${of(list.name)}${list.name}`}
+	>
 		{#if list.icon}
 			<img src={getLogoUrl(list.icon)} alt={`${list.name} logo`} class="list-logo" />
 		{:else}

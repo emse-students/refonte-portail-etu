@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 
 	import partners from "$lib/data/partenariats.json";
+	import { of } from "$lib/utils";
 
 	let partnerLogos: { name: string; logoUrl: string }[] = [];
 
@@ -35,7 +36,11 @@
 			{#each partnerLogos as partner (partner.name)}
 				<div class="partner-card">
 					<div class="logo-container">
-						<img src={partner.logoUrl} alt={`Logo de ${partner.name}`} loading="lazy" />
+						<img
+							src={partner.logoUrl}
+							alt={`Logo ${of(partner.name)}${partner.name}`}
+							loading="lazy"
+						/>
 					</div>
 					<div class="card-content">
 						<h3>{partner.name}</h3>
