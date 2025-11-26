@@ -62,10 +62,12 @@
 		height: 100%;
 		background: rgba(0, 0, 0, 0.5);
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: center;
 		z-index: 1000;
 		backdrop-filter: blur(4px);
+		overflow-y: auto;
+		padding: 2rem 0;
 	}
 
 	.modal {
@@ -78,7 +80,8 @@
 			0 10px 10px -5px rgba(0, 0, 0, 0.04);
 		display: flex;
 		flex-direction: column;
-		max-height: 90vh;
+		margin: auto;
+		overflow: visible;
 	}
 
 	.modal-header {
@@ -111,6 +114,6 @@
 
 	.modal-content {
 		padding: 0 2rem 2rem;
-		overflow-y: auto;
+		overflow: visible;
 	}
 </style>
