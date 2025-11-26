@@ -2,6 +2,7 @@
 	import type { Member, RawUser } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
+	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
 
@@ -13,7 +14,9 @@
 	let editMode = $state(false);
 	let showAddMemberModal = $state(false);
 	let showEditRoleModal = $state(false);
+	let showDeleteConfirmModal = $state(false);
 	let selectedMember: Member | null = $state(null);
+	let memberToDelete: Member | null = $state(null);
 	let selectedRole = $state();
 
 	// For adding member
@@ -44,13 +47,24 @@
 		return false;
 	});
 
-	async function removeMember(id: number) {
+	function requestRemoveMember(id: number) {
+		const member = list.members.find((m) => m.id === id);
+		if (member) {
+			memberToDelete = member;
+			showDeleteConfirmModal = true;
+		}
+	}
+
+	async function confirmRemoveMember() {
+		if (!memberToDelete) return;
 		const res = await fetch("/api/members", {
 			method: "DELETE",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ id }),
+			body: JSON.stringify({ id: memberToDelete.id }),
 		});
 		if (res.ok) {
+			showDeleteConfirmModal = false;
+			memberToDelete = null;
 			invalidateAll();
 		} else {
 			alert("Erreur lors de la suppression du membre");
@@ -188,7 +202,7 @@
 							{member}
 							isBureau={true}
 							{editMode}
-							onRemove={removeMember}
+							onRemove={requestRemoveMember}
 							onEditRole={openEditRoleModal}
 						/>
 					{/each}
@@ -204,7 +218,7 @@
 						<MemberCard
 							{member}
 							{editMode}
-							onRemove={removeMember}
+							onRemove={requestRemoveMember}
 							onEditRole={openEditRoleModal}
 						/>
 					{/each}
@@ -218,79 +232,86 @@
 		</section>
 	</div>
 
-	{#if showAddMemberModal}
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="modal-backdrop" onclick={() => (showAddMemberModal = false)}>
-			<div class="modal" onclick={(e) => e.stopPropagation()}>
-				<h3>Ajouter un membre</h3>
-				<div class="form-group">
-					<label for="search-user">Rechercher un utilisateur</label>
-					<input
-						id="search-user"
-						type="text"
-						bind:value={searchQuery}
-						oninput={searchUsers}
-						placeholder="Nom, prénom ou login..."
-						autocomplete="off"
-					/>
-					{#if searchResults.length > 0}
-						<div class="search-results">
-							{#each searchResults as user}
-								<button
-									class="search-result-item"
-									onclick={() => {
-										selectedUserToAdd = user;
-										searchResults = [];
-										searchQuery = `${user.first_name} ${user.last_name}`;
-									}}
-								>
-									{user.first_name}
-									{user.last_name} ({user.login})
-								</button>
-							{/each}
-						</div>
-					{/if}
+	<Modal bind:open={showAddMemberModal} title="Ajouter un membre">
+		<div class="form-group">
+			<label for="search-user">Rechercher un utilisateur</label>
+			<input
+				id="search-user"
+				type="text"
+				bind:value={searchQuery}
+				oninput={searchUsers}
+				placeholder="Nom, prénom ou login..."
+				autocomplete="off"
+			/>
+			{#if searchResults.length > 0}
+				<div class="search-results">
+					{#each searchResults as user}
+						<button
+							class="search-result-item"
+							onclick={() => {
+								selectedUserToAdd = user;
+								searchResults = [];
+								searchQuery = `${user.first_name} ${user.last_name}`;
+							}}
+						>
+							{user.first_name}
+							{user.last_name} ({user.login})
+						</button>
+					{/each}
 				</div>
-				{#if selectedUserToAdd}
-					<div class="form-group">
-						<label for="role-select">Rôle</label>
-						<select id="role-select" bind:value={newMemberRoleId}>
-							{#each roles as role}
-								<option value={role.id}>{role.name}</option>
-							{/each}
-						</select>
-					</div>
-					<div class="modal-actions">
-						<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
-						<button class="primary-btn" onclick={addMember}>Ajouter</button>
-					</div>
-				{/if}
-			</div>
+			{/if}
 		</div>
-	{/if}
+		{#if selectedUserToAdd}
+			<div class="form-group">
+				<label for="role-select">Rôle</label>
+				<select id="role-select" bind:value={newMemberRoleId}>
+					{#each roles as role}
+						<option value={role.id}>{role.name}</option>
+					{/each}
+				</select>
+			</div>
+			<div class="modal-actions">
+				<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
+				<button class="primary-btn" onclick={addMember}>Ajouter</button>
+			</div>
+		{/if}
+	</Modal>
 
-	{#if showEditRoleModal && selectedMember}
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="modal-backdrop" onclick={() => (showEditRoleModal = false)}>
-			<div class="modal" onclick={(e) => e.stopPropagation()}>
-				<h3>Modifier le rôle de {selectedMember.user.first_name}</h3>
-				<div class="form-group">
-					<label for="edit-role-select">Rôle</label>
-					<select id="edit-role-select" bind:value={selectedRole}>
-						{#each roles as role}
-							<option value={role.id}>{role.name}</option>
-						{/each}
-					</select>
-				</div>
-				<div class="modal-actions">
-					<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
-					<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
-				</div>
+	<Modal
+		bind:open={showEditRoleModal}
+		title={selectedMember
+			? `Modifier le rôle de ${selectedMember.user.first_name}`
+			: "Modifier le rôle"}
+	>
+		{#if selectedMember}
+			<div class="form-group">
+				<label for="edit-role-select">Rôle</label>
+				<select id="edit-role-select" bind:value={selectedRole}>
+					{#each roles as role}
+						<option value={role.id}>{role.name}</option>
+					{/each}
+				</select>
 			</div>
-		</div>
-	{/if}
+			<div class="modal-actions">
+				<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
+				<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
+			</div>
+		{/if}
+	</Modal>
+
+	<Modal bind:open={showDeleteConfirmModal} title="Confirmer la suppression">
+		{#if memberToDelete}
+			<p>
+				Êtes-vous sûr de vouloir retirer <strong
+					>{memberToDelete.user.first_name} {memberToDelete.user.last_name}</strong
+				> de la liste ?
+			</p>
+			<div class="modal-actions">
+				<button class="cancel-btn" onclick={() => (showDeleteConfirmModal = false)}>Annuler</button>
+				<button class="remove-btn" onclick={confirmRemoveMember}>Confirmer</button>
+			</div>
+		{/if}
+	</Modal>
 </div>
 
 <style>
@@ -329,37 +350,6 @@
 
 	.add-member-btn:hover {
 		background: #059669;
-	}
-
-	.modal-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000;
-		backdrop-filter: blur(4px);
-	}
-
-	.modal {
-		background: white;
-		padding: 2rem;
-		border-radius: 16px;
-		width: 90%;
-		max-width: 500px;
-		box-shadow:
-			0 20px 25px -5px rgba(0, 0, 0, 0.1),
-			0 10px 10px -5px rgba(0, 0, 0, 0.04);
-	}
-
-	.modal h3 {
-		margin-top: 0;
-		color: #2d3748;
-		font-size: 1.5rem;
 	}
 
 	.form-group {
@@ -441,6 +431,20 @@
 
 	.primary-btn:hover {
 		background: #6d28d9;
+	}
+
+	.remove-btn {
+		padding: 0.75rem 1.5rem;
+		background: #fee2e2;
+		color: #c53030;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.remove-btn:hover {
+		background: #fecaca;
 	}
 
 	.container {

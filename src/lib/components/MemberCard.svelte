@@ -27,13 +27,7 @@
 	}
 
 	function handleRemove() {
-		if (
-			confirm(
-				`Êtes-vous sûr de vouloir retirer ${member.user.first_name} ${member.user.last_name} ?`
-			)
-		) {
-			onRemove(member.id);
-		}
+		onRemove(member.id);
 	}
 
 	function handleEditRole() {

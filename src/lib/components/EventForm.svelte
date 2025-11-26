@@ -140,144 +140,92 @@
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<div
-	class="modal-backdrop"
-	onclick={(e) => {
-		if (e.target === e.currentTarget) onClose();
-	}}
-	role="button"
-	tabindex="0"
-	onkeydown={(e) => {
-		if (e.key === "Escape") onClose();
-		if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
-			e.preventDefault();
-			onClose();
-		}
-	}}
->
-	<div class="modal" role="document">
-		<h2>{event ? "Modifier l'événement" : "Proposer un événement"}</h2>
+<div class="event-form-container">
+	{#if error}
+		<div class="error">{error}</div>
+	{/if}
 
-		{#if error}
-			<div class="error">{error}</div>
+	<form onsubmit={handleSubmit}>
+		{#if !association}
+			<div class="form-group">
+				<span class="label">Type d'entité</span>
+				<div class="radio-group">
+					<label>
+						<input type="radio" bind:group={entityType} value="association" /> Association
+					</label>
+					<label>
+						<input type="radio" bind:group={entityType} value="list" /> Liste
+					</label>
+				</div>
+			</div>
+
+			{#if entityType === "association"}
+				<div class="form-group">
+					<label for="association">Association</label>
+					<select id="association" bind:value={selectedAssociationId} required>
+						<option value="" disabled selected>Choisir une association</option>
+						{#each associations || [] as assoc}
+							<option value={assoc.id}>{assoc.name}</option>
+						{/each}
+					</select>
+				</div>
+			{:else}
+				<div class="form-group">
+					<label for="list">Liste</label>
+					<select id="list" bind:value={selectedListId} required>
+						<option value="" disabled selected>Choisir une liste</option>
+						{#each lists || [] as list}
+							<option value={list.id}>{list.name}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
+		{:else}
+			<p>Pour : <strong>{association.name}</strong></p>
 		{/if}
 
-		<form onsubmit={handleSubmit}>
-			{#if !association}
-				<div class="form-group">
-					<span class="label">Type d'entité</span>
-					<div class="radio-group">
-						<label>
-							<input type="radio" bind:group={entityType} value="association" /> Association
-						</label>
-						<label>
-							<input type="radio" bind:group={entityType} value="list" /> Liste
-						</label>
-					</div>
-				</div>
+		<div class="form-group">
+			<label for="title">Titre</label>
+			<input type="text" id="title" bind:value={title} required />
+		</div>
 
-				{#if entityType === "association"}
-					<div class="form-group">
-						<label for="association">Association</label>
-						<select id="association" bind:value={selectedAssociationId} required>
-							<option value="" disabled selected>Choisir une association</option>
-							{#each associations || [] as assoc}
-								<option value={assoc.id}>{assoc.name}</option>
-							{/each}
-						</select>
-					</div>
-				{:else}
-					<div class="form-group">
-						<label for="list">Liste</label>
-						<select id="list" bind:value={selectedListId} required>
-							<option value="" disabled selected>Choisir une liste</option>
-							{#each lists || [] as list}
-								<option value={list.id}>{list.name}</option>
-							{/each}
-						</select>
-					</div>
-				{/if}
-			{:else}
-				<p>Pour : <strong>{association.name}</strong></p>
-			{/if}
+		<div class="form-group">
+			<label for="description">Description</label>
+			<textarea id="description" bind:value={description}></textarea>
+		</div>
 
-			<div class="form-group">
-				<label for="title">Titre</label>
-				<input type="text" id="title" bind:value={title} required />
-			</div>
+		<div class="form-group">
+			<label for="start-date">Début</label>
+			<input type="datetime-local" id="start-date" bind:value={startDate} required />
+		</div>
 
-			<div class="form-group">
-				<label for="description">Description</label>
-				<textarea id="description" bind:value={description}></textarea>
-			</div>
+		<div class="form-group">
+			<label for="end-date">Fin</label>
+			<input type="datetime-local" id="end-date" bind:value={endDate} required />
+		</div>
 
-			<div class="form-group">
-				<label for="start-date">Début</label>
-				<input type="datetime-local" id="start-date" bind:value={startDate} required />
-			</div>
+		<div class="form-group">
+			<label for="location">Lieu</label>
+			<input type="text" id="location" bind:value={location} />
+		</div>
 
-			<div class="form-group">
-				<label for="end-date">Fin</label>
-				<input type="datetime-local" id="end-date" bind:value={endDate} required />
-			</div>
-
-			<div class="form-group">
-				<label for="location">Lieu</label>
-				<input type="text" id="location" bind:value={location} />
-			</div>
-
-			<div class="actions">
-				{#if event}
-					<button type="button" class="btn-danger" onclick={handleDelete} disabled={loading}>
-						Supprimer
-					</button>
-				{/if}
-				<button type="button" onclick={onClose}>Annuler</button>
-				<button type="submit" disabled={loading}>
-					{loading ? "Envoi..." : event ? "Modifier" : "Proposer"}
+		<div class="actions">
+			{#if event}
+				<button type="button" class="btn-danger" onclick={handleDelete} disabled={loading}>
+					Supprimer
 				</button>
-			</div>
-		</form>
-	</div>
+			{/if}
+			<button type="button" onclick={onClose}>Annuler</button>
+			<button type="submit" disabled={loading}>
+				{loading ? "Envoi..." : event ? "Modifier" : "Proposer"}
+			</button>
+		</div>
+	</form>
 </div>
 
 <style>
-	.modal-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(4px);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		z-index: 1000;
-		animation: fadeIn 0.2s ease-out;
-	}
-
-	.modal {
-		background: white;
-		padding: 2rem;
-		border-radius: 16px;
-		width: 90%;
-		max-width: 500px;
-		max-height: 90vh;
-		overflow-y: auto;
+	.event-form-container {
 		color: #1a202c;
-		box-shadow:
-			0 20px 25px -5px rgba(0, 0, 0, 0.1),
-			0 10px 10px -5px rgba(0, 0, 0, 0.04);
-		animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-	}
-
-	h2 {
-		margin-top: 0;
-		margin-bottom: 1.5rem;
-		font-size: 1.5rem;
-		font-weight: 700;
-		color: #7c3aed;
 	}
 
 	.form-group {
@@ -407,25 +355,5 @@
 		accent-color: #7c3aed;
 		width: 1.2em;
 		height: 1.2em;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-
-	@keyframes slideUp {
-		from {
-			opacity: 0;
-			transform: translateY(20px) scale(0.95);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0) scale(1);
-		}
 	}
 </style>

@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
 	import EventForm from "$lib/components/EventForm.svelte";
+	import Modal from "$lib/components/Modal.svelte";
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { page } from "$app/state";
@@ -13,6 +14,12 @@
 	const isOpen = data.isOpen as boolean;
 
 	let showForm = $state(false);
+	let showCloseValidateModal = $state(false);
+	let showOpenSubmissionsModal = $state(false);
+	let showInfoModal = $state(false);
+	let infoModalMessage = $state("");
+	let infoModalTitle = $state("");
+
 	let selectedDate = $state<Date | undefined>(undefined);
 	let selectedEvent = $state<RawEvent | undefined>(undefined);
 	let calendarComponent = $state<Calendar | undefined>(undefined);
@@ -27,7 +34,10 @@
 
 	function openForm(date?: Date) {
 		if (associations.length === 0 && lists.length === 0) {
-			alert("Vous n'avez aucune association ou liste pour laquelle proposer un événement.");
+			infoModalTitle = "Information";
+			infoModalMessage =
+				"Vous n'avez aucune association ou liste pour laquelle proposer un événement.";
+			showInfoModal = true;
 			return;
 		}
 		selectedDate = date;
@@ -84,10 +94,11 @@
 		return hasPermission(user.permissions, Permission.EVENTS);
 	});
 
-	async function closeAndValidate() {
-		if (!confirm("Voulez-vous clôturer la soumission et valider TOUS les événements proposés ?"))
-			return;
+	function requestCloseAndValidate() {
+		showCloseValidateModal = true;
+	}
 
+	async function confirmCloseAndValidate() {
 		try {
 			const response = await fetch("/api/events/finalize-submission", {
 				method: "POST",
@@ -97,16 +108,26 @@
 			if (!response.ok) throw new Error("Erreur lors de l'opération");
 
 			const result = await response.json();
-			alert(result.message || "Opération réussie");
+			showCloseValidateModal = false;
+			infoModalTitle = "Succès";
+			infoModalMessage = result.message || "Opération réussie";
+			showInfoModal = true;
 
 			// Reload page to reflect changes (button disappearance)
-			window.location.reload();
+			setTimeout(() => window.location.reload(), 1500);
 		} catch (e) {
-			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
+			showCloseValidateModal = false;
+			infoModalTitle = "Erreur";
+			infoModalMessage = "Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue");
+			showInfoModal = true;
 		}
 	}
 
-	async function openSubmissions() {
+	function requestOpenSubmissions() {
+		showOpenSubmissionsModal = true;
+	}
+
+	async function confirmOpenSubmissions() {
 		try {
 			const response = await fetch("/api/events/open-submission", {
 				method: "POST",
@@ -116,12 +137,18 @@
 			if (!response.ok) throw new Error("Erreur lors de l'opération");
 
 			const result = await response.json();
-			alert(result.message || "Opération réussie");
+			showOpenSubmissionsModal = false;
+			infoModalTitle = "Succès";
+			infoModalMessage = result.message || "Opération réussie";
+			showInfoModal = true;
 
 			// Reload page to reflect changes (button disappearance)
-			window.location.reload();
+			setTimeout(() => window.location.reload(), 1500);
 		} catch (e) {
-			alert("Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue"));
+			showOpenSubmissionsModal = false;
+			infoModalTitle = "Erreur";
+			infoModalMessage = "Erreur: " + (e instanceof Error ? e.message : "Erreur inconnue");
+			showInfoModal = true;
 		}
 	}
 </script>
@@ -135,10 +162,10 @@
 		<h1>Proposer un événement</h1>
 		<div class="actions">
 			{#if isGlobalEventManager && isOpen}
-				<button class="btn-secondary" onclick={closeAndValidate}>Clôturer & Valider</button>
+				<button class="btn-secondary" onclick={requestCloseAndValidate}>Clôturer & Valider</button>
 			{/if}
 			{#if isGlobalEventManager && !isOpen}
-				<button class="btn-primary" onclick={openSubmissions}>Ouvrir les soumissions</button>
+				<button class="btn-primary" onclick={requestOpenSubmissions}>Ouvrir les soumissions</button>
 			{/if}
 			<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
 		</div>
@@ -153,22 +180,48 @@
 			showAllUnvalidated={true}
 		/>
 	</div>
-</div>
 
-{#if showForm}
-	<EventForm
-		{associations}
-		{lists}
-		initialDate={selectedDate}
-		event={selectedEvent}
-		{isOpen}
-		onClose={() => (showForm = false)}
-		onSuccess={() => {
-			showForm = false;
-			window.location.reload();
-		}}
-	/>
-{/if}
+	<Modal
+		bind:open={showForm}
+		title={selectedEvent ? "Modifier l'événement" : "Proposer un événement"}
+	>
+		<EventForm
+			{associations}
+			{lists}
+			initialDate={selectedDate}
+			event={selectedEvent}
+			{isOpen}
+			onClose={() => (showForm = false)}
+			onSuccess={() => {
+				showForm = false;
+				window.location.reload();
+			}}
+		/>
+	</Modal>
+
+	<Modal bind:open={showCloseValidateModal} title="Confirmer la clôture">
+		<p>Voulez-vous clôturer la soumission et valider TOUS les événements proposés ?</p>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showCloseValidateModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={confirmCloseAndValidate}>Confirmer</button>
+		</div>
+	</Modal>
+
+	<Modal bind:open={showOpenSubmissionsModal} title="Ouvrir les soumissions">
+		<p>Voulez-vous ouvrir les soumissions d'événements ?</p>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showOpenSubmissionsModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={confirmOpenSubmissions}>Confirmer</button>
+		</div>
+	</Modal>
+
+	<Modal bind:open={showInfoModal} title={infoModalTitle}>
+		<p>{infoModalMessage}</p>
+		<div class="modal-actions">
+			<button class="primary-btn" onclick={() => (showInfoModal = false)}>OK</button>
+		</div>
+	</Modal>
+</div>
 
 <style>
 	.container {
@@ -213,5 +266,36 @@
 	.btn-secondary:hover {
 		background-color: #fecaca;
 		color: #dc2626;
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.cancel-btn {
+		padding: 0.75rem 1.5rem;
+		background: #edf2f7;
+		color: #4a5568;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn {
+		padding: 0.75rem 1.5rem;
+		background: #7c3aed;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn:hover {
+		background: #6d28d9;
 	}
 </style>

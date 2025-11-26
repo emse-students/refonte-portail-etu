@@ -1,0 +1,116 @@
+<script lang="ts">
+	import { fade, scale } from "svelte/transition";
+	import type { Snippet } from "svelte";
+
+	let {
+		open = $bindable(false),
+		title,
+		children,
+	}: {
+		open: boolean;
+		title?: string;
+		children?: Snippet;
+	} = $props();
+
+	let modal = $state<HTMLElement | null>(null);
+
+	function close() {
+		open = false;
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === "Escape" && open) {
+			close();
+		}
+	}
+</script>
+
+<svelte:window onkeydown={handleKeydown} />
+
+{#if open}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="modal-backdrop" onclick={close} transition:fade={{ duration: 200 }}>
+		<div
+			bind:this={modal}
+			class="modal"
+			onclick={(e) => e.stopPropagation()}
+			transition:scale={{ duration: 200, start: 0.95 }}
+			role="dialog"
+			aria-modal="true"
+			tabindex="0"
+		>
+			{#if title}
+				<header class="modal-header">
+					<h3>{title}</h3>
+					<button class="close-btn" onclick={close} aria-label="Fermer">&times;</button>
+				</header>
+			{/if}
+			<div class="modal-content">
+				{@render children?.()}
+			</div>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		backdrop-filter: blur(4px);
+	}
+
+	.modal {
+		background: white;
+		border-radius: 16px;
+		width: 90%;
+		max-width: 500px;
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		display: flex;
+		flex-direction: column;
+		max-height: 90vh;
+	}
+
+	.modal-header {
+		padding: 1.5rem 2rem 1rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.modal-header h3 {
+		margin: 0;
+		color: #2d3748;
+		font-size: 1.5rem;
+	}
+
+	.close-btn {
+		background: none;
+		border: none;
+		font-size: 2rem;
+		line-height: 1;
+		color: #a0aec0;
+		cursor: pointer;
+		padding: 0;
+		transition: color 0.2s;
+	}
+
+	.close-btn:hover {
+		color: #4a5568;
+	}
+
+	.modal-content {
+		padding: 0 2rem 2rem;
+		overflow-y: auto;
+	}
+</style>
