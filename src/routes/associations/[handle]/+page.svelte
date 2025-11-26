@@ -3,9 +3,8 @@
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import EventCard from "$lib/components/EventCard.svelte";
-	import Permission from "$lib/permissions";
+	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
-	import { hasAssociationPermission } from "$lib/server/auth-middleware.js";
 
 	let { data } = $props();
 	const association = $derived(data.association);
@@ -30,9 +29,14 @@
 		}
 	});
 
-	const canEdit = $derived(
-		userData ? hasAssociationPermission(userData, association.id, Permission.ROLES) : false
-	);
+	const canEdit = $derived.by(() => {
+		if (!userData) return false;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
+		// Check if user is a member of this association with ROLES permission
+		const membership = userData.memberships.find((m) => m.association === association.id);
+		if (!membership) return false;
+		return hasPermission(membership.role.permissions, Permission.ROLES);
+	});
 
 	async function removeMember(id: number) {
 		const res = await fetch("/api/members", {
