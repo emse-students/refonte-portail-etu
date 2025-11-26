@@ -16,7 +16,7 @@ export const { handle } = SvelteKitAuth({
 		},
 	],
 	trustHost: true,
-	secret: env.AUTH_SECRET,
+	secret: env.AUTH_SECRET ?? "default-secret-change-me",
 	callbacks: {
 		async jwt({ token, user, profile }) {
 			// Initial sign in
