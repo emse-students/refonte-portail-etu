@@ -22,6 +22,7 @@
 	// Desktop state
 	let events: CalendarEvent[] = $state([]);
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
+	let isLoading = $state(true);
 
 	function getStartOfWeek(date: Date) {
 		const d = new Date(date);
@@ -85,6 +86,7 @@
 		const data = await fetchEventsRange(start, end);
 		events = data;
 		weekStart = new Date(start);
+		isLoading = false;
 	}
 
 	function loadPrevWeek() {
@@ -306,20 +308,32 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each visibleWeeks as weekStartDate}
-					<tr>
-						{#each getWeekDays(weekStartDate) as dayDate}
-							<td>
-								<CalendarDay
-									{dayDate}
-									{events}
-									onAddEvent={onDayClick ? () => onDayClick?.(dayDate) : undefined}
-									{onEventClick}
-								/>
-							</td>
-						{/each}
-					</tr>
-				{/each}
+				{#if isLoading}
+					{#each Array(4) as _}
+						<tr>
+							{#each Array(7) as __}
+								<td>
+									<div class="calendar-cell-skeleton"></div>
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				{:else}
+					{#each visibleWeeks as weekStartDate}
+						<tr>
+							{#each getWeekDays(weekStartDate) as dayDate}
+								<td>
+									<CalendarDay
+										{dayDate}
+										{events}
+										onAddEvent={onDayClick ? () => onDayClick?.(dayDate) : undefined}
+										{onEventClick}
+									/>
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				{/if}
 			</tbody>
 		</table>
 	</div>
@@ -568,5 +582,36 @@
 		border-bottom: 1px solid #e5e7eb;
 		background: none;
 		text-transform: capitalize;
+	}
+
+	/* Skeleton loading for CLS prevention */
+	.calendar-cell-skeleton {
+		height: 150px;
+		min-width: 120px;
+		max-width: 200px;
+		margin: 4px;
+		background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+		background-size: 200% 100%;
+		animation: shimmer 1.5s infinite;
+		border-radius: 8px;
+	}
+
+	@keyframes shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+
+	/* Ensure consistent table height */
+	.desktop-view tbody {
+		min-height: 640px;
+	}
+
+	.desktop-view td {
+		height: 158px;
+		vertical-align: top;
 	}
 </style>

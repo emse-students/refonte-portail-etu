@@ -59,7 +59,7 @@
 		--calendar-max-cell-size: 200px;
 	}
 	.calendar-cell {
-		min-height: var(--calendar-cell-size);
+		height: var(--calendar-cell-size);
 		min-width: 120px;
 		max-width: var(--calendar-max-cell-size);
 		vertical-align: top;
