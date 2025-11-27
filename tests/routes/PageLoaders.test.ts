@@ -22,9 +22,9 @@ describe("associations/+page.ts", () => {
 			json: () => Promise.resolve(mockAssociations),
 		});
 
-		const result = await loadAssociations({
+		const result = (await loadAssociations({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { associations: typeof mockAssociations };
 
 		expect(mockFetch).toHaveBeenCalledWith("/api/associations");
 		expect(result.associations).toEqual(mockAssociations);
@@ -35,9 +35,9 @@ describe("associations/+page.ts", () => {
 			json: () => Promise.resolve([]),
 		});
 
-		const result = await loadAssociations({
+		const result = (await loadAssociations({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { associations: any[] };
 
 		expect(result.associations).toEqual([]);
 	});
@@ -58,9 +58,9 @@ describe("associations/+page.ts", () => {
 			json: () => Promise.resolve(mockAssociations),
 		});
 
-		const result = await loadAssociations({
+		const result = (await loadAssociations({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { associations: typeof mockAssociations };
 
 		expect(result.associations[0].name).toBe("Full Association");
 		expect(result.associations[0].description).toBe("A full description");
@@ -82,9 +82,9 @@ describe("lists/+page.ts", () => {
 			json: () => Promise.resolve(mockLists),
 		});
 
-		const result = await loadLists({
+		const result = (await loadLists({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { lists: typeof mockLists };
 
 		expect(mockFetch).toHaveBeenCalledWith("/api/lists");
 		expect(result.lists).toEqual(mockLists);
@@ -95,9 +95,9 @@ describe("lists/+page.ts", () => {
 			json: () => Promise.resolve([]),
 		});
 
-		const result = await loadLists({
+		const result = (await loadLists({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { lists: any[] };
 
 		expect(result.lists).toEqual([]);
 	});
@@ -120,9 +120,9 @@ describe("lists/+page.ts", () => {
 			json: () => Promise.resolve(mockLists),
 		});
 
-		const result = await loadLists({
+		const result = (await loadLists({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { lists: typeof mockLists };
 
 		expect(result.lists[0].name).toBe("Full List");
 		expect(result.lists[0].promo).toBe(2024);
@@ -139,9 +139,9 @@ describe("lists/+page.ts", () => {
 			json: () => Promise.resolve(mockLists),
 		});
 
-		const result = await loadLists({
+		const result = (await loadLists({
 			fetch: mockFetch,
-		} as any);
+		} as any)) as { lists: typeof mockLists };
 
 		expect(result.lists).toHaveLength(10);
 		expect(result.lists[9].name).toBe("List 10");

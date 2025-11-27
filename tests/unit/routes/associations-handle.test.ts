@@ -133,6 +133,8 @@ describe("Associations Handle Page Component", () => {
 			association_id: 1,
 			list_id: null,
 			validated: true,
+			created_at: new Date(),
+			edited_at: new Date(),
 		},
 	];
 
@@ -156,7 +158,8 @@ describe("Associations Handle Page Component", () => {
 					association: mockAssociation,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -171,7 +174,8 @@ describe("Associations Handle Page Component", () => {
 					association: mockAssociation,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -194,7 +198,8 @@ describe("Associations Handle Page Component", () => {
 					association: mockAssociation,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -209,7 +214,8 @@ describe("Associations Handle Page Component", () => {
 					association: mockAssociation,
 					events: mockEvents,
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -224,7 +230,8 @@ describe("Associations Handle Page Component", () => {
 					association: mockAssociation,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -252,6 +259,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -295,6 +303,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: memberWithRoles,
+					session: undefined,
 				},
 			},
 		});
@@ -321,6 +330,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -353,6 +363,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -395,6 +406,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -446,6 +458,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminMember,
+					session: undefined,
 				},
 			},
 		});
@@ -476,6 +489,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -511,6 +525,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -554,6 +569,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -592,6 +608,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -633,6 +650,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -671,6 +689,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -722,6 +741,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -776,6 +796,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -834,6 +855,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -897,6 +919,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -959,6 +982,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -1008,6 +1032,7 @@ describe("Associations Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});

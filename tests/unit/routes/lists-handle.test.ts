@@ -89,7 +89,15 @@ describe("Lists Handle Page Component", () => {
 			id: 1,
 			name: "Parent Association",
 			handle: "parent-asso",
+			icon: null,
+			color: 65280,
+			created_at: new Date(),
+			edited_at: new Date(),
+			description: "An association description",
 		},
+		association_id: 1,
+		icon: "/list-icon.png",
+		color: 16711680,
 		members: [
 			{
 				id: 1,
@@ -137,6 +145,8 @@ describe("Lists Handle Page Component", () => {
 			association_id: null,
 			list_id: 1,
 			validated: true,
+			created_at: new Date(),
+			edited_at: new Date(),
 		},
 	];
 
@@ -160,7 +170,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -175,7 +186,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -191,7 +203,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -206,7 +219,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -229,7 +243,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -244,7 +259,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: mockEvents,
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -259,7 +275,8 @@ describe("Lists Handle Page Component", () => {
 					list: mockList,
 					events: [],
 					roles: mockRoles,
-					userData: null,
+					userData: undefined,
+					session: undefined,
 				},
 			},
 		});
@@ -287,6 +304,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -330,6 +348,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: memberWithRoles,
+					session: undefined,
 				},
 			},
 		});
@@ -356,6 +375,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -388,6 +408,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -430,6 +451,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -481,6 +503,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminMember,
+					session: undefined,
 				},
 			},
 		});
@@ -511,6 +534,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -546,6 +570,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -589,6 +614,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -627,6 +653,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -668,6 +695,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -706,6 +734,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -757,6 +786,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -811,6 +841,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -869,6 +900,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -932,6 +964,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -994,6 +1027,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});
@@ -1043,6 +1077,7 @@ describe("Lists Handle Page Component", () => {
 					events: [],
 					roles: mockRoles,
 					userData: adminUser,
+					session: undefined,
 				},
 			},
 		});

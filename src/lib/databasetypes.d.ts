@@ -88,7 +88,7 @@ export type List = {
 	handle: string;
 	description: string;
 	association_id: number;
-	association?: Association;
+	association?: RawAssociation;
 	icon: string;
 	members: Member[];
 	promo: number;

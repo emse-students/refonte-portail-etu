@@ -25,15 +25,7 @@ export const GET = async (event: RequestEvent) => {
 			await db<RawAssociation>`SELECT * FROM association WHERE id = ${listData.association_id}`;
 		if (associations.length > 0) {
 			const assocData = associations[0];
-			listWithMembers.association = {
-				id: assocData.id,
-				handle: assocData.handle,
-				name: assocData.name,
-				description: assocData.description,
-				icon: `/api/icons/${assocData.icon}`,
-				color: assocData.color,
-				members: [],
-			};
+			listWithMembers.association = assocData;
 		}
 	}
 
