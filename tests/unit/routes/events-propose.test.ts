@@ -21,11 +21,16 @@ import {
 	getAuthorizedListIds,
 } from "$lib/server/auth-middleware";
 
-// Mock $app/state
+// Create a mutable page mock
+const mockPageData = {
+	userData: null as any,
+};
+
+// Mock $app/state with a getter so it can be changed
 vi.mock("$app/state", () => ({
 	page: {
-		data: {
-			userData: null,
+		get data() {
+			return mockPageData;
 		},
 	},
 }));
@@ -238,13 +243,7 @@ describe("Events Propose Page Component", () => {
 		} as Response);
 
 		// Reset the page mock for each test
-		vi.doMock("$app/state", () => ({
-			page: {
-				data: {
-					userData: null,
-				},
-			},
-		}));
+		mockPageData.userData = null;
 	});
 
 	it("renders page title", () => {
@@ -396,29 +395,20 @@ describe("Events Propose Page - Global Event Manager", () => {
 		vi.clearAllMocks();
 
 		// Mock user with global EVENTS permission
-		vi.doMock("$app/state", () => ({
-			page: {
-				data: {
-					userData: {
-						id: 1,
-						first_name: "Admin",
-						last_name: "User",
-						login: "admin",
-						email: "admin@test.com",
-						permissions: Permission.EVENTS,
-						promo: 2024,
-						memberships: [],
-					},
-				},
-			},
-		}));
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
 	});
 
 	it("shows 'Clôturer & Valider' button when submissions are open", async () => {
-		// Need to re-import to get the mocked version
-		const { default: Page } = await import("../../../src/routes/events/propose/+page.svelte");
-
-		render(Page, {
+		render(EventsProposePage, {
 			props: {
 				data: {
 					associations: mockAssociations,
@@ -450,6 +440,7 @@ describe("Events Propose Page - Close and Validate Modal", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockPageData.userData = null;
 		vi.mocked(global.fetch).mockResolvedValue({
 			ok: true,
 			json: async () => ({ message: "Opération réussie" }),
@@ -488,6 +479,7 @@ describe("Events Propose Page - Open Submissions Modal", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockPageData.userData = null;
 		vi.mocked(global.fetch).mockResolvedValue({
 			ok: true,
 			json: async () => ({ message: "Soumissions ouvertes" }),
@@ -735,6 +727,563 @@ describe("Events Propose Page Component - Only Associations Available", () => {
 		await waitFor(() => {
 			const elements = screen.getAllByText("Proposer un événement");
 			expect(elements.length).toBeGreaterThan(1);
+		});
+	});
+});
+
+describe("Events Propose Page - handleEventClick", () => {
+	const mockAssociations = [
+		{
+			id: 1,
+			name: "Test Association",
+			handle: "test-asso",
+			description: "",
+			members: [],
+			icon: "",
+			color: 0,
+		},
+	] as any[];
+	const mockLists = [
+		{
+			id: 1,
+			name: "Test List",
+			handle: "test-list",
+			association_id: 1,
+			description: "",
+			icon: "",
+			members: [],
+			promo: 2024,
+			color: 0,
+		},
+	] as any[];
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mockPageData.userData = null;
+	});
+
+	it("returns false when user is null", async () => {
+		mockPageData.userData = null;
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		// Calendar wrapper exists
+		expect(document.querySelector(".calendar-wrapper")).toBeInTheDocument();
+	});
+
+	it("opens form for global event manager clicking on event", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		expect(document.querySelector(".calendar-wrapper")).toBeInTheDocument();
+	});
+
+	it("handles event click with association permission", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "User",
+			last_name: "Test",
+			login: "user",
+			email: "user@test.com",
+			permissions: 0,
+			promo: 2024,
+			memberships: [
+				{
+					association_id: 1,
+					list_id: null,
+					role: { permissions: Permission.EVENTS },
+				},
+			],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		expect(document.querySelector(".calendar-wrapper")).toBeInTheDocument();
+	});
+
+	it("handles event click with list permission", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "User",
+			last_name: "Test",
+			login: "user",
+			email: "user@test.com",
+			permissions: 0,
+			promo: 2024,
+			memberships: [
+				{
+					association_id: null,
+					list_id: 1,
+					role: { permissions: Permission.EVENTS },
+				},
+			],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		expect(document.querySelector(".calendar-wrapper")).toBeInTheDocument();
+	});
+});
+
+describe("Events Propose Page - Admin Actions with Mocked User", () => {
+	const mockAssociations = [
+		{
+			id: 1,
+			name: "Test Association",
+			handle: "test-asso",
+			description: "",
+			members: [],
+			icon: "",
+			color: 0,
+		},
+	] as any[];
+	const mockLists: any[] = [];
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mockPageData.userData = null;
+		// Mock location.reload
+		Object.defineProperty(window, "location", {
+			value: { reload: vi.fn() },
+			writable: true,
+		});
+	});
+
+	it("shows Clôturer & Valider button for global event manager when open", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		expect(screen.getByRole("button", { name: "Clôturer & Valider" })).toBeInTheDocument();
+	});
+
+	it("shows Ouvrir les soumissions button for global event manager when closed", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: false,
+				} as any,
+			},
+		});
+
+		expect(screen.getByRole("button", { name: "Ouvrir les soumissions" })).toBeInTheDocument();
+	});
+
+	it("opens close/validate modal and can cancel", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		const closeBtn = screen.getByRole("button", { name: "Clôturer & Valider" });
+		await fireEvent.click(closeBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Confirmer la clôture")).toBeInTheDocument();
+		});
+
+		const cancelBtn = screen.getByRole("button", { name: "Annuler" });
+		await fireEvent.click(cancelBtn);
+
+		await waitFor(() => {
+			expect(screen.queryByText("Confirmer la clôture")).not.toBeInTheDocument();
+		});
+	});
+
+	it("confirms close/validate and handles success", async () => {
+		vi.mocked(global.fetch).mockResolvedValue({
+			ok: true,
+			json: async () => ({ message: "Événements validés avec succès" }),
+		} as Response);
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		const closeBtn = screen.getByRole("button", { name: "Clôturer & Valider" });
+		await fireEvent.click(closeBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Confirmer la clôture")).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(global.fetch).toHaveBeenCalledWith("/api/events/finalize-submission", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText("Succès")).toBeInTheDocument();
+		});
+	});
+
+	it("confirms close/validate and handles API error", async () => {
+		vi.mocked(global.fetch).mockResolvedValue({
+			ok: false,
+			json: async () => ({ error: "Server error" }),
+		} as Response);
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		const closeBtn = screen.getByRole("button", { name: "Clôturer & Valider" });
+		await fireEvent.click(closeBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Confirmer la clôture")).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Erreur")).toBeInTheDocument();
+		});
+	});
+
+	it("confirms close/validate and handles network error", async () => {
+		vi.mocked(global.fetch).mockRejectedValue(new Error("Network error"));
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: true,
+				} as any,
+			},
+		});
+
+		const closeBtn = screen.getByRole("button", { name: "Clôturer & Valider" });
+		await fireEvent.click(closeBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Confirmer la clôture")).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Erreur")).toBeInTheDocument();
+			expect(screen.getByText(/Network error/)).toBeInTheDocument();
+		});
+	});
+
+	it("opens open submissions modal and can cancel", async () => {
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: false,
+				} as any,
+			},
+		});
+
+		const openBtn = screen.getByRole("button", { name: "Ouvrir les soumissions" });
+		await fireEvent.click(openBtn);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText("Voulez-vous ouvrir les soumissions d'événements ?")
+			).toBeInTheDocument();
+		});
+
+		const cancelBtn = screen.getByRole("button", { name: "Annuler" });
+		await fireEvent.click(cancelBtn);
+
+		await waitFor(() => {
+			expect(
+				screen.queryByText("Voulez-vous ouvrir les soumissions d'événements ?")
+			).not.toBeInTheDocument();
+		});
+	});
+
+	it("confirms open submissions and handles success", async () => {
+		vi.mocked(global.fetch).mockResolvedValue({
+			ok: true,
+			json: async () => ({ message: "Soumissions ouvertes" }),
+		} as Response);
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: false,
+				} as any,
+			},
+		});
+
+		const openBtn = screen.getByRole("button", { name: "Ouvrir les soumissions" });
+		await fireEvent.click(openBtn);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText("Voulez-vous ouvrir les soumissions d'événements ?")
+			).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(global.fetch).toHaveBeenCalledWith("/api/events/open-submission", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText("Succès")).toBeInTheDocument();
+		});
+	});
+
+	it("confirms open submissions and handles API error", async () => {
+		vi.mocked(global.fetch).mockResolvedValue({
+			ok: false,
+			json: async () => ({ error: "Server error" }),
+		} as Response);
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: false,
+				} as any,
+			},
+		});
+
+		const openBtn = screen.getByRole("button", { name: "Ouvrir les soumissions" });
+		await fireEvent.click(openBtn);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText("Voulez-vous ouvrir les soumissions d'événements ?")
+			).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Erreur")).toBeInTheDocument();
+		});
+	});
+
+	it("confirms open submissions and handles unknown error", async () => {
+		vi.mocked(global.fetch).mockRejectedValue("Unknown error type");
+
+		mockPageData.userData = {
+			id: 1,
+			first_name: "Admin",
+			last_name: "User",
+			login: "admin",
+			email: "admin@test.com",
+			permissions: Permission.EVENTS,
+			promo: 2024,
+			memberships: [],
+		};
+
+		render(EventsProposePage, {
+			props: {
+				data: {
+					associations: mockAssociations,
+					lists: mockLists,
+					isOpen: false,
+				} as any,
+			},
+		});
+
+		const openBtn = screen.getByRole("button", { name: "Ouvrir les soumissions" });
+		await fireEvent.click(openBtn);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText("Voulez-vous ouvrir les soumissions d'événements ?")
+			).toBeInTheDocument();
+		});
+
+		const confirmBtn = screen.getByRole("button", { name: "Confirmer" });
+		await fireEvent.click(confirmBtn);
+
+		await waitFor(() => {
+			expect(screen.getByText("Erreur")).toBeInTheDocument();
+			expect(screen.getByText(/Erreur inconnue/)).toBeInTheDocument();
 		});
 	});
 });

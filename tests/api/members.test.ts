@@ -69,6 +69,19 @@ describe("Members API", () => {
 			expect(data).toEqual([]);
 			expect(db).not.toHaveBeenCalled();
 		});
+
+		it("should return 401 if not authenticated", async () => {
+			(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+			const request = new Request("http://localhost/api/members");
+			const event = { request } as RequestEvent;
+
+			const response = await GET(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(401);
+			expect(data.error).toBe("Unauthorized");
+		});
 	});
 
 	describe("POST /api/members", () => {
@@ -109,11 +122,63 @@ describe("Members API", () => {
 			expect(response.status).toBe(403);
 			expect(db).not.toHaveBeenCalled();
 		});
+
+		it("should return 400 if association_id is missing", async () => {
+			const request = new Request("http://localhost/api/members", {
+				method: "POST",
+				body: JSON.stringify({ user_id: 1, role_id: 1 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await POST(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(400);
+			expect(data.error).toBe("association_id is required");
+		});
+
+		it("should create member with visible=true by default", async () => {
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: true,
+			});
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+			const request = new Request("http://localhost/api/members", {
+				method: "POST",
+				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await POST(event);
+
+			expect(response.status).toBe(201);
+			// The visible field should default to true
+		});
+
+		it("should create member with list_id if provided", async () => {
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: true,
+			});
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+			const request = new Request("http://localhost/api/members", {
+				method: "POST",
+				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1, list_id: 5 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await POST(event);
+
+			expect(response.status).toBe(201);
+			expect(db).toHaveBeenCalled();
+		});
 	});
 
 	describe("PUT /api/members", () => {
 		it("should update member if authorized", async () => {
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ association_id: 1 }]); // Existing member
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
+				.mockResolvedValueOnce([]); // Update
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 			});
@@ -131,11 +196,114 @@ describe("Members API", () => {
 			expect(data.success).toBe(true);
 			expect(db).toHaveBeenCalledTimes(2); // Select + Update
 		});
+
+		it("should return 400 if id is missing", async () => {
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 2 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(400);
+			expect(data.error).toBe("id and association_id are required");
+		});
+
+		it("should return 400 if association_id is missing", async () => {
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ id: 1, user_id: 1, role_id: 2 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(400);
+			expect(data.error).toBe("id and association_id are required");
+		});
+
+		it("should return 404 if member not found", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]); // Not found
+
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ id: 999, user_id: 1, association_id: 1, role_id: 2 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(404);
+			expect(data.error).toBe("Member not found");
+		});
+
+		it("should fail if permission denied for existing member", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([{ association_id: 1 }]);
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response("Forbidden", { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ id: 1, user_id: 1, association_id: 1, role_id: 2 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+
+			expect(response.status).toBe(403);
+		});
+
+		it("should check permission for new association when changing", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ association_id: 1 }])
+				.mockResolvedValueOnce([]);
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce({ authorized: true }) // Old association
+				.mockResolvedValueOnce({ authorized: true }); // New association
+
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ id: 1, user_id: 1, association_id: 2, role_id: 2 }), // Different association
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+
+			expect(response.status).toBe(200);
+			expect(checkAssociationPermission).toHaveBeenCalledTimes(2);
+		});
+
+		it("should fail if permission denied for new association", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([{ association_id: 1 }]);
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce({ authorized: true }) // Old association
+				.mockResolvedValueOnce({ authorized: false }); // New association
+
+			const request = new Request("http://localhost/api/members", {
+				method: "PUT",
+				body: JSON.stringify({ id: 1, user_id: 1, association_id: 2, role_id: 2 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(403);
+			expect(data.error).toBe("Forbidden");
+		});
 	});
 
 	describe("DELETE /api/members", () => {
 		it("should delete member if authorized", async () => {
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ association_id: 1 }]); // Existing member
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
+				.mockResolvedValueOnce([]); // Delete
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 			});
@@ -152,6 +320,54 @@ describe("Members API", () => {
 			expect(response.status).toBe(200);
 			expect(data.success).toBe(true);
 			expect(db).toHaveBeenCalledTimes(2); // Select + Delete
+		});
+
+		it("should return 400 if id is missing", async () => {
+			const request = new Request("http://localhost/api/members", {
+				method: "DELETE",
+				body: JSON.stringify({}),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await DELETE(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(400);
+			expect(data.error).toBe("id is required");
+		});
+
+		it("should return 404 if member not found", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]); // Not found
+
+			const request = new Request("http://localhost/api/members", {
+				method: "DELETE",
+				body: JSON.stringify({ id: 999 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await DELETE(event);
+			const data = await response.json();
+
+			expect(response.status).toBe(404);
+			expect(data.error).toBe("Member not found");
+		});
+
+		it("should fail if permission denied", async () => {
+			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([{ association_id: 1 }]);
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response("Forbidden", { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/members", {
+				method: "DELETE",
+				body: JSON.stringify({ id: 1 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await DELETE(event);
+
+			expect(response.status).toBe(403);
 		});
 	});
 });

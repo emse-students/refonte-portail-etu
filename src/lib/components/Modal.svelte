@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade, scale } from "svelte/transition";
+	import { browser } from "$app/environment";
 	import type { Snippet } from "svelte";
 
 	let {
@@ -13,6 +14,7 @@
 	} = $props();
 
 	let modal = $state<HTMLElement | null>(null);
+	let pushedState = $state(false);
 
 	function close() {
 		open = false;
@@ -23,9 +25,29 @@
 			close();
 		}
 	}
+
+	function handlePopstate() {
+		if (open && pushedState) {
+			pushedState = false;
+			open = false;
+		}
+	}
+
+	// Push state when modal opens, pop when it closes
+	$effect(() => {
+		if (!browser) return;
+
+		if (open && !pushedState) {
+			history.pushState({ modal: true }, "");
+			pushedState = true;
+		} else if (!open && pushedState) {
+			history.back();
+			pushedState = false;
+		}
+	});
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} onpopstate={handlePopstate} />
 
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->

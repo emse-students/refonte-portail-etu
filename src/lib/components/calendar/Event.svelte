@@ -62,12 +62,7 @@
 		"#ce93d8",
 		"#ffd54f",
 	];
-	let color =
-		palette[
-			(association_id || list_id
-				? Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0)
-				: title.length) % palette.length
-		];
+	let color = palette[Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length];
 
 	let showModal = $state(false);
 	function openModal() {
@@ -151,7 +146,6 @@
 	class:list-mode={mode === "list"}
 	role="presentation"
 	onclick={handleClick}
-	onkeydown={(e) => e.key === "Enter" && handleClick()}
 	title="Voir les détails"
 	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
 >

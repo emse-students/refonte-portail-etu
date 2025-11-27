@@ -37,6 +37,24 @@ describe("Lists API", () => {
 			expect(data).toEqual([{ ...mockBasicList, association_name: "Asso 1" }]);
 			expect(db).toHaveBeenCalledTimes(2);
 		});
+
+		it("should have specific association_name when association id does not match", async () => {
+			const mockRawLists = [{ id: 1, association_id: 999, name: "List 1" }];
+			const mockBasicList = { id: 1, association_id: 999, name: "List 1", iconUrl: "url" };
+			const mockAssociations = [{ id: 1, name: "Asso 1" }];
+
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce(mockRawLists) // First call for lists
+				.mockResolvedValueOnce(mockAssociations); // Second call for associations
+
+			(getBasicList as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockBasicList);
+
+			const response = await GET();
+			const data = await response.json();
+
+			expect(data).toEqual([{ ...mockBasicList, association_name: "Association inconnue" }]);
+			expect(db).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	describe("POST /api/lists", () => {
@@ -63,6 +81,26 @@ describe("Lists API", () => {
 			expect(response.status).toBe(201);
 			expect(data).toEqual({ success: true });
 		});
+		it("should return 403 if unauthorized", async () => {
+			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/lists", {
+				method: "POST",
+				body: JSON.stringify({
+					handle: "list1",
+					name: "List 1",
+					description: "Desc",
+					association_id: 1,
+				}),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await POST(event);
+			expect(response.status).toBe(403);
+		});
 	});
 
 	describe("PUT /api/lists", () => {
@@ -88,6 +126,26 @@ describe("Lists API", () => {
 			expect(response.status).toBe(200);
 			expect(data).toEqual({ success: true });
 		});
+
+		it("should return 403 if unauthorized", async () => {
+			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/lists", {
+				method: "PUT",
+				body: JSON.stringify({
+					id: 1,
+					handle: "list1",
+					name: "List 1 Updated",
+				}),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await PUT(event);
+			expect(response.status).toBe(403);
+		});
 	});
 
 	describe("DELETE /api/lists", () => {
@@ -108,6 +166,21 @@ describe("Lists API", () => {
 
 			expect(response.status).toBe(200);
 			expect(data).toEqual({ success: true });
+		});
+		it("should return 403 if unauthorized", async () => {
+			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: false,
+				response: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 }),
+			});
+
+			const request = new Request("http://localhost/api/lists", {
+				method: "DELETE",
+				body: JSON.stringify({ id: 1 }),
+			});
+			const event = { request } as RequestEvent;
+
+			const response = await DELETE(event);
+			expect(response.status).toBe(403);
 		});
 	});
 });
