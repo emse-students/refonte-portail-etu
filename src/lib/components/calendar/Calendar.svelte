@@ -17,17 +17,11 @@
 		onEventClick?: (event: CalendarEvent) => boolean;
 		showUnvalidated?: boolean;
 		showAllUnvalidated?: boolean;
-	}>(); // Desktop state
+	}>();
+
+	// Desktop state
 	let events: CalendarEvent[] = $state([]);
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
-
-	$effect(() => {
-		console.log("Events updated:", events);
-	});
-
-	$effect(() => {
-		console.log("Week start changed:", weekStart);
-	});
 
 	function getStartOfWeek(date: Date) {
 		const d = new Date(date);
@@ -36,16 +30,26 @@
 		d.setHours(0, 0, 0, 0);
 		return d;
 	}
+
 	function addDays(date: Date, days: number) {
 		const d = new Date(date);
 		d.setDate(d.getDate() + days);
 		return d;
 	}
-	function getVisibleWeeks(start: Date) {
-		return Array.from({ length: 4 }, (_, i) => addDays(start, i * 7));
-	}
-	function getWeekDays(start: Date) {
-		return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+
+	// Pre-compute weeks once when weekStart changes
+	const visibleWeeks = $derived(Array.from({ length: 4 }, (_, i) => addDays(weekStart, i * 7)));
+	const weekDaysCache = new Map<number, Date[]>();
+
+	function getWeekDays(start: Date): Date[] {
+		const key = start.getTime();
+		if (!weekDaysCache.has(key)) {
+			weekDaysCache.set(
+				key,
+				Array.from({ length: 7 }, (_, i) => addDays(start, i))
+			);
+		}
+		return weekDaysCache.get(key)!;
 	}
 
 	// Mobile state
@@ -57,9 +61,9 @@
 	let loadingMonths = new Set<string>();
 	let loadingPrev = $state(false);
 	let loadingNext = $state(false);
-	let isMobile = false;
+	let isMobile = $state(false);
 
-	async function fetchEventsRange(start: Date, end: Date) {
+	async function fetchEventsRange(start: Date, end: Date): Promise<CalendarEvent[]> {
 		const params = new URLSearchParams({
 			start: start.toISOString(),
 			end: end.toISOString(),
@@ -68,34 +72,36 @@
 		if (showAllUnvalidated) params.set("all", "true");
 
 		const response = await fetch(`${resolve("/api/calendar")}?${params.toString()}`);
-		let data: CalendarEvent[] = await response.json();
-		return data.map((event) => {
-			event.start_date = new Date(event.start_date);
-			event.end_date = new Date(event.end_date);
-			return event;
-		});
+		const data: CalendarEvent[] = await response.json();
+		return data.map((event) => ({
+			...event,
+			start_date: new Date(event.start_date),
+			end_date: new Date(event.end_date),
+		}));
 	}
-	function loadWeeks(start: Date) {
+
+	async function loadWeeks(start: Date) {
 		const end = addDays(start, 27);
-		fetchEventsRange(start, end).then((data) => {
-			events = data;
-			weekStart = new Date(start);
-		});
+		const data = await fetchEventsRange(start, end);
+		events = data;
+		weekStart = new Date(start);
 	}
+
 	function loadPrevWeek() {
 		loadWeeks(addDays(weekStart, -7));
 	}
+
 	function loadNextWeek() {
 		loadWeeks(addDays(weekStart, 7));
 	}
 
 	// Mobile infinite scroll
-	async function fetchEvents(year: number, month: number) {
+	async function fetchEvents(year: number, month: number): Promise<CalendarEvent[]> {
 		const start = new Date(year, month, 1);
 		const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
-		let data: CalendarEvent[] = await fetchEventsRange(start, end);
-		return data;
+		return fetchEventsRange(start, end);
 	}
+
 	async function loadMobileMonth(y: number, m: number, prepend = false) {
 		const key = `${y}-${m}`;
 		if (loadingMonths.has(key) || mobileMonths.some((mm) => mm.year === y && mm.month === m)) {
@@ -103,30 +109,53 @@
 		}
 		loadingMonths.add(key);
 		const container = document.querySelector(".calendar.mobile-view");
-		let prevScrollHeight = container ? container.scrollHeight : 0;
-		let prevScrollTop = container ? container.scrollTop : 0;
+		const prevScrollHeight = container ? container.scrollHeight : 0;
+		const prevScrollTop = container ? container.scrollTop : 0;
+
 		if (prepend) {
 			loadingPrev = true;
 		} else {
 			loadingNext = true;
 		}
-		const data = await fetchEvents(y, m);
-		if (prepend) {
-			mobileMonths = [{ month: m, year: y, events: data }, ...mobileMonths];
-			loadingPrev = false;
-			await tick();
-			if (container) {
-				const newScrollHeight = container.scrollHeight;
-				container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
+
+		try {
+			const data = await fetchEvents(y, m);
+			if (prepend) {
+				mobileMonths = [{ month: m, year: y, events: data }, ...mobileMonths];
+				await tick();
+				if (container) {
+					const newScrollHeight = container.scrollHeight;
+					container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
+				}
+			} else {
+				mobileMonths = [...mobileMonths, { month: m, year: y, events: data }];
 			}
-		} else {
-			mobileMonths = [...mobileMonths, { month: m, year: y, events: data }];
-			loadingNext = false;
+		} finally {
+			if (prepend) {
+				loadingPrev = false;
+			} else {
+				loadingNext = false;
+			}
+			loadingMonths.delete(key);
 		}
-		loadingMonths.delete(key);
 	}
+
+	// Throttle scroll handler for better performance
+	let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	function handleMobileScroll(e: UIEvent) {
+		if (scrollTimeout) return;
+
+		scrollTimeout = setTimeout(() => {
+			scrollTimeout = null;
+			processScroll(e);
+		}, 100);
+	}
+
+	function processScroll(e: UIEvent) {
 		const el = e.target as HTMLElement;
+		if (!el || mobileMonths.length === 0) return;
+
 		if (el.scrollTop === 0) {
 			const first = mobileMonths[0];
 			let m = first.month - 1;
@@ -146,24 +175,29 @@
 			}
 			loadMobileMonth(y, m);
 		}
-		const months = Array.from(el.querySelectorAll(".mobile-month"));
-		let firstVisible = 0;
-		let lastVisible = months.length - 1;
-		for (let i = 0; i < months.length; i++) {
-			const rect = (months[i] as HTMLElement).getBoundingClientRect();
-			if (rect.bottom > 0 && rect.top < window.innerHeight) {
-				firstVisible = i;
-				break;
-			}
-		}
-		for (let i = months.length - 1; i >= 0; i--) {
-			const rect = (months[i] as HTMLElement).getBoundingClientRect();
-			if (rect.top < window.innerHeight && rect.bottom > 0) {
-				lastVisible = i;
-				break;
-			}
-		}
+
+		// Cleanup distant months for memory efficiency
 		if (mobileMonths.length > 5) {
+			const months = Array.from(el.querySelectorAll(".mobile-month"));
+			let firstVisible = 0;
+			let lastVisible = months.length - 1;
+
+			for (let i = 0; i < months.length; i++) {
+				const rect = (months[i] as HTMLElement).getBoundingClientRect();
+				if (rect.bottom > 0 && rect.top < window.innerHeight) {
+					firstVisible = i;
+					break;
+				}
+			}
+
+			for (let i = months.length - 1; i >= 0; i--) {
+				const rect = (months[i] as HTMLElement).getBoundingClientRect();
+				if (rect.top < window.innerHeight && rect.bottom > 0) {
+					lastVisible = i;
+					break;
+				}
+			}
+
 			const keepStart = Math.max(0, firstVisible - 2);
 			const keepEnd = Math.min(mobileMonths.length, lastVisible + 3);
 			if (keepStart > 0 || keepEnd < mobileMonths.length) {
@@ -183,11 +217,12 @@
 
 	onMount(async () => {
 		isMobile = window.matchMedia("(max-width: 700px)").matches;
+
 		if (isMobile) {
 			const now = new Date();
 			await loadMobileMonth(now.getFullYear(), now.getMonth());
 		} else {
-			loadWeeks(weekStart);
+			await loadWeeks(weekStart);
 		}
 	});
 
@@ -271,7 +306,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each getVisibleWeeks(weekStart) as weekStartDate}
+				{#each visibleWeeks as weekStartDate}
 					<tr>
 						{#each getWeekDays(weekStartDate) as dayDate}
 							<td>
