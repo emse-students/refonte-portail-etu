@@ -22,5 +22,5 @@ export default defineConfig({
 			use: { ...devices["Desktop Safari"] },
 		},
 	],
-	reporter: [["html", { open: "never" }]],
+	reporter: process.env.CI ? [["github"]] : [["html", { open: "on-failure" }]],
 });
