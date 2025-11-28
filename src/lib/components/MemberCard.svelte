@@ -262,6 +262,54 @@
 		background: #fecaca;
 	}
 
+	:global([data-theme="dark"]) .member-card {
+		background: var(--bg-secondary, #1f2937);
+		border-color: #374151;
+	}
+
+	:global([data-theme="dark"]) .bureau-card {
+		background: var(--bg-secondary, #1f2937);
+		border-color: var(--accent-primary, #7c3aed);
+	}
+
+	:global([data-theme="dark"]) .member-name {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .member-role {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .member-promo {
+		background: #2d3748;
+		border-color: #4a5568;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .bureau-card .member-promo {
+		background: rgba(124, 58, 237, 0.1);
+		border-color: var(--accent-primary, #7c3aed);
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .edit-btn {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .edit-btn:hover {
+		background: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .remove-btn {
+		background: rgba(220, 38, 38, 0.2);
+		color: #fca5a5;
+	}
+
+	:global([data-theme="dark"]) .remove-btn:hover {
+		background: rgba(220, 38, 38, 0.3);
+	}
+
 	@media (max-width: 768px) {
 		.member-card,
 		.bureau-card {

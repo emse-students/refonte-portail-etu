@@ -870,4 +870,92 @@
 			grid-template-columns: 1fr;
 		}
 	}
+
+	:global([data-theme="dark"]) .page-header h1 {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) section {
+		background: var(--bg-secondary, #1f2937);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+	}
+
+	:global([data-theme="dark"]) h2 {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .description-content {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .description-content :global(h1),
+	:global([data-theme="dark"]) .description-content :global(h2),
+	:global([data-theme="dark"]) .description-content :global(h3) {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .bureau-section {
+		background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(109, 40, 217, 0.1) 100%);
+		border-color: var(--accent-primary, #7c3aed);
+	}
+
+	:global([data-theme="dark"]) .empty-state {
+		color: #718096;
+	}
+
+	:global([data-theme="dark"]) .form-group label {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .form-group input,
+	:global([data-theme="dark"]) .form-group select {
+		background: #2d3748;
+		border-color: #4a5568;
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .search-results {
+		background: #2d3748;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .search-result-item {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .search-result-item:hover {
+		background: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .create-role-item {
+		color: var(--accent-primary, #a78bfa);
+		border-top-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .create-role-item:hover {
+		background: rgba(124, 58, 237, 0.1);
+	}
+
+	:global([data-theme="dark"]) .cancel-btn {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .remove-btn {
+		background: rgba(220, 38, 38, 0.2);
+		color: #fca5a5;
+	}
+
+	:global([data-theme="dark"]) .remove-btn:hover {
+		background: rgba(220, 38, 38, 0.3);
+	}
+
+	:global([data-theme="dark"]) .action-btn.secondary {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .action-btn.secondary:hover {
+		background: #4a5568;
+	}
 </style>

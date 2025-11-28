@@ -342,6 +342,38 @@
 		color: #6d28d9;
 	}
 
+	:global([data-theme="dark"]) .modal {
+		background: var(--bg-secondary, #1f2937);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+	}
+
+	:global([data-theme="dark"]) .modal-content h2 {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .modal-section {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .modal-section strong {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .modal-section a {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .close-btn {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .close-btn:hover,
+	:global([data-theme="dark"]) .close-btn:focus {
+		background: var(--accent-primary, #7c3aed);
+		color: white;
+	}
+
 	@keyframes fadeIn {
 		from {
 			opacity: 0;

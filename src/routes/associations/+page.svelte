@@ -231,6 +231,43 @@
 		margin: 0;
 	}
 
+	:global([data-theme="dark"]) header h1 {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) header p {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .search-input {
+		background: #2d3748;
+		border-color: #4a5568;
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .search-input:focus {
+		border-color: var(--accent-primary, #a78bfa);
+		box-shadow: 0 4px 16px rgba(167, 139, 250, 0.2);
+	}
+
+	:global([data-theme="dark"]) .search-input::placeholder {
+		color: #718096;
+	}
+
+	:global([data-theme="dark"]) .clear-btn {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .clear-btn:hover {
+		background: var(--accent-primary, #7c3aed);
+		color: white;
+	}
+
+	:global([data-theme="dark"]) .no-results h2 {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

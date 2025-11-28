@@ -5,6 +5,7 @@
 
 	import { resolve, asset } from "$app/paths";
 	import { of } from "$lib/utils";
+	import ImageWithSkeleton from "./ImageWithSkeleton.svelte";
 
 	// Function to get the full URL for the association logo
 	function getLogoUrl(logoPath: string): string {
@@ -18,7 +19,7 @@
 		aria-label={`Voir les détails ${of(association.name)}${association.name}`}
 	>
 		{#if association.icon}
-			<img
+			<ImageWithSkeleton
 				src={getLogoUrl(association.icon)}
 				alt={`${association.name} logo`}
 				class="association-logo"
@@ -77,7 +78,7 @@
 		height: 100%;
 	}
 
-	.association-logo {
+	:global(.association-logo) {
 		width: 100%;
 		height: 200px;
 		object-fit: cover;
@@ -102,7 +103,7 @@
 		user-select: none;
 	}
 
-	.association-card:hover .association-logo,
+	.association-card:hover :global(.association-logo),
 	.association-card:hover .association-logo-placeholder {
 		transform: scale(1.02);
 	}
@@ -129,8 +130,39 @@
 		color: #7c3aed;
 	}
 
+	/* Dark mode support */
+	:global([data-theme="dark"]) .association-card {
+		background: #2d3748;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .association-card:hover {
+		border-color: #a78bfa;
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+	}
+
+	:global([data-theme="dark"]) .association-card::before {
+		background: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) :global(.association-logo) {
+		background: #1a202c;
+	}
+
+	:global([data-theme="dark"]) .association-logo-placeholder {
+		background: #5b21b6;
+	}
+
+	:global([data-theme="dark"]) .association-name {
+		color: #e2e8f0;
+	}
+
+	:global([data-theme="dark"]) .association-card:hover .association-name {
+		color: #a78bfa;
+	}
+
 	@media (max-width: 768px) {
-		.association-logo,
+		:global(.association-logo),
 		.association-logo-placeholder {
 			height: 160px;
 		}

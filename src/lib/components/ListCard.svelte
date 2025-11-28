@@ -9,6 +9,7 @@
 
 	import { resolve, asset } from "$app/paths";
 	import { of } from "$lib/utils";
+	import ImageWithSkeleton from "./ImageWithSkeleton.svelte";
 
 	// Function to get the full URL for the list logo
 	function getLogoUrl(logoPath: string): string {
@@ -22,7 +23,7 @@
 		aria-label={`Voir les détails ${of(list.name)}${list.name}`}
 	>
 		{#if list.icon}
-			<img src={getLogoUrl(list.icon)} alt={`${list.name} logo`} class="list-logo" />
+			<ImageWithSkeleton src={getLogoUrl(list.icon)} alt={`${list.name} logo`} class="list-logo" />
 		{:else}
 			<div class="list-logo-placeholder">
 				<span class="placeholder-text">{list.name.charAt(0).toUpperCase()}</span>
@@ -80,7 +81,7 @@
 		height: 100%;
 	}
 
-	.list-logo {
+	:global(.list-logo) {
 		width: 100%;
 		height: 200px;
 		object-fit: cover;
@@ -105,7 +106,7 @@
 		user-select: none;
 	}
 
-	.list-card:hover .list-logo,
+	.list-card:hover :global(.list-logo),
 	.list-card:hover .list-logo-placeholder {
 		transform: scale(1.02);
 	}
@@ -141,8 +142,43 @@
 		color: #7c3aed;
 	}
 
+	/* Dark mode support */
+	:global([data-theme="dark"]) .list-card {
+		background: #2d3748;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .list-card:hover {
+		border-color: #a78bfa;
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+	}
+
+	:global([data-theme="dark"]) .list-card::before {
+		background: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) :global(.list-logo) {
+		background: #1a202c;
+	}
+
+	:global([data-theme="dark"]) .list-logo-placeholder {
+		background: #5b21b6;
+	}
+
+	:global([data-theme="dark"]) .list-name {
+		color: #e2e8f0;
+	}
+
+	:global([data-theme="dark"]) .list-card:hover .list-name {
+		color: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) .association-name {
+		color: #a0aec0;
+	}
+
 	@media (max-width: 768px) {
-		.list-logo,
+		:global(.list-logo),
 		.list-logo-placeholder {
 			height: 160px;
 		}

@@ -78,6 +78,18 @@
 		background-color: #ffffff;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	}
+
+	/* Dark mode for calendar cell */
+	:global([data-theme="dark"]) .calendar-cell {
+		background-color: #1a202c;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .calendar-cell:hover {
+		background-color: #2d3748;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	}
+
 	.event-stack {
 		position: absolute;
 		top: 0;
@@ -108,6 +120,12 @@
 		width: calc(100% - 16px);
 		font-weight: 600;
 	}
+
+	:global([data-theme="dark"]) .event-overflow {
+		background: rgba(26, 32, 44, 0.9);
+		color: #a78bfa;
+	}
+
 	.date-badge {
 		position: absolute;
 		top: 8px;
@@ -127,6 +145,14 @@
 		border: 1px solid #e5e7eb;
 		user-select: none;
 	}
+
+	:global([data-theme="dark"]) .date-badge {
+		background: #2d3748;
+		color: #e2e8f0;
+		border-color: #4a5568;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	}
+
 	.date-badge .day-number,
 	.date-badge .month {
 		user-select: none;
@@ -136,11 +162,20 @@
 		font-weight: 700;
 		color: #7c3aed;
 	}
+
+	:global([data-theme="dark"]) .date-badge .day-number {
+		color: #a78bfa;
+	}
+
 	.date-badge .month {
 		font-size: 0.9em;
 		text-transform: lowercase;
 		color: #718096;
 		font-weight: 500;
+	}
+
+	:global([data-theme="dark"]) .date-badge .month {
+		color: #a0aec0;
 	}
 
 	.fade-on-hover {

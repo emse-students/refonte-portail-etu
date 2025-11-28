@@ -596,6 +596,11 @@
 		border-radius: 8px;
 	}
 
+	/* Dark mode support for skeleton */
+	:global([data-theme="dark"]) .calendar-cell-skeleton {
+		background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
+	}
+
 	@keyframes shimmer {
 		0% {
 			background-position: 200% 0;
@@ -613,5 +618,93 @@
 	.desktop-view td {
 		height: 158px;
 		vertical-align: top;
+	}
+
+	/* Dark mode support for calendar */
+	:global([data-theme="dark"]) .calendar-nav {
+		background: #2d3748;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	:global([data-theme="dark"]) .calendar-title-main {
+		color: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) .calendar-title-sub {
+		color: #a0aec0;
+	}
+
+	:global([data-theme="dark"]) .calendar-title-sub b {
+		color: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow {
+		background: #2d3748;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow:hover {
+		background: #7c3aed;
+		border-color: #7c3aed;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow svg circle {
+		stroke: #a78bfa;
+		fill: #2d3748;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow:hover svg circle {
+		stroke: white;
+		fill: #7c3aed;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow svg path {
+		stroke: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) .calendar-arrow:hover svg path {
+		stroke: white;
+	}
+
+	:global([data-theme="dark"]) .calendar-weekdays-row {
+		background: #2d3748;
+	}
+
+	:global([data-theme="dark"]) .calendar-weekday-header {
+		color: #a78bfa;
+		border-bottom-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-track {
+		background: #2d3748;
+	}
+
+	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb {
+		background: #6b46c1;
+	}
+
+	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
+		background: #805ad5;
+	}
+
+	/* Mobile dark mode */
+	:global([data-theme="dark"]) .calendar-month-label {
+		background: #2d3748;
+		color: #a78bfa;
+	}
+
+	:global([data-theme="dark"]) .mobile-day {
+		background: #1a202c;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .mobile-day-header {
+		background: #2d3748;
+		color: #e2e8f0;
+		border-bottom-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) .mobile-day-cell:empty::after {
+		color: #718096;
 	}
 </style>

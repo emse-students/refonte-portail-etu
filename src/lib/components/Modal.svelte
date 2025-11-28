@@ -152,4 +152,23 @@
 			padding: 0 1.25rem 1.25rem;
 		}
 	}
+
+	:global([data-theme="dark"]) .modal {
+		background: var(--bg-secondary, #1f2937);
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.5),
+			0 10px 10px -5px rgba(0, 0, 0, 0.4);
+	}
+
+	:global([data-theme="dark"]) .modal-header h3 {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .close-btn {
+		color: #cbd5e0;
+	}
+
+	:global([data-theme="dark"]) .close-btn:hover {
+		color: #e2e8f0;
+	}
 </style>

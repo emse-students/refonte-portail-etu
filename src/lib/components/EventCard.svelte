@@ -124,6 +124,35 @@
 		color: #7c3aed;
 	}
 
+	:global([data-theme="dark"]) .event-card {
+		background: var(--bg-secondary, #1f2937);
+		border-color: #374151;
+	}
+
+	:global([data-theme="dark"]) .event-title {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) .event-date {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .time-text {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .event-description {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .event-location {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) .event-location svg {
+		color: var(--accent-primary, #a78bfa);
+	}
+
 	@media (max-width: 768px) {
 		.event-card {
 			padding: 1.25rem;

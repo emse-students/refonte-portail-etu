@@ -143,6 +143,14 @@
 		line-height: 1.6;
 	}
 
+	:global([data-theme="dark"]) header h1 {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) header p {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
 	.promo-section {
 		margin-bottom: 3rem;
 		animation: fadeIn 0.8s ease-out backwards;

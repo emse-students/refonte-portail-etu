@@ -404,4 +404,58 @@
 		width: 1.2em;
 		height: 1.2em;
 	}
+
+	:global([data-theme="dark"]) .event-form-container {
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) label,
+	:global([data-theme="dark"]) .label {
+		color: var(--text-secondary, #cbd5e0);
+	}
+
+	:global([data-theme="dark"]) input[type="text"],
+	:global([data-theme="dark"]) input[type="datetime-local"],
+	:global([data-theme="dark"]) select,
+	:global([data-theme="dark"]) textarea {
+		background: #2d3748;
+		border-color: #4a5568;
+		color: var(--text-primary, #f7fafc);
+	}
+
+	:global([data-theme="dark"]) input[type="text"]:focus,
+	:global([data-theme="dark"]) input[type="datetime-local"]:focus,
+	:global([data-theme="dark"]) select:focus,
+	:global([data-theme="dark"]) textarea:focus {
+		border-color: var(--accent-primary, #a78bfa);
+		box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+	}
+
+	:global([data-theme="dark"]) button[type="button"]:not(.btn-danger) {
+		background-color: #2d3748;
+		color: #cbd5e0;
+		border-color: #4a5568;
+	}
+
+	:global([data-theme="dark"]) button[type="button"]:not(.btn-danger):hover {
+		background-color: #4a5568;
+		color: white;
+	}
+
+	:global([data-theme="dark"]) .btn-danger,
+	:global([data-theme="dark"]) .remove-btn {
+		background-color: rgba(220, 38, 38, 0.2);
+		color: #fca5a5;
+	}
+
+	:global([data-theme="dark"]) .btn-danger:hover,
+	:global([data-theme="dark"]) .remove-btn:hover {
+		background-color: rgba(220, 38, 38, 0.3);
+		color: #fca5a5;
+	}
+
+	:global([data-theme="dark"]) .cancel-btn {
+		background: #2d3748;
+		color: #cbd5e0;
+	}
 </style>

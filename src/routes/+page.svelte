@@ -125,6 +125,15 @@
 		background-color: #6d28d9;
 	}
 
+	:global([data-theme="dark"]) h1 {
+		color: var(--accent-primary, #a78bfa);
+	}
+
+	:global([data-theme="dark"]) .calendar-fixed-container {
+		background: var(--bg-secondary, #1f2937);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+	}
+
 	@keyframes fadeInDown {
 		from {
 			opacity: 0;
