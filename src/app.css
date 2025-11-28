@@ -49,6 +49,13 @@
 
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
+
+	/* Aliases for components */
+	--text-primary: var(--color-text);
+	--text-secondary: var(--color-text-light);
+	--bg-secondary: #ffffff;
+	--accent-primary: var(--color-primary);
+
 	font-family: var(--font-body);
 	color: var(--color-text);
 }
@@ -80,6 +87,12 @@
 	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
 	--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+
+	/* Aliases for components */
+	--text-primary: var(--color-text);
+	--text-secondary: var(--color-text-light);
+	--bg-secondary: var(--color-bg-2);
+	--accent-primary: var(--color-primary);
 }
 
 * {
@@ -113,16 +126,22 @@ body {
 			var(--color-bg-gradient-mid) 50%,
 			var(--color-bg-gradient-end) 100%
 		);
+	color: var(--text-primary);
 }
 
 h1,
 h2,
-p {
+h3,
+h4,
+h5,
+h6 {
+	color: var(--text-primary);
 	font-weight: 400;
 	margin: 0;
 }
 
 p {
+	color: var(--text-secondary);
 	line-height: 1.6;
 }
 

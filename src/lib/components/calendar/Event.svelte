@@ -374,6 +374,11 @@
 		color: white;
 	}
 
+	/* Tone down event pills in dark mode */
+	:global([data-theme="dark"]) .event-stack-item {
+		filter: brightness(0.85);
+	}
+
 	@keyframes fadeIn {
 		from {
 			opacity: 0;
