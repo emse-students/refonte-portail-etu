@@ -125,7 +125,8 @@
 			showInfoModal = true;
 
 			// Reload page to reflect changes (button disappearance)
-			setTimeout(() => window.location.reload(), 1500);
+			await invalidateAll();
+			isOpen = false;
 		} catch (e) {
 			showCloseValidateModal = false;
 			infoModalTitle = "Erreur";
@@ -140,7 +141,7 @@
 
 	async function confirmOpenSubmissions() {
 		try {
-			const response = await fetch("/api/events/open-submission", {
+			const response = await fetch("/api/events/open-submissions", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 			});
@@ -157,7 +158,8 @@
 			showInfoModal = true;
 
 			// Reload page to reflect changes (button disappearance)
-			setTimeout(() => window.location.reload(), 1500);
+			isOpen = true;
+			await invalidateAll();
 		} catch (e) {
 			showOpenSubmissionsModal = false;
 			infoModalTitle = "Erreur";

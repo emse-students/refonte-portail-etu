@@ -216,7 +216,7 @@ export const PUT = async (event: RequestEvent) => {
         UPDATE event 
         SET association_id = ${association_id || null}, list_id = ${list_id || null},
             title = ${title}, description = ${description},
-            start_date = ${start_date}, end_date = ${end_date}, location = ${location},
+            start_date = ${new Date(start_date)}, end_date = ${new Date(end_date)}, location = ${location},
             validated = ${newValidatedStatus}
         WHERE id = ${id}
     `;
