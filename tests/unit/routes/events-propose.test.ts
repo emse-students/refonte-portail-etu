@@ -1190,7 +1190,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 		await fireEvent.click(confirmBtn);
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith("/api/events/open-submission", {
+			expect(global.fetch).toHaveBeenCalledWith("/api/events/open-submissions", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 			});
