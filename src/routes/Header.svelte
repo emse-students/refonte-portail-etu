@@ -342,9 +342,4 @@
 			display: none;
 		}
 	}
-
-	/* Hide menu button on desktop, show only on mobile */
-	.mobile-menu-btn {
-		display: none;
-	}
 </style>

@@ -208,9 +208,9 @@
 			event={selectedEvent}
 			{isOpen}
 			onClose={() => (showForm = false)}
-			onSuccess={async () => {
+			onSuccess={() => {
 				showForm = false;
-				await invalidateAll();
+				calendarComponent?.refresh();
 			}}
 		/>
 	</Modal>
