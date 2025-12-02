@@ -65,8 +65,8 @@
 
 <style>
 	.event-card {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--bg-secondary);
+		border: 1px solid var(--color-bg-1);
 		border-radius: 12px;
 		padding: 1.5rem;
 		transition: all 0.2s ease;
@@ -74,8 +74,8 @@
 
 	.event-card:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
-		border-color: #c4b5fd;
+		box-shadow: var(--shadow-md);
+		border-color: var(--color-primary-light);
 	}
 
 	.event-header {
@@ -85,7 +85,7 @@
 	.event-title {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #1a202c;
+		color: var(--color-text);
 		margin: 0 0 0.5rem 0;
 	}
 
@@ -94,7 +94,7 @@
 		flex-direction: column;
 		gap: 0.25rem;
 		font-size: 0.9rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 	}
 
 	.date-text {
@@ -102,11 +102,11 @@
 	}
 
 	.time-text {
-		color: #6b7280;
+		color: var(--color-text-light);
 	}
 
 	.event-description {
-		color: #4a5568;
+		color: var(--color-text);
 		line-height: 1.6;
 		margin: 0 0 1rem 0;
 	}
@@ -115,42 +115,13 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		font-size: 0.9rem;
 	}
 
 	.event-location svg {
 		flex-shrink: 0;
-		color: #7c3aed;
-	}
-
-	:global([data-theme="dark"]) .event-card {
-		background: var(--bg-secondary, #1f2937);
-		border-color: #374151;
-	}
-
-	:global([data-theme="dark"]) .event-title {
-		color: var(--text-primary, #f7fafc);
-	}
-
-	:global([data-theme="dark"]) .event-date {
-		color: var(--accent-primary, #a78bfa);
-	}
-
-	:global([data-theme="dark"]) .time-text {
-		color: var(--text-secondary, #cbd5e0);
-	}
-
-	:global([data-theme="dark"]) .event-description {
-		color: var(--text-secondary, #cbd5e0);
-	}
-
-	:global([data-theme="dark"]) .event-location {
-		color: var(--text-secondary, #cbd5e0);
-	}
-
-	:global([data-theme="dark"]) .event-location svg {
-		color: var(--accent-primary, #a78bfa);
+		color: var(--color-primary);
 	}
 
 	@media (max-width: 768px) {

@@ -444,7 +444,7 @@
 	}
 
 	h1 {
-		color: #5b21b6;
+		color: var(--color-primary-dark);
 		margin-bottom: 2rem;
 	}
 
@@ -457,23 +457,24 @@
 
 	.table-selector button {
 		padding: 0.75rem 1.5rem;
-		border: 2px solid #e9d5ff;
-		background: white;
+		border: 2px solid var(--color-bg-1);
+		background: var(--bg-secondary);
 		border-radius: 8px;
 		cursor: pointer;
 		font-weight: 500;
 		transition: all 0.2s;
+		color: var(--color-text);
 	}
 
 	.table-selector button:hover {
-		background: #f3e8ff;
-		border-color: #c4b5fd;
+		background: var(--color-bg-1);
+		border-color: var(--color-primary-light);
 	}
 
 	.table-selector button.active {
-		background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
-		color: white;
-		border-color: #5b21b6;
+		background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+		color: var(--color-text-on-primary);
+		border-color: var(--color-primary-dark);
 	}
 
 	.actions {
@@ -493,28 +494,30 @@
 	}
 
 	.btn-add {
-		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-		color: white;
+		background: var(--color-primary);
+		color: var(--color-text-on-primary);
 	}
 
 	.btn-add:hover {
-		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+		box-shadow: var(--shadow-md);
+		filter: brightness(1.1);
 	}
 
 	.btn-refresh {
-		background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-		color: white;
+		background: var(--color-secondary);
+		color: var(--color-primary-dark);
 	}
 
 	.btn-refresh:hover {
-		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+		box-shadow: var(--shadow-md);
+		filter: brightness(0.95);
 	}
 
 	.table-wrapper {
 		overflow-x: auto;
-		background: white;
+		background: var(--bg-secondary);
 		border-radius: 12px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--shadow-md);
 	}
 
 	table {
@@ -523,8 +526,8 @@
 	}
 
 	thead {
-		background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
-		color: white;
+		background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+		color: var(--color-text-on-primary);
 	}
 
 	th {
@@ -536,15 +539,16 @@
 
 	td {
 		padding: 0.75rem 1rem;
-		border-bottom: 1px solid #e9d5ff;
+		border-bottom: 1px solid var(--color-bg-1);
+		color: var(--color-text);
 	}
 
 	tbody tr:hover {
-		background: #faf5ff;
+		background: var(--color-bg-1);
 	}
 
 	.editing-row {
-		background: #fef3c7 !important;
+		background: var(--color-accent-light) !important;
 	}
 
 	.actions-cell {
@@ -566,35 +570,39 @@
 	}
 
 	.btn-edit {
-		background: #dbeafe;
+		background: var(--color-bg-1);
+		color: var(--color-text);
 	}
 
 	.btn-edit:hover {
-		background: #93c5fd;
+		filter: brightness(0.9);
 	}
 
 	.btn-delete {
-		background: #fee2e2;
+		background: var(--color-secondary);
+		color: var(--color-primary-dark);
 	}
 
 	.btn-delete:hover {
-		background: #fca5a5;
+		filter: brightness(0.9);
 	}
 
 	.btn-save {
-		background: #dcfce7;
+		background: var(--color-primary-light);
+		color: var(--color-primary-dark);
 	}
 
 	.btn-save:hover {
-		background: #86efac;
+		filter: brightness(0.9);
 	}
 
 	.btn-cancel {
-		background: #fef3c7;
+		background: var(--color-bg-1);
+		color: var(--color-text);
 	}
 
 	.btn-cancel:hover {
-		background: #fde047;
+		filter: brightness(0.9);
 	}
 
 	input[type="text"],
@@ -603,9 +611,11 @@
 	textarea {
 		width: 100%;
 		padding: 0.5rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--color-text-light);
 		border-radius: 4px;
 		font-family: inherit;
+		background: var(--bg-secondary);
+		color: var(--color-text);
 	}
 
 	textarea {
@@ -626,8 +636,8 @@
 	}
 
 	.error {
-		color: #dc2626;
-		background: #fee2e2;
+		color: var(--color-text);
+		background: var(--color-secondary);
 		border-radius: 8px;
 	}
 
@@ -635,9 +645,10 @@
 		display: inline-flex;
 		align-items: center;
 		margin-left: 1rem;
-		background: #f0f0f0;
+		background: var(--color-bg-1);
 		padding: 0.5rem 1rem;
 		border-radius: 4px;
+		color: var(--color-text);
 	}
 
 	.config-toggle label {

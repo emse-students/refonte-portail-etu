@@ -303,7 +303,7 @@
 	}
 	.close-btn:hover,
 	.close-btn:focus {
-		background: #7c3aed;
+		background: var(--color-secondary);
 		color: white;
 	}
 	.modal-content {
@@ -315,31 +315,31 @@
 	.modal-content h2 {
 		font-size: 1.75rem;
 		font-weight: 700;
-		color: #1a202c;
+		color: var(--color-text);
 		margin: 0 0 0.5rem 0;
 		line-height: 1.3;
 	}
 
 	.modal-section {
 		font-size: 1rem;
-		color: #4a5568;
+		color: var(--color-text-light);
 		word-break: break-word;
 		line-height: 1.6;
 	}
 
 	.modal-section strong {
-		color: #7c3aed;
+		color: var(--color-primary);
 		font-weight: 600;
 	}
 
 	.modal-section a {
-		color: #7c3aed;
+		color: var(--color-primary);
 		text-decoration: underline;
 		font-weight: 500;
 	}
 
 	.modal-section a:hover {
-		color: #6d28d9;
+		color: var(--color-secondary);
 	}
 
 	:global([data-theme="dark"]) .modal {
@@ -356,21 +356,21 @@
 	}
 
 	:global([data-theme="dark"]) .modal-section strong {
-		color: var(--accent-primary, #a78bfa);
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .modal-section a {
-		color: var(--accent-primary, #a78bfa);
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .close-btn {
-		background: #2d3748;
-		color: #cbd5e0;
+		background: var(--color-bg-1);
+		color: var(--color-text-light);
 	}
 
 	:global([data-theme="dark"]) .close-btn:hover,
 	:global([data-theme="dark"]) .close-btn:focus {
-		background: var(--accent-primary, #7c3aed);
+		background: var(--color-secondary);
 		color: white;
 	}
 

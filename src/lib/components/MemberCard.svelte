@@ -88,28 +88,28 @@
 
 <style>
 	.member-card {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--bg-secondary);
+		border: 1px solid var(--color-bg-1);
 		border-radius: 12px;
 		padding: 1.25rem;
 		transition: all 0.2s ease;
 	}
 
 	.bureau-card {
-		background: white;
-		border: 2px solid #7c3aed;
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+		background: var(--bg-secondary);
+		border: 2px solid var(--color-primary);
+		box-shadow: var(--shadow-md);
 	}
 
 	.member-card:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
-		border-color: #c4b5fd;
+		box-shadow: var(--shadow-md);
+		border-color: var(--color-primary-light);
 	}
 
 	.bureau-card:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.member-header {
@@ -132,8 +132,8 @@
 		height: 56px;
 		border-radius: 50%;
 		object-fit: cover;
-		border: 2px solid #e5e7eb;
-		background: #f9fafb;
+		border: 2px solid var(--color-bg-1);
+		background: var(--color-bg-1);
 		opacity: 0;
 		transition: opacity 0.3s ease;
 		position: absolute;
@@ -150,30 +150,30 @@
 	}
 
 	.bureau-card .member-avatar {
-		border-color: #7c3aed;
+		border-color: var(--color-primary);
 	}
 
 	.avatar-placeholder {
 		width: 56px;
 		height: 56px;
 		border-radius: 50%;
-		background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-		border: 2px solid #e5e7eb;
+		background: linear-gradient(135deg, var(--color-bg-1) 0%, var(--color-bg-2) 100%);
+		border: 2px solid var(--color-bg-1);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		font-weight: 600;
 		font-size: 1.1rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		position: absolute;
 		top: 0;
 		left: 0;
 	}
 
 	.bureau-placeholder {
-		background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
-		border-color: #7c3aed;
-		color: #7c3aed;
+		background: linear-gradient(135deg, var(--color-bg-1) 0%, var(--color-bg-2) 100%);
+		border-color: var(--color-primary);
+		color: var(--color-primary);
 	}
 
 	.member-info {
@@ -184,7 +184,7 @@
 	.member-name {
 		font-size: 1.05rem;
 		font-weight: 600;
-		color: #1a202c;
+		color: var(--color-text);
 		margin-bottom: 0.25rem;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
@@ -200,7 +200,7 @@
 
 	.member-role {
 		font-size: 0.9rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		font-weight: 500;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
@@ -209,19 +209,19 @@
 
 	.member-promo {
 		font-size: 0.75rem;
-		color: #6b7280;
-		font-weight: 500;
+		color: var(--color-primary);
+		font-weight: 600;
 		padding: 0.15rem 0.5rem;
-		border: 1.5px solid #d1d5db;
+		border: 1px solid var(--color-primary-light);
 		border-radius: 6px;
-		background: #f9fafb;
+		background: transparent;
 		white-space: nowrap;
 	}
 
 	.bureau-card .member-promo {
-		border-color: #c4b5fd;
-		background: #f5f3ff;
-		color: #7c3aed;
+		border-color: var(--color-primary-light);
+		background: var(--color-accent-light);
+		color: var(--color-primary);
 	}
 
 	.edit-controls {
@@ -229,7 +229,7 @@
 		display: flex;
 		gap: 0.5rem;
 		justify-content: flex-end;
-		border-top: 1px solid #f3f4f6;
+		border-top: 1px solid var(--color-bg-1);
 		padding-top: 0.75rem;
 	}
 
@@ -245,69 +245,21 @@
 	}
 
 	.edit-btn {
-		background: #edf2f7;
-		color: #2d3748;
+		background: var(--color-bg-1);
+		color: var(--color-text);
 	}
 
 	.remove-btn {
-		background: #fee2e2;
-		color: #c53030;
+		background: var(--color-secondary);
+		color: var(--color-primary-dark);
 	}
 
 	.edit-btn:hover {
-		background: #e2e8f0;
+		background: var(--color-bg-2);
 	}
 
 	.remove-btn:hover {
-		background: #fecaca;
-	}
-
-	:global([data-theme="dark"]) .member-card {
-		background: var(--bg-secondary, #1f2937);
-		border-color: #374151;
-	}
-
-	:global([data-theme="dark"]) .bureau-card {
-		background: var(--bg-secondary, #1f2937);
-		border-color: var(--accent-primary, #7c3aed);
-	}
-
-	:global([data-theme="dark"]) .member-name {
-		color: var(--text-primary, #f7fafc);
-	}
-
-	:global([data-theme="dark"]) .member-role {
-		color: var(--accent-primary, #a78bfa);
-	}
-
-	:global([data-theme="dark"]) .member-promo {
-		background: #2d3748;
-		border-color: #4a5568;
-		color: #cbd5e0;
-	}
-
-	:global([data-theme="dark"]) .bureau-card .member-promo {
-		background: rgba(124, 58, 237, 0.1);
-		border-color: var(--accent-primary, #7c3aed);
-		color: var(--accent-primary, #a78bfa);
-	}
-
-	:global([data-theme="dark"]) .edit-btn {
-		background: #2d3748;
-		color: #cbd5e0;
-	}
-
-	:global([data-theme="dark"]) .edit-btn:hover {
-		background: #4a5568;
-	}
-
-	:global([data-theme="dark"]) .remove-btn {
-		background: rgba(220, 38, 38, 0.2);
-		color: #fca5a5;
-	}
-
-	:global([data-theme="dark"]) .remove-btn:hover {
-		background: rgba(220, 38, 38, 0.3);
+		filter: brightness(0.9);
 	}
 
 	@media (max-width: 768px) {

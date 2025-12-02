@@ -6,12 +6,13 @@
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { page } from "$app/state";
+	import { invalidateAll } from "$app/navigation";
 
 	let { data } = $props();
 	let associations = data.associations as Association[];
 	let lists = data.lists as List[];
 	let user = page.data.userData;
-	const isOpen = data.isOpen as boolean;
+	let isOpen = $state(data.isOpen as boolean);
 
 	let showForm = $state(false);
 	let showCloseValidateModal = $state(false);
@@ -25,12 +26,22 @@
 	let calendarComponent = $state<Calendar | undefined>(undefined);
 
 	onMount(() => {
-		const interval = setInterval(() => {
+		const interval = setInterval(async () => {
+			// Refresh calendar every 5 seconds to get latest events
 			calendarComponent?.refresh();
+			// Also refresh the isOpen state in case it changed
+			isOpen = await fetchOpenState();
 		}, 5000);
 
 		return () => clearInterval(interval);
 	});
+
+	function fetchOpenState(): Promise<boolean> {
+		return fetch("/api/events/submission-state")
+			.then((res) => res.json())
+			.then((data) => data.open as boolean)
+			.catch(() => false);
+	}
 
 	function openForm(date?: Date) {
 		if (associations.length === 0 && lists.length === 0) {
@@ -134,7 +145,10 @@
 				headers: { "Content-Type": "application/json" },
 			});
 
-			if (!response.ok) throw new Error("Erreur lors de l'opération");
+			if (!response.ok) {
+				console.error("Failed to open submissions:", response.statusText);
+				throw new Error("Erreur lors de l'opération");
+			}
 
 			const result = await response.json();
 			showOpenSubmissionsModal = false;
@@ -192,9 +206,9 @@
 			event={selectedEvent}
 			{isOpen}
 			onClose={() => (showForm = false)}
-			onSuccess={() => {
+			onSuccess={async () => {
 				showForm = false;
-				window.location.reload();
+				await invalidateAll();
 			}}
 		/>
 	</Modal>
@@ -236,8 +250,8 @@
 		margin-bottom: 2rem;
 	}
 	.btn-primary {
-		background-color: #7c3aed;
-		color: white;
+		background-color: var(--color-primary);
+		color: var(--color-text-on-primary);
 		border: none;
 		padding: 0.75rem 1.5rem;
 		border-radius: 8px;
@@ -247,13 +261,13 @@
 		transition: all 0.2s;
 	}
 	.btn-primary:hover {
-		background-color: #6d28d9;
+		background-color: var(--color-primary-dark);
 		transform: translateY(-1px);
-		box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+		box-shadow: var(--shadow-md);
 	}
 	.btn-secondary {
-		background-color: #fee2e2;
-		color: #ef4444;
+		background-color: var(--color-secondary);
+		color: var(--color-primary-dark);
 		border: none;
 		padding: 0.75rem 1.5rem;
 		border-radius: 8px;
@@ -264,8 +278,7 @@
 		transition: all 0.2s;
 	}
 	.btn-secondary:hover {
-		background-color: #fecaca;
-		color: #dc2626;
+		filter: brightness(0.95);
 	}
 
 	.modal-actions {
@@ -277,8 +290,8 @@
 
 	.cancel-btn {
 		padding: 0.75rem 1.5rem;
-		background: #edf2f7;
-		color: #4a5568;
+		background: var(--color-bg-1);
+		color: var(--color-text);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -287,8 +300,8 @@
 
 	.primary-btn {
 		padding: 0.75rem 1.5rem;
-		background: #7c3aed;
-		color: white;
+		background: var(--color-primary);
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -296,6 +309,6 @@
 	}
 
 	.primary-btn:hover {
-		background: #6d28d9;
+		background: var(--color-primary-dark);
 	}
 </style>

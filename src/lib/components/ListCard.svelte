@@ -44,9 +44,9 @@
 		border-radius: 16px;
 		padding: 0;
 		overflow: hidden;
-		background: #ffffff;
-		border: 1px solid #e5e7eb;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		background: var(--bg-secondary);
+		border: 1px solid var(--color-bg-1);
+		box-shadow: var(--shadow-md);
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
@@ -57,7 +57,7 @@
 		left: 0;
 		right: 0;
 		height: 3px;
-		background: #7c3aed;
+		background: var(--color-primary);
 		transform: scaleX(0);
 		transform-origin: left;
 		transition: transform 0.3s ease;
@@ -65,8 +65,8 @@
 
 	.list-card:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-		border-color: #7c3aed;
+		box-shadow: var(--shadow-lg);
+		border-color: var(--color-primary);
 	}
 
 	.list-card:hover::before {
@@ -85,7 +85,7 @@
 		width: 100%;
 		height: 200px;
 		object-fit: cover;
-		background: #f9fafb;
+		background: var(--color-bg-1);
 		transition: transform 0.3s ease;
 	}
 
@@ -95,14 +95,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #7c3aed;
+		background: var(--color-primary);
 		transition: transform 0.3s ease;
 	}
 
 	.placeholder-text {
 		font-size: 5rem;
 		font-weight: 700;
-		color: white;
+		color: var(--color-text-on-primary);
 		user-select: none;
 	}
 
@@ -125,7 +125,7 @@
 	.list-name {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #1a202c;
+		color: var(--color-text);
 		margin: 0;
 		line-height: 1.4;
 		transition: color 0.2s ease;
@@ -133,48 +133,13 @@
 
 	.association-name {
 		font-size: 0.9rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		margin: 0;
 		font-weight: 500;
 	}
 
 	.list-card:hover .list-name {
-		color: #7c3aed;
-	}
-
-	/* Dark mode support */
-	:global([data-theme="dark"]) .list-card {
-		background: #2d3748;
-		border-color: #4a5568;
-	}
-
-	:global([data-theme="dark"]) .list-card:hover {
-		border-color: #a78bfa;
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-	}
-
-	:global([data-theme="dark"]) .list-card::before {
-		background: #a78bfa;
-	}
-
-	:global([data-theme="dark"]) :global(.list-logo) {
-		background: #1a202c;
-	}
-
-	:global([data-theme="dark"]) .list-logo-placeholder {
-		background: #5b21b6;
-	}
-
-	:global([data-theme="dark"]) .list-name {
-		color: #e2e8f0;
-	}
-
-	:global([data-theme="dark"]) .list-card:hover .list-name {
-		color: #a78bfa;
-	}
-
-	:global([data-theme="dark"]) .association-name {
-		color: #a0aec0;
+		color: var(--color-primary);
 	}
 
 	@media (max-width: 768px) {

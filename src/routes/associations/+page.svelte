@@ -135,14 +135,14 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin-bottom: 1rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
 
 	header p {
 		font-size: 1.2rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		max-width: 700px;
 		margin: 0 auto 2rem auto;
 		line-height: 1.6;
@@ -159,7 +159,7 @@
 		left: 1rem;
 		top: 50%;
 		transform: translateY(-50%);
-		color: #9ca3af;
+		color: var(--color-text-light);
 		pointer-events: none;
 	}
 
@@ -167,21 +167,21 @@
 		width: 100%;
 		padding: 0.875rem 3rem 0.875rem 3rem;
 		font-size: 1rem;
-		border: 2px solid #e5e7eb;
+		border: 2px solid var(--color-bg-2);
 		border-radius: 12px;
 		outline: none;
 		transition: all 0.2s ease;
 		background: white;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+		box-shadow: var(--shadow-sm);
 	}
 
 	.search-input:focus {
-		border-color: #7c3aed;
-		box-shadow: 0 4px 16px rgba(124, 58, 237, 0.1);
+		border-color: var(--color-primary);
+		box-shadow: var(--shadow-md);
 	}
 
 	.search-input::placeholder {
-		color: #9ca3af;
+		color: var(--color-text-light);
 	}
 
 	.clear-btn {
@@ -189,7 +189,7 @@
 		right: 0.75rem;
 		top: 50%;
 		transform: translateY(-50%);
-		background: #f3f4f6;
+		background: var(--color-bg-2);
 		border: none;
 		border-radius: 8px;
 		width: 32px;
@@ -198,19 +198,19 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		color: #6b7280;
+		color: var(--color-text-light);
 		transition: all 0.2s ease;
 	}
 
 	.clear-btn:hover {
-		background: #7c3aed;
+		background: var(--color-primary);
 		color: white;
 	}
 
 	.no-results {
 		text-align: center;
 		padding: 4rem 2rem;
-		color: #9ca3af;
+		color: var(--color-text-light);
 	}
 
 	.no-results svg {
@@ -221,51 +221,51 @@
 	.no-results h2 {
 		font-size: 1.5rem;
 		font-weight: 600;
-		color: #4b5563;
+		color: var(--color-text);
 		margin: 0 0 0.5rem 0;
 	}
 
 	.no-results p {
 		font-size: 1rem;
-		color: #9ca3af;
+		color: var(--color-text-light);
 		margin: 0;
 	}
 
 	:global([data-theme="dark"]) header h1 {
-		color: var(--accent-primary, #a78bfa);
+		color: var(--accent-primary);
 	}
 
 	:global([data-theme="dark"]) header p {
-		color: var(--text-secondary, #cbd5e0);
+		color: var(--text-secondary);
 	}
 
 	:global([data-theme="dark"]) .search-input {
-		background: #2d3748;
-		border-color: #4a5568;
-		color: var(--text-primary, #f7fafc);
+		background: var(--bg-secondary);
+		border-color: var(--color-text-light);
+		color: var(--text-primary);
 	}
 
 	:global([data-theme="dark"]) .search-input:focus {
-		border-color: var(--accent-primary, #a78bfa);
-		box-shadow: 0 4px 16px rgba(167, 139, 250, 0.2);
+		border-color: var(--accent-primary);
+		box-shadow: var(--shadow-md);
 	}
 
 	:global([data-theme="dark"]) .search-input::placeholder {
-		color: #718096;
+		color: var(--color-text-light);
 	}
 
 	:global([data-theme="dark"]) .clear-btn {
-		background: #2d3748;
-		color: #cbd5e0;
+		background: var(--bg-secondary);
+		color: var(--text-secondary);
 	}
 
 	:global([data-theme="dark"]) .clear-btn:hover {
-		background: var(--accent-primary, #7c3aed);
+		background: var(--accent-primary);
 		color: white;
 	}
 
 	:global([data-theme="dark"]) .no-results h2 {
-		color: var(--text-secondary, #cbd5e0);
+		color: var(--text-secondary);
 	}
 
 	.grid {

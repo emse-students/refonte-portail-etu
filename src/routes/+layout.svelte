@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Header from "./Header.svelte";
+	import BottomNav from "$lib/components/BottomNav.svelte";
 	import "../app.css";
 	import Footer from "./Footer.svelte";
 
@@ -18,6 +19,7 @@
 	</main>
 
 	<Footer />
+	<BottomNav />
 </div>
 
 <style>

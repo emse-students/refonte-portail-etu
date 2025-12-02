@@ -82,7 +82,7 @@
 		font-size: 2.5rem;
 		font-weight: 700;
 		margin-bottom: 2rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.02em;
 		animation: fadeInDown 0.6s ease-out;
 	}
@@ -111,7 +111,7 @@
 	}
 
 	.btn-primary {
-		background-color: #7c3aed;
+		background-color: var(--color-primary);
 		color: white;
 		padding: 0.75rem 1.5rem;
 		border-radius: 8px;
@@ -122,16 +122,16 @@
 	}
 
 	.btn-primary:hover {
-		background-color: #6d28d9;
+		background-color: var(--color-primary-dark);
 	}
 
 	:global([data-theme="dark"]) h1 {
-		color: var(--accent-primary, #a78bfa);
+		color: var(--accent-primary);
 	}
 
 	:global([data-theme="dark"]) .calendar-fixed-container {
-		background: var(--bg-secondary, #1f2937);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+		background: var(--bg-secondary);
+		box-shadow: var(--shadow-lg);
 	}
 
 	@keyframes fadeInDown {
@@ -153,8 +153,8 @@
 		justify-content: center;
 		align-items: center;
 		margin: 0 auto;
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-		background: #ffffff;
+		box-shadow: var(--shadow-md);
+		background: var(--bg-secondary);
 		border-radius: 16px;
 		padding: 2rem;
 		animation: fadeIn 0.8s ease-out 0.2s backwards;

@@ -85,14 +85,14 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin-bottom: 1rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
 
 	header p {
 		font-size: 1.2rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		max-width: 700px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -115,10 +115,10 @@
 	}
 
 	.partner-card {
-		background: white;
+		background: var(--bg-secondary);
 		border-radius: 16px;
-		border: 1px solid #e5e7eb;
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+		border: 1px solid var(--color-bg-1);
+		box-shadow: var(--shadow-md);
 		overflow: hidden;
 		text-decoration: none;
 		color: inherit;
@@ -135,7 +135,7 @@
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: linear-gradient(90deg, #7c3aed 0%, #ec4899 100%);
+		background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
 		transform: scaleX(0);
 		transform-origin: left;
 		transition: transform 0.3s ease;
@@ -143,10 +143,8 @@
 
 	.partner-card:hover {
 		transform: translateY(-8px);
-		box-shadow:
-			0 12px 24px rgba(124, 58, 237, 0.15),
-			0 6px 12px rgba(236, 72, 153, 0.1);
-		border-color: rgba(124, 58, 237, 0.3);
+		box-shadow: var(--shadow-lg);
+		border-color: var(--color-primary);
 	}
 
 	.partner-card:hover::before {
@@ -154,7 +152,7 @@
 	}
 
 	.logo-container {
-		background: #f9fafb;
+		background: var(--color-bg-1);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -174,7 +172,7 @@
 
 	.card-content {
 		padding: 1.5rem;
-		border-top: 1px solid #e5e7eb;
+		border-top: 1px solid var(--color-bg-1);
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
@@ -185,17 +183,22 @@
 		font-size: 1.25rem;
 		font-weight: 600;
 		margin: 0;
-		color: #1a202c;
+		color: var(--color-text);
 		transition: color 0.2s ease;
 	}
 
 	.partner-card:hover h3 {
-		color: #7c3aed;
+		color: var(--color-primary);
 	}
 
 	.skeleton {
 		height: 240px;
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+		background: linear-gradient(
+			90deg,
+			var(--color-bg-1) 25%,
+			var(--color-bg-2) 50%,
+			var(--color-bg-1) 75%
+		);
 		background-size: 200% 100%;
 		animation: skeleton-loading 1.5s infinite linear;
 	}

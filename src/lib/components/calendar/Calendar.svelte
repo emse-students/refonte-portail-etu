@@ -249,17 +249,16 @@
 	<div class="calendar-nav">
 		<button class="calendar-arrow" onclick={loadPrevWeek} aria-label="Semaine précédente">
 			<svg
-				width="28"
-				height="28"
-				viewBox="0 0 28 28"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<circle cx="14" cy="14" r="13" stroke="#b388ff" stroke-width="2" fill="#fff" />
 				<path
-					d="M16.5 9L12 14L16.5 19"
-					stroke="#b388ff"
-					stroke-width="2.2"
+					d="M15 18L9 12L15 6"
+					stroke="currentColor"
+					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 				/>
@@ -279,17 +278,16 @@
 		</span>
 		<button class="calendar-arrow" onclick={loadNextWeek} aria-label="Semaine suivante">
 			<svg
-				width="28"
-				height="28"
-				viewBox="0 0 28 28"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<circle cx="14" cy="14" r="13" stroke="#b388ff" stroke-width="2" fill="#fff" />
 				<path
-					d="M11.5 9L16 14L11.5 19"
-					stroke="#b388ff"
-					stroke-width="2.2"
+					d="M9 18L15 12L9 6"
+					stroke="currentColor"
+					stroke-width="2"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 				/>
@@ -352,17 +350,22 @@
 					})}
 				</h2>
 				{#each Array(new Date(m.year, m.month + 1, 0).getDate()) as _, dayIdx}
-					<div class="mobile-day">
-						<div class="mobile-day-header">
-							{new Date(m.year, m.month, dayIdx + 1).toLocaleDateString(undefined, {
-								weekday: "long",
-								day: "numeric",
-								month: "short",
-							})}
+					{@const date = new Date(m.year, m.month, dayIdx + 1)}
+					{@const isToday = new Date().toDateString() === date.toDateString()}
+					{@const dayEvents = m.events.filter((event) => event.start_date.getDate() === dayIdx + 1)}
+
+					<div class="mobile-day" class:is-today={isToday}>
+						<div class="mobile-date-column">
+							<span class="day-name"
+								>{date.toLocaleDateString(undefined, { weekday: "short" })}</span
+							>
+							<span class="day-number">{date.getDate()}</span>
 						</div>
-						<div class="mobile-day-cell">
-							{#each m.events.filter((event) => event.start_date.getDate() === dayIdx + 1) as event}
+						<div class="mobile-events-column">
+							{#each dayEvents as event}
 								<Event {...event} mode="list" />
+							{:else}
+								<div class="no-events">Rien de prévu</div>
 							{/each}
 						</div>
 					</div>
@@ -394,7 +397,7 @@
 		justify-content: center;
 		gap: 2rem;
 		margin: 0 0 1.5rem 0;
-		background: #f9fafb;
+		background: var(--bg-secondary);
 		border-radius: 12px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 		padding: 1rem 2rem;
@@ -409,52 +412,48 @@
 	.calendar-title-main {
 		font-size: 1.35rem;
 		font-weight: 700;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.01em;
 	}
 	.calendar-title-sub {
 		font-size: 0.95rem;
-		color: #4a5568;
+		color: var(--color-text-light);
 		font-weight: 500;
 		letter-spacing: 0;
 		b {
-			color: #7c3aed;
+			color: var(--color-primary);
 			font-weight: 600;
 		}
 	}
 	.calendar-arrow {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--bg-secondary);
+		border: 1px solid var(--color-bg-2);
 		border-radius: 50%;
-		width: 2.5rem;
-		height: 2.5rem;
+		width: 3rem;
+		height: 3rem;
 		padding: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+		box-shadow: var(--shadow-sm);
 		outline: none;
+		color: var(--color-primary);
 	}
 
 	.calendar-arrow:hover {
-		background: #7c3aed;
-		border-color: #7c3aed;
-		box-shadow: 0 4px 8px rgba(124, 58, 237, 0.2);
-		transform: translateY(-1px);
-	}
-
-	.calendar-arrow:hover svg circle {
-		stroke: white;
-	}
-
-	.calendar-arrow:hover svg path {
-		stroke: white;
+		background: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-text-on-primary);
+		box-shadow: var(--shadow-md);
+		transform: translateY(-2px);
 	}
 
 	.calendar-arrow svg {
 		display: block;
+		width: 1.5rem;
+		height: 1.5rem;
 	}
 
 	.mobile-view {
@@ -472,55 +471,81 @@
 			display: block;
 		}
 		.calendar-month-label {
-			font-size: 1.5rem;
-			font-weight: 700;
-			color: #7c3aed;
+			font-size: 1.2rem;
+			font-weight: 600;
+			color: var(--color-text);
 			text-transform: capitalize;
 			display: block;
-			text-align: center;
 			padding: 1rem;
-			background: #f9fafb;
-			border-radius: 12px;
-			margin-bottom: 1rem;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+			background: var(--bg-secondary);
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			margin: 0;
+			border-bottom: 1px solid var(--color-bg-2);
 		}
 		.mobile-month {
-			margin-bottom: 2rem;
+			margin-bottom: 0;
 		}
 		.mobile-day {
-			border: 1px solid #e5e7eb;
-			border-radius: 12px;
-			margin-bottom: 1rem;
-			background: #fff;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-			overflow: hidden;
+			display: flex;
+			border-bottom: 1px solid var(--color-bg-2);
+			background: var(--bg-secondary);
+			min-height: 80px;
 		}
-		.mobile-day-header {
-			background: #f9fafb;
-			font-weight: 600;
-			font-size: 0.95rem;
-			color: #1a202c;
-			padding: 0.875rem 1rem;
-			border-bottom: 1px solid #e5e7eb;
-			text-transform: capitalize;
+		.mobile-day.is-today .mobile-date-column .day-number {
+			background: var(--color-primary);
+			color: var(--color-text-on-primary);
 		}
-		.mobile-day-cell {
-			padding: 0.75rem 1rem;
-			min-height: 2.5rem;
+		.mobile-day.is-today .mobile-date-column .day-name {
+			color: var(--color-primary);
+			font-weight: 700;
 		}
-		.mobile-day-cell:empty::after {
-			content: "Aucun événement";
-			color: #9ca3af;
+		.mobile-date-column {
+			width: 60px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 1rem 0.5rem;
+			gap: 0.25rem;
+		}
+		.day-name {
+			font-size: 0.75rem;
+			text-transform: uppercase;
+			color: var(--color-text-light);
+			font-weight: 500;
+		}
+		.day-number {
+			font-size: 1.25rem;
+			font-weight: 500;
+			width: 36px;
+			height: 36px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			color: var(--color-text);
+		}
+		.mobile-events-column {
+			flex: 1;
+			padding: 0.75rem 1rem 0.75rem 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+		.no-events {
+			color: var(--color-text-light);
 			font-size: 0.875rem;
 			font-style: italic;
-			display: block;
 			padding: 0.5rem 0;
+			opacity: 0.6;
 		}
 	}
 
 	.spinner {
-		border: 8px solid #f3f3f3;
-		border-top: 8px solid #3498db;
+		border: 8px solid var(--color-bg-2);
+		border-top: 8px solid var(--color-primary-light);
 		border-radius: 50%;
 		width: 60px;
 		height: 60px;
@@ -555,31 +580,31 @@
 	}
 
 	.calendar-table-wrapper::-webkit-scrollbar-track {
-		background: #f1f1f1;
+		background: var(--color-bg-2);
 		border-radius: 4px;
 	}
 
 	.calendar-table-wrapper::-webkit-scrollbar-thumb {
-		background: #c4b5fd;
+		background: var(--color-primary-light);
 		border-radius: 4px;
 	}
 
 	.calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
-		background: #a78bfa;
+		background: var(--color-primary);
 	}
 
 	.calendar-weekdays-row {
-		background: #f9fafb;
+		background: var(--color-bg-2);
 	}
 	.calendar-weekday-header {
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 		font-size: 0.95rem;
 		font-weight: 600;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: 0;
 		padding: 0.75rem 0;
 		text-align: center;
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--color-bg-2);
 		background: none;
 		text-transform: capitalize;
 	}
@@ -590,7 +615,12 @@
 		min-width: 120px;
 		max-width: 200px;
 		margin: 4px;
-		background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+		background: linear-gradient(
+			90deg,
+			var(--color-bg-2) 25%,
+			var(--color-bg-1) 50%,
+			var(--color-bg-2) 75%
+		);
 		background-size: 200% 100%;
 		animation: shimmer 1.5s infinite;
 		border-radius: 8px;
@@ -598,7 +628,12 @@
 
 	/* Dark mode support for skeleton */
 	:global([data-theme="dark"]) .calendar-cell-skeleton {
-		background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
+		background: linear-gradient(
+			90deg,
+			var(--color-bg-2) 25%,
+			var(--color-bg-1) 50%,
+			var(--color-bg-2) 75%
+		);
 	}
 
 	@keyframes shimmer {
@@ -621,90 +656,70 @@
 	}
 
 	/* Dark mode support for calendar */
-	:global([data-theme="dark"]) .calendar-nav {
-		background: #2d3748;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	}
 
 	:global([data-theme="dark"]) .calendar-title-main {
-		color: #a78bfa;
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .calendar-title-sub {
-		color: #a0aec0;
+		color: var(--color-text-light);
 	}
 
 	:global([data-theme="dark"]) .calendar-title-sub b {
-		color: #a78bfa;
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .calendar-arrow {
-		background: #2d3748;
-		border-color: #4a5568;
+		background: var(--color-bg-1);
+		border-color: var(--color-bg-2);
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .calendar-arrow:hover {
-		background: #7c3aed;
-		border-color: #7c3aed;
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow svg circle {
-		stroke: #a78bfa;
-		fill: #2d3748;
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow:hover svg circle {
-		stroke: white;
-		fill: #7c3aed;
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow svg path {
-		stroke: #a78bfa;
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow:hover svg path {
-		stroke: white;
+		background: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-text-on-primary);
 	}
 
 	:global([data-theme="dark"]) .calendar-weekdays-row {
-		background: #2d3748;
+		background: var(--color-bg-1);
 	}
 
 	:global([data-theme="dark"]) .calendar-weekday-header {
-		color: #a78bfa;
-		border-bottom-color: #4a5568;
+		color: var(--color-text);
+		border-bottom-color: var(--color-text-light);
 	}
 
 	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-track {
-		background: #2d3748;
+		background: var(--color-bg-1);
 	}
 
 	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb {
-		background: #6b46c1;
+		background: var(--color-primary-light);
 	}
 
 	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
-		background: #805ad5;
+		background: var(--color-bg-2);
 	}
 
 	/* Mobile dark mode */
 	:global([data-theme="dark"]) .calendar-month-label {
-		background: #2d3748;
-		color: #a78bfa;
+		background: var(--color-bg-1);
+		color: var(--color-text);
+		border-bottom-color: var(--color-bg-2);
 	}
 
 	:global([data-theme="dark"]) .mobile-day {
-		background: #1a202c;
-		border-color: #4a5568;
+		background: var(--color-bg-0);
+		border-bottom-color: var(--color-bg-2);
 	}
 
-	:global([data-theme="dark"]) .mobile-day-header {
-		background: #2d3748;
-		color: #e2e8f0;
-		border-bottom-color: #4a5568;
+	:global([data-theme="dark"]) .mobile-day.is-today .mobile-date-column .day-number {
+		background: var(--color-primary);
+		color: var(--color-text-on-primary);
 	}
 
-	:global([data-theme="dark"]) .mobile-day-cell:empty::after {
-		color: #718096;
+	:global([data-theme="dark"]) .no-events {
+		color: var(--color-text-light);
 	}
 </style>
