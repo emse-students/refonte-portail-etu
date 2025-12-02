@@ -14,26 +14,26 @@
 		align-items: center;
 		padding: 2rem 1.5rem;
 		text-align: center;
-		background: linear-gradient(135deg, #5b21b6 0%, #482c65 100%);
-		box-shadow: 0 -2px 8px rgba(124, 58, 237, 0.1);
+		background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+		box-shadow: var(--shadow-md);
 		margin-top: auto;
 	}
 
 	footer p {
 		margin: 0.35rem 0;
-		color: rgba(255, 255, 255, 0.75);
+		color: rgba(255, 255, 255, 0.8);
 		font-size: 0.9rem;
 		line-height: 1.5;
 	}
 
 	footer a {
-		color: #f0abfc;
+		color: var(--color-secondary);
 		font-weight: 500;
 		transition: color 0.2s ease;
 	}
 
 	footer a:hover {
-		color: #ffffff;
+		color: var(--color-text-on-primary);
 	}
 
 	@media (min-width: 480px) {

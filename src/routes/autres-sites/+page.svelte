@@ -65,14 +65,14 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin-bottom: 1rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
 
 	header p {
 		font-size: 1.2rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		max-width: 700px;
 		margin: 0 auto;
 		line-height: 1.6;
@@ -101,10 +101,10 @@
 		align-items: center;
 		justify-content: center;
 		padding: 2rem 1.5rem;
-		background: white;
+		background: var(--bg-secondary);
 		border-radius: 16px;
-		border: 1px solid #e5e7eb;
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+		border: 1px solid var(--color-bg-1);
+		box-shadow: var(--shadow-md);
 		text-decoration: none;
 		color: inherit;
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -120,17 +120,15 @@
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: linear-gradient(90deg, #7c3aed 0%, #ec4899 100%);
+		background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
 		transform: scaleX(0);
 		transition: transform 0.3s ease;
 	}
 
 	.site-card:hover {
 		transform: translateY(-8px);
-		box-shadow:
-			0 12px 24px rgba(124, 58, 237, 0.15),
-			0 6px 12px rgba(236, 72, 153, 0.1);
-		border-color: rgba(124, 58, 237, 0.3);
+		box-shadow: var(--shadow-lg);
+		border-color: var(--color-primary);
 	}
 
 	.site-card:hover::before {
@@ -144,8 +142,8 @@
 		margin-bottom: 1.25rem;
 		border-radius: 12px;
 		padding: 0.5rem;
-		background: white;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		background: var(--bg-secondary);
+		box-shadow: var(--shadow-sm);
 		transition: transform 0.3s ease;
 	}
 
@@ -162,17 +160,17 @@
 		margin: 0 0 0.75rem 0;
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #1a202c;
+		color: var(--color-text);
 		transition: color 0.2s ease;
 	}
 
 	.site-card:hover .card-content h3 {
-		color: #7c3aed;
+		color: var(--color-primary);
 	}
 
 	.card-content p {
 		margin: 0;
-		color: #718096;
+		color: var(--color-text-light);
 		font-size: 0.95rem;
 		line-height: 1.5;
 	}

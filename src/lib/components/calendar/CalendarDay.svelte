@@ -68,26 +68,16 @@
 		box-sizing: border-box;
 		overflow: hidden;
 		word-break: break-word;
-		background-color: #fafbfc;
-		border: 1px solid #e5e7eb;
+		background-color: var(--bg-secondary);
+		border: 1px solid var(--color-bg-1);
 		border-radius: 8px;
 		transition: all 0.2s ease;
 	}
 
 	.calendar-cell:hover {
-		background-color: #ffffff;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	}
-
-	/* Dark mode for calendar cell */
-	:global([data-theme="dark"]) .calendar-cell {
-		background-color: #1a202c;
-		border-color: #4a5568;
-	}
-
-	:global([data-theme="dark"]) .calendar-cell:hover {
-		background-color: #2d3748;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+		z-index: 2;
 	}
 
 	.event-stack {
@@ -109,9 +99,9 @@
 		width: 100%;
 		text-align: center;
 		font-size: 0.8em;
-		color: #7c3aed;
-		background: rgba(255, 255, 255, 0.9);
-		backdrop-filter: blur(4px);
+		color: var(--color-primary);
+		background: var(--bg-secondary);
+		box-shadow: var(--shadow-sm);
 		z-index: 3;
 		pointer-events: none;
 		padding: 4px 0;
@@ -121,20 +111,15 @@
 		font-weight: 600;
 	}
 
-	:global([data-theme="dark"]) .event-overflow {
-		background: rgba(26, 32, 44, 0.9);
-		color: #a78bfa;
-	}
-
 	.date-badge {
 		position: absolute;
 		top: 8px;
 		left: 10px;
 		z-index: 3;
-		background: white;
-		color: #1a202c;
+		background: var(--bg-secondary);
+		color: var(--color-text);
 		border-radius: 6px;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--shadow-sm);
 		padding: 4px 10px;
 		font-size: 0.95em;
 		font-weight: 600;
@@ -142,15 +127,8 @@
 		align-items: baseline;
 		gap: 0.35em;
 		pointer-events: none;
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--color-bg-1);
 		user-select: none;
-	}
-
-	:global([data-theme="dark"]) .date-badge {
-		background: #2d3748;
-		color: #e2e8f0;
-		border-color: #4a5568;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 	}
 
 	.date-badge .day-number,
@@ -160,22 +138,14 @@
 	.date-badge .day-number {
 		font-size: 1.1em;
 		font-weight: 700;
-		color: #7c3aed;
-	}
-
-	:global([data-theme="dark"]) .date-badge .day-number {
-		color: #a78bfa;
+		color: var(--color-primary);
 	}
 
 	.date-badge .month {
 		font-size: 0.9em;
 		text-transform: lowercase;
-		color: #718096;
+		color: var(--color-text-light);
 		font-weight: 500;
-	}
-
-	:global([data-theme="dark"]) .date-badge .month {
-		color: #a0aec0;
 	}
 
 	.fade-on-hover {
@@ -196,7 +166,7 @@
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
-		background-color: #7c3aed;
+		background-color: var(--color-secondary);
 		color: white;
 		border: none;
 		display: flex;
@@ -219,7 +189,8 @@
 	}
 
 	.add-event-btn:hover {
-		background-color: #6d28d9;
+		background-color: var(--color-secondary);
+		filter: brightness(0.9);
 		transform: scale(1.1);
 	}
 </style>

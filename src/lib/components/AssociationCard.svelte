@@ -54,7 +54,7 @@
 		left: 0;
 		right: 0;
 		height: 3px;
-		background: #7c3aed;
+		background: var(--color-secondary);
 		transform: scaleX(0);
 		transform-origin: left;
 		transition: transform 0.3s ease;
@@ -62,8 +62,8 @@
 
 	.association-card:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-		border-color: #7c3aed;
+		box-shadow: var(--shadow-lg);
+		border-color: var(--color-secondary);
 	}
 
 	.association-card:hover::before {
@@ -82,7 +82,7 @@
 		width: 100%;
 		height: 200px;
 		object-fit: cover;
-		background: #f9fafb;
+		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
 	}
 
@@ -92,7 +92,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #7c3aed;
+		background: var(--color-primary-light);
 		transition: transform 0.3s ease;
 	}
 
@@ -120,45 +120,45 @@
 	.association-name {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #1a202c;
+		color: var(--color-text);
 		margin: 0;
 		line-height: 1.4;
 		transition: color 0.2s ease;
 	}
 
 	.association-card:hover .association-name {
-		color: #7c3aed;
+		color: var(--color-primary);
 	}
 
 	/* Dark mode support */
 	:global([data-theme="dark"]) .association-card {
-		background: #2d3748;
-		border-color: #4a5568;
+		background: var(--bg-secondary);
+		border-color: var(--color-text-light);
 	}
 
 	:global([data-theme="dark"]) .association-card:hover {
-		border-color: #a78bfa;
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+		border-color: var(--color-secondary);
+		box-shadow: var(--shadow-lg);
 	}
 
 	:global([data-theme="dark"]) .association-card::before {
-		background: #a78bfa;
+		background: var(--color-secondary);
 	}
 
 	:global([data-theme="dark"]) :global(.association-logo) {
-		background: #1a202c;
+		background: var(--bg-secondary);
 	}
 
 	:global([data-theme="dark"]) .association-logo-placeholder {
-		background: #5b21b6;
+		background: var(--color-primary);
 	}
 
 	:global([data-theme="dark"]) .association-name {
-		color: #e2e8f0;
+		color: var(--color-text);
 	}
 
 	:global([data-theme="dark"]) .association-card:hover .association-name {
-		color: #a78bfa;
+		color: var(--color-secondary);
 	}
 
 	@media (max-width: 768px) {

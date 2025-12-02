@@ -242,7 +242,7 @@
 
 <style>
 	.event-form-container {
-		color: #1a202c;
+		color: var(--color-text);
 	}
 
 	.modal-actions {
@@ -254,8 +254,8 @@
 
 	.cancel-btn {
 		padding: 0.75rem 1.5rem;
-		background: #edf2f7;
-		color: #4a5568;
+		background: var(--color-bg-1);
+		color: var(--color-text);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -264,8 +264,8 @@
 
 	.remove-btn {
 		padding: 0.75rem 1.5rem;
-		background: #fee2e2;
-		color: #c53030;
+		background: var(--color-secondary);
+		color: var(--color-primary-dark);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -273,7 +273,7 @@
 	}
 
 	.remove-btn:hover {
-		background: #fecaca;
+		filter: brightness(0.9);
 	}
 
 	.form-group {
@@ -285,7 +285,7 @@
 		display: block;
 		margin-bottom: 0.5rem;
 		font-weight: 600;
-		color: #4a5568;
+		color: var(--color-text);
 		font-size: 0.95rem;
 	}
 
@@ -295,7 +295,7 @@
 	textarea {
 		width: 100%;
 		padding: 0.75rem;
-		border: 1px solid #e2e8f0;
+		border: 1px solid var(--color-bg-1);
 		border-radius: 8px;
 		font-size: 1rem;
 		transition:
@@ -303,6 +303,8 @@
 			box-shadow 0.2s;
 		box-sizing: border-box;
 		font-family: inherit;
+		background: var(--bg-secondary);
+		color: var(--color-text);
 	}
 
 	input[type="text"]:focus,
@@ -310,8 +312,8 @@
 	select:focus,
 	textarea:focus {
 		outline: none;
-		border-color: #7c3aed;
-		box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+		border-color: var(--color-primary);
+		box-shadow: 0 0 0 3px var(--shadow-sm);
 	}
 
 	textarea {
@@ -325,7 +327,7 @@
 		gap: 1rem;
 		margin-top: 2rem;
 		padding-top: 1rem;
-		border-top: 1px solid #edf2f7;
+		border-top: 1px solid var(--color-bg-1);
 	}
 
 	button {
@@ -339,46 +341,45 @@
 	}
 
 	button[type="submit"] {
-		background-color: #7c3aed;
-		color: white;
+		background-color: var(--color-primary);
+		color: var(--color-text-on-primary);
 	}
 
 	button[type="submit"]:hover:not(:disabled) {
-		background-color: #6d28d9;
+		background-color: var(--color-primary-dark);
 		transform: translateY(-1px);
 	}
 
 	button[type="submit"]:disabled {
-		background-color: #a78bfa;
+		background-color: var(--color-primary-light);
 		cursor: not-allowed;
 	}
 
 	button[type="button"]:not(.btn-danger) {
-		background-color: #f7fafc;
-		color: #4a5568;
-		border: 1px solid #e2e8f0;
+		background-color: var(--color-bg-1);
+		color: var(--color-text);
+		border: 1px solid var(--color-bg-1);
 	}
 
 	button[type="button"]:not(.btn-danger):hover {
-		background-color: #edf2f7;
-		color: #2d3748;
+		background-color: var(--color-bg-2);
+		color: var(--color-text);
 	}
 
 	.btn-danger {
-		background-color: #fee2e2;
-		color: #ef4444;
+		background-color: var(--color-secondary);
+		color: var(--color-primary-dark);
 		margin-right: auto;
 	}
 
 	.btn-danger:hover {
-		background-color: #fecaca;
-		color: #dc2626;
+		filter: brightness(0.9);
 	}
 
 	.error {
-		background-color: #fff5f5;
-		border-left: 4px solid #f56565;
-		color: #c53030;
+		background-color: var(--color-bg-1);
+		border-left: 4px solid var(--color-secondary);
+		color: var(--color-text);
 		padding: 1rem;
 		margin-bottom: 1.5rem;
 		border-radius: 4px;
@@ -400,62 +401,8 @@
 	}
 
 	input[type="radio"] {
-		accent-color: #7c3aed;
+		accent-color: var(--color-primary);
 		width: 1.2em;
 		height: 1.2em;
-	}
-
-	:global([data-theme="dark"]) .event-form-container {
-		color: var(--text-primary, #f7fafc);
-	}
-
-	:global([data-theme="dark"]) label,
-	:global([data-theme="dark"]) .label {
-		color: var(--text-secondary, #cbd5e0);
-	}
-
-	:global([data-theme="dark"]) input[type="text"],
-	:global([data-theme="dark"]) input[type="datetime-local"],
-	:global([data-theme="dark"]) select,
-	:global([data-theme="dark"]) textarea {
-		background: #2d3748;
-		border-color: #4a5568;
-		color: var(--text-primary, #f7fafc);
-	}
-
-	:global([data-theme="dark"]) input[type="text"]:focus,
-	:global([data-theme="dark"]) input[type="datetime-local"]:focus,
-	:global([data-theme="dark"]) select:focus,
-	:global([data-theme="dark"]) textarea:focus {
-		border-color: var(--accent-primary, #a78bfa);
-		box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
-	}
-
-	:global([data-theme="dark"]) button[type="button"]:not(.btn-danger) {
-		background-color: #2d3748;
-		color: #cbd5e0;
-		border-color: #4a5568;
-	}
-
-	:global([data-theme="dark"]) button[type="button"]:not(.btn-danger):hover {
-		background-color: #4a5568;
-		color: white;
-	}
-
-	:global([data-theme="dark"]) .btn-danger,
-	:global([data-theme="dark"]) .remove-btn {
-		background-color: rgba(220, 38, 38, 0.2);
-		color: #fca5a5;
-	}
-
-	:global([data-theme="dark"]) .btn-danger:hover,
-	:global([data-theme="dark"]) .remove-btn:hover {
-		background-color: rgba(220, 38, 38, 0.3);
-		color: #fca5a5;
-	}
-
-	:global([data-theme="dark"]) .cancel-btn {
-		background: #2d3748;
-		color: #cbd5e0;
 	}
 </style>

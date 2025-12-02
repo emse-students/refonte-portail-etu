@@ -5,26 +5,27 @@
 		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	--font-mono: "Fira Mono", monospace;
 
-	/* Palette violette moderne et chaleureuse */
-	--color-primary: #7c3aed; /* Violet vibrant */
-	--color-primary-light: #a78bfa; /* Violet clair */
-	--color-primary-dark: #5b21b6; /* Violet foncé */
-	--color-secondary: #ec4899; /* Rose/magenta chaleureux */
-	--color-accent: #d946ef; /* Fuchsia vibrant pour les accents */
-	--color-accent-light: #f0abfc; /* Rose-violet clair */
+	/* Palette Cozy Professional (Navy & Gold) */
+	--color-primary: #1b263b; /* Deep Navy */
+	--color-primary-light: #415a77; /* Steel Blue */
+	--color-primary-dark: #0d1b2a; /* Darkest Navy */
+	--color-secondary: #e09f3e; /* Muted Gold */
+	--color-accent: #778da9; /* Cool Grey */
+	--color-accent-light: #e0e1dd; /* Platinum */
 
-	/* Backgrounds avec nuances de violet */
-	--color-bg-0: #fafbfc; /* Très léger gris-bleu */
-	--color-bg-1: #f5f7fa; /* Gris-bleu doux */
-	--color-bg-2: #e9d5ff; /* Violet léger */
-	--color-bg-gradient-start: #fafbfc;
-	--color-bg-gradient-mid: #f8f9fb;
-	--color-bg-gradient-end: #f5f7fa;
+	/* Backgrounds */
+	--color-bg-0: #fdfcf5; /* Off White */
+	--color-bg-1: #f4f1de; /* Eggshell */
+	--color-bg-2: #e3d5ca; /* Mocha Mousse */
+	--color-bg-gradient-start: #f4f1de;
+	--color-bg-gradient-mid: #e3d5ca;
+	--color-bg-gradient-end: #d5bdaf;
 
-	/* Texte */
-	--color-text: #1a202c;
-	--color-text-light: #718096;
-	--color-text-on-dark: #f9fafb;
+	/* Text */
+	--color-text: #1b263b;
+	--color-text-light: #415a77;
+	--color-text-on-dark: #e0e1dd;
+	--color-text-on-primary: #e0e1dd;
 
 	/* Spacing system */
 	--spacing-xs: 0.25rem;
@@ -62,25 +63,26 @@
 
 [data-theme="dark"] {
 	/* Dark mode palette */
-	--color-primary: #a78bfa; /* Lighter violet for dark mode */
-	--color-primary-light: #c4b5fd;
-	--color-primary-dark: #7c3aed;
-	--color-secondary: #f472b6;
-	--color-accent: #e879f9;
-	--color-accent-light: #f5d0fe;
+	--color-primary: #415a77; /* Steel Blue */
+	--color-primary-light: #778da9;
+	--color-primary-dark: #1b263b;
+	--color-secondary: #e09f3e; /* Gold pops on dark */
+	--color-accent: #e0e1dd;
+	--color-accent-light: #f4f1de;
 
 	/* Dark backgrounds */
-	--color-bg-0: #1a202c; /* Dark gray/blue */
-	--color-bg-1: #171923; /* Darker */
-	--color-bg-2: #2d3748; /* Lighter gray for cards */
-	--color-bg-gradient-start: #1a202c;
-	--color-bg-gradient-mid: #171923;
-	--color-bg-gradient-end: #1a202c;
+	--color-bg-0: #0d1b2a;
+	--color-bg-1: #1b263b;
+	--color-bg-2: #25324b; /* Slightly lighter navy */
+	--color-bg-gradient-start: #0d1b2a;
+	--color-bg-gradient-mid: #1b263b;
+	--color-bg-gradient-end: #0d1b2a;
 
 	/* Text */
-	--color-text: #f7fafc;
-	--color-text-light: #a0aec0;
-	--color-text-on-dark: #f7fafc;
+	--color-text: #e0e1dd;
+	--color-text-light: #a9b4c2;
+	--color-text-on-dark: #e0e1dd;
+	--color-text-on-primary: #0d1b2a;
 
 	/* Shadows adjusted for dark mode */
 	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -118,8 +120,8 @@ body {
 	background-color: var(--color-bg-1);
 	background-size: 100vw 100vh;
 	background-image:
-		radial-gradient(circle at 15% 85%, rgba(236, 72, 153, 0.06) 0%, transparent 50%),
-		radial-gradient(circle at 85% 15%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+		radial-gradient(circle at 15% 85%, rgba(224, 159, 62, 0.08) 0%, transparent 50%),
+		radial-gradient(circle at 85% 15%, rgba(65, 90, 119, 0.08) 0%, transparent 50%),
 		linear-gradient(
 			180deg,
 			var(--color-bg-gradient-start) 0%,

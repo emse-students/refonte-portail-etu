@@ -130,25 +130,17 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin-bottom: 1rem;
-		color: #7c3aed;
+		color: var(--color-primary);
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
 
 	header p {
 		font-size: 1.2rem;
-		color: #6b7280;
+		color: var(--color-text-light);
 		max-width: 700px;
 		margin: 0 auto;
 		line-height: 1.6;
-	}
-
-	:global([data-theme="dark"]) header h1 {
-		color: var(--accent-primary, #a78bfa);
-	}
-
-	:global([data-theme="dark"]) header p {
-		color: var(--text-secondary, #cbd5e0);
 	}
 
 	.promo-section {
@@ -162,33 +154,33 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 1.5rem 2rem;
-		background: #7c3aed;
+		background: var(--color-primary);
 		border: none;
 		border-radius: 12px;
 		cursor: pointer;
 		transition: all 0.3s ease;
-		box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+		box-shadow: var(--shadow-md);
 		margin-bottom: 1.5rem;
 	}
 
 	.promo-header:hover {
-		background: #6d28d9;
+		background: var(--color-primary-dark);
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.promo-header h2 {
 		margin: 0;
 		font-size: 1.75rem;
 		font-weight: 700;
-		color: white;
+		color: var(--color-text-on-primary);
 	}
 
 	.toggle-icon {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: white;
+		color: var(--color-text-on-primary);
 		transition: transform 0.3s ease;
 	}
 
