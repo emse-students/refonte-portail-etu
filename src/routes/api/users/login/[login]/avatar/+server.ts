@@ -13,11 +13,11 @@ export const GET = async (event: RequestEvent) => {
 	// Fetch user by login from migallery (with api key if needed)
 
 	const avatar = await event
-		.fetch(`https://gallery.mitv.fr/api/users/${login}/avatar`, {
+		.fetch(`${env.GALLERY_API_URL}/users/${login}/avatar`, {
 			method: "GET",
 			headers: {
 				Accept: "image/jpeg",
-				"X-Api-Key": env.MIGALLERY_API_KEY as string,
+				"x-api-key": env.GALLERY_API_KEY,
 			},
 		})
 		.then((res) => {
