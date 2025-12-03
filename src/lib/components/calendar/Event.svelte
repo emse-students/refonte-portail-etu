@@ -95,7 +95,7 @@
 	if (typeof window !== "undefined") {
 		window.addEventListener("popstate", () => {
 			if (showModal) {
-				closeModal();
+				showModal = false;
 			}
 		});
 	}
