@@ -24,7 +24,6 @@ export const POST = async (event: RequestEvent) => {
 		headers: {
 			"x-api-key": env.GALLERY_API_KEY,
 			Origin: env.PORTAL_URL,
-			"Content-Type": "multipart/form-data",
 		},
 	});
 
