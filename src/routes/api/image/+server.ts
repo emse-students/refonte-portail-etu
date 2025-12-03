@@ -13,7 +13,7 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	// Upload image to gallery
-	const uploadResponse = await fetch(env.GALLERY_API_URL + "external/media/", {
+	const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
 		method: "POST",
 		body: formData,
 		headers: {

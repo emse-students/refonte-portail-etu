@@ -17,7 +17,7 @@ export const GET = async (event: RequestEvent) => {
 
 	// Fetch image from gallery
 
-	const image = await fetch(env.GALLERY_API_URL + "external/media/" + externalId, {
+	const image = await fetch(env.GALLERY_API_URL + "/external/media/" + externalId, {
 		headers: {
 			"x-api-key": env.GALLERY_API_KEY,
 		},
@@ -46,7 +46,7 @@ export const DELETE = async (event: RequestEvent) => {
 	const externalId = externalImage[0].filename;
 
 	// Delete image from gallery
-	const deleteResponse = await fetch(env.GALLERY_API_URL + "external/media/" + externalId, {
+	const deleteResponse = await fetch(env.GALLERY_API_URL + "/external/media/" + externalId, {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
