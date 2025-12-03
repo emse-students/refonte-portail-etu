@@ -18,12 +18,14 @@ export const GET = async (event: RequestEvent) => {
 			headers: {
 				Accept: "image/jpeg",
 				"x-api-key": env.GALLERY_API_KEY,
+				Origin: env.PORTAL_URL,
 			},
 		})
 		.then((res) => {
 			if (res.ok) {
 				return res.arrayBuffer();
 			} else {
+				console.error(`Failed to fetch avatar for login ${login}: ${res.status}`);
 				return null;
 			}
 		});

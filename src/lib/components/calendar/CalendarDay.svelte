@@ -75,9 +75,7 @@
 	}
 
 	.calendar-cell:hover {
-		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
-		z-index: 2;
 	}
 
 	.event-stack {

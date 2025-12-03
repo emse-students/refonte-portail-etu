@@ -40,4 +40,4 @@ jobs:
 
       - name: Restart server
         run: |
-          PORT=3000 pm2 restart portail-etu || pm2 start bun --name portail-etu -- run ./build/index.js
+          PORT=3000 pm2 restart portail-etu --update-env || pm2 start bun --name portail-etu -- run ./build/index.js
