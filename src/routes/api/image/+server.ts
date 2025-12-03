@@ -30,7 +30,7 @@ export const POST = async (event: RequestEvent) => {
 
 	const [insertResult] = await getPool().query<ResultSetHeader>(
 		"INSERT INTO image (filename) VALUES (?)",
-		[result.id]
+		[result.assetIds[0]]
 	);
 
 	return new Response(JSON.stringify({ id: insertResult.insertId }), { status: 201 });
