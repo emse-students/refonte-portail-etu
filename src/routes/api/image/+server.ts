@@ -4,45 +4,60 @@ import { getPool } from "$lib/server/database";
 import type { ResultSetHeader } from "mysql2";
 
 export const POST = async (event: RequestEvent) => {
-	// Implementation for handling POST requests for images
-	const formData = await event.request.formData();
-	const imageFile = formData.get("image");
+	try {
+		// Implementation for handling POST requests for images
+		const formData = await event.request.formData();
+		const imageFile = formData.get("image");
 
-	if (!(imageFile instanceof File)) {
-		return new Response("Invalid image file", { status: 400 });
+		if (!(imageFile instanceof File)) {
+			return new Response("Invalid image file", { status: 400 });
+		}
+
+		console.log(
+			`Processing upload for file: ${imageFile.name}, size: ${imageFile.size}, type: ${imageFile.type}`
+		);
+
+		const formDataToSend = new FormData();
+		// Read file into buffer to ensure we have the content
+		const arrayBuffer = await imageFile.arrayBuffer();
+		const blob = new Blob([arrayBuffer], { type: imageFile.type });
+		formDataToSend.append("file", blob, imageFile.name);
+
+		console.log("Sending to gallery API...");
+
+		// Upload image to gallery
+		const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
+			method: "POST",
+			body: formDataToSend,
+			headers: {
+				"x-api-key": env.GALLERY_API_KEY,
+				Origin: env.PORTAL_URL,
+			},
+		});
+
+		if (!uploadResponse.ok) {
+			const errorText = await uploadResponse.text();
+			console.error("Gallery API error:", errorText);
+			return new Response(
+				`Gallery upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`,
+				{ status: 502 }
+			);
+		}
+
+		console.log("Image uploaded successfully to gallery");
+		const result = await uploadResponse.json();
+
+		console.log("Adding image record to database");
+		const [insertResult] = await getPool().query<ResultSetHeader>(
+			"INSERT INTO image (filename) VALUES (?)",
+			[result.assetIds[0]]
+		);
+
+		console.log("Image record added with ID:", insertResult.insertId);
+
+		return new Response(JSON.stringify({ id: insertResult.insertId }), { status: 201 });
+	} catch (err) {
+		console.error("Server error during image upload:", err);
+		return new Response("Internal Server Error during upload", { status: 500 });
 	}
-
-	const formDataToSend = new FormData();
-	formDataToSend.append("file", imageFile, imageFile.name);
-
-	console.log("Uploading image:", imageFile.name);
-
-	// Upload image to gallery
-	const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
-		method: "POST",
-		body: formDataToSend,
-		headers: {
-			"x-api-key": env.GALLERY_API_KEY,
-			Origin: env.PORTAL_URL,
-		},
-	});
-
-	if (!uploadResponse.ok) {
-		console.error("Failed to upload image:", await uploadResponse.text());
-		return new Response("Failed to upload image", { status: 500 });
-	}
-
-	console.log("Image uploaded successfully");
-	console.log("Adding image record to database");
-
-	const result = await uploadResponse.json();
-
-	const [insertResult] = await getPool().query<ResultSetHeader>(
-		"INSERT INTO image (filename) VALUES (?)",
-		[result.assetIds[0]]
-	);
-
-	console.log("Image record added with ID:", insertResult.insertId);
-
-	return new Response(JSON.stringify({ id: insertResult.insertId }), { status: 201 });
 };

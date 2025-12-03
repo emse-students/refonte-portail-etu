@@ -17,6 +17,13 @@
 		if (!target.files || target.files.length === 0) return;
 
 		const file = target.files[0];
+
+		// Check file size (max 5MB)
+		if (file.size > 5 * 1024 * 1024) {
+			error = "L'image est trop volumineuse (max 5Mo)";
+			return;
+		}
+
 		uploading = true;
 		error = "";
 
