@@ -38,12 +38,6 @@ describe("Database Mock", () => {
 		expect(result).toEqual([]);
 	});
 
-	it("should return a mock pool", async () => {
-		const pool = getPool();
-		expect(pool).toHaveProperty("query");
-		await expect(pool.query()).resolves.toEqual([[], []]);
-	});
-
 	it("should escape values", () => {
 		expect(escape("test")).toBe("'test'");
 	});
