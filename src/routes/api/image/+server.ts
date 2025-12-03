@@ -15,6 +15,8 @@ export const POST = async (event: RequestEvent) => {
 	const formDataToSend = new FormData();
 	formDataToSend.append("file", imageFile, imageFile.name);
 
+	console.log("Uploading image:", imageFile.name);
+
 	// Upload image to gallery
 	const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
 		method: "POST",
@@ -27,8 +29,12 @@ export const POST = async (event: RequestEvent) => {
 	});
 
 	if (!uploadResponse.ok) {
+		console.error("Failed to upload image:", await uploadResponse.text());
 		return new Response("Failed to upload image", { status: 500 });
 	}
+
+	console.log("Image uploaded successfully");
+	console.log("Adding image record to database");
 
 	const result = await uploadResponse.json();
 
@@ -36,6 +42,8 @@ export const POST = async (event: RequestEvent) => {
 		"INSERT INTO image (filename) VALUES (?)",
 		[result.assetIds[0]]
 	);
+
+	console.log("Image record added with ID:", insertResult.insertId);
 
 	return new Response(JSON.stringify({ id: insertResult.insertId }), { status: 201 });
 };

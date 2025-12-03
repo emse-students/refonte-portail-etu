@@ -30,6 +30,7 @@
 			});
 
 			if (!res.ok) {
+				console.error("Upload failed:", await res.text());
 				throw new Error("Erreur lors de l'upload");
 			}
 
