@@ -17,13 +17,14 @@ export const POST = async (event: RequestEvent) => {
 			`Processing upload for file: ${imageFile.name}, size: ${imageFile.size}, type: ${imageFile.type}`
 		);
 
-		const formDataToSend = new FormData();
-		// Read file into buffer to ensure we have the content
-		const arrayBuffer = await imageFile.arrayBuffer();
-		const blob = new Blob([arrayBuffer], { type: imageFile.type });
-		formDataToSend.append("file", blob, imageFile.name);
+		console.log("Sending to gallery API at:", env.GALLERY_API_URL);
 
-		console.log("Sending to gallery API...");
+		// Re-create the file to ensure it's detached from the request stream
+		const buffer = await imageFile.arrayBuffer();
+		const fileToSend = new File([buffer], imageFile.name, { type: imageFile.type });
+
+		const formDataToSend = new FormData();
+		formDataToSend.append("file", fileToSend);
 
 		// Upload image to gallery
 		const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
@@ -31,8 +32,9 @@ export const POST = async (event: RequestEvent) => {
 			body: formDataToSend,
 			headers: {
 				"x-api-key": env.GALLERY_API_KEY,
-				Origin: env.PORTAL_URL,
 			},
+			//@ts-expect-error Standard fetch does not yet support this option
+			duplex: "half",
 		});
 
 		if (!uploadResponse.ok) {

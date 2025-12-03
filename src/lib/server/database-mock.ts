@@ -38,7 +38,7 @@ export default async function mockDb<T = RowDataPacket>(
 
 export function getPool() {
 	return {
-		query: async (q: string, ...rest: unknown[]) =>
+		query: async (q: string, ..._rest: unknown[]) =>
 			mockDb<RowDataPacket>([q] as unknown as TemplateStringsArray).then((res) => [res]),
 	};
 }
