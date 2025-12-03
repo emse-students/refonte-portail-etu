@@ -12,13 +12,17 @@ export const POST = async (event: RequestEvent) => {
 		return new Response("Invalid image file", { status: 400 });
 	}
 
+	const formDataToSend = new FormData();
+	formDataToSend.append("file", imageFile, imageFile.name);
+
 	// Upload image to gallery
 	const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
 		method: "POST",
-		body: formData,
+		body: formDataToSend,
 		headers: {
 			"x-api-key": env.GALLERY_API_KEY,
 			Origin: env.PORTAL_URL,
+			"Content-Type": "multipart/form-data",
 		},
 	});
 
