@@ -3,13 +3,13 @@
 
 	export let association: Association;
 
-	import { resolve, asset } from "$app/paths";
+	import { resolve } from "$app/paths";
 	import { of } from "$lib/utils";
 	import ImageWithSkeleton from "./ImageWithSkeleton.svelte";
 
 	// Function to get the full URL for the association logo
-	function getLogoUrl(logoPath: string): string {
-		return asset(logoPath);
+	function getLogoUrl(icon: number): string {
+		return resolve("/api/image/") + icon;
 	}
 </script>
 

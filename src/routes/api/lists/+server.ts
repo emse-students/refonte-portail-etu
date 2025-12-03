@@ -38,11 +38,11 @@ export const POST = async (event: RequestEvent) => {
 
 	const body = await event.request.json();
 
-	const { handle, name, description, association_id, promo, color } = body;
+	const { handle, name, description, association_id, promo, color, icon } = body;
 
 	await db`
-        INSERT INTO list (handle, name, description, association_id, promo, color)
-        VALUES (${handle}, ${name}, ${description}, ${association_id || null}, ${promo || null}, ${color || 0})
+        INSERT INTO list (handle, name, description, association_id, promo, color, icon)
+        VALUES (${handle}, ${name}, ${description}, ${association_id || null}, ${promo || null}, ${color || 0}, ${icon || null})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -60,7 +60,7 @@ export const PUT = async (event: RequestEvent) => {
 
 	const body = await event.request.json();
 
-	const { id, handle, name, description, association_id, promo, color } = body;
+	const { id, handle, name, description, association_id, promo, color, icon } = body;
 
 	await db`
         UPDATE list
@@ -71,6 +71,7 @@ export const PUT = async (event: RequestEvent) => {
             association_id = ${association_id || null},
             promo = ${promo || null},
             color = ${color || 0},
+            icon = ${icon || null},
             edited_at = NOW()
         WHERE id = ${id}
     `;

@@ -8,6 +8,8 @@
 	import { invalidateAll } from "$app/navigation";
 	import { of } from "$lib/utils.js";
 
+	import ImageUpload from "$lib/components/ImageUpload.svelte";
+
 	let { data } = $props();
 	const list = $derived(data.list);
 	const events = $derived(data.events || []);
@@ -125,10 +127,16 @@
 	let showEditListModal = $state(false);
 	let editListName = $state("");
 	let editListDescription = $state("");
+	let editListHandle = $state("");
+	let editListColor = $state(0);
+	let editListIcon = $state<number | null>(null);
 
 	function openEditListModal() {
 		editListName = list.name;
 		editListDescription = list.description;
+		editListHandle = list.handle;
+		editListColor = list.color;
+		editListIcon = list.icon || null;
 		showEditListModal = true;
 	}
 
@@ -139,6 +147,9 @@
 			body: JSON.stringify({
 				name: editListName,
 				description: editListDescription,
+				handle: editListHandle,
+				color: editListColor,
+				icon: editListIcon,
 			}),
 		});
 
@@ -528,6 +539,18 @@
 		<div class="form-group">
 			<label for="list-name">Nom de la liste</label>
 			<input type="text" id="list-name" bind:value={editListName} />
+		</div>
+		<div class="form-group">
+			<label for="list-handle">Handle (URL)</label>
+			<input type="text" id="list-handle" bind:value={editListHandle} />
+		</div>
+		<div class="form-group">
+			<label for="list-color">Couleur (Hex)</label>
+			<input type="number" id="list-color" bind:value={editListColor} />
+		</div>
+		<div class="form-group">
+			<label for="list-icon">Logo</label>
+			<ImageUpload currentImageId={editListIcon} onImageUploaded={(id) => (editListIcon = id)} />
 		</div>
 		<div class="form-group">
 			<label for="list-desc">Description (Markdown supporté)</label>

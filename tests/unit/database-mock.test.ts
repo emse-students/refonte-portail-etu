@@ -54,7 +54,7 @@ describe("Database Mock", () => {
 		expect(result).toEqual({
 			...TestData.association,
 			members: [],
-			icon: "icon.png",
+			icon: null,
 		});
 	});
 

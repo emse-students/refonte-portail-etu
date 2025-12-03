@@ -8,6 +8,8 @@
 	import { invalidateAll } from "$app/navigation";
 	import { of } from "$lib/utils.js";
 
+	import ImageUpload from "$lib/components/ImageUpload.svelte";
+
 	let { data } = $props();
 	const association = $derived(data.association);
 	const events = $derived(data.events || []);
@@ -109,10 +111,16 @@
 	let showEditAssociationModal = $state(false);
 	let editAssociationName = $state("");
 	let editAssociationDescription = $state("");
+	let editAssociationHandle = $state("");
+	let editAssociationColor = $state(0);
+	let editAssociationIcon = $state<number | null>(null);
 
 	function openEditAssociationModal() {
 		editAssociationName = association.name;
 		editAssociationDescription = association.description;
+		editAssociationHandle = association.handle;
+		editAssociationColor = association.color;
+		editAssociationIcon = association.icon || null;
 		showEditAssociationModal = true;
 	}
 
@@ -123,6 +131,9 @@
 			body: JSON.stringify({
 				name: editAssociationName,
 				description: editAssociationDescription,
+				handle: editAssociationHandle,
+				color: editAssociationColor,
+				icon: editAssociationIcon,
 			}),
 		});
 
@@ -516,6 +527,21 @@
 		<div class="form-group">
 			<label for="asso-name">Nom de l'association</label>
 			<input type="text" id="asso-name" bind:value={editAssociationName} />
+		</div>
+		<div class="form-group">
+			<label for="asso-handle">Handle (URL)</label>
+			<input type="text" id="asso-handle" bind:value={editAssociationHandle} />
+		</div>
+		<div class="form-group">
+			<label for="asso-color">Couleur (Hex)</label>
+			<input type="number" id="asso-color" bind:value={editAssociationColor} />
+		</div>
+		<div class="form-group">
+			<label for="asso-icon">Logo</label>
+			<ImageUpload
+				currentImageId={editAssociationIcon}
+				onImageUploaded={(id) => (editAssociationIcon = id)}
+			/>
 		</div>
 		<div class="form-group">
 			<label for="asso-desc">Description (Markdown supporté)</label>

@@ -20,7 +20,7 @@ describe("ListCard Component", () => {
 			handle: "test-list",
 			association_id: 1,
 			description: "A test list",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -38,7 +38,7 @@ describe("ListCard Component", () => {
 			handle: "list-icon",
 			association_id: 1,
 			description: "",
-			icon: "/images/list-logo.png",
+			icon: 17,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -48,7 +48,7 @@ describe("ListCard Component", () => {
 
 		const img = screen.getByAltText("List With Icon logo");
 		expect(img).toBeInTheDocument();
-		expect(img).toHaveAttribute("src", "/images/list-logo.png");
+		expect(img).toHaveAttribute("src", "/api/image/17");
 	});
 
 	it("renders placeholder when no icon", () => {
@@ -58,7 +58,7 @@ describe("ListCard Component", () => {
 			handle: "no-icon",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -77,7 +77,7 @@ describe("ListCard Component", () => {
 			handle: "linked-list",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -96,7 +96,7 @@ describe("ListCard Component", () => {
 			handle: "assoc-list",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			association_name: "Parent Association",
@@ -115,7 +115,7 @@ describe("ListCard Component", () => {
 			handle: "standalone",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -133,7 +133,7 @@ describe("ListCard Component", () => {
 			handle: "bde",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -152,7 +152,7 @@ describe("ListCard Component", () => {
 			handle: "empty-icon",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -171,7 +171,7 @@ describe("ListCard Component", () => {
 			handle: "container",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],
@@ -189,7 +189,7 @@ describe("ListCard Component", () => {
 			handle: "l-association",
 			association_id: 1,
 			description: "",
-			icon: "",
+			icon: null,
 			promo: 2024,
 			color: 0,
 			members: [],

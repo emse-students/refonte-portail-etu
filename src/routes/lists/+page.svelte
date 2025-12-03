@@ -1,6 +1,11 @@
 <script lang="ts">
 	import type { List } from "$lib/databasetypes";
 	import ListCard from "$lib/components/ListCard.svelte";
+	import Modal from "$lib/components/Modal.svelte";
+	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import Permission, { hasPermission } from "$lib/permissions";
+	import { invalidateAll } from "$app/navigation";
+	import ChevronDown from "$lib/components/icons/ChevronDown.svelte";
 
 	interface ListWithAssociation extends List {
 		association_name?: string;
@@ -8,7 +13,46 @@
 
 	let { data } = $props();
 	const lists: ListWithAssociation[] = data.lists || [];
+	const userData = data.userData;
 	console.log("Lists loaded:", lists);
+
+	let showCreateModal = $state(false);
+	let newListName = $state("");
+	let newListHandle = $state("");
+	let newListColor = $state(0);
+	let newListIcon = $state<number | null>(null);
+	let newListDescription = $state("");
+	let newListPromo = $state(new Date().getFullYear());
+
+	const canCreate = $derived(userData && hasPermission(userData.permissions, Permission.ADMIN));
+
+	async function createList() {
+		const res = await fetch("/api/lists", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: newListName,
+				handle: newListHandle,
+				color: newListColor,
+				icon: newListIcon,
+				description: newListDescription,
+				promo: newListPromo,
+				association_id: null, // TODO: Add association selection if needed
+			}),
+		});
+
+		if (res.ok) {
+			showCreateModal = false;
+			newListName = "";
+			newListHandle = "";
+			newListColor = 0;
+			newListIcon = null;
+			newListDescription = "";
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la création de la liste");
+		}
+	}
 
 	// Grouper les listes par promotion
 	const listsByPromo = lists.reduce(
@@ -62,6 +106,11 @@
 			Engagez-vous, développez de nouvelles compétences et rencontrez des étudiants partageant les
 			mêmes passions.
 		</p>
+		{#if canCreate}
+			<button class="create-btn" onclick={() => (showCreateModal = true)}>
+				+ Créer une liste
+			</button>
+		{/if}
 	</header>
 
 	{#each promoSections as { promo, lists }}
@@ -73,19 +122,7 @@
 			>
 				<h2>Promotion {promo}</h2>
 				<span class="toggle-icon" class:open={openPromos.has(promo)}>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<polyline points="6 9 12 15 18 9"></polyline>
-					</svg>
+					<ChevronDown width="24" height="24" class="icon" />
 				</span>
 			</button>
 
@@ -98,9 +135,125 @@
 			{/if}
 		</section>
 	{/each}
+
+	<Modal bind:open={showCreateModal} title="Créer une liste">
+		<div class="form-group">
+			<label for="new-list-name">Nom de la liste</label>
+			<input type="text" id="new-list-name" bind:value={newListName} placeholder="Ex: BDE 2024" />
+		</div>
+		<div class="form-group">
+			<label for="new-list-handle">Handle (URL)</label>
+			<input
+				type="text"
+				id="new-list-handle"
+				bind:value={newListHandle}
+				placeholder="Ex: bde-2024"
+			/>
+		</div>
+		<div class="form-group">
+			<label for="new-list-promo">Promotion</label>
+			<input type="number" id="new-list-promo" bind:value={newListPromo} placeholder="2024" />
+		</div>
+		<div class="form-group">
+			<label for="new-list-color">Couleur (Hex)</label>
+			<input
+				type="number"
+				id="new-list-color"
+				bind:value={newListColor}
+				placeholder="Ex: 0xFF0000"
+			/>
+		</div>
+		<div class="form-group">
+			<label for="new-list-icon">Logo</label>
+			<ImageUpload currentImageId={newListIcon} onImageUploaded={(id) => (newListIcon = id)} />
+		</div>
+		<div class="form-group">
+			<label for="new-list-desc">Description (Markdown supporté)</label>
+			<textarea
+				id="new-list-desc"
+				bind:value={newListDescription}
+				rows="5"
+				placeholder="Description de la liste..."
+			></textarea>
+		</div>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showCreateModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={createList}>Créer</button>
+		</div>
+	</Modal>
 </div>
 
 <style>
+	.create-btn {
+		margin-top: 2rem;
+		padding: 0.75rem 1.5rem;
+		background: var(--color-primary);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.create-btn:hover {
+		background: var(--color-primary-dark);
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+	}
+
+	.form-group label {
+		display: block;
+		margin-bottom: 0.5rem;
+		color: var(--color-text);
+		font-weight: 500;
+	}
+
+	.form-group input,
+	.form-group textarea {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid var(--color-bg-2);
+		border-radius: 8px;
+		font-size: 1rem;
+		box-sizing: border-box;
+		background: var(--bg-secondary);
+		color: var(--color-text);
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.cancel-btn {
+		padding: 0.75rem 1.5rem;
+		background: var(--color-bg-2);
+		color: var(--color-text);
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn {
+		padding: 0.75rem 1.5rem;
+		background: var(--color-primary);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn:hover {
+		background: var(--color-primary-dark);
+	}
+
 	.container {
 		max-width: 1400px;
 		margin: 0 auto;
