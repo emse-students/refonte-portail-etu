@@ -54,10 +54,9 @@ export const PUT = async (event: RequestEvent) => {
 	}
 
 	const body = await event.request.json();
-	const name = body.name;
-	const description = body.description;
+	const { name, description, handle, icon, color } = body;
 
-	await db`UPDATE association SET name = ${name}, description = ${description} WHERE id = ${id}`;
+	await db`UPDATE association SET name = ${name}, description = ${description}, handle = ${handle}, icon = ${icon || null}, color = ${color || 0} WHERE id = ${id}`;
 
 	return new Response(null, { status: 204 });
 };

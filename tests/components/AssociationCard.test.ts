@@ -15,7 +15,7 @@ describe("AssociationCard Component", () => {
 		name: "Test Association",
 		handle: "test-asso",
 		description: "A test association",
-		icon: "/images/test-logo.png",
+		icon: 189,
 		members: [],
 		color: 0xff0000,
 	};
@@ -29,11 +29,11 @@ describe("AssociationCard Component", () => {
 		render(AssociationCard, { association: mockAssociation });
 		const img = screen.getByAltText("Test Association logo");
 		expect(img).toBeInTheDocument();
-		expect(img).toHaveAttribute("src", "/images/test-logo.png");
+		expect(img).toHaveAttribute("src", "/api/image/189");
 	});
 
 	it("should render placeholder when icon is missing", () => {
-		const associationWithoutIcon = { ...mockAssociation, icon: "" };
+		const associationWithoutIcon = { ...mockAssociation, icon: null };
 		render(AssociationCard, { association: associationWithoutIcon });
 
 		// Should not find the image

@@ -118,7 +118,7 @@ describe("Associations Handle Page Component", () => {
 				visible: true,
 			},
 		],
-		icon: "",
+		icon: null,
 		color: 0,
 	};
 

@@ -17,7 +17,7 @@ export type RawList = {
 	handle: string;
 	description: string;
 	association_id: number;
-	icon: number;
+	icon: number | null;
 	promo: number;
 	color: number;
 	created_at: Date;
@@ -78,7 +78,7 @@ export type Association = {
 	name: string;
 	description: string;
 	members: Member[];
-	icon: string;
+	icon: number | null;
 	color: number;
 };
 
@@ -89,7 +89,7 @@ export type List = {
 	description: string;
 	association_id: number;
 	association?: RawAssociation;
-	icon: string;
+	icon: number | null;
 	members: Member[];
 	promo: number;
 	color: number;

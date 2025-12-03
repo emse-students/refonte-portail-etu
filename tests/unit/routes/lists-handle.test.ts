@@ -96,7 +96,7 @@ describe("Lists Handle Page Component", () => {
 			description: "An association description",
 		},
 		association_id: 1,
-		icon: "/list-icon.png",
+		icon: null,
 		color: 16711680,
 		members: [
 			{

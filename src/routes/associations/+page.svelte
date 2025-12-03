@@ -1,12 +1,54 @@
 <script lang="ts">
 	import type { Association } from "$lib/databasetypes";
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
+	import Modal from "$lib/components/Modal.svelte";
+	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import Permission, { hasPermission } from "$lib/permissions";
+	import { invalidateAll } from "$app/navigation";
+	import Search from "$lib/components/icons/Search.svelte";
+	import X from "$lib/components/icons/X.svelte";
+	import NoResults from "$lib/components/icons/NoResults.svelte";
 
 	let { data } = $props();
 	const associations: Association[] = data.associations || [];
+	const userData = data.userData;
 	console.log("Associations loaded:", associations);
 
 	let searchQuery = $state("");
+	let showCreateModal = $state(false);
+	let newAssoName = $state("");
+	let newAssoHandle = $state("");
+	let newAssoColor = $state(0);
+	let newAssoIcon = $state<number | null>(null);
+	let newAssoDescription = $state("");
+
+	const canCreate = $derived(userData && hasPermission(userData.permissions, Permission.ADMIN));
+
+	async function createAssociation() {
+		const res = await fetch("/api/associations", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name: newAssoName,
+				handle: newAssoHandle,
+				color: newAssoColor,
+				icon: newAssoIcon,
+				description: newAssoDescription,
+			}),
+		});
+
+		if (res.ok) {
+			showCreateModal = false;
+			newAssoName = "";
+			newAssoHandle = "";
+			newAssoColor = 0;
+			newAssoIcon = null;
+			newAssoDescription = "";
+			invalidateAll();
+		} else {
+			alert("Erreur lors de la création de l'association");
+		}
+	}
 
 	const filteredAssociations = $derived(
 		associations.filter(
@@ -31,21 +73,7 @@
 		</p>
 
 		<div class="search-container">
-			<svg
-				class="search-icon"
-				xmlns="http://www.w3.org/2000/svg"
-				width="20"
-				height="20"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<circle cx="11" cy="11" r="8"></circle>
-				<path d="m21 21-4.35-4.35"></path>
-			</svg>
+			<Search class="search-icon" width="20" height="20" />
 			<input
 				type="text"
 				class="search-input"
@@ -58,23 +86,16 @@
 					onclick={() => (searchQuery = "")}
 					aria-label="Effacer la recherche"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="18"
-						height="18"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<line x1="18" y1="6" x2="6" y2="18"></line>
-						<line x1="6" y1="6" x2="18" y2="18"></line>
-					</svg>
+					<X width="18" height="18" class="icon" />
 				</button>
 			{/if}
 		</div>
+
+		{#if canCreate}
+			<button class="create-btn" onclick={() => (showCreateModal = true)}>
+				+ Créer une association
+			</button>
+		{/if}
 	</header>
 
 	{#if filteredAssociations.length > 0}
@@ -85,27 +106,121 @@
 		</div>
 	{:else}
 		<div class="no-results">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="64"
-				height="64"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<circle cx="11" cy="11" r="8"></circle>
-				<path d="m21 21-4.35-4.35"></path>
-			</svg>
+			<NoResults width="64" height="64" stroke-width="1.5" class="icon" />
 			<h2>Aucune association trouvée</h2>
 			<p>Essayez avec d'autres mots-clés</p>
 		</div>
 	{/if}
+
+	<Modal bind:open={showCreateModal} title="Créer une association">
+		<div class="form-group">
+			<label for="new-asso-name">Nom de l'association</label>
+			<input type="text" id="new-asso-name" bind:value={newAssoName} placeholder="Ex: BDE" />
+		</div>
+		<div class="form-group">
+			<label for="new-asso-handle">Handle (URL)</label>
+			<input type="text" id="new-asso-handle" bind:value={newAssoHandle} placeholder="Ex: bde" />
+		</div>
+		<div class="form-group">
+			<label for="new-asso-color">Couleur (Hex)</label>
+			<input
+				type="number"
+				id="new-asso-color"
+				bind:value={newAssoColor}
+				placeholder="Ex: 0xFF0000"
+			/>
+		</div>
+		<div class="form-group">
+			<label for="new-asso-icon">Logo</label>
+			<ImageUpload currentImageId={newAssoIcon} onImageUploaded={(id) => (newAssoIcon = id)} />
+		</div>
+		<div class="form-group">
+			<label for="new-asso-desc">Description (Markdown supporté)</label>
+			<textarea
+				id="new-asso-desc"
+				bind:value={newAssoDescription}
+				rows="5"
+				placeholder="Description de l'association..."
+			></textarea>
+		</div>
+		<div class="modal-actions">
+			<button class="cancel-btn" onclick={() => (showCreateModal = false)}>Annuler</button>
+			<button class="primary-btn" onclick={createAssociation}>Créer</button>
+		</div>
+	</Modal>
 </div>
 
 <style>
+	.create-btn {
+		margin-top: 2rem;
+		padding: 0.75rem 1.5rem;
+		background: var(--color-primary);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.create-btn:hover {
+		background: var(--color-primary-dark);
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+	}
+
+	.form-group label {
+		display: block;
+		margin-bottom: 0.5rem;
+		color: var(--color-text);
+		font-weight: 500;
+	}
+
+	.form-group input,
+	.form-group textarea {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid var(--color-bg-2);
+		border-radius: 8px;
+		font-size: 1rem;
+		box-sizing: border-box;
+		background: var(--bg-secondary);
+		color: var(--color-text);
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.cancel-btn {
+		padding: 0.75rem 1.5rem;
+		background: var(--color-bg-2);
+		color: var(--color-text);
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn {
+		padding: 0.75rem 1.5rem;
+		background: var(--color-primary);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.primary-btn:hover {
+		background: var(--color-primary-dark);
+	}
+
 	.container {
 		max-width: 1400px;
 		margin: 0 auto;
@@ -152,15 +267,6 @@
 		position: relative;
 		max-width: 600px;
 		margin: 0 auto;
-	}
-
-	.search-icon {
-		position: absolute;
-		left: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		color: var(--color-text-light);
-		pointer-events: none;
 	}
 
 	.search-input {
@@ -211,11 +317,6 @@
 		text-align: center;
 		padding: 4rem 2rem;
 		color: var(--color-text-light);
-	}
-
-	.no-results svg {
-		margin: 0 auto 1.5rem auto;
-		opacity: 0.5;
 	}
 
 	.no-results h2 {
@@ -361,20 +462,9 @@
 			padding: 0.75rem 2.5rem 0.75rem 2.75rem;
 		}
 
-		.search-icon {
-			left: 0.875rem;
-			width: 18px;
-			height: 18px;
-		}
-
 		.clear-btn {
 			width: 28px;
 			height: 28px;
-		}
-
-		.clear-btn svg {
-			width: 16px;
-			height: 16px;
 		}
 
 		.grid {
@@ -384,11 +474,6 @@
 
 		.no-results {
 			padding: 3rem 1rem;
-		}
-
-		.no-results svg {
-			width: 48px;
-			height: 48px;
 		}
 
 		.no-results h2 {

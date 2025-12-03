@@ -47,16 +47,13 @@ export async function getBasicAssociation(raw: RawAssociation): Promise<Associat
 	if (USE_MOCK) {
 		return mockDbModule.getBasicAssociation(raw);
 	}
-	const iconUrl =
-		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
-			?.filename || "";
 	return {
 		id: raw.id,
 		handle: raw.handle,
 		name: raw.name,
 		description: raw.description,
 		members: [],
-		icon: iconUrl,
+		icon: raw.icon,
 		color: raw.color,
 	};
 }
@@ -111,32 +108,25 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 			}) as Member
 	);
 
-	const iconUrl =
-		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
-			?.filename || "";
-
 	return {
 		id: raw.id,
 		handle: raw.handle,
 		name: raw.name,
 		description: raw.description,
 		members: members,
-		icon: iconUrl,
+		icon: raw.icon,
 		color: raw.color,
 	};
 }
 
 export async function getBasicList(raw: RawList): Promise<List> {
-	const iconUrl =
-		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
-			?.filename || "";
 	return {
 		id: raw.id,
 		handle: raw.handle,
 		name: raw.name,
 		description: raw.description,
 		members: [],
-		icon: iconUrl,
+		icon: raw.icon,
 		color: raw.color,
 		promo: raw.promo,
 		association_id: raw.association_id,
@@ -192,17 +182,13 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 
 	console.log(`Fetched ${members.length} members for list ${raw.handle}`);
 
-	const iconUrl =
-		((await db`SELECT filename FROM image WHERE id = ${raw.icon}`) as { filename: string }[])[0]
-			?.filename || "";
-
 	return {
 		id: raw.id,
 		handle: raw.handle,
 		name: raw.name,
 		description: raw.description,
 		members: members,
-		icon: iconUrl,
+		icon: raw.icon,
 		color: raw.color,
 		association_id: raw.association_id,
 		promo: raw.promo,

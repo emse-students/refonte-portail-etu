@@ -2,6 +2,8 @@ import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import type { RawList } from "$lib/databasetypes";
 import { getListWithMembers, getBasicList } from "$lib/server/database";
+import { checkListPermission } from "$lib/server/auth-middleware";
+import Permission from "$lib/permissions";
 
 export const GET = async (event: RequestEvent) => {
 	const id = event.params.id;
@@ -30,19 +32,41 @@ export const GET = async (event: RequestEvent) => {
 };
 
 export const DELETE = async (event: RequestEvent) => {
-	const id = event.params.id;
+	const id = Number(event.params.id);
+
+	const authCheck = await checkListPermission(event, id, Permission.ADMIN);
+	if (!authCheck.authorized) {
+		return authCheck.response;
+	}
+
 	await db`DELETE FROM list WHERE id = ${id}`;
 
 	return new Response(null, { status: 204 });
 };
 
 export const PUT = async (event: RequestEvent) => {
-	const id = event.params.id;
-	const body = await event.request.json();
-	const name = body.name;
-	const description = body.description;
+	const id = Number(event.params.id);
 
-	await db`UPDATE list SET name = ${name}, description = ${description} WHERE id = ${id}`;
+	const authCheck = await checkListPermission(event, id, Permission.ADMIN);
+	if (!authCheck.authorized) {
+		return authCheck.response;
+	}
+
+	const body = await event.request.json();
+	const { name, description, handle, color, icon, promo, association_id } = body;
+
+	await db`
+        UPDATE list 
+        SET 
+            name = ${name}, 
+            description = ${description},
+            handle = ${handle},
+            color = ${color || 0},
+            icon = ${icon || null},
+            promo = ${promo || null},
+            association_id = ${association_id || null}
+        WHERE id = ${id}
+    `;
 
 	return new Response(null, { status: 204 });
 };

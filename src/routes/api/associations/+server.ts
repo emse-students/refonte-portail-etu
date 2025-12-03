@@ -27,11 +27,11 @@ export const POST = async (event: RequestEvent) => {
 
 	const body = await event.request.json();
 
-	const { name, description } = body;
+	const { name, description, handle, icon, color } = body;
 
 	await db`
-        INSERT INTO association (name, description)
-        VALUES (${name}, ${description})
+        INSERT INTO association (name, description, handle, icon, color)
+        VALUES (${name}, ${description}, ${handle}, ${icon || null}, ${color || 0})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {

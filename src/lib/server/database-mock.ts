@@ -49,7 +49,7 @@ export async function getBasicAssociation(_raw: RawAssociation) {
 	return {
 		...TestData.association,
 		members: [],
-		icon: "icon.png",
+		icon: null,
 	};
 }
 
@@ -65,6 +65,6 @@ export async function getAssociationWithMembers(_raw: RawAssociation) {
 	return {
 		...TestData.association,
 		members: [memberWithUser],
-		icon: "",
+		icon: null,
 	};
 }

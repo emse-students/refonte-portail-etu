@@ -46,6 +46,7 @@ vi.mock("$lib/server/auth-middleware", () => ({
 	forbiddenResponse: vi.fn(() => new Response("Forbidden", { status: 403 })),
 	getAuthorizedAssociationIds: vi.fn(),
 	getAuthorizedListIds: vi.fn(),
+	checkListPermission: vi.fn().mockResolvedValue({ authorized: true, user: { id: 1 } }),
 }));
 
 vi.mock("$lib/permissions", async (importOriginal) => {
@@ -343,7 +344,7 @@ describe("Missing Endpoints API", () => {
 					handle: "asso1",
 					name: "Test Asso",
 					description: "Desc",
-					icon: "icon.png",
+					icon: null,
 					color: 0,
 				};
 				const mockListWithMembers = { ...mockList, association: null };

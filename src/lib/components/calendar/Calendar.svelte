@@ -4,6 +4,8 @@
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
+	import ChevronLeft from "$lib/components/icons/ChevronLeft.svelte";
+	import ChevronRight from "$lib/components/icons/ChevronRight.svelte";
 
 	let {
 		onDayClick,
@@ -248,21 +250,7 @@
 	<!-- Desktop: Month navigation -->
 	<div class="calendar-nav">
 		<button class="calendar-arrow" onclick={loadPrevWeek} aria-label="Semaine précédente">
-			<svg
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<path
-					d="M15 18L9 12L15 6"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				/>
-			</svg>
+			<ChevronLeft width="24" height="24" class="" />
 		</button>
 		<span class="calendar-title">
 			<span class="calendar-title-main">Calendrier des événements</span>
@@ -277,21 +265,7 @@
 			</span>
 		</span>
 		<button class="calendar-arrow" onclick={loadNextWeek} aria-label="Semaine suivante">
-			<svg
-				width="24"
-				height="24"
-				viewBox="0 0 24 24"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<path
-					d="M9 18L15 12L9 6"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				/>
-			</svg>
+			<ChevronRight width="24" height="24" class="" />
 		</button>
 	</div>
 	<div class="calendar-table-wrapper">
@@ -378,7 +352,7 @@
 	</div>
 </div>
 
-<style lang="scss">
+<style>
 	.calendar {
 		width: 100%;
 		max-width: 100%;
@@ -420,10 +394,11 @@
 		color: var(--color-text-light);
 		font-weight: 500;
 		letter-spacing: 0;
-		b {
-			color: var(--color-primary);
-			font-weight: 600;
-		}
+	}
+
+	.calendar-title-sub b {
+		color: var(--color-primary);
+		font-weight: 600;
 	}
 	.calendar-arrow {
 		background: var(--bg-secondary);
@@ -448,12 +423,6 @@
 		color: var(--color-text-on-primary);
 		box-shadow: var(--shadow-md);
 		transform: translateY(-2px);
-	}
-
-	.calendar-arrow svg {
-		display: block;
-		width: 1.5rem;
-		height: 1.5rem;
 	}
 
 	.mobile-view {

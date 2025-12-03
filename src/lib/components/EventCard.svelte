@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RawEvent } from "$lib/databasetypes";
+	import MapPin from "$lib/components/icons/MapPin.svelte";
 
 	let { event }: { event: RawEvent } = $props();
 
@@ -44,20 +45,7 @@
 
 	{#if event.location}
 		<div class="event-location">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-				<circle cx="12" cy="10" r="3"></circle>
-			</svg>
+			<MapPin width="16" height="16" class="icon" />
 			<span>{event.location}</span>
 		</div>
 	{/if}
@@ -117,11 +105,6 @@
 		gap: 0.5rem;
 		color: var(--color-text-light);
 		font-size: 0.9rem;
-	}
-
-	.event-location svg {
-		flex-shrink: 0;
-		color: var(--color-primary);
 	}
 
 	@media (max-width: 768px) {

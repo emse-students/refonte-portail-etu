@@ -82,96 +82,103 @@ describe("Database Module", () => {
 
 	it("should get basic association from DB", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery.mockResolvedValue([[{ filename: "icon.png" }]]);
+		// No extra query needed for icon anymore
 
-		const raw = { id: 1, handle: "asso", name: "Asso", description: "Desc", icon: 1, color: "red" };
+		const raw = {
+			id: 1,
+			handle: "asso",
+			name: "Asso",
+			description: "Desc",
+			icon: 123,
+			color: "red",
+		};
 		const result = await dbModule.getBasicAssociation(raw);
 
-		expect(result.icon).toBe("icon.png");
-		expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT filename FROM image"), [
-			1,
-		]);
+		expect(result.icon).toBe(123);
 	});
 
 	it("should get association with members from DB", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery
-			.mockResolvedValueOnce([
-				[
-					{
-						member_id: 1,
-						visible: true,
-						user_id: 10,
-						first_name: "John",
-						last_name: "Doe",
-						user_email: "john@doe.com",
-						user_login: "jdoe",
-						role_id: 5,
-						role_name: "Prez",
-						role_permissions: 1,
-						hierarchy: 1,
-						user_promo: 2024,
-					},
-				],
-			]) // Members query
-			.mockResolvedValueOnce([[{ filename: "icon.png" }]]); // Icon query
+		mockQuery.mockResolvedValueOnce([
+			[
+				{
+					member_id: 1,
+					visible: true,
+					user_id: 10,
+					first_name: "John",
+					last_name: "Doe",
+					user_email: "john@doe.com",
+					user_login: "jdoe",
+					role_id: 5,
+					role_name: "Prez",
+					role_permissions: 1,
+					hierarchy: 1,
+					user_promo: 2024,
+				},
+			],
+		]); // Members query only
 
-		const raw = { id: 1, handle: "asso", name: "Asso", description: "Desc", icon: 1, color: "red" };
+		const raw = {
+			id: 1,
+			handle: "asso",
+			name: "Asso",
+			description: "Desc",
+			icon: 456,
+			color: "red",
+		};
 		const result = await dbModule.getAssociationWithMembers(raw);
 
 		expect(result.members).toHaveLength(1);
 		expect(result.members[0].user.first_name).toBe("John");
-		expect(result.icon).toBe("icon.png");
+		expect(result.icon).toBe(456);
 	});
 
 	it("should get basic list from DB", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery.mockResolvedValue([[{ filename: "icon.png" }]]);
+		// No extra query needed for icon anymore
 
 		const raw = {
 			id: 1,
 			handle: "list",
 			name: "List",
 			description: "Desc",
-			icon: 1,
+			icon: 789,
 			color: "blue",
 			promo: 2024,
 			association_id: 10,
 		};
 		const result = await dbModule.getBasicList(raw);
 
-		expect(result.icon).toBe("icon.png");
+		expect(result.icon).toBe(789);
 	});
 
 	it("should get list with members from DB", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery
-			.mockResolvedValueOnce([
-				[
-					{
-						member_id: 1,
-						visible: true,
-						user_id: 10,
-						first_name: "John",
-						last_name: "Doe",
-						user_email: "john@doe.com",
-						user_login: "jdoe",
-						role_id: 5,
-						role_name: "Prez",
-						role_permissions: 1,
-						hierarchy: 1,
-						user_promo: 2024,
-					},
-				],
-			]) // Members query
-			.mockResolvedValueOnce([[{ filename: "icon.png" }]]); // Icon query
+		mockQuery.mockResolvedValueOnce([
+			[
+				{
+					member_id: 1,
+					visible: true,
+					user_id: 10,
+					first_name: "John",
+					last_name: "Doe",
+					user_email: "john@doe.com",
+					user_login: "jdoe",
+					role_id: 5,
+					role_name: "Prez",
+					role_permissions: 1,
+					hierarchy: 1,
+					user_promo: 2024,
+				},
+			],
+		]); // Members query only
 
 		const raw = {
 			id: 1,
 			handle: "list",
 			name: "List",
 			description: "Desc",
-			icon: 1,
+			icon: 101,
 			color: "blue",
 			promo: 2024,
 			association_id: 10,
@@ -180,68 +187,77 @@ describe("Database Module", () => {
 
 		expect(result.members).toHaveLength(1);
 		expect(result.members[0].user.first_name).toBe("John");
+		expect(result.icon).toBe(101);
 	});
 
 	it("should handle missing icon in getBasicAssociation", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery.mockResolvedValue([[]]); // Empty result for icon
 
-		const raw = { id: 1, handle: "asso", name: "Asso", description: "Desc", icon: 1, color: "red" };
+		const raw = {
+			id: 1,
+			handle: "asso",
+			name: "Asso",
+			description: "Desc",
+			icon: null,
+			color: "red",
+		};
 		const result = await dbModule.getBasicAssociation(raw);
 
-		expect(result.icon).toBe("");
+		expect(result.icon).toBe(null);
 	});
 
 	it("should handle missing icon in getAssociationWithMembers", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery
-			.mockResolvedValueOnce([[]]) // Members query (empty is fine for this test)
-			.mockResolvedValueOnce([[]]); // Icon query (empty)
+		mockQuery.mockResolvedValueOnce([[]]); // Members query
 
-		const raw = { id: 1, handle: "asso", name: "Asso", description: "Desc", icon: 1, color: "red" };
+		const raw = {
+			id: 1,
+			handle: "asso",
+			name: "Asso",
+			description: "Desc",
+			icon: null,
+			color: "red",
+		};
 		const result = await dbModule.getAssociationWithMembers(raw);
 
-		expect(result.icon).toBe("");
+		expect(result.icon).toBe(null);
 	});
 
 	it("should handle missing icon in getBasicList", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery.mockResolvedValue([[]]); // Empty result for icon
 
 		const raw = {
 			id: 1,
 			handle: "list",
 			name: "List",
 			description: "Desc",
-			icon: 1,
+			icon: null,
 			color: "blue",
 			promo: 2024,
 			association_id: 10,
 		};
 		const result = await dbModule.getBasicList(raw);
 
-		expect(result.icon).toBe("");
+		expect(result.icon).toBe(null);
 	});
 
 	it("should handle missing icon in getListWithMembers", async () => {
 		dbModule = await import("$lib/server/database");
-		mockQuery
-			.mockResolvedValueOnce([[]]) // Members query
-			.mockResolvedValueOnce([[]]); // Icon query
+		mockQuery.mockResolvedValueOnce([[]]); // Members query
 
 		const raw = {
 			id: 1,
 			handle: "list",
 			name: "List",
 			description: "Desc",
-			icon: 1,
+			icon: null,
 			color: "blue",
 			promo: 2024,
 			association_id: 10,
 		};
 		const result = await dbModule.getListWithMembers(raw);
 
-		expect(result.icon).toBe("");
+		expect(result.icon).toBe(null);
 	});
 
 	it("should return mock pool when MOCK_DB is true", async () => {
