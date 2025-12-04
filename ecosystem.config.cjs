@@ -1,11 +1,10 @@
-export const apps = {
+module.exports = {
 	apps: [
 		{
 			name: "portail-etu",
-			script: "build/index.js",
-			interpreter: "bun",
-			interpreter_args: "--bun",
-			exec_mode: "fork",
+			script: "bun",
+			args: "./build/index.js",
+			interpreter: "none",
 			env: {
 				PORT: 3000,
 				ORIGIN: "https://portail-etu.emse.fr",
