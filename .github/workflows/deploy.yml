@@ -40,4 +40,4 @@ jobs:
 
       - name: Restart server
         run: |
-          pm2 restart ./ecosystem.config.js --update-env || pm2 start ./ecosystem.config.js
+          pm2 restart ./ecosystem.config.cjs --update-env || pm2 start ./ecosystem.config.cjs
