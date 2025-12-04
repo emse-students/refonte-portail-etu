@@ -226,6 +226,7 @@
 		margin: 0 auto;
 		padding: 3rem 2rem;
 		min-height: calc(100vh - 8rem);
+		width: inherit;
 	}
 
 	header {

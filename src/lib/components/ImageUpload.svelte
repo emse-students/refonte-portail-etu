@@ -28,6 +28,9 @@
 			return;
 		}
 
+		// Show local preview immediately
+		previewUrl = URL.createObjectURL(file);
+
 		uploading = true;
 		error = "";
 
@@ -54,7 +57,7 @@
 
 			const data = await res.json();
 			onImageUploaded(data.id);
-			previewUrl = `/api/image/${data.id}`;
+			// Keep local preview to avoid loading delay
 		} catch (e) {
 			error = "Erreur lors de l'upload de l'image";
 			console.error(e);
