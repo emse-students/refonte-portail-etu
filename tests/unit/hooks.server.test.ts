@@ -51,6 +51,12 @@ describe("Server Hooks", () => {
 				get: vi.fn(),
 				delete: vi.fn(),
 			},
+			request: {
+				method: "GET",
+			},
+			url: {
+				pathname: "/test",
+			},
 		};
 		mockResolve = vi.fn().mockResolvedValue(new Response("ok"));
 		// Default db mock to avoid crashes
