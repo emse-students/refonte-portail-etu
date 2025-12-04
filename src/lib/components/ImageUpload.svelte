@@ -70,7 +70,7 @@
 <div class="image-upload">
 	{#if previewUrl}
 		<div class="preview">
-			<img src={previewUrl} alt="Aperçu" loading="lazy" />
+			<enhanced:img src={previewUrl} alt="Aperçu" loading="lazy" />
 		</div>
 	{/if}
 
@@ -109,7 +109,7 @@
 		background: var(--bg-secondary);
 	}
 
-	.preview img {
+	.preview enhanced\:img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;

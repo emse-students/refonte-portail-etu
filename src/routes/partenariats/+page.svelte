@@ -36,7 +36,7 @@
 			{#each partnerLogos as partner (partner.name)}
 				<div class="partner-card">
 					<div class="logo-container">
-						<img
+						<enhanced:img
 							src={partner.logoUrl}
 							alt={`Logo ${of(partner.name)}${partner.name}`}
 							loading="lazy"
@@ -164,7 +164,7 @@
 		transform: scale(1.02);
 	}
 
-	.logo-container img {
+	.logo-container enhanced\:img {
 		max-width: 80%;
 		max-height: 80%;
 		object-fit: contain;
