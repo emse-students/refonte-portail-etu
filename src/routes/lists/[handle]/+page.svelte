@@ -550,7 +550,11 @@
 		</div>
 		<div class="form-group">
 			<label for="list-icon">Logo</label>
-			<ImageUpload currentImageId={editListIcon} onImageUploaded={(id) => (editListIcon = id)} />
+			<ImageUpload
+				currentImageId={editListIcon}
+				onImageUploaded={(id) => (editListIcon = id)}
+				listId={list.id}
+			/>
 		</div>
 		<div class="form-group">
 			<label for="list-desc">Description (Markdown supporté)</label>

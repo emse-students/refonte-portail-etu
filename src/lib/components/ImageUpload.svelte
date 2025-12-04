@@ -2,9 +2,13 @@
 	let {
 		currentImageId,
 		onImageUploaded,
+		associationId,
+		listId,
 	}: {
 		currentImageId?: number | null;
 		onImageUploaded: (id: number) => void;
+		associationId?: number | null;
+		listId?: number | null;
 	} = $props();
 
 	let fileInput: HTMLInputElement;
@@ -30,6 +34,12 @@
 		const formData = new FormData();
 		formData.append("image", file);
 
+		if (associationId) {
+			formData.append("association_id", associationId.toString());
+		} else if (listId) {
+			formData.append("list_id", listId.toString());
+		}
+
 		try {
 			const res = await fetch("/api/image", {
 				method: "POST",
@@ -37,7 +47,8 @@
 			});
 
 			if (!res.ok) {
-				console.error("Upload failed:", await res.text());
+				console.error("Upload failed:", await res.json());
+
 				throw new Error("Erreur lors de l'upload");
 			}
 
@@ -56,7 +67,7 @@
 <div class="image-upload">
 	{#if previewUrl}
 		<div class="preview">
-			<img src={previewUrl} alt="Aperçu" />
+			<img src={previewUrl} alt="Aperçu" loading="lazy" />
 		</div>
 	{/if}
 

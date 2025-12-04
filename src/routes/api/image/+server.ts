@@ -2,14 +2,56 @@ import type { RequestEvent } from "./$types";
 import { env } from "$env/dynamic/private";
 import { getPool } from "$lib/server/database";
 import type { ResultSetHeader } from "mysql2";
+import {
+	checkAssociationPermission,
+	checkListPermission,
+	checkPermission,
+} from "$lib/server/auth-middleware";
+import Permission from "$lib/permissions";
 
 export const POST = async (event: RequestEvent) => {
 	try {
-		// Implementation for handling POST requests for images
-		const formData = await event.request.formData();
+		console.log("DEBUG: Starting /api/image POST handler");
+
+		// Workaround for potential Bun/SvelteKit streaming issues with formData()
+		// We buffer the request body first
+		const contentType = event.request.headers.get("content-type") || "";
+		const blob = await event.request.blob();
+
+		console.log(`DEBUG: Request body buffered. Size: ${blob.size}, Type: ${contentType}`);
+
+		// Parse FormData from the buffered blob
+		const formData = await new Response(blob, {
+			headers: { "content-type": contentType },
+		}).formData();
+
+		console.log("DEBUG: FormData parsed successfully");
+
+		const idAsso = formData.get("association_id");
+		const idList = formData.get("list_id");
+
+		console.log(`DEBUG: association_id=${idAsso}, list_id=${idList}`);
+
+		// Authorization checks
+
+		let authUser = null;
+
+		if (idAsso) {
+			authUser = await checkAssociationPermission(event, Number(idAsso), Permission.ADMIN);
+		} else if (idList) {
+			authUser = await checkListPermission(event, Number(idList), Permission.ADMIN);
+		} else {
+			authUser = await checkPermission(event, Permission.ADMIN);
+		}
+
+		if (!authUser) {
+			return new Response("Unauthorized", { status: 401 });
+		}
+
 		const imageFile = formData.get("image");
 
 		if (!(imageFile instanceof File)) {
+			console.error("DEBUG: Invalid image file in FormData");
 			return new Response("Invalid image file", { status: 400 });
 		}
 
@@ -33,8 +75,6 @@ export const POST = async (event: RequestEvent) => {
 			headers: {
 				"x-api-key": env.GALLERY_API_KEY,
 			},
-			//@ts-expect-error Standard fetch does not yet support this option
-			duplex: "half",
 		});
 
 		if (!uploadResponse.ok) {

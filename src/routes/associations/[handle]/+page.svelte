@@ -540,6 +540,7 @@
 			<label for="asso-icon">Logo</label>
 			<ImageUpload
 				currentImageId={editAssociationIcon}
+				associationId={association.id}
 				onImageUploaded={(id) => (editAssociationIcon = id)}
 			/>
 		</div>
