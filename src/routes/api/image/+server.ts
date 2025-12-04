@@ -21,9 +21,7 @@ export const POST = async (event: RequestEvent) => {
 		console.log(`DEBUG: Request body buffered. Size: ${blob.size}, Type: ${contentType}`);
 
 		// Parse FormData from the buffered blob
-		const formData = await new Response(blob, {
-			headers: { "content-type": contentType },
-		}).formData();
+		const formData = await event.request.formData();
 
 		console.log("DEBUG: FormData parsed successfully");
 
@@ -62,11 +60,9 @@ export const POST = async (event: RequestEvent) => {
 		console.log("Sending to gallery API at:", env.GALLERY_API_URL);
 
 		// Re-create the file to ensure it's detached from the request stream
-		const buffer = await imageFile.arrayBuffer();
-		const fileToSend = new File([buffer], imageFile.name, { type: imageFile.type });
 
 		const formDataToSend = new FormData();
-		formDataToSend.append("file", fileToSend);
+		formDataToSend.append("file", imageFile);
 
 		// Upload image to gallery
 		const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {

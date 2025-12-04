@@ -6,6 +6,15 @@ import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 
+const logHandle: Handle = async ({ event, resolve }) => {
+	console.log(`Incoming request: ${event.request.method} ${event.url.pathname}`);
+	const response = await resolve(event);
+	console.log(
+		`Response status: ${response.status} for ${event.request.method} ${event.url.pathname}`
+	);
+	return response;
+};
+
 // Notre propre handler pour gérer les données utilisateur
 const userDataHandle: Handle = async ({ event, resolve }) => {
 	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
@@ -127,4 +136,4 @@ const clearOldCookiesHandle: Handle = async ({ event, resolve }) => {
 };
 
 // Enchaîner les handlers : d'abord authHandle (qui configure event.locals.auth), puis userDataHandle
-export const handle = sequence(clearOldCookiesHandle, authHandle, userDataHandle);
+export const handle = sequence(logHandle, clearOldCookiesHandle, authHandle, userDataHandle);
