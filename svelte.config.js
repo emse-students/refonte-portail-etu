@@ -19,6 +19,9 @@ const config = {
 		paths: {
 			relative: true,
 		},
+		env: {
+			dir: "./.env",
+		},
 	},
 };
 
