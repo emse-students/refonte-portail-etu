@@ -13,13 +13,6 @@ export const POST = async (event: RequestEvent) => {
 	try {
 		console.log("DEBUG: Starting /api/image POST handler");
 
-		// Workaround for potential Bun/SvelteKit streaming issues with formData()
-		// We buffer the request body first
-		const contentType = event.request.headers.get("content-type") || "";
-		const blob = await event.request.blob();
-
-		console.log(`DEBUG: Request body buffered. Size: ${blob.size}, Type: ${contentType}`);
-
 		// Parse FormData from the buffered blob
 		const formData = await event.request.formData();
 
