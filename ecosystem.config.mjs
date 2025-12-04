@@ -1,9 +1,10 @@
-module.exports = {
+export const apps = {
 	apps: [
 		{
 			name: "portail-etu",
 			script: "build/index.js",
 			interpreter: "bun",
+			interpreter_args: "--bun",
 			exec_mode: "fork",
 			env: {
 				PORT: 3000,
