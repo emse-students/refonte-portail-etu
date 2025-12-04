@@ -2,7 +2,8 @@ module.exports = {
 	apps: [
 		{
 			name: "portail-etu",
-			script: "bun build/index.js",
+			script: "build/index.js",
+			interpreter: "bun",
 			env: {
 				PORT: 3000,
 				ORIGIN: "https://portail-etu.emse.fr",
