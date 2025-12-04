@@ -4,6 +4,7 @@ module.exports = {
 			name: "portail-etu",
 			script: "build/index.js",
 			interpreter: "bun",
+			exec_mode: "fork",
 			env: {
 				PORT: 3000,
 				ORIGIN: "https://portail-etu.emse.fr",
