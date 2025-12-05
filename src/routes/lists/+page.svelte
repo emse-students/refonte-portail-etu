@@ -122,7 +122,7 @@
 				onclick={() => togglePromo(promo)}
 				aria-expanded={openPromos.has(promo)}
 			>
-				<h2>Promotion {promo}</h2>
+				<h2>Campagnes {promo}</h2>
 				<span class="toggle-icon" class:open={openPromos.has(promo)}>
 					<ChevronDown width="24" height="24" class="icon" />
 				</span>
@@ -153,8 +153,13 @@
 			/>
 		</div>
 		<div class="form-group">
-			<label for="new-list-promo">Promotion</label>
-			<input type="number" id="new-list-promo" bind:value={newListPromo} placeholder="2024" />
+			<label for="new-list-promo">Campagnes</label>
+			<input
+				type="number"
+				id="new-list-promo"
+				bind:value={newListPromo}
+				placeholder={new Date().getFullYear().toString()}
+			/>
 		</div>
 		<div class="form-group">
 			<label for="new-list-color">Couleur (Hex)</label>

@@ -508,9 +508,14 @@
 				max="10"
 				placeholder="0"
 			/>
-			<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;"
-				>Utilisé pour le tri (6+ = Bureau)</small
-			>
+			<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+				Plus la valeur est élevée, plus le rôle est important.
+				{#if newRoleHierarchy >= 6}
+					<strong style="color: var(--color-primary);">Ce rôle sera affiché dans le Bureau.</strong>
+				{:else}
+					Ce rôle sera affiché dans la liste des membres standards.
+				{/if}
+			</small>
 		</div>
 		<div class="form-group">
 			<label for="new-role-permissions">Permissions</label>

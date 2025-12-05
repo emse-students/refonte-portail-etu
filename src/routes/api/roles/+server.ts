@@ -1,8 +1,9 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
-import db from "$lib/server/database";
+import db, { getPool } from "$lib/server/database";
 import type { RawRole } from "$lib/databasetypes";
 import Permission, { hasPermission } from "$lib/permissions";
 import { checkPermission, checkAssociationPermission } from "$lib/server/auth-middleware";
+import type { ResultSetHeader } from "mysql2";
 
 export const GET = async () => {
 	// Liste des rôles accessible à tous les utilisateurs authentifiés
@@ -19,6 +20,7 @@ export const GET = async () => {
 
 export const POST = async (event: RequestEvent) => {
 	const body = await event.request.json();
+	// Note: hierarchy >= 6 est considéré comme "Bureau" dans l'interface
 	const { name, hierarchy, permissions, association_id } = body;
 
 	let maxPermissions = 0;
@@ -61,13 +63,11 @@ export const POST = async (event: RequestEvent) => {
 		);
 	}
 
-	const result = await db`
-        INSERT INTO role (name, hierarchy, permissions)
-        VALUES (${name}, ${hierarchy || 0}, ${permissions || 0})
-        RETURNING id
-    `;
-
-	return new Response(JSON.stringify({ success: true, id: result[0].id }), {
+	const result = await getPool().query<ResultSetHeader>(
+		`INSERT INTO role (name, hierarchy, permissions) VALUES (?, ?, ?)`,
+		[name, hierarchy, permissions]
+	);
+	return new Response(JSON.stringify({ success: true, id: result[0].insertId }), {
 		status: 201,
 		headers: { "Content-Type": "application/json" },
 	});
