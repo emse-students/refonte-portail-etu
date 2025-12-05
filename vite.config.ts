@@ -4,4 +4,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [enhancedImages(), sveltekit()],
+	build: {
+		rollupOptions: {
+			external: ["sharp"],
+		},
+	},
 });

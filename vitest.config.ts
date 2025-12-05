@@ -1,10 +1,11 @@
 import { defineConfig } from "vitest/config";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { PluginOption } from "vite";
 
-const enhancedImgMockPlugin = () => ({
+const enhancedImgMockPlugin = (): PluginOption => ({
 	name: "enhanced-img-mock",
 	enforce: "pre",
-	transform(code, id) {
+	transform(code: string, id: string) {
 		if (id.endsWith(".svelte")) {
 			return {
 				code: code.replace(/<enhanced:img/g, "<img"),
