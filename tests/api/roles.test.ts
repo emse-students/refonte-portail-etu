@@ -6,8 +6,16 @@ import Permission, { hasPermission } from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
 
 // Mock dependencies
+const mockQuery = vi.fn();
+const mockGetPool = vi.fn(() => ({
+	query: mockQuery,
+}));
+
 vi.mock("$lib/server/database", () => ({
 	default: vi.fn(),
+	getPool: () => ({
+		query: mockQuery,
+	}),
 }));
 
 vi.mock("$lib/server/auth-middleware", () => ({
@@ -46,7 +54,7 @@ describe("Roles API", () => {
 				authorized: true,
 				user: { permissions: Permission.ADMIN },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1 }]);
+			mockQuery.mockResolvedValue([{ insertId: 1 }]);
 
 			const request = new Request("http://localhost/api/roles", {
 				method: "POST",
@@ -70,7 +78,7 @@ describe("Roles API", () => {
 				},
 			});
 			(hasPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1 }]);
+			mockQuery.mockResolvedValue([{ insertId: 1 }]);
 
 			const request = new Request("http://localhost/api/roles", {
 				method: "POST",
@@ -146,7 +154,7 @@ describe("Roles API", () => {
 				},
 			});
 			(hasPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1 }]);
+			mockQuery.mockResolvedValue([{ insertId: 1 }]);
 
 			const request = new Request("http://localhost/api/roles", {
 				method: "POST",
@@ -169,7 +177,7 @@ describe("Roles API", () => {
 				authorized: true,
 				user: { permissions: Permission.ADMIN },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1 }]);
+			mockQuery.mockResolvedValue([{ insertId: 1 }]);
 
 			const request = new Request("http://localhost/api/roles", {
 				method: "POST",

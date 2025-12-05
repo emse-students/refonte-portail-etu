@@ -30,8 +30,8 @@ describe("Lists Page", () => {
 
 	it("renders promo headers", () => {
 		render(ListsPage, { data: { lists: mockLists } } as any);
-		expect(screen.getByText("Promotion 2025")).toBeInTheDocument();
-		expect(screen.getByText("Promotion 2024")).toBeInTheDocument();
+		expect(screen.getByText("Campagnes 2025")).toBeInTheDocument();
+		expect(screen.getByText("Campagnes 2024")).toBeInTheDocument();
 	});
 
 	it("renders list cards for open promos", () => {
@@ -44,7 +44,7 @@ describe("Lists Page", () => {
 	it("toggles promo section", async () => {
 		render(ListsPage, { data: { lists: mockLists } } as any);
 
-		const promo2025Header = screen.getByRole("button", { name: /Promotion 2025/ });
+		const promo2025Header = screen.getByRole("button", { name: /Campagnes 2025/ });
 
 		// Close 2025 section
 		await fireEvent.click(promo2025Header);
