@@ -128,6 +128,7 @@
 	let editListName = $state("");
 	let editListDescription = $state("");
 	let editListHandle = $state("");
+	let editListPromo = $state(0);
 	let editListColor = $state(0);
 	let editListIcon = $state<number | null>(null);
 
@@ -136,6 +137,7 @@
 		editListDescription = list.description;
 		editListHandle = list.handle;
 		editListColor = list.color;
+		editListPromo = list.promo;
 		editListIcon = list.icon || null;
 		showEditListModal = true;
 	}
@@ -150,6 +152,7 @@
 				handle: editListHandle,
 				color: editListColor,
 				icon: editListIcon,
+				promo: editListPromo,
 			}),
 		});
 
@@ -548,6 +551,10 @@
 		<div class="form-group">
 			<label for="list-handle">Handle (URL)</label>
 			<input type="text" id="list-handle" bind:value={editListHandle} />
+		</div>
+		<div class="form-group">
+			<label for="list-promo">Campagnes</label>
+			<input type="number" id="list-promo" bind:value={editListPromo} />
 		</div>
 		<div class="form-group">
 			<label for="list-color">Couleur (Hex)</label>
