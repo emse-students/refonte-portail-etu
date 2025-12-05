@@ -2,8 +2,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handle } from "../../src/hooks.server";
 import * as sessionModule from "../../src/lib/server/session";
 import db from "../../src/lib/server/database";
+import logger from "../../src/lib/server/logger";
 
 // Mock dependencies
+vi.mock("$lib/server/logger", () => ({
+	default: {
+		info: vi.fn(),
+		error: vi.fn(),
+		debug: vi.fn(),
+		warn: vi.fn(),
+	},
+}));
+
 vi.mock("$lib/server/auth", () => ({
 	handle: vi.fn(async ({ event, resolve }) => {
 		// Simulate auth handle
@@ -211,11 +221,9 @@ describe("Server Hooks", () => {
 
 		vi.mocked(db).mockRejectedValue(new Error("DB Error"));
 
-		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(consoleSpy).toHaveBeenCalled();
+		expect(logger.error).toHaveBeenCalled();
 		expect(mockEvent.locals.userData).toBeUndefined();
 	});
 });
