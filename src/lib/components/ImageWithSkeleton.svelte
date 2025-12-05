@@ -20,14 +20,7 @@
 	{#if !loaded}
 		<div class="skeleton"></div>
 	{/if}
-	<enhanced:img
-		{src}
-		{alt}
-		class:hidden={!loaded}
-		onload={handleLoad}
-		onerror={handleLoad}
-		loading="lazy"
-	/>
+	<img {src} {alt} class:hidden={!loaded} onload={handleLoad} onerror={handleLoad} loading="lazy" />
 </div>
 
 <style>
@@ -38,14 +31,14 @@
 		height: 100%;
 	}
 
-	enhanced\:img {
+	img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		transition: opacity 0.3s ease;
+		transition: opacity 0.3s ease-in-out;
 	}
 
-	enhanced\:img.hidden {
+	img.hidden {
 		opacity: 0;
 		position: absolute; /* Keep it in DOM to trigger load but hide it */
 		top: 0;

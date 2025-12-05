@@ -48,7 +48,7 @@
 					{initials}
 				</div>
 			{/if}
-			<enhanced:img
+			<img
 				src="/api/users/login/{member.user.login}/avatar"
 				alt="{member.user.first_name} {member.user.last_name}"
 				class="member-avatar"

@@ -75,7 +75,7 @@
 <header>
 	<div class="header-left">
 		<a href="/">
-			<enhanced:img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" />
+			<img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" />
 			<span class="site-title">Portail des Étudiants</span>
 		</a>
 	</div>
