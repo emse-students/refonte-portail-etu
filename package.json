@@ -2,6 +2,7 @@
 	"name": "portailetu",
 	"private": true,
 	"version": "0.0.1",
+	"license": "GPL-3.0-or-later",
 	"type": "module",
 	"scripts": {
 		"dev": "rm -r node_modules/.vite-temp; vite dev",
