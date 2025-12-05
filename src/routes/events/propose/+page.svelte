@@ -9,9 +9,12 @@
 	import { invalidateAll } from "$app/navigation";
 
 	let { data } = $props();
+	// svelte-ignore state_referenced_locally
 	let associations = data.associations as Association[];
+	// svelte-ignore state_referenced_locally
 	let lists = data.lists as List[];
 	let user = page.data.userData;
+	// svelte-ignore state_referenced_locally
 	let isOpen = $state(data.isOpen as boolean);
 
 	let showForm = $state(false);

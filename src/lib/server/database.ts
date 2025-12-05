@@ -2,6 +2,7 @@ import { createPool, type Pool, type RowDataPacket } from "mysql2/promise";
 import "dotenv/config";
 import type { Association, List, Member, RawAssociation, RawList } from "$lib/databasetypes";
 import * as mockDbModule from "./database-mock";
+import logger from "$lib/server/logger";
 
 const USE_MOCK = process.env.MOCK_DB === "true";
 
@@ -29,6 +30,7 @@ export default async function db<T = RowDataPacket>(
 		return mockDbModule.default<T>(strings, ...values);
 	}
 	const query = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? "?" : ""), "");
+	logger.debug(`DB Query: ${query}`, { values });
 	const rows = (await getPool().query<RowDataPacket[]>(query, values))[0];
 	return rows as T[];
 }

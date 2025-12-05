@@ -12,7 +12,9 @@
 	}
 
 	let { data } = $props();
+	// svelte-ignore state_referenced_locally
 	const lists: ListWithAssociation[] = data.lists || [];
+	// svelte-ignore state_referenced_locally
 	const userData = data.userData;
 	console.log("Lists loaded:", lists);
 

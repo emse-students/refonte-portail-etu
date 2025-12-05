@@ -14,17 +14,22 @@
 			isOpen: boolean;
 		}>();
 
+	// svelte-ignore state_referenced_locally
 	let entityType = $state<"association" | "list">(event?.list_id ? "list" : "association");
 
 	let selectedAssociationId = $state(
+		// svelte-ignore state_referenced_locally
 		event?.association_id ||
 			association?.id ||
 			(associations && associations.length === 1 ? associations[0].id : "")
 	);
 
+	// svelte-ignore state_referenced_locally
 	let selectedListId = $state(event?.list_id || (lists && lists.length === 1 ? lists[0].id : ""));
 
+	// svelte-ignore state_referenced_locally
 	let title = $state(event?.title || "");
+	// svelte-ignore state_referenced_locally
 	let description = $state(event?.description || "");
 	let showDeleteConfirm = $state(false);
 
@@ -36,6 +41,7 @@
 	}
 
 	let startDate = $state(
+		// svelte-ignore state_referenced_locally
 		event
 			? formatDateForInput(event.start_date)
 			: initialDate
@@ -43,12 +49,14 @@
 				: ""
 	);
 	let endDate = $state(
+		// svelte-ignore state_referenced_locally
 		event
 			? formatDateForInput(event.end_date)
 			: initialDate
 				? formatDateForInput(new Date(initialDate.getTime() + 3600000))
 				: ""
 	); // Default +1 hour
+	// svelte-ignore state_referenced_locally
 	let location = $state(event?.location || "");
 	let error = $state("");
 	let loading = $state(false);

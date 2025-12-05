@@ -5,12 +5,15 @@ import "dotenv/config";
 import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
+import logger from "$lib/server/logger";
 
 const logHandle: Handle = async ({ event, resolve }) => {
-	console.log(`Incoming request: ${event.request.method} ${event.url.pathname}`);
+	const start = Date.now();
+	logger.info(`Incoming request: ${event.request.method} ${event.url.pathname}`);
 	const response = await resolve(event);
-	console.log(
-		`Response status: ${response.status} for ${event.request.method} ${event.url.pathname}`
+	const duration = Date.now() - start;
+	logger.info(
+		`Response status: ${response.status} for ${event.request.method} ${event.url.pathname} (${duration}ms)`
 	);
 	return response;
 };
@@ -30,7 +33,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 
 	// Si pas de session Auth.js mais qu'il y a un cookie user_session, l'invalider
 	if ((!session?.user?.id && userData) || session?.user?.id !== userData?.login) {
-		console.log(
+		logger.info(
 			"Session Auth.js invalide mais cookie user_session présent → suppression du cookie"
 		);
 		clearSessionCookie(event);
@@ -113,7 +116,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				setSessionCookie(event, userData);
 			}
 		} catch (error) {
-			console.error("Erreur lors du chargement de userData:", error);
+			logger.error("Erreur lors du chargement de userData:", { error });
 		}
 	}
 

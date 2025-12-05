@@ -23,6 +23,7 @@
 
 	// Desktop state
 	let events: CalendarEvent[] = $state([]);
+	// svelte-ignore state_referenced_locally
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
 	let isLoading = $state(true);
 

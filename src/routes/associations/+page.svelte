@@ -10,7 +10,9 @@
 	import NoResults from "$lib/components/icons/NoResults.svelte";
 
 	let { data } = $props();
+	// svelte-ignore state_referenced_locally
 	const associations: Association[] = data.associations || [];
+	// svelte-ignore state_referenced_locally
 	const userData = data.userData;
 	console.log("Associations loaded:", associations);
 

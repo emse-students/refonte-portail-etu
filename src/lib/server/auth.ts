@@ -1,5 +1,6 @@
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { env } from "$env/dynamic/private";
+import logger from "$lib/server/logger";
 
 export const { handle } = SvelteKitAuth({
 	providers: [
@@ -22,6 +23,7 @@ export const { handle } = SvelteKitAuth({
 			// Initial sign in
 
 			if (user) {
+				logger.info(`User logged in via CAS: ${profile?.sub}`);
 				token.id = profile?.sub;
 			}
 			return token;

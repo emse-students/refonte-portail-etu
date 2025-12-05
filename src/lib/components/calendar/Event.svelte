@@ -31,6 +31,7 @@
 	let entity_link = $state("");
 	let is_list = $state(false);
 
+	// svelte-ignore state_referenced_locally
 	if (association_id) {
 		fetch(resolve(`/api/associations/${association_id}`))
 			.then((res) => res.json())
@@ -62,6 +63,7 @@
 		"#ce93d8",
 		"#ffd54f",
 	];
+	// svelte-ignore state_referenced_locally
 	let color = palette[Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length];
 
 	let showModal = $state(false);

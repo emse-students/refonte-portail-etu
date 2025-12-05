@@ -5,7 +5,9 @@
 	let { event }: { event: RawEvent } = $props();
 
 	// Formater les dates
+	// svelte-ignore state_referenced_locally
 	const startDate = new Date(event.start_date);
+	// svelte-ignore state_referenced_locally
 	const endDate = new Date(event.end_date);
 
 	const formatDate = (date: Date) => {

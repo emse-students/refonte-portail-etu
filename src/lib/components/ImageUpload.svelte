@@ -14,6 +14,7 @@
 	let fileInput: HTMLInputElement;
 	let uploading = $state(false);
 	let error = $state("");
+	// svelte-ignore state_referenced_locally
 	let previewUrl = $state(currentImageId ? `/api/image/${currentImageId}` : "");
 
 	async function handleFileChange(e: Event) {
