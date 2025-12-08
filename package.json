@@ -56,7 +56,7 @@
 		"prettier-plugin-svelte": "^3.4.0",
 		"svelte-adapter-bun": "^1.0.1",
 		"svelte-markdown": "^0.4.1",
-		"winston": "^3.18.3"
+		"winston": "^3.19.0"
 	},
 	"overrides": {
 		"cookie": "^0.7.0"
