@@ -88,8 +88,11 @@ describe("Members API", () => {
 		it("should create member if authorized", async () => {
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
+				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ permissions: 0 }])
+				.mockResolvedValueOnce([]);
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
@@ -140,8 +143,11 @@ describe("Members API", () => {
 		it("should create member with visible=true by default", async () => {
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
+				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ permissions: 0 }])
+				.mockResolvedValueOnce([]);
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
@@ -158,12 +164,15 @@ describe("Members API", () => {
 		it("should create member with list_id if provided", async () => {
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
+				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+			(db as unknown as ReturnType<typeof vi.fn>)
+				.mockResolvedValueOnce([{ permissions: 0 }])
+				.mockResolvedValueOnce([]);
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
-				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1, list_id: 5 }),
+				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1, list_id: 1 }),
 			});
 			const event = { request } as RequestEvent;
 
@@ -178,9 +187,11 @@ describe("Members API", () => {
 		it("should update member if authorized", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>)
 				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
+				.mockResolvedValueOnce([{ permissions: 0 }]) // Role fetch
 				.mockResolvedValueOnce([]); // Update
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
+				user: { permissions: 0, memberships: [] },
 			});
 
 			const request = new Request("http://localhost/api/members", {
@@ -194,7 +205,7 @@ describe("Members API", () => {
 
 			expect(response.status).toBe(200);
 			expect(data.success).toBe(true);
-			expect(db).toHaveBeenCalledTimes(2); // Select + Update
+			expect(db).toHaveBeenCalledTimes(3); // Select + Role Fetch + Update
 		});
 
 		it("should return 400 if id is missing", async () => {
@@ -262,10 +273,11 @@ describe("Members API", () => {
 		it("should check permission for new association when changing", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>)
 				.mockResolvedValueOnce([{ association_id: 1 }])
+				.mockResolvedValueOnce([{ permissions: 0 }])
 				.mockResolvedValueOnce([]);
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce({ authorized: true }) // Old association
-				.mockResolvedValueOnce({ authorized: true }); // New association
+				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }) // Old association
+				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }); // New association
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",

@@ -141,7 +141,6 @@ describe("Server Hooks", () => {
 				last_name: "Doe",
 				user_email: "john@example.com",
 				user_login: "user1",
-				user_permissions: 0,
 				role_id: 5,
 				role_name: "Member",
 				role_permissions: 0,
@@ -173,7 +172,6 @@ describe("Server Hooks", () => {
 						last_name: "Doe",
 						email: "john@example.com",
 						login: "user1",
-						permissions: 0,
 						promo: 2025,
 					},
 					role: {
@@ -225,5 +223,122 @@ describe("Server Hooks", () => {
 
 		expect(logger.error).toHaveBeenCalled();
 		expect(mockEvent.locals.userData).toBeUndefined();
+	});
+
+	it("should elevate user permissions to SITE_ADMIN if a role has SITE_ADMIN permission", async () => {
+		const mockSession = { user: { id: "user1" } };
+		mockEvent.locals.auth.mockResolvedValue(mockSession);
+		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
+
+		// Mock DB user fetch
+		const mockUser = { id: 1, login: "user1" };
+		vi.mocked(db).mockResolvedValueOnce([mockUser]);
+
+		// Mock DB memberships fetch
+		const mockMemberships = [
+			{
+				member_id: 1,
+				visible: true,
+				association_id: 1,
+				user_id: 1,
+				first_name: "User",
+				last_name: "One",
+				user_email: "user@test.com",
+				user_login: "user1",
+				role_id: 1,
+				role_name: "Admin",
+				role_permissions: 4, // SITE_ADMIN
+				hierarchy: 10,
+				user_promo: 2025,
+			},
+		];
+		vi.mocked(db).mockResolvedValueOnce(mockMemberships);
+
+		await handle({ event: mockEvent, resolve: mockResolve });
+
+		expect(mockEvent.locals.userData.permissions).toBe(4);
+	});
+
+	it("should elevate user permissions to ADMIN if a role has ADMIN permission", async () => {
+		const mockSession = { user: { id: "user1" } };
+		mockEvent.locals.auth.mockResolvedValue(mockSession);
+		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
+
+		// Mock DB user fetch
+		const mockUser = { id: 1, login: "user1" };
+		vi.mocked(db).mockResolvedValueOnce([mockUser]);
+
+		// Mock DB memberships fetch
+		const mockMemberships = [
+			{
+				member_id: 1,
+				visible: true,
+				association_id: 1,
+				user_id: 1,
+				first_name: "User",
+				last_name: "One",
+				user_email: "user@test.com",
+				user_login: "user1",
+				role_id: 1,
+				role_name: "Admin",
+				role_permissions: 3, // ADMIN
+				hierarchy: 10,
+				user_promo: 2025,
+			},
+		];
+		vi.mocked(db).mockResolvedValueOnce(mockMemberships);
+
+		await handle({ event: mockEvent, resolve: mockResolve });
+
+		expect(mockEvent.locals.userData.permissions).toBe(3);
+	});
+
+	it("should prioritize SITE_ADMIN over ADMIN if user has both", async () => {
+		const mockSession = { user: { id: "user1" } };
+		mockEvent.locals.auth.mockResolvedValue(mockSession);
+		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
+
+		// Mock DB user fetch
+		const mockUser = { id: 1, login: "user1" };
+		vi.mocked(db).mockResolvedValueOnce([mockUser]);
+
+		// Mock DB memberships fetch
+		const mockMemberships = [
+			{
+				member_id: 1,
+				visible: true,
+				association_id: 1,
+				user_id: 1,
+				first_name: "User",
+				last_name: "One",
+				user_email: "user@test.com",
+				user_login: "user1",
+				role_id: 1,
+				role_name: "Admin",
+				role_permissions: 3, // ADMIN
+				hierarchy: 10,
+				user_promo: 2025,
+			},
+			{
+				member_id: 2,
+				visible: true,
+				association_id: 2,
+				user_id: 1,
+				first_name: "User",
+				last_name: "One",
+				user_email: "user@test.com",
+				user_login: "user1",
+				role_id: 2,
+				role_name: "Site Admin",
+				role_permissions: 4, // SITE_ADMIN
+				hierarchy: 10,
+				user_promo: 2025,
+			},
+		];
+		vi.mocked(db).mockResolvedValueOnce(mockMemberships);
+
+		await handle({ event: mockEvent, resolve: mockResolve });
+
+		expect(mockEvent.locals.userData.permissions).toBe(4);
 	});
 });

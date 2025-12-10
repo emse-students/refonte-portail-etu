@@ -24,7 +24,6 @@ describe("Admin Page", () => {
 			last_name: "Doe",
 			email: "john@example.com",
 			login: "jdoe",
-			permissions: 0,
 		},
 	];
 	const mockAssociations = [{ id: 1, name: "Asso 1", handle: "asso-1" }];

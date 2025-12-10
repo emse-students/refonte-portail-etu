@@ -95,7 +95,6 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 					email: m.user_email,
 					login: m.user_login,
 					promo: m.user_promo,
-					permissions: 0, // Not needed here
 				},
 				role: {
 					id: m.role_id,
@@ -167,7 +166,6 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 					email: m.user_email,
 					login: m.user_login,
 					promo: m.user_promo,
-					permissions: 0, // Not needed here
 				},
 				role: {
 					id: m.role_id,

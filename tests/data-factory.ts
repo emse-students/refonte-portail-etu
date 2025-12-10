@@ -19,7 +19,6 @@ export const TestData = {
 		email: "test@emse.fr",
 		login: "test.user",
 		promo: 2024,
-		permissions: 0,
 		created_at: new Date(),
 		edited_at: new Date(),
 	} as RawUser,

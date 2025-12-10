@@ -336,13 +336,15 @@
 				<h2>Bureau</h2>
 				<div class="members-grid bureau-grid">
 					{#each bureauMembers as member}
-						<MemberCard
-							{member}
-							isBureau={true}
-							{editMode}
-							onRemove={requestRemoveMember}
-							onEditRole={openEditRoleModal}
-						/>
+						{#if member.visible}
+							<MemberCard
+								{member}
+								isBureau={true}
+								{editMode}
+								onRemove={requestRemoveMember}
+								onEditRole={openEditRoleModal}
+							/>
+						{/if}
 					{/each}
 				</div>
 			</section>
@@ -353,12 +355,14 @@
 				<h2>Membres</h2>
 				<div class="members-grid">
 					{#each otherMembers as member}
-						<MemberCard
-							{member}
-							{editMode}
-							onRemove={requestRemoveMember}
-							onEditRole={openEditRoleModal}
-						/>
+						{#if member.visible}
+							<MemberCard
+								{member}
+								{editMode}
+								onRemove={requestRemoveMember}
+								onEditRole={openEditRoleModal}
+							/>
+						{/if}
 					{/each}
 				</div>
 			</section>

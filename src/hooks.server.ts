@@ -6,6 +6,7 @@ import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
 import logger from "$lib/server/logger";
+import Permission from "$lib/permissions";
 
 const logHandle: Handle = async ({ event, resolve }) => {
 	const start = Date.now();
@@ -62,7 +63,6 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						u.promo as user_promo,
 						u.email as user_email, 
 						u.login as user_login,
-						u.permissions as user_permissions,
 						r.id as role_id, 
 						r.name as role_name, 
 						r.permissions as role_permissions, 
@@ -80,7 +80,6 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					last_name: string;
 					user_email: string;
 					user_login: string;
-					user_permissions: number;
 					role_id: number;
 					role_name: string;
 					role_permissions: number;
@@ -99,7 +98,6 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						last_name: m.last_name,
 						email: m.user_email,
 						login: m.user_login,
-						permissions: m.user_permissions,
 						promo: m.user_promo,
 					},
 					role: {
@@ -110,7 +108,16 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					},
 				}));
 
-				userData = { ...user, memberships };
+				// Calculer les permissions globales
+				let globalPermissions = 0;
+				const maxPermissions = Math.max(...memberships.map((m) => m.role.permissions));
+				if (maxPermissions >= Permission.SITE_ADMIN) {
+					globalPermissions = Permission.SITE_ADMIN;
+				} else if (maxPermissions >= Permission.ADMIN) {
+					globalPermissions = Permission.ADMIN;
+				}
+
+				userData = { ...user, memberships, permissions: globalPermissions };
 
 				// Stocker dans un cookie de session sécurisé
 				setSessionCookie(event, userData);

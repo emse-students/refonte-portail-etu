@@ -31,7 +31,6 @@ export type RawUser = {
 	email: string;
 	login: string;
 	promo: number;
-	permissions: number;
 	created_at: Date;
 	edited_at: Date;
 };
@@ -101,7 +100,6 @@ export type User = {
 	last_name: string;
 	login: string;
 	email: string;
-	permissions: number;
 	promo: number;
 };
 
@@ -123,6 +121,7 @@ export type Member = {
 
 export type FullUser = User & {
 	memberships: Member[];
+	permissions: number;
 };
 
 export type Event = {

@@ -38,7 +38,6 @@ describe("Session System", () => {
 					last_name: "User",
 					login: "test.user",
 					email: "test.user@etu.emse.fr",
-					permissions: 0,
 					promo: 2024,
 				},
 				role: {
@@ -59,7 +58,6 @@ describe("Session System", () => {
 					last_name: "User",
 					login: "test.user",
 					email: "test.user@etu.emse.fr",
-					permissions: 0,
 					promo: 2024,
 				},
 				role: {

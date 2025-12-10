@@ -1,6 +1,6 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import Permission from "$lib/permissions";
+import Permission, { hasPermission } from "$lib/permissions";
 import {
 	requireAuth,
 	getAuthorizedAssociationIds,
@@ -76,6 +76,32 @@ export const POST = async (event: RequestEvent) => {
 		return authCheck.response;
 	}
 
+	// Vérifier que l'utilisateur ne donne pas un rôle supérieur au sien
+	const targetRole = (await db`SELECT permissions FROM role WHERE id = ${role_id}`)[0];
+	if (!targetRole) {
+		return json({ error: "Role not found" }, { status: 404 });
+	}
+
+	let maxPermissions = 0;
+	if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
+		maxPermissions = Permission.SITE_ADMIN;
+	} else {
+		const membership = authCheck.user.memberships.find((m) => m.association_id === association_id);
+		if (membership) {
+			maxPermissions = membership.role.permissions;
+		}
+	}
+
+	if (targetRole.permissions > maxPermissions) {
+		return json(
+			{
+				error: "Forbidden",
+				message: "Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
+			},
+			{ status: 403 }
+		);
+	}
+
 	await db`
         INSERT INTO member (user_id, association_id, role_id, list_id, visible)
         VALUES (${user_id}, ${association_id || null}, ${role_id}, ${list_id || null}, ${visible !== false})
@@ -130,6 +156,35 @@ export const PUT = async (event: RequestEvent) => {
 				{ status: 403 }
 			);
 		}
+	}
+
+	// Vérifier que l'utilisateur ne donne pas un rôle supérieur au sien
+	const targetAssociationId = association_id || existingMember.association_id;
+	const targetRole = (await db`SELECT permissions FROM role WHERE id = ${role_id}`)[0];
+	if (!targetRole) {
+		return json({ error: "Role not found" }, { status: 404 });
+	}
+
+	let maxPermissions = 0;
+	if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
+		maxPermissions = Permission.SITE_ADMIN;
+	} else {
+		const membership = authCheck.user.memberships.find(
+			(m) => m.association_id === targetAssociationId
+		);
+		if (membership) {
+			maxPermissions = membership.role.permissions;
+		}
+	}
+
+	if (targetRole.permissions > maxPermissions) {
+		return json(
+			{
+				error: "Forbidden",
+				message: "Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
+			},
+			{ status: 403 }
+		);
 	}
 
 	await db`
