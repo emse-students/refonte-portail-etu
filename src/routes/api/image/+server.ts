@@ -9,7 +9,7 @@ import {
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import logger from "$lib/server/logger";
-import sharp from "sharp";
+import { Jimp, JimpMime } from "jimp";
 
 export const POST = async (event: RequestEvent) => {
 	try {
@@ -52,18 +52,20 @@ export const POST = async (event: RequestEvent) => {
 			`Processing upload for file: ${imageFile.name}, size: ${imageFile.size}, type: ${imageFile.type}`
 		);
 
-		// Resize the user-cropped image to standard dimensions and convert to WebP
+		// Resize the user-cropped image to standard dimensions and convert to JPEG using Jimp
 		const buffer = await imageFile.arrayBuffer();
-		const processedBuffer = await sharp(buffer)
-			.resize(800, 800, {
-				fit: "cover", // Ensure 800x800 output even if input aspect ratio is slightly off
-			})
-			.webp({ quality: 80 })
-			.toBuffer();
+		const image = await Jimp.read(Buffer.from(buffer));
 
-		const newFileName = imageFile.name.replace(/\.[^/.]+$/, "") + ".webp";
+		image.cover({ w: 800, h: 800 }); // Resize and crop to cover 800x800
+		// image.quality(80); // Quality is set during getBuffer for some formats, or separate method depending on version.
+		// In Jimp v1, quality might be part of write options or separate.
+		// Checking types: cover takes options object.
+
+		const processedBuffer = await image.getBuffer(JimpMime.jpeg, { quality: 80 });
+
+		const newFileName = imageFile.name.replace(/\.[^/.]+$/, "") + ".jpg";
 		const processedFile = new File([new Uint8Array(processedBuffer)], newFileName, {
-			type: "image/webp",
+			type: "image/jpeg",
 		});
 
 		logger.info(`Sending to gallery API at: ${env.GALLERY_API_URL} as ${newFileName}`);
