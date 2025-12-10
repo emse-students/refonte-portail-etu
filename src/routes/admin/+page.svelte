@@ -13,6 +13,7 @@
 		login: string;
 		promo: number;
 		permissions: number; // Computed
+		roles_summary: string | null;
 	};
 	type Association = {
 		id: number;
@@ -164,6 +165,7 @@
 								<th>Nom</th>
 								<th>Login</th>
 								<th>Promo</th>
+								<th>Rôles</th>
 								<th>Permissions Globales</th>
 								<th>Actions</th>
 							</tr>
@@ -175,6 +177,7 @@
 									<td>{user.first_name} {user.last_name}</td>
 									<td>{user.login}</td>
 									<td>{user.promo}</td>
+									<td class="roles-cell">{user.roles_summary || "-"}</td>
 									<td>
 										<span
 											class="badge"
@@ -341,6 +344,13 @@
 		background-color: #f8f9fa;
 		font-weight: 600;
 		color: #2c3e50;
+	}
+
+	.roles-cell {
+		max-width: 300px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.badge {

@@ -27,6 +27,7 @@ describe("Admin Page", () => {
 			login: "jdoe",
 			promo: 2024,
 			permissions: 0,
+			roles_summary: "Membre (BDE)",
 		},
 		{
 			id: 2,
@@ -36,6 +37,7 @@ describe("Admin Page", () => {
 			login: "admin",
 			promo: 2024,
 			permissions: Permission.ADMIN,
+			roles_summary: "Président (BDE)",
 		},
 	];
 	const mockAssociations = [
