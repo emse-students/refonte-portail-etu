@@ -27,7 +27,6 @@ describe("Admin Page", () => {
 			login: "jdoe",
 			promo: 2024,
 			permissions: 0,
-			roles_summary: "Membre (BDE)",
 		},
 		{
 			id: 2,
@@ -37,16 +36,29 @@ describe("Admin Page", () => {
 			login: "admin",
 			promo: 2024,
 			permissions: Permission.ADMIN,
-			roles_summary: "Président (BDE)",
 		},
 	];
 	const mockAssociations = [
 		{ id: 1, name: "Asso 1", handle: "asso-1", description: "Desc 1", color: 0 },
 	];
+	const mockUserRoles = [
+		{
+			role_name: "Membre",
+			permissions: 0,
+			association_name: "BDE",
+			list_name: null,
+		},
+	];
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		global.fetch = vi.fn().mockImplementation((url) => {
+			if (url.includes("/api/users/1/roles")) {
+				return Promise.resolve({
+					ok: true,
+					json: () => Promise.resolve(mockUserRoles),
+				});
+			}
 			if (url.includes("/api/users")) {
 				return Promise.resolve({
 					ok: true,
@@ -147,6 +159,26 @@ describe("Admin Page", () => {
 		await waitFor(() => {
 			expect(screen.getByText("Asso 1")).toBeInTheDocument();
 			expect(screen.getByText("@asso-1")).toBeInTheDocument();
+		});
+	});
+
+	it("views user details", async () => {
+		render(AdminPage);
+
+		const usersNav = screen.getByRole("button", { name: "Utilisateurs" });
+		await fireEvent.click(usersNav);
+
+		await waitFor(() => {
+			expect(screen.getByText("John Doe")).toBeInTheDocument();
+		});
+
+		const detailsBtns = screen.getAllByText("Détails");
+		await fireEvent.click(detailsBtns[0]);
+
+		await waitFor(() => {
+			expect(screen.getByText("Détails de John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("Membre").length).toBeGreaterThan(0);
+			expect(screen.getByText("BDE")).toBeInTheDocument();
 		});
 	});
 

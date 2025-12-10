@@ -4,7 +4,7 @@
 	import Permission, { getPermissionName } from "$lib/permissions";
 
 	// Types
-	type View = "dashboard" | "users" | "associations" | "roles" | "system";
+	type View = "dashboard" | "users" | "user-details" | "associations" | "roles" | "system";
 	type User = {
 		id: number;
 		first_name: string;
@@ -13,7 +13,6 @@
 		login: string;
 		promo: number;
 		permissions: number; // Computed
-		roles_summary: string | null;
 	};
 	type Association = {
 		id: number;
@@ -22,6 +21,12 @@
 		description: string;
 		color: number;
 	};
+	type UserRole = {
+		role_name: string;
+		permissions: number;
+		association_name: string | null;
+		list_name: string | null;
+	};
 
 	// State
 	let currentView = $state<View>("dashboard");
@@ -29,6 +34,10 @@
 	let associations = $state<Association[]>([]);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
+
+	// User Details State
+	let selectedUser = $state<User | null>(null);
+	let userRoles = $state<UserRole[]>([]);
 
 	// Dashboard Stats
 	let stats = $derived({
@@ -91,6 +100,25 @@
 			}
 		} catch (e) {
 			console.error(e);
+		}
+	}
+
+	async function viewUserDetails(user: User) {
+		selectedUser = user;
+		currentView = "user-details";
+		loading = true;
+		try {
+			const res = await fetch(resolve(`/api/users/${user.id}/roles`));
+			if (res.ok) {
+				userRoles = await res.json();
+			} else {
+				error = "Erreur lors du chargement des rôles";
+			}
+		} catch (e) {
+			error = "Erreur réseau";
+			console.error(e);
+		} finally {
+			loading = false;
 		}
 	}
 </script>
@@ -165,7 +193,6 @@
 								<th>Nom</th>
 								<th>Login</th>
 								<th>Promo</th>
-								<th>Rôles</th>
 								<th>Permissions Globales</th>
 								<th>Actions</th>
 							</tr>
@@ -177,7 +204,6 @@
 									<td>{user.first_name} {user.last_name}</td>
 									<td>{user.login}</td>
 									<td>{user.promo}</td>
-									<td class="roles-cell">{user.roles_summary || "-"}</td>
 									<td>
 										<span
 											class="badge"
@@ -187,13 +213,70 @@
 											{getPermissionName(user.permissions)}
 										</span>
 									</td>
-									<td>
+									<td class="actions-cell">
+										<button class="btn-secondary" onclick={() => viewUserDetails(user)}>
+											Détails
+										</button>
 										<button class="btn-danger" onclick={() => deleteUser(user.id)}>
 											Supprimer
 										</button>
 									</td>
 								</tr>
 							{/each}
+						</tbody>
+					</table>
+				</div>
+
+				<!-- USER DETAILS VIEW -->
+			{:else if currentView === "user-details" && selectedUser}
+				<div class="header-actions">
+					<h1>Détails de {selectedUser.first_name} {selectedUser.last_name}</h1>
+					<button class="btn-secondary" onclick={() => (currentView = "users")}> Retour </button>
+				</div>
+
+				<div class="card mb-4">
+					<h3>Informations</h3>
+					<p><strong>Login:</strong> {selectedUser.login}</p>
+					<p><strong>Email:</strong> {selectedUser.email}</p>
+					<p><strong>Promo:</strong> {selectedUser.promo}</p>
+					<p>
+						<strong>Permissions Globales:</strong>
+						{getPermissionName(selectedUser.permissions)}
+					</p>
+				</div>
+
+				<h3>Rôles et Permissions</h3>
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>Rôle</th>
+								<th>Contexte</th>
+								<th>Permissions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#if userRoles.length === 0}
+								<tr>
+									<td colspan="3" class="text-center">Aucun rôle assigné</td>
+								</tr>
+							{:else}
+								{#each userRoles as role}
+									<tr>
+										<td>{role.role_name}</td>
+										<td>
+											{#if role.association_name}
+												<span class="badge association">{role.association_name}</span>
+											{:else if role.list_name}
+												<span class="badge list">{role.list_name}</span>
+											{:else}
+												-
+											{/if}
+										</td>
+										<td>{getPermissionName(role.permissions)}</td>
+									</tr>
+								{/each}
+							{/if}
 						</tbody>
 					</table>
 				</div>
@@ -346,13 +429,6 @@
 		color: #2c3e50;
 	}
 
-	.roles-cell {
-		max-width: 300px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
 	.badge {
 		padding: 0.25rem 0.5rem;
 		border-radius: 12px;
@@ -370,6 +446,16 @@
 		color: #fff;
 	}
 
+	.badge.association {
+		background-color: #3498db;
+		color: #fff;
+	}
+
+	.badge.list {
+		background-color: #9b59b6;
+		color: #fff;
+	}
+
 	.btn-danger {
 		background-color: #e74c3c;
 		color: white;
@@ -377,6 +463,28 @@
 		padding: 0.5rem 1rem;
 		border-radius: 4px;
 		cursor: pointer;
+	}
+
+	.btn-secondary {
+		background-color: #95a5a6;
+		color: white;
+		border: none;
+		padding: 0.5rem 1rem;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.actions-cell {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.mb-4 {
+		margin-bottom: 1.5rem;
+	}
+
+	.text-center {
+		text-align: center;
 	}
 
 	.grid-list {

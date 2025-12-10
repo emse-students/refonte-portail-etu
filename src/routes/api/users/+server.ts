@@ -5,21 +5,14 @@ import { checkPermission } from "$lib/server/auth-middleware";
 import type { RawUser } from "$lib/databasetypes";
 
 export const GET = async () => {
-	const users = await db<
-		RawUser & { max_role_permissions: number | null; roles_summary: string | null }
-	>`
+	const users = await db<RawUser & { max_role_permissions: number | null }>`
         SELECT
             u.id, u.first_name, u.last_name, u.email, u.login, u.promo,
-            MAX(r.permissions) as max_role_permissions,
-            GROUP_CONCAT(
-                CONCAT(r.name, IF(a.name IS NOT NULL, CONCAT(' (', a.name, ')'), ''))
-                SEPARATOR ', '
-            ) as roles_summary
+            MAX(r.permissions) as max_role_permissions
         FROM
             user u
         LEFT JOIN member m ON u.id = m.user_id
         LEFT JOIN role r ON m.role_id = r.id
-        LEFT JOIN association a ON m.association_id = a.id
         GROUP BY u.id
         ORDER BY u.id DESC
     `;
