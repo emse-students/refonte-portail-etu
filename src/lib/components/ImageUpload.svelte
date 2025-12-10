@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Cropper from "cropperjs";
+	import "cropperjs/dist/cropper.css";
+
 	let {
 		currentImageId,
 		onImageUploaded,
@@ -17,6 +20,13 @@
 	// svelte-ignore state_referenced_locally
 	let previewUrl = $state(currentImageId ? `/api/image/${currentImageId}` : "");
 
+	// Cropper state
+	let showCropper = $state(false);
+	let cropperImageElement = $state<HTMLImageElement>();
+	let cropper: Cropper | null = null;
+	let tempImageUrl = $state("");
+	let originalFile: File | null = null;
+
 	async function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		if (!target.files || target.files.length === 0) return;
@@ -29,11 +39,68 @@
 			return;
 		}
 
+		originalFile = file;
+		tempImageUrl = URL.createObjectURL(file);
+		showCropper = true;
+		error = "";
+
+		// Reset input so same file can be selected again if cancelled
+		target.value = "";
+	}
+
+	$effect(() => {
+		if (showCropper && cropperImageElement) {
+			// Initialize cropper when modal is shown and image element is ready
+			if (cropper) cropper.destroy();
+			cropper = new Cropper(cropperImageElement, {
+				aspectRatio: 1,
+				viewMode: 1,
+				autoCropArea: 1,
+				background: false,
+				responsive: true,
+			});
+		} else {
+			// Cleanup when modal is hidden
+			if (cropper) {
+				cropper.destroy();
+				cropper = null;
+			}
+		}
+	});
+
+	function cancelCrop() {
+		showCropper = false;
+		if (tempImageUrl) {
+			URL.revokeObjectURL(tempImageUrl);
+			tempImageUrl = "";
+		}
+		error = "";
+	}
+
+	function confirmCrop() {
+		if (!cropper) return;
+
+		cropper.getCroppedCanvas().toBlob(async (blob: Blob | null) => {
+			if (!blob) {
+				error = "Erreur lors du recadrage";
+				return;
+			}
+
+			// Create a new file from the blob
+			const file = new File([blob], originalFile?.name || "image.png", { type: blob.type });
+
+			// Proceed with upload
+			await uploadFile(file);
+
+			// Cleanup
+			cancelCrop();
+		});
+	}
+
+	async function uploadFile(file: File) {
+		uploading = true;
 		// Show local preview immediately
 		previewUrl = URL.createObjectURL(file);
-
-		uploading = true;
-		error = "";
 
 		const formData = new FormData();
 		formData.append("image", file);
@@ -52,13 +119,11 @@
 
 			if (!res.ok) {
 				console.error("Upload failed:", await res.json());
-
 				throw new Error("Erreur lors de l'upload");
 			}
 
 			const data = await res.json();
 			onImageUploaded(data.id);
-			// Keep local preview to avoid loading delay
 		} catch (e) {
 			error = "Erreur lors de l'upload de l'image";
 			console.error(e);
@@ -91,6 +156,22 @@
 		{/if}
 	</div>
 </div>
+
+{#if showCropper}
+	<div class="cropper-modal">
+		<div class="cropper-content">
+			<h3>Recadrer l'image</h3>
+			<div class="cropper-container">
+				<!-- svelte-ignore a11y_img_redundant_alt -->
+				<img src={tempImageUrl} bind:this={cropperImageElement} alt="Image à recadrer" />
+			</div>
+			<div class="cropper-actions">
+				<button class="btn-cancel" onclick={cancelCrop}>Annuler</button>
+				<button class="btn-confirm" onclick={confirmCrop}>Valider</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.image-upload {
@@ -135,5 +216,83 @@
 		color: var(--color-secondary);
 		font-size: 0.9rem;
 		margin: 0;
+	}
+
+	/* Cropper Modal Styles */
+	.cropper-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.85);
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+	}
+
+	.cropper-content {
+		background: var(--color-bg-1);
+		padding: 1.5rem;
+		border-radius: 12px;
+		width: 100%;
+		max-width: 600px;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		max-height: 90vh;
+	}
+
+	.cropper-content h3 {
+		margin: 0;
+		color: var(--color-text);
+		text-align: center;
+	}
+
+	.cropper-container {
+		width: 100%;
+		height: 400px;
+		background: #333;
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	.cropper-container img {
+		display: block;
+		max-width: 100%;
+	}
+
+	.cropper-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
+		margin-top: 0.5rem;
+	}
+
+	.cropper-actions button {
+		padding: 0.6rem 1.2rem;
+		border-radius: 6px;
+		border: none;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 0.95rem;
+		transition: opacity 0.2s;
+	}
+
+	.cropper-actions button:hover {
+		opacity: 0.9;
+	}
+
+	.btn-cancel {
+		background: var(--color-bg-2);
+		color: var(--color-text);
+		border: 1px solid var(--color-text-light) !important;
+	}
+
+	.btn-confirm {
+		background: var(--color-primary);
+		color: white;
 	}
 </style>

@@ -9,6 +9,7 @@ import {
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import logger from "$lib/server/logger";
+import sharp from "sharp";
 
 export const POST = async (event: RequestEvent) => {
 	try {
@@ -51,12 +52,26 @@ export const POST = async (event: RequestEvent) => {
 			`Processing upload for file: ${imageFile.name}, size: ${imageFile.size}, type: ${imageFile.type}`
 		);
 
-		logger.info(`Sending to gallery API at: ${env.GALLERY_API_URL}`);
+		// Resize the user-cropped image to standard dimensions and convert to WebP
+		const buffer = await imageFile.arrayBuffer();
+		const processedBuffer = await sharp(buffer)
+			.resize(800, 800, {
+				fit: "cover", // Ensure 800x800 output even if input aspect ratio is slightly off
+			})
+			.webp({ quality: 80 })
+			.toBuffer();
+
+		const newFileName = imageFile.name.replace(/\.[^/.]+$/, "") + ".webp";
+		const processedFile = new File([new Uint8Array(processedBuffer)], newFileName, {
+			type: "image/webp",
+		});
+
+		logger.info(`Sending to gallery API at: ${env.GALLERY_API_URL} as ${newFileName}`);
 
 		// Re-create the file to ensure it's detached from the request stream
 
 		const formDataToSend = new FormData();
-		formDataToSend.append("file", imageFile);
+		formDataToSend.append("file", processedFile);
 
 		// Upload image to gallery
 		const uploadResponse = await fetch(env.GALLERY_API_URL + "/external/media/", {
