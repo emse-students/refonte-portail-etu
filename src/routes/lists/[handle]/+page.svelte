@@ -15,6 +15,7 @@
 	const events = $derived(data.events || []);
 	const roles = $derived(data.roles || []);
 	const userData = $derived(data.userData);
+	const isAdmin = $derived(hasPermission(userData?.permissions || 0, Permission.ADMIN));
 
 	let editMode = $state(false);
 	let showAddMemberModal = $state(false);
@@ -351,7 +352,7 @@
 				<h2>Bureau</h2>
 				<div class="members-grid bureau-grid">
 					{#each bureauMembers as member}
-						{#if member.visible}
+						{#if member.visible || isAdmin}
 							<MemberCard
 								{member}
 								isBureau={true}
@@ -370,7 +371,7 @@
 				<h2>Membres</h2>
 				<div class="members-grid">
 					{#each otherMembers as member}
-						{#if member.visible}
+						{#if member.visible || isAdmin}
 							<MemberCard
 								{member}
 								{editMode}
