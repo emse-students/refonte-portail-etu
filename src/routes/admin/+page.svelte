@@ -39,6 +39,13 @@
 	let selectedUser = $state<User | null>(null);
 	let userRoles = $state<UserRole[]>([]);
 
+	// Config State
+	let config = $state({
+		maintenance_mode: "false",
+		global_announcement: "",
+		event_submission_open: "true",
+	});
+
 	// Dashboard Stats
 	let stats = $derived({
 		userCount: users.length,
@@ -65,13 +72,18 @@
 	async function loadAllData() {
 		loading = true;
 		try {
-			const [usersRes, assosRes] = await Promise.all([
+			const [usersRes, assosRes, configRes] = await Promise.all([
 				fetch(resolve("/api/users")),
 				fetch(resolve("/api/associations")),
+				fetch(resolve("/api/config")),
 			]);
 
 			if (usersRes.ok) users = await usersRes.json();
 			if (assosRes.ok) associations = await assosRes.json();
+			if (configRes.ok) {
+				const data = await configRes.json();
+				config = { ...config, ...data };
+			}
 		} catch (e) {
 			error = "Erreur de chargement des données";
 			console.error(e);
@@ -119,6 +131,25 @@
 			console.error(e);
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function saveConfig(key: string, value: string) {
+		try {
+			const res = await fetch(resolve("/api/config"), {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ key, value }),
+			});
+			if (res.ok) {
+				config = { ...config, [key]: value };
+				// alert("Configuration sauvegardée"); // Optional feedback
+			} else {
+				alert("Erreur lors de la sauvegarde");
+			}
+		} catch (e) {
+			console.error(e);
+			alert("Erreur réseau");
 		}
 	}
 </script>
@@ -296,8 +327,61 @@
 
 				<!-- SYSTEM VIEW -->
 			{:else if currentView === "system"}
-				<h1>Système</h1>
-				<p>Configuration du système (à implémenter)</p>
+				<h1>Configuration du Système</h1>
+
+				<div class="card mb-4">
+					<h3>Maintenance</h3>
+					<div class="form-group">
+						<label>
+							<input
+								type="checkbox"
+								checked={config.maintenance_mode === "true"}
+								onchange={(e) =>
+									saveConfig("maintenance_mode", e.currentTarget.checked ? "true" : "false")}
+							/>
+							Mode Maintenance
+						</label>
+						<p class="help-text">
+							Si activé, le site sera inaccessible aux utilisateurs non-admins.
+						</p>
+					</div>
+				</div>
+
+				<div class="card mb-4">
+					<h3>Annonces</h3>
+					<div class="form-group">
+						<label for="announcement">Annonce Globale</label>
+						<div class="input-group">
+							<input
+								id="announcement"
+								type="text"
+								bind:value={config.global_announcement}
+								placeholder="Message..."
+							/>
+							<button
+								class="btn-secondary"
+								onclick={() => saveConfig("global_announcement", config.global_announcement)}
+							>
+								Enregistrer
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="card mb-4">
+					<h3>Événements</h3>
+					<div class="form-group">
+						<label>
+							<input
+								type="checkbox"
+								checked={config.event_submission_open === "true"}
+								onchange={(e) =>
+									saveConfig("event_submission_open", e.currentTarget.checked ? "true" : "false")}
+							/>
+							Ouverture des soumissions d'événements
+						</label>
+					</div>
+				</div>
 			{/if}
 		{/if}
 	</main>
@@ -396,6 +480,21 @@
 		display: flex;
 		gap: 1rem;
 		align-items: center;
+	}
+
+	.form-group {
+		margin-bottom: 1rem;
+	}
+
+	.input-group {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.help-text {
+		font-size: 0.85rem;
+		color: #7f8c8d;
+		margin-top: 0.25rem;
 	}
 
 	input[type="text"] {

@@ -49,6 +49,11 @@ describe("Admin Page", () => {
 			list_name: null,
 		},
 	];
+	const mockConfig = {
+		maintenance_mode: "false",
+		global_announcement: "Hello World",
+		event_submission_open: "true",
+	};
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -71,13 +76,17 @@ describe("Admin Page", () => {
 					json: () => Promise.resolve(mockAssociations),
 				});
 			}
+			if (url.includes("/api/config")) {
+				return Promise.resolve({
+					ok: true,
+					json: () => Promise.resolve(mockConfig),
+				});
+			}
 			return Promise.resolve({
 				ok: true,
 				json: () => Promise.resolve([]),
 			});
-		}) as unknown as typeof fetch;
-
-		// Mock confirm
+		}) as unknown as typeof fetch; // Mock confirm
 		global.confirm = vi.fn(() => true);
 		// Mock alert
 		global.alert = vi.fn();
@@ -201,6 +210,31 @@ describe("Admin Page", () => {
 			expect.objectContaining({
 				method: "DELETE",
 				body: JSON.stringify({ id: 1 }),
+			})
+		);
+	});
+
+	it("manages system configuration", async () => {
+		render(AdminPage);
+
+		const systemNav = screen.getByRole("button", { name: "Système" });
+		await fireEvent.click(systemNav);
+
+		await waitFor(() => {
+			expect(screen.getByText("Configuration du Système")).toBeInTheDocument();
+			expect(screen.getByLabelText("Mode Maintenance")).not.toBeChecked();
+			expect(screen.getByDisplayValue("Hello World")).toBeInTheDocument();
+		});
+
+		// Toggle maintenance mode
+		const maintenanceCheckbox = screen.getByLabelText("Mode Maintenance");
+		await fireEvent.click(maintenanceCheckbox);
+
+		expect(global.fetch).toHaveBeenCalledWith(
+			expect.stringContaining("/api/config"),
+			expect.objectContaining({
+				method: "POST",
+				body: JSON.stringify({ key: "maintenance_mode", value: "true" }),
 			})
 		);
 	});

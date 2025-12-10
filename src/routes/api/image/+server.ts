@@ -64,6 +64,7 @@ export const POST = async (event: RequestEvent) => {
 			body: formDataToSend,
 			headers: {
 				"x-api-key": env.GALLERY_API_KEY ?? "",
+				Origin: env.PORTAL_URL ?? "",
 			},
 		});
 
