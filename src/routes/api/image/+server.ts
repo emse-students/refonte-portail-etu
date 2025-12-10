@@ -63,7 +63,7 @@ export const POST = async (event: RequestEvent) => {
 			method: "POST",
 			body: formDataToSend,
 			headers: {
-				"x-api-key": env.GALLERY_API_KEY,
+				"x-api-key": env.GALLERY_API_KEY ?? "",
 			},
 		});
 

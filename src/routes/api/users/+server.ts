@@ -1,19 +1,37 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import type { RawUser } from "$lib/databasetypes";
 import Permission from "$lib/permissions";
 import { checkPermission } from "$lib/server/auth-middleware";
+import type { RawUser } from "$lib/databasetypes";
 
 export const GET = async () => {
-	const users = await db<RawUser>`
+	const users = await db<RawUser & { max_role_permissions: number | null }>`
         SELECT
-            id, first_name, last_name, email, login, permissions, promo
+            u.id, u.first_name, u.last_name, u.email, u.login, u.promo,
+            MAX(r.permissions) as max_role_permissions
         FROM
-            user
-        ORDER BY id DESC
+            user u
+        LEFT JOIN member m ON u.id = m.user_id
+        LEFT JOIN role r ON m.role_id = r.id
+        GROUP BY u.id
+        ORDER BY u.id DESC
     `;
 
-	return json(users);
+	// Map max_role_permissions to global permissions logic
+	const usersWithPermissions = users.map((u) => {
+		let globalPermissions = 0;
+		if (u.max_role_permissions === Permission.SITE_ADMIN) {
+			globalPermissions = Permission.SITE_ADMIN;
+		} else if (u.max_role_permissions === Permission.ADMIN) {
+			globalPermissions = Permission.ADMIN;
+		}
+		return {
+			...u,
+			permissions: globalPermissions,
+		};
+	});
+
+	return json(usersWithPermissions);
 };
 
 export const POST = async (event: RequestEvent) => {
@@ -24,11 +42,11 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	const body = await event.request.json();
-	const { first_name, last_name, email, login, permissions, promo } = body;
+	const { first_name, last_name, email, login, promo } = body;
 
 	await db`
-        INSERT INTO user (first_name, last_name, email, login, permissions, promo)
-        VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${permissions || 0}, ${promo || null})
+        INSERT INTO user (first_name, last_name, email, login, promo)
+        VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${promo || null})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -45,12 +63,12 @@ export const PUT = async (event: RequestEvent) => {
 	}
 
 	const body = await event.request.json();
-	const { id, first_name, last_name, email, login, permissions, promo } = body;
+	const { id, first_name, last_name, email, login, promo } = body;
 
 	await db`
         UPDATE user 
         SET first_name = ${first_name}, last_name = ${last_name}, email = ${email}, 
-            login = ${login}, permissions = ${permissions}, promo = ${promo}
+            login = ${login}, promo = ${promo}
         WHERE id = ${id}
     `;
 

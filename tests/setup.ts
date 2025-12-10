@@ -10,6 +10,8 @@ vi.mock("svelte/transition", () => ({
 	fly: (node: Element, params: any) => ({ duration: 0 }),
 }));
 
+vi.mock("$env/static/private", () => import.meta.env);
+
 afterEach(() => {
 	cleanup();
 });

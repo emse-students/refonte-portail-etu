@@ -1,6 +1,5 @@
 import adapter from "svelte-adapter-bun";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import "dotenv/config";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {

@@ -26,7 +26,7 @@ describe("Users API", () => {
 			const response = await GET();
 			const data = await response.json();
 
-			expect(data).toEqual(mockUsers);
+			expect(data).toEqual([{ ...mockUsers[0], permissions: 0 }]);
 			expect(db).toHaveBeenCalled();
 		});
 	});

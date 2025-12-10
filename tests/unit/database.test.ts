@@ -1,6 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as mockDbModule from "$lib/server/database-mock";
 
+const { testEnv } = vi.hoisted(() => ({
+	testEnv: {
+		MOCK_DB: "false",
+		DB_HOST: "localhost",
+		DB_USER: "user",
+		DB_PASSWORD: "password",
+		DB_NAME: "test_db",
+	},
+}));
+
+vi.mock("$env/dynamic/private", () => ({
+	env: testEnv,
+}));
+
+import { env } from "$env/dynamic/private";
+
 // Mock mysql2/promise
 const mockQuery = vi.fn();
 const mockPool = {
@@ -27,15 +43,15 @@ describe("Database Module", () => {
 	beforeEach(() => {
 		vi.resetModules();
 		vi.clearAllMocks();
-		process.env.MOCK_DB = "false";
-		process.env.DB_HOST = "localhost";
-		process.env.DB_USER = "user";
-		process.env.DB_PASSWORD = "password";
-		process.env.DB_NAME = "test_db";
+		env.MOCK_DB = "false";
+		env.DB_HOST = "localhost";
+		env.DB_USER = "user";
+		env.DB_PASSWORD = "password";
+		env.DB_NAME = "test_db";
 	});
 
 	afterEach(() => {
-		delete process.env.MOCK_DB;
+		delete env.MOCK_DB;
 	});
 
 	it("should create a pool with correct config when not using mock", async () => {
@@ -63,7 +79,7 @@ describe("Database Module", () => {
 	});
 
 	it("should use mock module when MOCK_DB is true", async () => {
-		process.env.MOCK_DB = "true";
+		env.MOCK_DB = "true";
 		dbModule = await import("$lib/server/database");
 
 		await dbModule.default`SELECT * FROM users`;
@@ -261,7 +277,7 @@ describe("Database Module", () => {
 	});
 
 	it("should return mock pool when MOCK_DB is true", async () => {
-		process.env.MOCK_DB = "true";
+		env.MOCK_DB = "true";
 		vi.mocked(mockDbModule.getPool).mockReturnValue({} as any);
 		dbModule = await import("$lib/server/database");
 

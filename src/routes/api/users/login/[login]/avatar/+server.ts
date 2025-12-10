@@ -17,8 +17,8 @@ export const GET = async (event: RequestEvent) => {
 			method: "GET",
 			headers: {
 				Accept: "image/jpeg",
-				"x-api-key": env.GALLERY_API_KEY,
-				Origin: env.PORTAL_URL,
+				"x-api-key": env.GALLERY_API_KEY ?? "",
+				Origin: env.PORTAL_URL ?? "",
 			},
 		})
 		.then((res) => {

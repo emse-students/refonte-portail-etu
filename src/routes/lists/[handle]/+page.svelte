@@ -359,6 +359,7 @@
 								{editMode}
 								onRemove={requestRemoveMember}
 								onEditRole={openEditRoleModal}
+								hidden={!member.visible}
 							/>
 						{/if}
 					{/each}
@@ -377,6 +378,7 @@
 								{editMode}
 								onRemove={requestRemoveMember}
 								onEditRole={openEditRoleModal}
+								hidden={!member.visible}
 							/>
 						{/if}
 					{/each}

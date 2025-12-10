@@ -1,10 +1,10 @@
 import { createPool, type Pool, type RowDataPacket } from "mysql2/promise";
-import "dotenv/config";
+import { env } from "$env/dynamic/private";
 import type { Association, List, Member, RawAssociation, RawList } from "$lib/databasetypes";
 import * as mockDbModule from "./database-mock";
 import logger from "$lib/server/logger";
 
-const USE_MOCK = process.env.MOCK_DB === "true";
+const USE_MOCK = env.MOCK_DB === "true";
 
 let pool: Pool | null = null;
 
@@ -12,11 +12,11 @@ function ensurePool() {
 	if (USE_MOCK) return;
 	if (!pool) {
 		pool = createPool({
-			host: process.env.DB_HOST,
-			user: process.env.DB_USER,
-			password: process.env.DB_PASSWORD,
-			database: process.env.DB_NAME,
-			port: Number(process.env.DB_PORT) || 3306,
+			host: env.DB_HOST,
+			user: env.DB_USER,
+			password: env.DB_PASSWORD,
+			database: env.DB_NAME,
+			port: Number(env.DB_PORT) || 3306,
 			connectionLimit: 10,
 		});
 	}

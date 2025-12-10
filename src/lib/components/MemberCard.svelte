@@ -5,12 +5,14 @@
 		member,
 		isBureau = false,
 		editMode = false,
+		hidden = false,
 		onRemove = (_id: number) => {},
 		onEditRole = (_member: Member) => {},
 	}: {
 		member: Member;
 		isBureau?: boolean;
 		editMode?: boolean;
+		hidden?: boolean;
 		onRemove?: (id: number) => void;
 		onEditRole?: (member: Member) => void;
 	} = $props();
@@ -73,6 +75,9 @@
 				<span class="member-role">{member.role.name}</span>
 				{#if member.user.promo}
 					<span class="member-promo">{member.user.promo}</span>
+				{/if}
+				{#if hidden}
+					<span class="member-hidden">Invisible</span>
 				{/if}
 			</div>
 		</div>
@@ -218,6 +223,17 @@
 		white-space: nowrap;
 	}
 
+	.member-hidden {
+		font-size: 0.75rem;
+		color: var(--color-bg-2);
+		font-weight: 600;
+		padding: 0.15rem 0.5rem;
+		border: 1px solid var(--color-bg-2);
+		border-radius: 6px;
+		background: transparent;
+		white-space: nowrap;
+	}
+
 	.bureau-card .member-promo {
 		border-color: var(--color-primary-light);
 		background: var(--color-accent-light);
@@ -293,6 +309,11 @@
 		}
 
 		.member-promo {
+			font-size: 0.7rem;
+			padding: 0.125rem 0.4rem;
+		}
+
+		.member-hidden {
 			font-size: 0.7rem;
 			padding: 0.125rem 0.4rem;
 		}

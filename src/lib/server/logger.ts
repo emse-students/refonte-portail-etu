@@ -1,4 +1,5 @@
 import winston from "winston";
+import { env } from "$env/dynamic/private";
 
 const { combine, timestamp, printf, colorize, json } = winston.format;
 
@@ -11,7 +12,7 @@ const logFormat = printf(({ level, message, timestamp, ...metadata }) => {
 });
 
 const logger = winston.createLogger({
-	level: process.env.LOG_LEVEL || "info",
+	level: env.LOG_LEVEL || "info",
 	format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), json()),
 	transports: [
 		new winston.transports.Console({

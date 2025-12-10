@@ -1,7 +1,6 @@
 import { handle as authHandle } from "$lib/server/auth";
 import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
-import "dotenv/config";
 import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";

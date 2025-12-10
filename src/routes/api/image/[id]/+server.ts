@@ -19,8 +19,8 @@ export const GET = async (event: RequestEvent) => {
 
 	const image = await fetch(env.GALLERY_API_URL + "/external/media/" + externalId, {
 		headers: {
-			"x-api-key": env.GALLERY_API_KEY,
-			Origin: env.PORTAL_URL,
+			"x-api-key": env.GALLERY_API_KEY ?? "",
+			Origin: env.PORTAL_URL ?? "",
 		},
 	});
 
@@ -51,8 +51,8 @@ export const DELETE = async (event: RequestEvent) => {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
-			"x-api-key": env.GALLERY_API_KEY,
-			Origin: env.PORTAL_URL,
+			"x-api-key": env.GALLERY_API_KEY ?? "",
+			Origin: env.PORTAL_URL ?? "",
 		},
 	});
 
