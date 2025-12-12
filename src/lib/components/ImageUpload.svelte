@@ -17,6 +17,7 @@
 	let fileInput: HTMLInputElement;
 	let uploading = $state(false);
 	let error = $state("");
+	let success = $state("");
 	// svelte-ignore state_referenced_locally
 	let previewUrl = $state(currentImageId ? `/api/image/${currentImageId}` : "");
 
@@ -68,12 +69,16 @@
 		}
 	});
 
-	function cancelCrop() {
+	function closeCropperModal() {
 		showCropper = false;
 		if (tempImageUrl) {
 			URL.revokeObjectURL(tempImageUrl);
 			tempImageUrl = "";
 		}
+	}
+
+	function cancelCrop() {
+		closeCropperModal();
 		error = "";
 	}
 
@@ -106,18 +111,21 @@
 			// Create a new file from the blob
 			const file = new File([blob], originalFile?.name || "image.png", { type: blob.type });
 
-			// Proceed with upload
-			await uploadFile(file);
+			// Show local preview immediately
+			previewUrl = URL.createObjectURL(file);
 
-			// Cleanup
-			cancelCrop();
+			// Close modal immediately
+			closeCropperModal();
+
+			// Proceed with upload in background
+			await uploadFile(file);
 		});
 	}
 
 	async function uploadFile(file: File) {
 		uploading = true;
-		// Show local preview immediately
-		previewUrl = URL.createObjectURL(file);
+		error = "";
+		success = "";
 
 		const formData = new FormData();
 		formData.append("image", file);
@@ -141,6 +149,11 @@
 
 			const data = await res.json();
 			onImageUploaded(data.id);
+			success = "Image uploadée avec succès !";
+			// Auto-hide success message after 3 seconds
+			setTimeout(() => {
+				success = "";
+			}, 3000);
 		} catch (e) {
 			error = "Erreur lors de l'upload de l'image";
 			console.error(e);
@@ -170,6 +183,9 @@
 		</button>
 		{#if error}
 			<p class="error">{error}</p>
+		{/if}
+		{#if success}
+			<p class="success">✓ {success}</p>
 		{/if}
 	</div>
 </div>
@@ -233,6 +249,28 @@
 		color: var(--color-secondary);
 		font-size: 0.9rem;
 		margin: 0;
+	}
+
+	.success {
+		color: #16a34a;
+		font-size: 0.9rem;
+		margin: 0;
+		padding: 0.5rem 1rem;
+		background: #dcfce7;
+		border-radius: 6px;
+		font-weight: 500;
+		animation: fadeIn 0.3s ease;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	/* Cropper Modal Styles */

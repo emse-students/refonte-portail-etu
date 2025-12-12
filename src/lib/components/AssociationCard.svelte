@@ -81,9 +81,11 @@
 	:global(.association-logo) {
 		width: 100%;
 		height: 200px;
-		object-fit: cover;
+		object-fit: contain;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
+		padding: 1rem;
+		box-sizing: border-box;
 	}
 
 	.association-logo-placeholder {
