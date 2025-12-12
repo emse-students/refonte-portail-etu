@@ -81,11 +81,13 @@
 	:global(.association-logo) {
 		width: 100%;
 		height: 200px;
-		object-fit: contain;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
-		padding: 1rem;
 		box-sizing: border-box;
+	}
+
+	:global(.association-logo img) {
+		object-fit: contain;
 	}
 
 	.association-logo-placeholder {
