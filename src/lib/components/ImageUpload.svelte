@@ -18,6 +18,7 @@
 	let uploading = $state(false);
 	let error = $state("");
 	let success = $state("");
+	let isDragging = $state(false);
 	// svelte-ignore state_referenced_locally
 	let previewUrl = $state(currentImageId ? `/api/image/${currentImageId}` : "");
 
@@ -28,11 +29,12 @@
 	let tempImageUrl = $state("");
 	let originalFile: File | null = null;
 
-	async function handleFileChange(e: Event) {
-		const target = e.target as HTMLInputElement;
-		if (!target.files || target.files.length === 0) return;
-
-		const file = target.files[0];
+	function processFile(file: File) {
+		// Check file type
+		if (!file.type.startsWith("image/")) {
+			error = "Le fichier doit être une image";
+			return;
+		}
 
 		// Check file size (max 5MB)
 		if (file.size > 5 * 1024 * 1024) {
@@ -44,9 +46,39 @@
 		tempImageUrl = URL.createObjectURL(file);
 		showCropper = true;
 		error = "";
+		success = "";
+	}
+
+	async function handleFileChange(e: Event) {
+		const target = e.target as HTMLInputElement;
+		if (!target.files || target.files.length === 0) return;
+
+		processFile(target.files[0]);
 
 		// Reset input so same file can be selected again if cancelled
 		target.value = "";
+	}
+
+	function handleDragOver(e: DragEvent) {
+		e.preventDefault();
+		isDragging = true;
+	}
+
+	function handleDragLeave(e: DragEvent) {
+		e.preventDefault();
+		isDragging = false;
+	}
+
+	function handleDrop(e: DragEvent) {
+		e.preventDefault();
+		isDragging = false;
+
+		if (uploading) return;
+
+		const files = e.dataTransfer?.files;
+		if (files && files.length > 0) {
+			processFile(files[0]);
+		}
 	}
 
 	$effect(() => {
@@ -163,31 +195,65 @@
 	}
 </script>
 
-<div class="image-upload">
-	{#if previewUrl}
-		<div class="preview">
-			<img src={previewUrl} alt="Aperçu" loading="lazy" />
-		</div>
-	{/if}
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+	class="image-upload"
+	class:dragging={isDragging}
+	ondragover={handleDragOver}
+	ondragleave={handleDragLeave}
+	ondrop={handleDrop}
+>
+	<input
+		type="file"
+		accept="image/*"
+		bind:this={fileInput}
+		onchange={handleFileChange}
+		style="display: none;"
+	/>
 
-	<div class="upload-controls">
-		<input
-			type="file"
-			accept="image/*"
-			bind:this={fileInput}
-			onchange={handleFileChange}
-			style="display: none;"
-		/>
-		<button type="button" class="upload-btn" onclick={() => fileInput.click()} disabled={uploading}>
-			{uploading ? "Upload en cours..." : previewUrl ? "Changer l'image" : "Ajouter une image"}
-		</button>
-		{#if error}
-			<p class="error">{error}</p>
-		{/if}
-		{#if success}
-			<p class="success">✓ {success}</p>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="drop-zone"
+		class:has-preview={previewUrl}
+		onclick={() => !uploading && fileInput.click()}
+	>
+		{#if previewUrl}
+			<div class="preview" class:uploading>
+				<img src={previewUrl} alt="Aperçu" loading="lazy" />
+				{#if uploading}
+					<div class="upload-overlay">
+						<div class="spinner"></div>
+					</div>
+				{/if}
+			</div>
+			<span class="change-hint">Cliquer ou glisser pour changer</span>
+		{:else}
+			<div class="upload-placeholder">
+				<svg
+					width="32"
+					height="32"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+					<polyline points="17 8 12 3 7 8" />
+					<line x1="12" y1="3" x2="12" y2="15" />
+				</svg>
+				<span>Glisser une image ou cliquer</span>
+				<span class="hint">PNG, JPG jusqu'à 5Mo</span>
+			</div>
 		{/if}
 	</div>
+
+	{#if error}
+		<p class="error">{error}</p>
+	{/if}
+	{#if success}
+		<p class="success">✓ {success}</p>
+	{/if}
 </div>
 
 {#if showCropper}
@@ -211,17 +277,72 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.image-upload.dragging .drop-zone {
+		border-color: var(--color-primary);
+		background: var(--color-primary-light, rgba(var(--color-primary-rgb, 59, 130, 246), 0.1));
+	}
+
+	.drop-zone {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 1.5rem;
+		border: 2px dashed var(--color-text-light);
+		border-radius: 12px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		background: var(--color-bg-1);
+		min-width: 200px;
+	}
+
+	.drop-zone:hover {
+		border-color: var(--color-primary);
+		background: var(--color-bg-2);
+	}
+
+	.drop-zone.has-preview {
+		padding: 1rem;
+	}
+
+	.upload-placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--color-text-light);
+	}
+
+	.upload-placeholder svg {
+		opacity: 0.7;
+	}
+
+	.upload-placeholder span {
+		font-size: 0.95rem;
+		font-weight: 500;
+	}
+
+	.upload-placeholder .hint {
+		font-size: 0.8rem;
+		opacity: 0.7;
 	}
 
 	.preview {
-		width: 150px;
-		height: 150px;
+		position: relative;
+		width: 120px;
+		height: 120px;
 		border-radius: 50%;
 		overflow: hidden;
 		border: 3px solid var(--color-primary);
 		background: var(--bg-secondary);
+	}
+
+	.preview.uploading {
+		opacity: 0.7;
 	}
 
 	.preview img {
@@ -230,19 +351,34 @@
 		object-fit: cover;
 	}
 
-	.upload-btn {
-		padding: 0.5rem 1rem;
-		background: var(--color-bg-1);
-		border: 1px solid var(--color-text-light);
-		border-radius: 8px;
-		cursor: pointer;
-		color: var(--color-text);
-		font-weight: 500;
-		transition: all 0.2s;
+	.upload-overlay {
+		position: absolute;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
-	.upload-btn:hover {
-		background: var(--color-bg-2);
+	.spinner {
+		width: 32px;
+		height: 32px;
+		border: 3px solid rgba(255, 255, 255, 0.3);
+		border-top-color: white;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.change-hint {
+		font-size: 0.8rem;
+		color: var(--color-text-light);
+		opacity: 0.8;
 	}
 
 	.error {
@@ -309,7 +445,7 @@
 	.cropper-container {
 		width: 100%;
 		height: 400px;
-		background: #333;
+		background: #f5f5f5;
 		border-radius: 8px;
 		overflow: hidden;
 	}
@@ -351,26 +487,38 @@
 		color: white;
 	}
 
-	/* Cropperjs overrides to fix transparency issues */
+	/* Cropperjs overrides - show cropped areas with transparency */
 	:global(.cropper-container) {
+		background: #f5f5f5 !important;
+	}
+
+	:global(.cropper-wrap-box) {
+		background: transparent !important;
+	}
+
+	:global(.cropper-canvas) {
+		background: transparent !important;
+	}
+
+	:global(.cropper-drag-box) {
+		background: transparent !important;
+	}
+
+	:global(.cropper-modal) {
+		background-color: rgba(0, 0, 0, 0.3) !important;
 		opacity: 1 !important;
 	}
 
 	:global(.cropper-view-box) {
-		opacity: 1 !important;
+		outline: 2px solid var(--color-primary) !important;
+		outline-color: rgba(59, 130, 246, 0.9) !important;
 	}
 
-	:global(.cropper-view-box img) {
-		opacity: 1 !important;
+	:global(.cropper-line) {
+		background-color: var(--color-primary) !important;
 	}
 
-	:global(.cropper-face) {
-		opacity: 1 !important;
-		background-color: transparent !important;
-	}
-
-	:global(.cropper-modal) {
-		background-color: rgba(0, 0, 0, 0.5) !important;
-		opacity: 1 !important;
+	:global(.cropper-point) {
+		background-color: var(--color-primary) !important;
 	}
 </style>
