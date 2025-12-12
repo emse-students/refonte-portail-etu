@@ -80,7 +80,24 @@
 	function confirmCrop() {
 		if (!cropper) return;
 
-		cropper.getCroppedCanvas().toBlob(async (blob: Blob | null) => {
+		// Get cropped canvas with white background to handle transparency
+		const croppedCanvas = cropper.getCroppedCanvas();
+
+		// Create a new canvas with white background
+		const canvasWithBg = document.createElement("canvas");
+		canvasWithBg.width = croppedCanvas.width;
+		canvasWithBg.height = croppedCanvas.height;
+		const ctx = canvasWithBg.getContext("2d");
+
+		if (ctx) {
+			// Fill with white background
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fillRect(0, 0, canvasWithBg.width, canvasWithBg.height);
+			// Draw the cropped image on top
+			ctx.drawImage(croppedCanvas, 0, 0);
+		}
+
+		canvasWithBg.toBlob(async (blob: Blob | null) => {
 			if (!blob) {
 				error = "Erreur lors du recadrage";
 				return;
@@ -294,5 +311,28 @@
 	.btn-confirm {
 		background: var(--color-primary);
 		color: white;
+	}
+
+	/* Cropperjs overrides to fix transparency issues */
+	:global(.cropper-container) {
+		opacity: 1 !important;
+	}
+
+	:global(.cropper-view-box) {
+		opacity: 1 !important;
+	}
+
+	:global(.cropper-view-box img) {
+		opacity: 1 !important;
+	}
+
+	:global(.cropper-face) {
+		opacity: 1 !important;
+		background-color: transparent !important;
+	}
+
+	:global(.cropper-modal) {
+		background-color: rgba(0, 0, 0, 0.5) !important;
+		opacity: 1 !important;
 	}
 </style>
