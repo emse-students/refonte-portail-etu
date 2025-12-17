@@ -5,7 +5,7 @@
 	import TableEditor from "$lib/components/TableEditor.svelte";
 	import type { RawEvent, RawList, RawRole } from "$lib/databasetypes";
 
-	let { data } = $props();
+	//let { data } = $props();
 
 	// Types
 	type View =

@@ -9,6 +9,8 @@ describe("Admin Logs Page", () => {
 				{ action: "Update User 1", user: "admin", timestamp: "2023-01-01 12:00:00" },
 				{ action: "Delete Event 2", user: "admin", timestamp: "2023-01-02 12:00:00" },
 			],
+			session: undefined,
+			userData: undefined,
 		};
 
 		render(AdminLogsPage, { data: mockData });
@@ -20,13 +22,13 @@ describe("Admin Logs Page", () => {
 	});
 
 	it("renders empty state when no logs", () => {
-		render(AdminLogsPage, { data: { logs: [] } });
+		render(AdminLogsPage, { data: { logs: [], session: undefined, userData: undefined } });
 
 		expect(screen.getByText("No logs found")).toBeInTheDocument();
 	});
 
 	it("has a back link to dashboard", () => {
-		render(AdminLogsPage, { data: { logs: [] } });
+		render(AdminLogsPage, { data: { logs: [], session: undefined, userData: undefined } });
 		const link = screen.getByRole("link", { name: "Retour au Dashboard" });
 		expect(link).toHaveAttribute("href", "/admin");
 	});
