@@ -42,7 +42,7 @@
 </script>
 
 <nav class="bottom-nav">
-	{#each links as link}
+	{#each links as link (link.href)}
 		<a
 			href={link.href}
 			class="nav-item"

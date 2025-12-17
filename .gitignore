@@ -44,3 +44,7 @@ coverage
 test-results
 tests/__**
 playwright-report
+
+# Logs
+logs/
+*.log

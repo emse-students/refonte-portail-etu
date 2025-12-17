@@ -23,9 +23,9 @@ type SessionData = {
 	id: number;
 	first_name: string;
 	last_name: string;
+	permissions: number;
 	email: string;
 	login: string;
-	permissions: number;
 	promo: number;
 	lists: CompactMembership[];
 	associations: CompactMembership[];
@@ -115,7 +115,6 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					last_name: sessionData.last_name,
 					email: sessionData.email,
 					login: sessionData.login,
-					permissions: sessionData.permissions,
 					promo: sessionData.promo,
 				},
 				role: {
@@ -136,7 +135,6 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					last_name: sessionData.last_name,
 					email: sessionData.email,
 					login: sessionData.login,
-					permissions: sessionData.permissions,
 					promo: sessionData.promo,
 				},
 				role: {

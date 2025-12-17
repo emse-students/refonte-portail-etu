@@ -19,8 +19,7 @@
 	let error = $state("");
 	let success = $state("");
 	let isDragging = $state(false);
-	// svelte-ignore state_referenced_locally
-	let previewUrl = $state(currentImageId ? `/api/image/${currentImageId}` : "");
+	let previewUrl = $derived(currentImageId ? `/api/image/${currentImageId}` : "");
 
 	// Cropper state
 	let showCropper = $state(false);

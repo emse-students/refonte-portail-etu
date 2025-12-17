@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Association } from "$lib/databasetypes";
 
-	export let association: Association;
+	let { association }: { association: Association } = $props();
 
 	import { resolve } from "$app/paths";
 	import { of } from "$lib/utils";

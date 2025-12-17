@@ -50,17 +50,26 @@
 <svelte:window onkeydown={handleKeydown} onpopstate={handlePopstate} />
 
 {#if open}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" onclick={close} transition:fade={{ duration: 200 }}>
+	<div
+		class="modal-backdrop"
+		onclick={close}
+		onkeydown={(e) => {
+			if (e.key === "Enter" || e.key === " ") close();
+		}}
+		role="button"
+		tabindex="0"
+		aria-label="Fermer la modale"
+		transition:fade={{ duration: 200 }}
+	>
 		<div
 			bind:this={modal}
 			class="modal"
 			onclick={(e) => e.stopPropagation()}
-			transition:scale={{ duration: 200, start: 0.95 }}
+			onkeydown={(e) => e.stopPropagation()}
 			role="dialog"
 			aria-modal="true"
 			tabindex="0"
+			transition:scale={{ duration: 200, start: 0.95 }}
 		>
 			{#if title}
 				<header class="modal-header">
@@ -90,6 +99,7 @@
 		backdrop-filter: blur(4px);
 		overflow-y: auto;
 		padding: 2rem 0;
+		cursor: pointer;
 	}
 
 	.modal {
@@ -104,6 +114,7 @@
 		flex-direction: column;
 		margin: auto;
 		overflow: visible;
+		cursor: default;
 	}
 
 	.modal-header {

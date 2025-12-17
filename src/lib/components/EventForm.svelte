@@ -14,25 +14,6 @@
 			isOpen: boolean;
 		}>();
 
-	// svelte-ignore state_referenced_locally
-	let entityType = $state<"association" | "list">(event?.list_id ? "list" : "association");
-
-	let selectedAssociationId = $state(
-		// svelte-ignore state_referenced_locally
-		event?.association_id ||
-			association?.id ||
-			(associations && associations.length === 1 ? associations[0].id : "")
-	);
-
-	// svelte-ignore state_referenced_locally
-	let selectedListId = $state(event?.list_id || (lists && lists.length === 1 ? lists[0].id : ""));
-
-	// svelte-ignore state_referenced_locally
-	let title = $state(event?.title || "");
-	// svelte-ignore state_referenced_locally
-	let description = $state(event?.description || "");
-	let showDeleteConfirm = $state(false);
-
 	// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
 	function formatDateForInput(date: Date) {
 		const d = new Date(date);
@@ -40,24 +21,43 @@
 		return d.toISOString().slice(0, 16);
 	}
 
-	let startDate = $state(
-		// svelte-ignore state_referenced_locally
-		event
-			? formatDateForInput(event.start_date)
-			: initialDate
-				? formatDateForInput(initialDate)
-				: ""
-	);
-	let endDate = $state(
-		// svelte-ignore state_referenced_locally
-		event
-			? formatDateForInput(event.end_date)
-			: initialDate
-				? formatDateForInput(new Date(initialDate.getTime() + 3600000))
-				: ""
-	); // Default +1 hour
-	// svelte-ignore state_referenced_locally
-	let location = $state(event?.location || "");
+	function getInitialState(
+		event: RawEvent | undefined,
+		initialDate: Date | undefined,
+		association: Association | undefined,
+		associations: Association[] | undefined,
+		lists: List[] | undefined
+	) {
+		return {
+			entityType: (event?.list_id ? "list" : "association") as "association" | "list",
+			selectedAssociationId:
+				event?.association_id ||
+				association?.id ||
+				(associations && associations.length === 1 ? associations[0].id : ""),
+			selectedListId: event?.list_id || (lists && lists.length === 1 ? lists[0].id : ""),
+			title: event?.title || "",
+			description: event?.description || "",
+			startDate: event
+				? formatDateForInput(event.start_date)
+				: initialDate
+					? formatDateForInput(initialDate)
+					: "",
+			endDate: event
+				? formatDateForInput(event.end_date)
+				: initialDate
+					? formatDateForInput(new Date(initialDate.getTime() + 3600000))
+					: "",
+			location: event?.location || "",
+		};
+	}
+
+	let formState = $state(getInitialState(event, initialDate, association, associations, lists));
+
+	$effect(() => {
+		formState = getInitialState(event, initialDate, association, associations, lists);
+	});
+
+	let showDeleteConfirm = $state(false);
 	let error = $state("");
 	let loading = $state(false);
 
@@ -66,12 +66,12 @@
 		loading = true;
 		error = "";
 
-		if (entityType === "association" && !selectedAssociationId) {
+		if (formState.entityType === "association" && !formState.selectedAssociationId) {
 			error = "Veuillez sélectionner une association";
 			loading = false;
 			return;
 		}
-		if (entityType === "list" && !selectedListId) {
+		if (formState.entityType === "list" && !formState.selectedListId) {
 			error = "Veuillez sélectionner une liste";
 			loading = false;
 			return;
@@ -80,19 +80,19 @@
 		try {
 			const method = event ? "PUT" : "POST";
 			const body: Partial<RawEvent> = {
-				title,
-				description,
-				start_date: new Date(startDate),
-				end_date: new Date(endDate),
-				location,
+				title: formState.title,
+				description: formState.description,
+				start_date: new Date(formState.startDate),
+				end_date: new Date(formState.endDate),
+				location: formState.location,
 				validated: event?.validated ?? !isOpen,
 			};
 
-			if (entityType === "association") {
-				body.association_id = selectedAssociationId;
+			if (formState.entityType === "association") {
+				body.association_id = Number(formState.selectedAssociationId);
 				body.list_id = undefined;
 			} else {
-				body.list_id = selectedListId;
+				body.list_id = Number(formState.selectedListId);
 				body.association_id = undefined;
 			}
 
@@ -168,18 +168,18 @@
 				<span class="label">Type d'entité</span>
 				<div class="radio-group">
 					<label>
-						<input type="radio" bind:group={entityType} value="association" /> Association
+						<input type="radio" bind:group={formState.entityType} value="association" /> Association
 					</label>
 					<label>
-						<input type="radio" bind:group={entityType} value="list" /> Liste
+						<input type="radio" bind:group={formState.entityType} value="list" /> Liste
 					</label>
 				</div>
 			</div>
 
-			{#if entityType === "association"}
+			{#if formState.entityType === "association"}
 				<div class="form-group">
 					<label for="association">Association</label>
-					<select id="association" bind:value={selectedAssociationId} required>
+					<select id="association" bind:value={formState.selectedAssociationId} required>
 						<option value="" disabled selected>Choisir une association</option>
 						{#each associations || [] as assoc}
 							<option value={assoc.id}>{assoc.name}</option>
@@ -189,7 +189,7 @@
 			{:else}
 				<div class="form-group">
 					<label for="list">Liste</label>
-					<select id="list" bind:value={selectedListId} required>
+					<select id="list" bind:value={formState.selectedListId} required>
 						<option value="" disabled selected>Choisir une liste</option>
 						{#each lists || [] as list}
 							<option value={list.id}>{list.name}</option>
@@ -203,27 +203,27 @@
 
 		<div class="form-group">
 			<label for="title">Titre</label>
-			<input type="text" id="title" bind:value={title} required />
+			<input type="text" id="title" bind:value={formState.title} required />
 		</div>
 
 		<div class="form-group">
 			<label for="description">Description</label>
-			<textarea id="description" bind:value={description}></textarea>
+			<textarea id="description" bind:value={formState.description}></textarea>
 		</div>
 
 		<div class="form-group">
 			<label for="start-date">Début</label>
-			<input type="datetime-local" id="start-date" bind:value={startDate} required />
+			<input type="datetime-local" id="start-date" bind:value={formState.startDate} required />
 		</div>
 
 		<div class="form-group">
 			<label for="end-date">Fin</label>
-			<input type="datetime-local" id="end-date" bind:value={endDate} required />
+			<input type="datetime-local" id="end-date" bind:value={formState.endDate} required />
 		</div>
 
 		<div class="form-group">
 			<label for="location">Lieu</label>
-			<input type="text" id="location" bind:value={location} />
+			<input type="text" id="location" bind:value={formState.location} />
 		</div>
 
 		<div class="actions">

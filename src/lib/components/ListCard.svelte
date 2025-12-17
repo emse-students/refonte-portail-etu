@@ -5,7 +5,7 @@
 		association_name?: string;
 	}
 
-	export let list: ListWithAssociation;
+	let { list }: { list: ListWithAssociation } = $props();
 
 	import { resolve } from "$app/paths";
 	import { of } from "$lib/utils";

@@ -115,9 +115,11 @@ describe("Admin Page", () => {
 		await fireEvent.click(usersNav);
 
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("John")[0]).toBeInTheDocument();
+			expect(screen.getAllByText("Doe")[0]).toBeInTheDocument();
 			expect(screen.getByText("jdoe")).toBeInTheDocument();
-			expect(screen.getByText("Admin User")).toBeInTheDocument();
+			expect(screen.getAllByText("Admin")[0]).toBeInTheDocument();
+			expect(screen.getAllByText("User")[0]).toBeInTheDocument();
 		});
 	});
 
@@ -128,15 +130,15 @@ describe("Admin Page", () => {
 		await fireEvent.click(usersNav);
 
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("John")[0]).toBeInTheDocument();
 		});
 
 		const searchInput = screen.getByPlaceholderText("Rechercher...");
 		await fireEvent.input(searchInput, { target: { value: "Admin" } });
 
 		await waitFor(() => {
-			expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
-			expect(screen.getByText("Admin User")).toBeInTheDocument();
+			expect(screen.queryByText("John")).not.toBeInTheDocument();
+			expect(screen.getAllByText("Admin")[0]).toBeInTheDocument();
 		});
 	});
 
@@ -147,15 +149,15 @@ describe("Admin Page", () => {
 		await fireEvent.click(usersNav);
 
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("John")[0]).toBeInTheDocument();
 		});
 
 		const adminCheckbox = screen.getByLabelText("Admins seulement");
 		await fireEvent.click(adminCheckbox);
 
 		await waitFor(() => {
-			expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
-			expect(screen.getByText("Admin User")).toBeInTheDocument();
+			expect(screen.queryByText("John")).not.toBeInTheDocument();
+			expect(screen.getAllByText("Admin")[0]).toBeInTheDocument();
 		});
 	});
 
@@ -167,7 +169,7 @@ describe("Admin Page", () => {
 
 		await waitFor(() => {
 			expect(screen.getByText("Asso 1")).toBeInTheDocument();
-			expect(screen.getByText("@asso-1")).toBeInTheDocument();
+			expect(screen.getByText("asso-1")).toBeInTheDocument();
 		});
 	});
 
@@ -178,7 +180,7 @@ describe("Admin Page", () => {
 		await fireEvent.click(usersNav);
 
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("John")[0]).toBeInTheDocument();
 		});
 
 		const detailsBtns = screen.getAllByText("Détails");
@@ -198,7 +200,7 @@ describe("Admin Page", () => {
 		await fireEvent.click(usersNav);
 
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getAllByText("John")[0]).toBeInTheDocument();
 		});
 
 		const deleteBtns = screen.getAllByText("Supprimer");

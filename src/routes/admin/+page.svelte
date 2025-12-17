@@ -2,9 +2,19 @@
 	import { resolve } from "$app/paths";
 	import { onMount } from "svelte";
 	import Permission, { getPermissionName } from "$lib/permissions";
+	import TableEditor from "$lib/components/TableEditor.svelte";
+	import type { RawEvent, RawList, RawRole } from "$lib/databasetypes";
 
 	// Types
-	type View = "dashboard" | "users" | "user-details" | "associations" | "roles" | "system";
+	type View =
+		| "dashboard"
+		| "users"
+		| "user-details"
+		| "associations"
+		| "events"
+		| "lists"
+		| "roles"
+		| "system";
 	type User = {
 		id: number;
 		first_name: string;
@@ -32,6 +42,9 @@
 	let currentView = $state<View>("dashboard");
 	let users = $state<User[]>([]);
 	let associations = $state<Association[]>([]);
+	let events = $state<RawEvent[]>([]);
+	let lists = $state<RawList[]>([]);
+	let roles = $state<RawRole[]>([]);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
@@ -72,10 +85,13 @@
 	async function loadAllData() {
 		loading = true;
 		try {
-			const [usersRes, assosRes, configRes] = await Promise.all([
+			const [usersRes, assosRes, configRes, eventsRes, listsRes, rolesRes] = await Promise.all([
 				fetch(resolve("/api/users")),
 				fetch(resolve("/api/associations")),
 				fetch(resolve("/api/config")),
+				fetch(resolve("/api/events")),
+				fetch(resolve("/api/lists")),
+				fetch(resolve("/api/roles")),
 			]);
 
 			if (usersRes.ok) users = await usersRes.json();
@@ -84,6 +100,9 @@
 				const data = await configRes.json();
 				config = { ...config, ...data };
 			}
+			if (eventsRes.ok) events = await eventsRes.json();
+			if (listsRes.ok) lists = await listsRes.json();
+			if (rolesRes.ok) roles = await rolesRes.json();
 		} catch (e) {
 			error = "Erreur de chargement des données";
 			console.error(e);
@@ -152,6 +171,49 @@
 			alert("Erreur réseau");
 		}
 	}
+
+	const userColumns = [
+		{ key: "id", label: "ID" },
+		{ key: "first_name", label: "First Name", editable: true },
+		{ key: "last_name", label: "Last Name", editable: true },
+		{ key: "email", label: "Email", editable: true },
+		{ key: "login", label: "Login", editable: true },
+		{ key: "promo", label: "Promo", editable: true, type: "number" },
+	];
+
+	const associationColumns = [
+		{ key: "id", label: "ID" },
+		{ key: "name", label: "Name", editable: true },
+		{ key: "handle", label: "Handle", editable: true },
+		{ key: "description", label: "Description", editable: true },
+		{ key: "color", label: "Color", editable: true, type: "number" },
+	];
+
+	const eventColumns = [
+		{ key: "id", label: "ID" },
+		{ key: "title", label: "Title", editable: true },
+		{ key: "description", label: "Description", editable: true },
+		{ key: "location", label: "Location", editable: true },
+		{ key: "start_date", label: "Start Date", editable: true, type: "datetime-local" },
+		{ key: "end_date", label: "End Date", editable: true, type: "datetime-local" },
+		{ key: "validated", label: "Validated", editable: true, type: "boolean" },
+	];
+
+	const listColumns = [
+		{ key: "id", label: "ID" },
+		{ key: "name", label: "Name", editable: true },
+		{ key: "handle", label: "Handle", editable: true },
+		{ key: "description", label: "Description", editable: true },
+		{ key: "promo", label: "Promo", editable: true, type: "number" },
+		{ key: "color", label: "Color", editable: true, type: "number" },
+	];
+
+	const roleColumns = [
+		{ key: "id", label: "ID" },
+		{ key: "name", label: "Name", editable: true },
+		{ key: "hierarchy", label: "Hierarchy", editable: true, type: "number" },
+		{ key: "permissions", label: "Permissions", editable: true, type: "number" },
+	];
 </script>
 
 <div class="admin-container">
@@ -172,6 +234,15 @@
 				onclick={() => (currentView = "associations")}
 			>
 				Associations
+			</button>
+			<button class:active={currentView === "events"} onclick={() => (currentView = "events")}>
+				Événements
+			</button>
+			<button class:active={currentView === "lists"} onclick={() => (currentView = "lists")}>
+				Listes
+			</button>
+			<button class:active={currentView === "roles"} onclick={() => (currentView = "roles")}>
+				Rôles
 			</button>
 			<button class:active={currentView === "system"} onclick={() => (currentView = "system")}>
 				Système
@@ -217,45 +288,19 @@
 				</div>
 
 				<div class="table-container">
-					<table>
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>Nom</th>
-								<th>Login</th>
-								<th>Promo</th>
-								<th>Permissions Globales</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each filteredUsers as user}
-								<tr>
-									<td>{user.id}</td>
-									<td>{user.first_name} {user.last_name}</td>
-									<td>{user.login}</td>
-									<td>{user.promo}</td>
-									<td>
-										<span
-											class="badge"
-											class:admin={user.permissions >= Permission.ADMIN}
-											class:site-admin={user.permissions >= Permission.SITE_ADMIN}
-										>
-											{getPermissionName(user.permissions)}
-										</span>
-									</td>
-									<td class="actions-cell">
-										<button class="btn-secondary" onclick={() => viewUserDetails(user)}>
-											Détails
-										</button>
-										<button class="btn-danger" onclick={() => deleteUser(user.id)}>
-											Supprimer
-										</button>
-									</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
+					<TableEditor
+						data={filteredUsers}
+						columns={userColumns}
+						action="?/updateUser"
+						extraActions={[
+							{
+								label: "Détails",
+								onClick: (item) => viewUserDetails(item),
+								class: "btn-secondary",
+							},
+							{ label: "Supprimer", onClick: (item) => deleteUser(item.id), class: "btn-danger" },
+						]}
+					/>
 				</div>
 
 				<!-- USER DETAILS VIEW -->
@@ -292,7 +337,7 @@
 									<td colspan="3" class="text-center">Aucun rôle assigné</td>
 								</tr>
 							{:else}
-								{#each userRoles as role}
+								{#each userRoles as role (role.role_name + role.association_name + role.list_name)}
 									<tr>
 										<td>{role.role_name}</td>
 										<td>
@@ -315,14 +360,33 @@
 				<!-- ASSOCIATIONS VIEW -->
 			{:else if currentView === "associations"}
 				<h1>Associations</h1>
-				<div class="grid-list">
-					{#each associations as asso}
-						<div class="card">
-							<h3>{asso.name}</h3>
-							<p class="handle">@{asso.handle}</p>
-							<p>{asso.description}</p>
-						</div>
-					{/each}
+				<div class="table-container">
+					<TableEditor
+						data={associations}
+						columns={associationColumns}
+						action="?/updateAssociation"
+					/>
+				</div>
+
+				<!-- EVENTS VIEW -->
+			{:else if currentView === "events"}
+				<h1>Événements</h1>
+				<div class="table-container">
+					<TableEditor data={events} columns={eventColumns} action="?/updateEvent" />
+				</div>
+
+				<!-- LISTS VIEW -->
+			{:else if currentView === "lists"}
+				<h1>Listes</h1>
+				<div class="table-container">
+					<TableEditor data={lists} columns={listColumns} action="?/updateList" />
+				</div>
+
+				<!-- ROLES VIEW -->
+			{:else if currentView === "roles"}
+				<h1>Rôles</h1>
+				<div class="table-container">
+					<TableEditor data={roles} columns={roleColumns} action="?/updateRole" />
 				</div>
 
 				<!-- SYSTEM VIEW -->
@@ -535,16 +599,6 @@
 		background-color: #e0e0e0;
 	}
 
-	.badge.admin {
-		background-color: #f1c40f;
-		color: #fff;
-	}
-
-	.badge.site-admin {
-		background-color: #e74c3c;
-		color: #fff;
-	}
-
 	.badge.association {
 		background-color: #3498db;
 		color: #fff;
@@ -553,15 +607,6 @@
 	.badge.list {
 		background-color: #9b59b6;
 		color: #fff;
-	}
-
-	.btn-danger {
-		background-color: #e74c3c;
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 4px;
-		cursor: pointer;
 	}
 
 	.btn-secondary {
@@ -573,11 +618,6 @@
 		cursor: pointer;
 	}
 
-	.actions-cell {
-		display: flex;
-		gap: 0.5rem;
-	}
-
 	.mb-4 {
 		margin-bottom: 1.5rem;
 	}
@@ -586,21 +626,10 @@
 		text-align: center;
 	}
 
-	.grid-list {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 1.5rem;
-	}
-
 	.card {
 		background: white;
 		padding: 1.5rem;
 		border-radius: 8px;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-	}
-
-	.handle {
-		color: #7f8c8d;
-		font-style: italic;
 	}
 </style>

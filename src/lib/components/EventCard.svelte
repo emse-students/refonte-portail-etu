@@ -5,10 +5,8 @@
 	let { event }: { event: RawEvent } = $props();
 
 	// Formater les dates
-	// svelte-ignore state_referenced_locally
-	const startDate = new Date(event.start_date);
-	// svelte-ignore state_referenced_locally
-	const endDate = new Date(event.end_date);
+	let startDate = $derived(new Date(event.start_date));
+	let endDate = $derived(new Date(event.end_date));
 
 	const formatDate = (date: Date) => {
 		return date.toLocaleDateString("fr-FR", {
@@ -25,7 +23,7 @@
 		});
 	};
 
-	const isSameDay = startDate.toDateString() === endDate.toDateString();
+	let isSameDay = $derived(startDate.toDateString() === endDate.toDateString());
 </script>
 
 <div class="event-card">
