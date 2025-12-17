@@ -51,6 +51,7 @@
 		};
 	}
 
+	//svelte-ignore state_referenced_locally
 	let formState = $state(getInitialState(event, initialDate, association, associations, lists));
 
 	$effect(() => {
