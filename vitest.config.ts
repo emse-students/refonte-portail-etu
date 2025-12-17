@@ -10,7 +10,7 @@ export default defineConfig({
 		environment: "jsdom",
 		setupFiles: ["tests/setup.ts"],
 		css: false,
-		reporters: process.env.CI ? ["github-actions"] : ["default"],
+		reporters: process.env.CI ? ["default", "github-actions"] : ["default"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],
