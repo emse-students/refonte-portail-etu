@@ -11,7 +11,11 @@
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
 
 	let { data } = $props();
-	const association = $derived(data.association);
+	// svelte-ignore state_referenced_locally
+	let association = $state(data.association);
+	$effect(() => {
+		association = data.association;
+	});
 	const events = $derived(data.events || []);
 	const roles = $derived(data.roles || []);
 	const userData = $derived(data.userData);
@@ -163,9 +167,7 @@
 		});
 		if (res.ok) {
 			showDeleteConfirmModal = false;
-			data.association.members = data.association.members.filter(
-				(m) => m.id !== memberToDelete!.id
-			);
+			association.members = association.members.filter((m) => m.id !== memberToDelete!.id);
 			memberToDelete = null;
 			await invalidateAll();
 		} else {
@@ -197,7 +199,13 @@
 		});
 		if (res.ok) {
 			showEditRoleModal = false;
-			data.association.members.find((m) => m.id === selectedMember!.id)!.role.id = selectedRole!;
+			const newRole = roles.find((r) => r.id === selectedRole);
+			if (newRole) {
+				const member = association.members.find((m) => m.id === selectedMember!.id);
+				if (member) {
+					member.role = newRole;
+				}
+			}
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du rôle");
