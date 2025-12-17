@@ -250,7 +250,7 @@
 	.primary-btn {
 		padding: 0.75rem 1.5rem;
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -259,6 +259,10 @@
 
 	.primary-btn:hover {
 		background: var(--color-primary-dark);
+	}
+
+	:global([data-theme="dark"]) .primary-btn:hover {
+		background: var(--color-primary-light);
 	}
 
 	.container {
@@ -328,6 +332,10 @@
 		background: var(--color-primary-dark);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-lg);
+	}
+
+	:global([data-theme="dark"]) .promo-header:hover {
+		background: var(--color-primary-light);
 	}
 
 	.promo-header h2 {

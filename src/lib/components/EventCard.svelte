@@ -26,15 +26,21 @@
 	let isSameDay = $derived(startDate.toDateString() === endDate.toDateString());
 </script>
 
-<div class="event-card">
+<article class="event-card">
 	<div class="event-header">
 		<h3 class="event-title">{event.title}</h3>
 		<div class="event-date">
 			{#if isSameDay}
-				<span class="date-text">{formatDate(startDate)}</span>
-				<span class="time-text">{formatTime(startDate)} - {formatTime(endDate)}</span>
+				<time datetime={startDate.toISOString()} class="date-text">{formatDate(startDate)}</time>
+				<span class="time-text">
+					<time datetime={startDate.toISOString()}>{formatTime(startDate)}</time> -
+					<time datetime={endDate.toISOString()}>{formatTime(endDate)}</time>
+				</span>
 			{:else}
-				<span class="date-text">Du {formatDate(startDate)} au {formatDate(endDate)}</span>
+				<span class="date-text"
+					>Du <time datetime={startDate.toISOString()}>{formatDate(startDate)}</time> au
+					<time datetime={endDate.toISOString()}>{formatDate(endDate)}</time></span
+				>
 			{/if}
 		</div>
 	</div>
@@ -49,7 +55,7 @@
 			<span>{event.location}</span>
 		</div>
 	{/if}
-</div>
+</article>
 
 <style>
 	.event-card {

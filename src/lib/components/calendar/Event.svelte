@@ -2,6 +2,8 @@
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { resolve } from "$app/paths";
+	import { onMount } from "svelte";
+
 	let {
 		title,
 		start_date,
@@ -31,25 +33,26 @@
 	let entity_link = $state("");
 	let is_list = $state(false);
 
-	// svelte-ignore state_referenced_locally
-	if (association_id) {
-		fetch(resolve(`/api/associations/${association_id}`))
-			.then((res) => res.json())
-			.then((data: Association) => {
-				entity_name = data.name;
-				entity_handle = data.handle;
-				entity_link = resolve(`/associations/${entity_handle}`);
-			});
-	} else if (list_id) {
-		is_list = true;
-		fetch(resolve(`/api/lists/${list_id}`))
-			.then((res) => res.json())
-			.then((data: List) => {
-				entity_name = data.name;
-				entity_handle = data.handle;
-				entity_link = resolve(`/lists/${entity_handle}`);
-			});
-	}
+	onMount(() => {
+		if (association_id) {
+			fetch(resolve(`/api/associations/${association_id}`))
+				.then((res) => res.json())
+				.then((data: Association) => {
+					entity_name = data.name;
+					entity_handle = data.handle;
+					entity_link = resolve(`/associations/${entity_handle}`);
+				});
+		} else if (list_id) {
+			is_list = true;
+			fetch(resolve(`/api/lists/${list_id}`))
+				.then((res) => res.json())
+				.then((data: List) => {
+					entity_name = data.name;
+					entity_handle = data.handle;
+					entity_link = resolve(`/lists/${entity_handle}`);
+				});
+		}
+	});
 
 	const palette = [
 		"#f7c873",

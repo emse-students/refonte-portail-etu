@@ -375,7 +375,7 @@
 
 	:global([data-theme="dark"]) .clear-btn:hover {
 		background: var(--accent-primary);
-		color: white;
+		color: var(--color-text-on-primary);
 	}
 
 	:global([data-theme="dark"]) .no-results h2 {

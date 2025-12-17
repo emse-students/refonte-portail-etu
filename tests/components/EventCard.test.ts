@@ -39,9 +39,10 @@ describe("EventCard Component", () => {
 		render(EventCard, { event: baseEvent });
 		// Date: 1 juin 2024
 		// Time: 10:00 - 12:00
-		// Note: Exact format depends on locale, but we can check for parts
+		// The text is now split across <time> tags, so we check for parts
 		expect(screen.getByText(/1 juin 2024/)).toBeInTheDocument();
-		expect(screen.getByText(/10:00 - 12:00/)).toBeInTheDocument();
+		expect(screen.getByText("10:00")).toBeInTheDocument();
+		expect(screen.getByText("12:00")).toBeInTheDocument();
 	});
 
 	it("should format date correctly for multi-day event", () => {
@@ -51,6 +52,10 @@ describe("EventCard Component", () => {
 			end_date: new Date("2024-06-03T18:00:00"),
 		};
 		render(EventCard, { event: multiDayEvent });
-		expect(screen.getByText(/Du 1 juin 2024 au 3 juin 2024/)).toBeInTheDocument();
+		// Text is split: "Du " <time>... " au " <time>...
+		expect(screen.getByText(/Du/)).toBeInTheDocument();
+		expect(screen.getByText(/1 juin 2024/)).toBeInTheDocument();
+		expect(screen.getByText(/au/)).toBeInTheDocument();
+		expect(screen.getByText(/3 juin 2024/)).toBeInTheDocument();
 	});
 });

@@ -3,6 +3,7 @@
 	import BottomNav from "$lib/components/BottomNav.svelte";
 	import "../app.css";
 	import Footer from "./Footer.svelte";
+	import Toast from "$lib/components/Toast.svelte";
 
 	import { page } from "$app/state";
 
@@ -20,6 +21,7 @@
 
 	<Footer />
 	<BottomNav />
+	<Toast />
 </div>
 
 <style>
@@ -39,5 +41,11 @@
 		margin: 0;
 		box-sizing: border-box;
 		overflow-x: hidden;
+	}
+
+	@media (max-width: 768px) {
+		.app {
+			padding-bottom: 4rem; /* Height of BottomNav + spacing */
+		}
 	}
 </style>

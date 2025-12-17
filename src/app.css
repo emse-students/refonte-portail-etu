@@ -1,9 +1,14 @@
 @import "@fontsource/fira-mono";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
 	--font-body:
-		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+		sans-serif;
 	--font-mono: "Fira Mono", monospace;
+	--font-heading:
+		"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+		sans-serif;
 
 	/* Palette Cozy Professional (Navy & Gold) */
 	--color-primary: #1b263b; /* Deep Navy */
@@ -63,7 +68,7 @@
 
 [data-theme="dark"] {
 	/* Dark mode palette */
-	--color-primary: #415a77; /* Steel Blue */
+	--color-primary: #6423b8; /* Steel Blue */
 	--color-primary-light: #778da9;
 	--color-primary-dark: #1b263b;
 	--color-secondary: #e09f3e; /* Gold pops on dark */
@@ -138,7 +143,8 @@ h4,
 h5,
 h6 {
 	color: var(--text-primary);
-	font-weight: 400;
+	font-family: var(--font-heading);
+	font-weight: 600;
 	margin: 0;
 }
 
@@ -203,8 +209,34 @@ button:focus:not(:focus-visible) {
 }
 
 *:focus-visible {
-	outline: 2px solid var(--color-primary);
+	outline: 2px solid var(--color-secondary);
 	outline-offset: 2px;
+}
+
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--color-primary);
+	color: var(--color-text-on-primary);
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--radius-md);
+	font-weight: 600;
+	transition: all 0.2s ease;
+	border: none;
+	cursor: pointer;
+	box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+	background-color: var(--color-primary-light);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+	transform: translateY(0);
+	box-shadow: var(--shadow-sm);
 }
 
 @media (min-width: 720px) {

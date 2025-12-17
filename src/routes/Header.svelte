@@ -17,6 +17,7 @@
 
 	// Theme state
 	let isDark = $state(false);
+	let isMenuOpen = $state(false);
 
 	function toggleTheme() {
 		isDark = !isDark;
@@ -69,17 +70,11 @@
 <header>
 	<div class="header-left">
 		<a href="/">
-			<img
-				src={asset("/logo.png")}
-				alt="Logo BDE EMSE"
-				class="logo-bde"
-				width="2000"
-				height="2000"
-			/>
+			<img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" width="40" height="40" />
 			<span class="site-title">Portail Étudiant</span>
 		</a>
 	</div>
-	<nav class="header-nav">
+	<nav class="header-nav" class:open={isMenuOpen}>
 		<ul bind:this={navUl}>
 			<li aria-current={page.url.pathname === resolve("/") ? "page" : undefined}>
 				<a href={resolve("/")}>Accueil</a>
@@ -297,6 +292,29 @@
 
 		.header-nav {
 			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: var(--color-primary);
+			padding: 1rem;
+			box-shadow: var(--shadow-lg);
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.header-nav.open {
+			display: block;
+			animation: slideDown 0.3s ease-out;
+		}
+
+		.header-nav ul {
+			flex-direction: column;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.nav-underline {
+			display: none;
 		}
 
 		.logo-bde {
@@ -309,6 +327,17 @@
 
 		.site-title {
 			display: none;
+		}
+	}
+
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 </style>

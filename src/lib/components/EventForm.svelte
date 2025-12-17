@@ -398,6 +398,10 @@
 		transform: translateY(-1px);
 	}
 
+	:global([data-theme="dark"]) button[type="submit"]:hover:not(:disabled) {
+		background-color: var(--color-primary-light);
+	}
+
 	button[type="submit"]:disabled {
 		background-color: var(--color-primary-light);
 		cursor: not-allowed;

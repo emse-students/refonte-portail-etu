@@ -273,6 +273,9 @@
 		transform: translateY(-1px);
 		box-shadow: var(--shadow-md);
 	}
+	:global([data-theme="dark"]) .btn-primary:hover {
+		background-color: var(--color-primary-light);
+	}
 	.btn-secondary {
 		background-color: var(--color-secondary);
 		color: var(--color-primary-dark);
@@ -318,5 +321,8 @@
 
 	.primary-btn:hover {
 		background: var(--color-primary-dark);
+	}
+	:global([data-theme="dark"]) .primary-btn:hover {
+		background: var(--color-primary-light);
 	}
 </style>
