@@ -47,7 +47,7 @@
 		"@auth/sveltekit": "^1.11.1",
 		"@typescript-eslint/eslint-plugin": "^8.48.1",
 		"@typescript-eslint/parser": "^8.48.1",
-		"cropperjs": "1",
+		"cropperjs": "2",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.13.0",
