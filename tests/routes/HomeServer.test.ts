@@ -9,11 +9,30 @@ vi.mock("$lib/server/database", () => ({
 	})),
 }));
 
+// Mock events
+vi.mock("$lib/server/events", () => ({
+	fetchEvents: vi.fn().mockResolvedValue([]),
+}));
+
+// Mock auth middleware
+vi.mock("$lib/server/auth-middleware", () => ({
+	getAuthorizedAssociationIds: vi.fn(),
+	getAuthorizedListIds: vi.fn(),
+}));
+
 import db, { getPool } from "$lib/server/database";
 
 describe("+page.server.ts (Home)", () => {
+	const mockEvent = {
+		locals: {
+			userData: null,
+			getSession: vi.fn().mockResolvedValue(null),
+		},
+	} as any;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockEvent.locals.userData = null;
 	});
 
 	it("returns eventSubmissionOpen as true when config is true", async () => {
@@ -22,7 +41,7 @@ describe("+page.server.ts (Home)", () => {
 		} as any);
 		vi.mocked(db).mockResolvedValue([{ value: "true" }]);
 
-		const result = (await load({} as any)) as any;
+		const result = (await load(mockEvent)) as any;
 
 		expect(result.eventSubmissionOpen).toBe(true);
 	});
@@ -33,7 +52,7 @@ describe("+page.server.ts (Home)", () => {
 		} as any);
 		vi.mocked(db).mockResolvedValue([{ value: "false" }]);
 
-		const result = (await load({} as any)) as any;
+		const result = (await load(mockEvent)) as any;
 
 		expect(result.eventSubmissionOpen).toBe(false);
 	});
@@ -44,7 +63,7 @@ describe("+page.server.ts (Home)", () => {
 		} as any);
 		vi.mocked(db).mockResolvedValue([]);
 
-		const result = (await load({} as any)) as any;
+		const result = (await load(mockEvent)) as any;
 
 		expect(result.eventSubmissionOpen).toBe(false);
 	});
@@ -58,7 +77,7 @@ describe("+page.server.ts (Home)", () => {
 		// Suppress console.error for this test
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-		const result = (await load({} as any)) as any;
+		const result = (await load(mockEvent)) as any;
 
 		expect(result.eventSubmissionOpen).toBe(false);
 		expect(consoleSpy).toHaveBeenCalled();
@@ -73,7 +92,7 @@ describe("+page.server.ts (Home)", () => {
 		} as any);
 		vi.mocked(db).mockResolvedValue([{ value: "true" }]);
 
-		await load({} as any);
+		await load(mockEvent);
 
 		expect(mockQuery).toHaveBeenCalledWith(
 			expect.stringContaining("CREATE TABLE IF NOT EXISTS config")
@@ -87,7 +106,7 @@ describe("+page.server.ts (Home)", () => {
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-		const result = (await load({} as any)) as any;
+		const result = (await load(mockEvent)) as any;
 
 		expect(result.eventSubmissionOpen).toBe(false);
 

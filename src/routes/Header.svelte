@@ -50,14 +50,8 @@
 	}
 
 	onMount(() => {
-		// Initialize theme
-		const savedTheme = localStorage.getItem("theme");
-		const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-		if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-			isDark = true;
-			document.documentElement.setAttribute("data-theme", "dark");
-		}
+		// Initialize theme state from DOM (handled by app.html script)
+		isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
 		updateUnderline();
 		// Update on window resize
@@ -75,7 +69,13 @@
 <header>
 	<div class="header-left">
 		<a href="/">
-			<img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" />
+			<img
+				src={asset("/logo.png")}
+				alt="Logo BDE EMSE"
+				class="logo-bde"
+				width="2000"
+				height="2000"
+			/>
 			<span class="site-title">Portail des Étudiants</span>
 		</a>
 	</div>

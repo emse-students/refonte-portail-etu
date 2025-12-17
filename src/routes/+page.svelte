@@ -4,9 +4,18 @@
 
 	// load session
 	import { page } from "$app/state";
+	import type { RawEvent } from "$lib/databasetypes";
 	let session = page.data.session;
 	let user = page.data.userData;
 	let eventSubmissionOpen = $derived(page.data.eventSubmissionOpen);
+	let initialEvents = $derived(
+		page.data.initialEvents?.map((e: RawEvent) => ({
+			...e,
+			start_date: new Date(e.start_date),
+			end_date: new Date(e.end_date),
+		})) ?? []
+	);
+	let initialDate = $derived(page.data.start ? new Date(page.data.start) : undefined);
 
 	const canProposeEvent = $derived.by(() => {
 		if (!user) return false;
@@ -59,7 +68,7 @@
 	</div>
 
 	<div class="calendar-fixed-container">
-		<Calendar showUnvalidated={true} />
+		<Calendar showUnvalidated={true} {initialEvents} {initialDate} />
 	</div>
 </section>
 
@@ -84,7 +93,7 @@
 		margin-bottom: 2rem;
 		color: var(--color-primary);
 		letter-spacing: -0.02em;
-		animation: fadeInDown 0.6s ease-out;
+		/* Removed animation to improve LCP */
 	}
 
 	.header-row {
@@ -157,7 +166,7 @@
 		background: var(--bg-secondary);
 		border-radius: 16px;
 		padding: 2rem;
-		animation: fadeIn 0.8s ease-out 0.2s backwards;
+		/* Removed animation to improve LCP */
 		overflow: hidden;
 		box-sizing: border-box;
 	}

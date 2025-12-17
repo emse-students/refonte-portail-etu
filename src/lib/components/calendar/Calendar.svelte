@@ -13,19 +13,21 @@
 		onEventClick,
 		showUnvalidated = false,
 		showAllUnvalidated = false,
+		initialEvents = [],
 	} = $props<{
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
 		onEventClick?: (event: CalendarEvent) => boolean;
 		showUnvalidated?: boolean;
 		showAllUnvalidated?: boolean;
+		initialEvents?: CalendarEvent[];
 	}>();
 
 	// Desktop state
-	let events: CalendarEvent[] = $state([]);
+	let events: CalendarEvent[] = $state(initialEvents);
 	// svelte-ignore state_referenced_locally
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
-	let isLoading = $state(true);
+	let isLoading = $state(initialEvents.length === 0);
 
 	function getStartOfWeek(date: Date) {
 		const d = new Date(date);
@@ -227,7 +229,9 @@
 			const now = new Date();
 			await loadMobileMonth(now.getFullYear(), now.getMonth());
 		} else {
-			await loadWeeks(weekStart);
+			if (events.length === 0) {
+				await loadWeeks(weekStart);
+			}
 		}
 	});
 
