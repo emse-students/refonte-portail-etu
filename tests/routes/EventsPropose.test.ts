@@ -45,7 +45,7 @@ describe("Events Propose Page", () => {
 
 	it("renders page title", () => {
 		render(EventsProposePage, { data: mockData } as any);
-		expect(screen.getByRole("heading", { name: "Proposer un événement" })).toBeInTheDocument();
+		expect(screen.getByRole("heading", { name: "Gestion des événements" })).toBeInTheDocument();
 	});
 
 	it("renders calendar", () => {

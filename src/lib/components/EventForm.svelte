@@ -2,17 +2,29 @@
 	import type { Association, List, RawEvent } from "$lib/databasetypes";
 	import Modal from "$lib/components/Modal.svelte";
 
-	let { association, associations, lists, initialDate, onClose, onSuccess, event, isOpen } =
-		$props<{
-			association?: Association;
-			associations?: Association[];
-			lists?: List[];
-			initialDate?: Date;
-			onClose: () => void;
-			onSuccess: () => void;
-			event?: RawEvent;
-			isOpen: boolean;
-		}>();
+	let {
+		association,
+		associations,
+		lists,
+		initialDate,
+		onClose,
+		onSuccess,
+		event,
+		isOpen,
+		isGlobalAdmin = false,
+	} = $props<{
+		association?: Association;
+		associations?: Association[];
+		lists?: List[];
+		initialDate?: Date;
+		onClose: () => void;
+		onSuccess: () => void;
+		event?: RawEvent;
+		isOpen: boolean;
+		isGlobalAdmin?: boolean;
+	}>();
+
+	const isRestricted = $derived(!isOpen && !isGlobalAdmin && !!event);
 
 	// Helper to format date for datetime-local input (YYYY-MM-DDThh:mm)
 	function formatDateForInput(date: Date) {
@@ -169,10 +181,20 @@
 				<span class="label">Type d'entité</span>
 				<div class="radio-group">
 					<label>
-						<input type="radio" bind:group={formState.entityType} value="association" /> Association
+						<input
+							type="radio"
+							bind:group={formState.entityType}
+							value="association"
+							disabled={isRestricted}
+						/> Association
 					</label>
 					<label>
-						<input type="radio" bind:group={formState.entityType} value="list" /> Liste
+						<input
+							type="radio"
+							bind:group={formState.entityType}
+							value="list"
+							disabled={isRestricted}
+						/> Liste
 					</label>
 				</div>
 			</div>
@@ -180,7 +202,12 @@
 			{#if formState.entityType === "association"}
 				<div class="form-group">
 					<label for="association">Association</label>
-					<select id="association" bind:value={formState.selectedAssociationId} required>
+					<select
+						id="association"
+						bind:value={formState.selectedAssociationId}
+						required
+						disabled={isRestricted}
+					>
 						<option value="" disabled selected>Choisir une association</option>
 						{#each associations || [] as assoc}
 							<option value={assoc.id}>{assoc.name}</option>
@@ -190,7 +217,7 @@
 			{:else}
 				<div class="form-group">
 					<label for="list">Liste</label>
-					<select id="list" bind:value={formState.selectedListId} required>
+					<select id="list" bind:value={formState.selectedListId} required disabled={isRestricted}>
 						<option value="" disabled selected>Choisir une liste</option>
 						{#each lists || [] as list}
 							<option value={list.id}>{list.name}</option>
@@ -214,12 +241,24 @@
 
 		<div class="form-group">
 			<label for="start-date">Début</label>
-			<input type="datetime-local" id="start-date" bind:value={formState.startDate} required />
+			<input
+				type="datetime-local"
+				id="start-date"
+				bind:value={formState.startDate}
+				required
+				disabled={isRestricted}
+			/>
 		</div>
 
 		<div class="form-group">
 			<label for="end-date">Fin</label>
-			<input type="datetime-local" id="end-date" bind:value={formState.endDate} required />
+			<input
+				type="datetime-local"
+				id="end-date"
+				bind:value={formState.endDate}
+				required
+				disabled={isRestricted}
+			/>
 		</div>
 
 		<div class="form-group">

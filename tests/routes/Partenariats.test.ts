@@ -10,7 +10,7 @@ vi.mock("../../src/lib/data/partenariats.json", () => ({
 describe("Partenariats Page", () => {
 	it("renders page title and description", () => {
 		render(PartenariatsPage);
-		expect(screen.getByRole("heading", { name: "Nos Partenariats" })).toBeInTheDocument();
+		expect(screen.getByRole("heading", { name: "Partenariats" })).toBeInTheDocument();
 		expect(screen.getByText(/Nous sommes fiers de collaborer/)).toBeInTheDocument();
 	});
 

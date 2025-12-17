@@ -173,12 +173,12 @@
 </script>
 
 <svelte:head>
-	<title>Proposer un événement</title>
+	<title>Gestion des événements</title>
 </svelte:head>
 
 <div class="container">
 	<header class="page-header">
-		<h1>Proposer un événement</h1>
+		<h1>Gestion des événements</h1>
 		<div class="actions">
 			{#if isGlobalEventManager && isOpen}
 				<button class="btn-secondary" onclick={requestCloseAndValidate}>Clôturer & Valider</button>
@@ -186,14 +186,16 @@
 			{#if isGlobalEventManager && !isOpen}
 				<button class="btn-primary" onclick={requestOpenSubmissions}>Ouvrir les soumissions</button>
 			{/if}
-			<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
+			{#if isOpen || isGlobalEventManager}
+				<button class="btn-primary" onclick={() => openForm()}>Proposer un événement</button>
+			{/if}
 		</div>
 	</header>
 
 	<div class="calendar-wrapper">
 		<Calendar
 			bind:this={calendarComponent}
-			onDayClick={openForm}
+			onDayClick={isOpen || isGlobalEventManager ? openForm : undefined}
 			initialDate={nextMonth}
 			onEventClick={handleEventClick}
 			showAllUnvalidated={true}
@@ -210,6 +212,7 @@
 			initialDate={selectedDate}
 			event={selectedEvent}
 			{isOpen}
+			isGlobalAdmin={isGlobalEventManager}
 			onClose={() => (showForm = false)}
 			onSuccess={() => {
 				showForm = false;

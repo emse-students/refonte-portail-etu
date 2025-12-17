@@ -64,7 +64,7 @@ describe("Home Page", () => {
 		} as any;
 
 		render(HomePage);
-		expect(screen.queryByText("Proposition d'événement")).not.toBeInTheDocument();
+		expect(screen.queryByText("Gestion d'événements")).not.toBeInTheDocument();
 	});
 
 	it("shows event proposal button for user with global permission", async () => {
@@ -76,7 +76,7 @@ describe("Home Page", () => {
 		} as any;
 
 		render(HomePage);
-		expect(screen.getByText("Proposition d'événement")).toBeInTheDocument();
+		expect(screen.getByText("Gestion d'événements")).toBeInTheDocument();
 	});
 
 	it("shows event proposal button for user with association permission", async () => {
@@ -91,7 +91,7 @@ describe("Home Page", () => {
 		} as any;
 
 		render(HomePage);
-		expect(screen.getByText("Proposition d'événement")).toBeInTheDocument();
+		expect(screen.getByText("Gestion d'événements")).toBeInTheDocument();
 	});
 
 	it("hides event proposal button for user without permission", async () => {
@@ -103,6 +103,6 @@ describe("Home Page", () => {
 		} as any;
 
 		render(HomePage);
-		expect(screen.queryByText("Proposition d'événement")).not.toBeInTheDocument();
+		expect(screen.queryByText("Gestion d'événements")).not.toBeInTheDocument();
 	});
 });

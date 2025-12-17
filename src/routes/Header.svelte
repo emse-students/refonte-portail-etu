@@ -76,7 +76,7 @@
 				width="2000"
 				height="2000"
 			/>
-			<span class="site-title">Portail des Étudiants</span>
+			<span class="site-title">Portail Étudiant</span>
 		</a>
 	</div>
 	<nav class="header-nav">
@@ -95,7 +95,7 @@
 			<li
 				aria-current={page.url.pathname.startsWith(resolve("/autres-sites")) ? "page" : undefined}
 			>
-				<a href={resolve("/autres-sites")}>Autres Sites</a>
+				<a href={resolve("/autres-sites")}>Autres sites</a>
 			</li>
 			<li
 				aria-current={page.url.pathname.startsWith(resolve("/partenariats")) ? "page" : undefined}

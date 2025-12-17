@@ -1,5 +1,5 @@
 import { escape, getPool } from "$lib/server/database";
-import type { FullUser, RawEvent, User } from "$lib/databasetypes";
+import type { FullUser, RawEvent } from "$lib/databasetypes";
 
 export interface FetchEventsOptions {
 	start?: Date;

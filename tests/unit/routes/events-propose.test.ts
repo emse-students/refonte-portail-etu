@@ -257,7 +257,7 @@ describe("Events Propose Page Component", () => {
 			},
 		});
 
-		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Proposer un événement");
+		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gestion des événements");
 	});
 
 	it("renders 'Proposer un événement' button", () => {
@@ -420,7 +420,7 @@ describe("Events Propose Page - Global Event Manager", () => {
 
 		// The button visibility depends on isGlobalEventManager derived value
 		// Since we mocked the page state, this test verifies the structure
-		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Proposer un événement");
+		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gestion des événements");
 	});
 });
 
@@ -629,7 +629,7 @@ describe("Events Propose Page Component - Calendar Integration", () => {
 			},
 		});
 
-		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Proposer un événement");
+		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gestion des événements");
 	});
 
 	it("renders container structure correctly", () => {

@@ -24,7 +24,7 @@ describe("Associations Page", () => {
 
 	it("renders page title and description", () => {
 		render(AssociationsPage, { data: { associations: mockAssociations } } as any);
-		expect(screen.getByText("La Vie Associative")).toBeInTheDocument();
+		expect(screen.getByText("Vie associative")).toBeInTheDocument();
 		expect(screen.getByText(/Engagez-vous/)).toBeInTheDocument();
 	});
 

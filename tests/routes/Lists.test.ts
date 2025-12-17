@@ -24,7 +24,7 @@ describe("Lists Page", () => {
 
 	it("renders page title and description", () => {
 		render(ListsPage, { data: { lists: mockLists } } as any);
-		expect(screen.getByText("La Vie Associative")).toBeInTheDocument();
+		expect(screen.getByText("Listes étudiantes")).toBeInTheDocument();
 		expect(screen.getByText(/Engagez-vous/)).toBeInTheDocument();
 	});
 

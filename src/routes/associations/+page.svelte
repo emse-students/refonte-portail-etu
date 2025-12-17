@@ -62,13 +62,13 @@
 </script>
 
 <svelte:head>
-	<title>Nos Associations</title>
+	<title>Associations</title>
 	<meta name="description" content="Découvrez la vie associative de notre campus." />
 </svelte:head>
 
 <div class="container">
 	<header>
-		<h1>La Vie Associative</h1>
+		<h1>Vie associative</h1>
 		<p>
 			Engagez-vous, développez de nouvelles compétences et rencontrez des étudiants partageant les
 			mêmes passions.

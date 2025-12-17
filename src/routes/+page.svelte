@@ -7,7 +7,6 @@
 	import type { RawEvent } from "$lib/databasetypes";
 	let session = page.data.session;
 	let user = page.data.userData;
-	let eventSubmissionOpen = $derived(page.data.eventSubmissionOpen);
 	let initialEvents = $derived(
 		page.data.initialEvents?.map((e: RawEvent) => ({
 			...e,
@@ -27,11 +26,6 @@
 			return user.memberships.some((m) => hasPermission(m.role.permissions, Permission.EVENTS));
 		}
 		return false;
-	});
-
-	const isGlobalEventManager = $derived.by(() => {
-		if (!user) return false;
-		return hasPermission(user.permissions, Permission.EVENTS);
 	});
 </script>
 
@@ -61,8 +55,8 @@
 			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
 		</h1>
 		<div class="actions">
-			{#if canProposeEvent && (eventSubmissionOpen || isGlobalEventManager)}
-				<a href="/events/propose" class="btn-primary">Proposition d'événement</a>
+			{#if canProposeEvent}
+				<a href="/events/propose" class="btn-primary">Gestion d'événements</a>
 			{/if}
 		</div>
 	</div>

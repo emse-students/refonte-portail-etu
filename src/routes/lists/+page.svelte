@@ -97,13 +97,13 @@
 </script>
 
 <svelte:head>
-	<title>Listes et Anciennes listes</title>
+	<title>Listes</title>
 	<meta name="description" content="Découvrez la vie associative de notre campus." />
 </svelte:head>
 
 <div class="container">
 	<header>
-		<h1>La Vie Associative</h1>
+		<h1>Listes étudiantes</h1>
 		<p>
 			Engagez-vous, développez de nouvelles compétences et rencontrez des étudiants partageant les
 			mêmes passions.

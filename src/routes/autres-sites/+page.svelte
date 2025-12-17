@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Autres Sites</title>
+	<title>Autres sites</title>
 	<meta
 		name="description"
 		content="Découvrez d'autres sites utiles pour les étudiants de notre campus."
@@ -15,7 +15,7 @@
 
 <div class="container">
 	<header>
-		<h1>Autres Sites Utiles</h1>
+		<h1>Autres sites utiles</h1>
 		<p>
 			Explorez une sélection de sites web qui offrent des ressources et des informations utiles pour
 			les étudiants de notre campus.

@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>Nos Partenariats</title>
+	<title>Partenariats</title>
 	<meta
 		name="description"
 		content="Découvrez les partenaires qui collaborent avec nous et les avantages exclusifs pour nos membres."
@@ -24,7 +24,7 @@
 
 <div class="container">
 	<header>
-		<h1>Nos Partenariats</h1>
+		<h1>Partenariats</h1>
 		<p>
 			Nous sommes fiers de collaborer avec un réseau d'entreprises et d'organisations engagées.
 			Découvrez les avantages exclusifs qu'ils proposent à notre communauté.

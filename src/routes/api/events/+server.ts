@@ -163,7 +163,7 @@ export const PUT = async (event: RequestEvent) => {
 
 	// Récupérer l'événement existant
 	const existingEvent = await db`
-        SELECT association_id, list_id, validated FROM event WHERE id = ${id}
+        SELECT association_id, list_id, validated, start_date, end_date FROM event WHERE id = ${id}
     `.then((rows) => rows?.[0]);
 
 	if (!existingEvent) {
@@ -205,11 +205,53 @@ export const PUT = async (event: RequestEvent) => {
 	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
 	const isGlobalManager = authorizedAssociations === null;
 
+	// Check submission state
+	const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
+	const isOpen = configRows.length > 0 && configRows[0].value === "true";
+
 	let newValidatedStatus = false;
 	if (isGlobalManager) {
 		newValidatedStatus = validated !== undefined ? validated : existingEvent.validated;
 	} else {
-		newValidatedStatus = false;
+		if (!isOpen) {
+			// Submission closed. Check for restricted changes.
+			const newStartDate = new Date(start_date);
+			const newEndDate = new Date(end_date);
+			const oldStartDate = new Date(existingEvent.start_date);
+			const oldEndDate = new Date(existingEvent.end_date);
+
+			if (
+				newStartDate.getTime() !== oldStartDate.getTime() ||
+				newEndDate.getTime() !== oldEndDate.getTime()
+			) {
+				return json(
+					{
+						error: "Forbidden",
+						message: "Impossible de modifier la date ou l'heure après la clôture des soumissions.",
+					},
+					{ status: 403 }
+				);
+			}
+
+			if (
+				(association_id && association_id !== existingEvent.association_id) ||
+				(list_id && list_id !== existingEvent.list_id)
+			) {
+				return json(
+					{
+						error: "Forbidden",
+						message: "Impossible de changer l'entité après la clôture.",
+					},
+					{ status: 403 }
+				);
+			}
+
+			// If we are here, only allowed fields are changed.
+			// Keep existing validation status.
+			newValidatedStatus = existingEvent.validated;
+		} else {
+			newValidatedStatus = false;
+		}
 	}
 
 	await db`

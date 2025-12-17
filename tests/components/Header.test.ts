@@ -36,7 +36,7 @@ describe("Header", () => {
 	it("renders logo and title", () => {
 		render(Header, { user: null });
 		expect(screen.getByAltText("Logo BDE EMSE")).toBeInTheDocument();
-		expect(screen.getByText("Portail des Étudiants")).toBeInTheDocument();
+		expect(screen.getByText("Portail Étudiant")).toBeInTheDocument();
 	});
 
 	it("renders navigation links", () => {
@@ -44,7 +44,7 @@ describe("Header", () => {
 		expect(screen.getByText("Accueil")).toBeInTheDocument();
 		expect(screen.getByText("Associations")).toBeInTheDocument();
 		expect(screen.getByText("Listes")).toBeInTheDocument();
-		expect(screen.getByText("Autres Sites")).toBeInTheDocument();
+		expect(screen.getByText("Autres sites")).toBeInTheDocument();
 		expect(screen.getByText("Partenariats")).toBeInTheDocument();
 	});
 

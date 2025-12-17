@@ -18,7 +18,7 @@ vi.mock("$app/paths", () => ({
 describe("Autres Sites Page", () => {
 	it("renders page title and description", () => {
 		render(AutresSitesPage);
-		expect(screen.getByRole("heading", { name: "Autres Sites Utiles" })).toBeInTheDocument();
+		expect(screen.getByRole("heading", { name: "Autres sites utiles" })).toBeInTheDocument();
 		expect(screen.getByText(/Explorez une sélection de sites web/)).toBeInTheDocument();
 	});
 

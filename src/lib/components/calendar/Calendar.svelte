@@ -14,19 +14,21 @@
 		showUnvalidated = false,
 		showAllUnvalidated = false,
 		initialEvents = [],
-	} = $props<{
+	}: {
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
 		onEventClick?: (event: CalendarEvent) => boolean;
 		showUnvalidated?: boolean;
 		showAllUnvalidated?: boolean;
 		initialEvents?: CalendarEvent[];
-	}>();
+	} = $props();
 
 	// Desktop state
+	// svelte-ignore state_referenced_locally
 	let events: CalendarEvent[] = $state(initialEvents);
 	// svelte-ignore state_referenced_locally
 	let weekStart: Date = $state(getStartOfWeek(initialDate || new Date()));
+	// svelte-ignore state_referenced_locally
 	let isLoading = $state(initialEvents.length === 0);
 
 	function getStartOfWeek(date: Date) {
