@@ -84,10 +84,9 @@
 	:global(.list-logo) {
 		width: 100%;
 		height: 200px;
-		object-fit: contain;
-		background: var(--color-bg-1);
+		object-fit: cover;
+		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
-		padding: 1rem;
 		box-sizing: border-box;
 	}
 

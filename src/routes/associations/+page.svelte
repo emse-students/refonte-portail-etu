@@ -272,6 +272,16 @@
 		margin: 0 auto;
 	}
 
+	:global(.search-icon) {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: var(--color-text-light);
+		pointer-events: none;
+		z-index: 1;
+	}
+
 	.search-input {
 		width: 100%;
 		padding: 0.875rem 3rem 0.875rem 3rem;

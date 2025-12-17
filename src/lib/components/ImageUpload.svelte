@@ -19,7 +19,17 @@
 	let error = $state("");
 	let success = $state("");
 	let isDragging = $state(false);
-	let previewUrl = $derived(currentImageId ? `/api/image/${currentImageId}` : "");
+	let previewUrl = $state("");
+	let retryCount = 0;
+
+	$effect(() => {
+		if (currentImageId) {
+			previewUrl = `/api/image/${currentImageId}`;
+			retryCount = 0;
+		} else {
+			previewUrl = "";
+		}
+	});
 
 	// Cropper state
 	let showCropper = $state(false);
@@ -186,10 +196,21 @@
 				success = "";
 			}, 3000);
 		} catch (e) {
-			error = "Erreur lors de l'upload de l'image";
+			error = "Erreur lors du recadrage";
 			console.error(e);
 		} finally {
 			uploading = false;
+		}
+	}
+
+	function handleImageError() {
+		if (retryCount < 3 && previewUrl.startsWith("/api/image/")) {
+			retryCount++;
+			setTimeout(() => {
+				const url = new URL(previewUrl, window.location.origin);
+				url.searchParams.set("t", Date.now().toString());
+				previewUrl = url.pathname + url.search;
+			}, 1000);
 		}
 	}
 </script>
@@ -219,7 +240,7 @@
 	>
 		{#if previewUrl}
 			<div class="preview" class:uploading>
-				<img src={previewUrl} alt="Aperçu" loading="lazy" />
+				<img src={previewUrl} alt="Aperçu" loading="lazy" onerror={handleImageError} />
 				{#if uploading}
 					<div class="upload-overlay">
 						<div class="spinner"></div>

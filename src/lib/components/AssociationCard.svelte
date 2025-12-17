@@ -86,10 +86,6 @@
 		box-sizing: border-box;
 	}
 
-	:global(.association-logo img) {
-		object-fit: contain;
-	}
-
 	.association-logo-placeholder {
 		width: 100%;
 		height: 200px;
