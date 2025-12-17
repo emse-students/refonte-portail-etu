@@ -27,11 +27,5 @@ jobs:
       - name: Generate SvelteKit files
         run: bunx svelte-kit sync
 
-      - name: Run tests with coverage
-        run: bun run test:coverage
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/
+      - name: Run tests
+        run: bun run test
