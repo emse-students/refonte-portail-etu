@@ -50,8 +50,7 @@
 		});
 
 		if (response.ok) {
-			invalidateAll();
-			window.location.reload();
+			await invalidateAll();
 		} else {
 			alert("Error deleting");
 		}
@@ -78,8 +77,7 @@
 
 		if (response.ok) {
 			editingId = null;
-			invalidateAll(); // Reloads page data
-			window.location.reload(); // Force reload to ensure data is fresh
+			await invalidateAll(); // Reloads page data
 		} else {
 			alert("Error saving");
 		}

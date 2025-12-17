@@ -119,7 +119,6 @@ describe("TableEditor Component", () => {
 
 		await waitFor(() => {
 			expect(navigation.invalidateAll).toHaveBeenCalled();
-			expect(window.location.reload).toHaveBeenCalled();
 		});
 	});
 

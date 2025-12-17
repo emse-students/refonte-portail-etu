@@ -50,7 +50,7 @@
 			newListColor = 0;
 			newListIcon = null;
 			newListDescription = "";
-			invalidateAll();
+			await invalidateAll();
 		} else {
 			alert("Erreur lors de la création de la liste");
 		}

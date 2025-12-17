@@ -159,7 +159,7 @@
 
 		if (res.ok) {
 			showEditListModal = false;
-			invalidateAll();
+			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification de l'list");
 		}
@@ -175,7 +175,7 @@
 		if (res.ok) {
 			showDeleteConfirmModal = false;
 			memberToDelete = null;
-			invalidateAll();
+			await invalidateAll();
 		} else {
 			alert("Erreur lors de la suppression du membre");
 		}
@@ -203,7 +203,7 @@
 		});
 		if (res.ok) {
 			showEditRoleModal = false;
-			invalidateAll();
+			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du rôle");
 		}
@@ -244,7 +244,7 @@
 			selectedUserToAdd = null;
 			searchQuery = "";
 			searchResults = [];
-			invalidateAll();
+			await invalidateAll();
 		} else {
 			alert("Erreur lors de l'ajout du membre");
 		}
