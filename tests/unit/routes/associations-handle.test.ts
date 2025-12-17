@@ -64,6 +64,7 @@ describe("Associations Handle Page Load", () => {
 		const event = {
 			params: { handle: "test-asso" },
 			fetch: fetchMock,
+			depends: vi.fn(),
 		} as any;
 
 		const result = await load(event);

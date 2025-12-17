@@ -64,6 +64,7 @@ describe("Lists Handle Page Load", () => {
 		const event = {
 			params: { handle: "test-list" },
 			fetch: fetchMock,
+			depends: vi.fn(),
 		} as any;
 
 		const result = await load(event);
