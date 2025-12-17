@@ -23,7 +23,7 @@
 	let showDeleteConfirmModal = $state(false);
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
-	let selectedRole = $state<number | "new">();
+	let selectedRole = $state<number>();
 
 	// Role search
 	let roleSearchQuery = $state("");
@@ -55,7 +55,7 @@
 	let searchQuery = $state("");
 	let searchResults: RawUser[] = $state([]);
 	let selectedUserToAdd: RawUser | null = $state(null);
-	let newMemberRoleId = $state<number | "new">();
+	let newMemberRoleId = $state<number>();
 
 	$effect(() => {
 		if (roles.length > 0 && !newMemberRoleId) {
@@ -163,6 +163,7 @@
 		});
 		if (res.ok) {
 			showDeleteConfirmModal = false;
+			association.members = association.members.filter((m) => m.id !== memberToDelete!.id);
 			memberToDelete = null;
 			await invalidateAll();
 		} else {
@@ -194,6 +195,7 @@
 		});
 		if (res.ok) {
 			showEditRoleModal = false;
+			association.members.find((m) => m.id === selectedMember!.id)!.role.id = selectedRole!;
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du rôle");
@@ -220,7 +222,6 @@
 
 	async function addMember() {
 		if (!selectedUserToAdd) return;
-		if (newMemberRoleId === "new") return; // Should not happen if UI is correct
 
 		const res = await fetch("/api/members", {
 			method: "POST",
@@ -525,10 +526,8 @@
 				class="cancel-btn"
 				onclick={() => {
 					showCreateRoleModal = false;
-					if (createRoleContext === "add" && newMemberRoleId === "new")
-						newMemberRoleId = roles[0]?.id;
-					if (createRoleContext === "edit" && selectedRole === "new")
-						selectedRole = selectedMember?.role.id;
+					if (createRoleContext === "add") newMemberRoleId = roles[0]?.id;
+					if (createRoleContext === "edit") selectedRole = selectedMember?.role.id;
 				}}>Annuler</button
 			>
 			<button class="primary-btn" onclick={createRole}>Créer</button>
