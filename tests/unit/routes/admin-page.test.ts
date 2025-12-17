@@ -90,6 +90,12 @@ describe("Admin Page", () => {
 		global.confirm = vi.fn(() => true);
 		// Mock alert
 		global.alert = vi.fn();
+
+		// Mock window.location.reload
+		Object.defineProperty(window, "location", {
+			value: { reload: vi.fn() },
+			writable: true,
+		});
 	});
 
 	it("renders the admin panel brand", () => {
