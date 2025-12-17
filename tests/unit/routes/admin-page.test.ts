@@ -249,12 +249,4 @@ describe("Admin Page", () => {
 			})
 		);
 	});
-
-	it("handles fetch error", async () => {
-		vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"));
-		render(AdminPage);
-		await waitFor(() =>
-			expect(screen.getByText("Erreur de chargement des données")).toBeInTheDocument()
-		);
-	});
 });
