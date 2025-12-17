@@ -163,7 +163,9 @@
 		});
 		if (res.ok) {
 			showDeleteConfirmModal = false;
-			association.members = association.members.filter((m) => m.id !== memberToDelete!.id);
+			data.association.members = data.association.members.filter(
+				(m) => m.id !== memberToDelete!.id
+			);
 			memberToDelete = null;
 			await invalidateAll();
 		} else {
@@ -195,7 +197,7 @@
 		});
 		if (res.ok) {
 			showEditRoleModal = false;
-			association.members.find((m) => m.id === selectedMember!.id)!.role.id = selectedRole!;
+			data.association.members.find((m) => m.id === selectedMember!.id)!.role.id = selectedRole!;
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du rôle");
