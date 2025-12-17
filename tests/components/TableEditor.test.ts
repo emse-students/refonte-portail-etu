@@ -26,7 +26,7 @@ describe("TableEditor Component", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		global.fetch = vi.fn();
+		global.fetch = vi.fn() as any;
 		Object.defineProperty(window, "location", {
 			value: { reload: vi.fn() },
 			writable: true,

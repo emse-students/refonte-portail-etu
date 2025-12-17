@@ -170,6 +170,9 @@ describe("Admin Page", () => {
 		await waitFor(() => {
 			expect(screen.getByText("Asso 1")).toBeInTheDocument();
 			expect(screen.getByText("asso-1")).toBeInTheDocument();
+			// Check for delete button
+			const deleteButtons = screen.getAllByText("Supprimer");
+			expect(deleteButtons.length).toBeGreaterThan(0);
 		});
 	});
 

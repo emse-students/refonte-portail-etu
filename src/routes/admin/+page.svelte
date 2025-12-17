@@ -16,8 +16,7 @@
 		| "events"
 		| "lists"
 		| "roles"
-		| "system"
-		| "logs";
+		| "system";
 	type User = {
 		id: number;
 		first_name: string;
@@ -232,9 +231,7 @@
 			<button class:active={currentView === "system"} onclick={() => (currentView = "system")}>
 				Système
 			</button>
-			<button class:active={currentView === "logs"} onclick={() => (currentView = "logs")}>
-				Logs
-			</button>
+			<a href="/admin/logs" class="nav-link"> Logs </a>
 		</nav>
 	</aside>
 
@@ -450,34 +447,6 @@
 						</label>
 					</div>
 				</div>
-			{:else if currentView === "logs"}
-				<h1>Audit Logs</h1>
-				<div class="table-container">
-					<table class="table w-full">
-						<thead>
-							<tr>
-								<th>Action</th>
-								<th>User</th>
-								<th>Timestamp</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#if data.logs}
-								{#each data.logs as log}
-									<tr>
-										<td>{log.action}</td>
-										<td>{log.user}</td>
-										<td>{log.timestamp}</td>
-									</tr>
-								{/each}
-							{:else}
-								<tr>
-									<td colspan="3" class="text-center">No logs found</td>
-								</tr>
-							{/if}
-						</tbody>
-					</table>
-				</div>
 			{/if}
 		{/if}
 	</main>
@@ -529,6 +498,19 @@
 	nav button.active {
 		background-color: #3498db;
 		font-weight: bold;
+	}
+
+	.nav-link {
+		display: block;
+		color: #ecf0f1;
+		padding: 1rem;
+		text-decoration: none;
+		border-radius: 4px;
+		transition: background 0.2s;
+	}
+
+	.nav-link:hover {
+		background-color: #34495e;
 	}
 
 	.content {

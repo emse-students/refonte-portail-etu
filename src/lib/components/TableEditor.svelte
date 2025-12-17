@@ -138,7 +138,7 @@
 						<td>
 							<button class="btn btn-primary btn-sm" onclick={() => startEdit(item)}>Edit</button>
 							{#if deleteAction}
-								<button class="btn btn-error btn-sm" onclick={() => deleteItem(item)}
+								<button class="btn btn-danger btn-sm" onclick={() => deleteItem(item)}
 									>Supprimer</button
 								>
 							{/if}

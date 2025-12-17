@@ -4,7 +4,6 @@ import { requirePermission } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import db from "$lib/server/database";
 import logger, { logAudit } from "$lib/server/logger";
-import fs from "fs";
 
 export const load: PageServerLoad = async (event) => {
 	// Récupérer la session de l'utilisateur depuis les `locals`
@@ -25,24 +24,7 @@ export const load: PageServerLoad = async (event) => {
 
 	// Si l'utilisateur est un administrateur, la page peut être chargée.
 	// Vous pouvez retourner des données ici si nécessaire.
-	let logs: { action: string; user: string; timestamp: string }[] = [];
-	try {
-		if (fs.existsSync("logs/audit.log")) {
-			const logContent = fs.readFileSync("logs/audit.log", "utf-8");
-			logs = logContent
-				.split("\n")
-				.filter((l) => l.trim())
-				.map((l) => {
-					const parts = l.split(" ; ");
-					return { action: parts[0], user: parts[1], timestamp: parts[2] };
-				})
-				.reverse();
-		}
-	} catch (e) {
-		logger.error("Error reading audit logs", e);
-	}
-
-	return { logs };
+	return {};
 };
 
 export const actions: Actions = {
