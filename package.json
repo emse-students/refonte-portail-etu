@@ -54,7 +54,7 @@
 		"jimp": "^1.6.0",
 		"mysql2": "^3.15.3",
 		"prettier": "^3.7.4",
-		"prettier-plugin-svelte": "^3.4.0",
+		"prettier-plugin-svelte": "^3.4.1",
 		"svelte-adapter-bun": "^1.0.1",
 		"svelte-markdown": "^0.4.1",
 		"winston": "^3.19.0"
