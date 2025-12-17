@@ -5,12 +5,14 @@
 		data = [],
 		columns = [],
 		action,
+		deleteAction,
 		idKey = "id",
 		extraActions = [],
 	}: {
 		data?: T[];
 		columns?: { key: string; label: string; type?: string; editable?: boolean }[];
 		action: string;
+		deleteAction?: string;
 		idKey?: string;
 		extraActions?: { label: string; onClick: (item: T) => void; class?: string }[];
 	} = $props();
@@ -33,6 +35,25 @@
 					editData[col.key] = localISOTime;
 				}
 			}
+		}
+	}
+
+	async function deleteItem(item: T) {
+		if (!confirm("Are you sure you want to delete this item?")) return;
+
+		const formData = new FormData();
+		formData.append("id", String(item[idKey]));
+
+		const response = await fetch(deleteAction!, {
+			method: "POST",
+			body: formData,
+		});
+
+		if (response.ok) {
+			invalidateAll();
+			window.location.reload();
+		} else {
+			alert("Error deleting");
 		}
 	}
 
@@ -116,6 +137,11 @@
 						{/each}
 						<td>
 							<button class="btn btn-primary btn-sm" onclick={() => startEdit(item)}>Edit</button>
+							{#if deleteAction}
+								<button class="btn btn-error btn-sm" onclick={() => deleteItem(item)}
+									>Supprimer</button
+								>
+							{/if}
 							{#each extraActions as action (action.label)}
 								<button
 									class={action.class || "btn btn-secondary btn-sm"}

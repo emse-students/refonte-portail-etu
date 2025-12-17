@@ -3,7 +3,8 @@ import type { PageServerLoad } from "./$types";
 import { requirePermission } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import db from "$lib/server/database";
-import logger from "$lib/server/logger";
+import logger, { logAudit } from "$lib/server/logger";
+import fs from "fs";
 
 export const load: PageServerLoad = async (event) => {
 	// Récupérer la session de l'utilisateur depuis les `locals`
@@ -24,7 +25,24 @@ export const load: PageServerLoad = async (event) => {
 
 	// Si l'utilisateur est un administrateur, la page peut être chargée.
 	// Vous pouvez retourner des données ici si nécessaire.
-	return {};
+	let logs: { action: string; user: string; timestamp: string }[] = [];
+	try {
+		if (fs.existsSync("logs/audit.log")) {
+			const logContent = fs.readFileSync("logs/audit.log", "utf-8");
+			logs = logContent
+				.split("\n")
+				.filter((l) => l.trim())
+				.map((l) => {
+					const parts = l.split(" ; ");
+					return { action: parts[0], user: parts[1], timestamp: parts[2] };
+				})
+				.reverse();
+		}
+	} catch (e) {
+		logger.error("Error reading audit logs", e);
+	}
+
+	return { logs };
 };
 
 export const actions: Actions = {
@@ -50,10 +68,25 @@ export const actions: Actions = {
 				edited_at = NOW()
 				WHERE id = ${id}`;
 
-			logger.info(`User ${id} updated by admin ${locals.session?.user?.id}`);
+			logAudit(`Update User ${id}`, locals.userData?.login || String(locals.session?.user?.id));
 			return { success: true };
 		} catch (err) {
 			logger.error("Error updating user", err);
+			return fail(500, { error: "Database error" });
+		}
+	},
+	deleteUser: async ({ request, locals }) => {
+		if (!locals.session) return fail(401);
+		const data = await request.formData();
+		const id = data.get("id");
+		if (!id) return fail(400, { error: "Missing ID" });
+
+		try {
+			await db`DELETE FROM user WHERE id = ${id}`;
+			logAudit(`Delete User ${id}`, locals?.userData?.login || String(locals.session?.user?.id));
+			return { success: true };
+		} catch (err) {
+			logger.error("Error deleting user", err);
 			return fail(500, { error: "Database error" });
 		}
 	},
@@ -77,10 +110,31 @@ export const actions: Actions = {
 				edited_at = NOW()
 				WHERE id = ${id}`;
 
-			logger.info(`Association ${id} updated by admin ${locals.session?.user?.id}`);
+			logAudit(
+				`Update Association ${id}`,
+				locals.userData?.login || String(locals.session?.user?.id)
+			);
 			return { success: true };
 		} catch (err) {
 			logger.error("Error updating association", err);
+			return fail(500, { error: "Database error" });
+		}
+	},
+	deleteAssociation: async ({ request, locals }) => {
+		if (!locals.session) return fail(401);
+		const data = await request.formData();
+		const id = data.get("id");
+		if (!id) return fail(400, { error: "Missing ID" });
+
+		try {
+			await db`DELETE FROM association WHERE id = ${id}`;
+			logAudit(
+				`Delete Association ${id}`,
+				locals.userData?.login || String(locals.session?.user?.id)
+			);
+			return { success: true };
+		} catch (err) {
+			logger.error("Error deleting association", err);
 			return fail(500, { error: "Database error" });
 		}
 	},
@@ -108,10 +162,25 @@ export const actions: Actions = {
 				edited_at = NOW()
 				WHERE id = ${id}`;
 
-			logger.info(`Event ${id} updated by admin ${locals.session?.user?.id}`);
+			logAudit(`Update Event ${id}`, locals.userData?.login || String(locals.session?.user?.id));
 			return { success: true };
 		} catch (err) {
 			logger.error("Error updating event", err);
+			return fail(500, { error: "Database error" });
+		}
+	},
+	deleteEvent: async ({ request, locals }) => {
+		if (!locals.session) return fail(401);
+		const data = await request.formData();
+		const id = data.get("id");
+		if (!id) return fail(400, { error: "Missing ID" });
+
+		try {
+			await db`DELETE FROM event WHERE id = ${id}`;
+			logAudit(`Delete Event ${id}`, locals.userData?.login || String(locals.session?.user?.id));
+			return { success: true };
+		} catch (err) {
+			logger.error("Error deleting event", err);
 			return fail(500, { error: "Database error" });
 		}
 	},
@@ -137,10 +206,25 @@ export const actions: Actions = {
 				edited_at = NOW()
 				WHERE id = ${id}`;
 
-			logger.info(`List ${id} updated by admin ${locals.session?.user?.id}`);
+			logAudit(`Update List ${id}`, locals.userData?.login || String(locals.session?.user?.id));
 			return { success: true };
 		} catch (err) {
 			logger.error("Error updating list", err);
+			return fail(500, { error: "Database error" });
+		}
+	},
+	deleteList: async ({ request, locals }) => {
+		if (!locals.session) return fail(401);
+		const data = await request.formData();
+		const id = data.get("id");
+		if (!id) return fail(400, { error: "Missing ID" });
+
+		try {
+			await db`DELETE FROM list WHERE id = ${id}`;
+			logAudit(`Delete List ${id}`, locals.userData?.login || String(locals.session?.user?.id));
+			return { success: true };
+		} catch (err) {
+			logger.error("Error deleting list", err);
 			return fail(500, { error: "Database error" });
 		}
 	},
@@ -162,10 +246,25 @@ export const actions: Actions = {
 				edited_at = NOW()
 				WHERE id = ${id}`;
 
-			logger.info(`Role ${id} updated by admin ${locals.session?.user?.id}`);
+			logAudit(`Update Role ${id}`, locals.userData?.login || String(locals.session?.user?.id));
 			return { success: true };
 		} catch (err) {
 			logger.error("Error updating role", err);
+			return fail(500, { error: "Database error" });
+		}
+	},
+	deleteRole: async ({ request, locals }) => {
+		if (!locals.session) return fail(401);
+		const data = await request.formData();
+		const id = data.get("id");
+		if (!id) return fail(400, { error: "Missing ID" });
+
+		try {
+			await db`DELETE FROM role WHERE id = ${id}`;
+			logAudit(`Delete Role ${id}`, locals.userData?.login || String(locals.session?.user?.id));
+			return { success: true };
+		} catch (err) {
+			logger.error("Error deleting role", err);
 			return fail(500, { error: "Database error" });
 		}
 	},

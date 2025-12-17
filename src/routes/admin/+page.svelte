@@ -5,6 +5,8 @@
 	import TableEditor from "$lib/components/TableEditor.svelte";
 	import type { RawEvent, RawList, RawRole } from "$lib/databasetypes";
 
+	let { data } = $props();
+
 	// Types
 	type View =
 		| "dashboard"
@@ -14,7 +16,8 @@
 		| "events"
 		| "lists"
 		| "roles"
-		| "system";
+		| "system"
+		| "logs";
 	type User = {
 		id: number;
 		first_name: string;
@@ -116,24 +119,6 @@
 	});
 
 	// Actions
-	async function deleteUser(id: number) {
-		if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) return;
-		try {
-			const res = await fetch(resolve("/api/users"), {
-				method: "DELETE",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ id }),
-			});
-			if (res.ok) {
-				users = users.filter((u) => u.id !== id);
-			} else {
-				alert("Erreur lors de la suppression");
-			}
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
 	async function viewUserDetails(user: User) {
 		selectedUser = user;
 		currentView = "user-details";
@@ -247,6 +232,9 @@
 			<button class:active={currentView === "system"} onclick={() => (currentView = "system")}>
 				Système
 			</button>
+			<button class:active={currentView === "logs"} onclick={() => (currentView = "logs")}>
+				Logs
+			</button>
 		</nav>
 	</aside>
 
@@ -292,13 +280,13 @@
 						data={filteredUsers}
 						columns={userColumns}
 						action="?/updateUser"
+						deleteAction="?/deleteUser"
 						extraActions={[
 							{
 								label: "Détails",
 								onClick: (item) => viewUserDetails(item),
 								class: "btn-secondary",
 							},
-							{ label: "Supprimer", onClick: (item) => deleteUser(item.id), class: "btn-danger" },
 						]}
 					/>
 				</div>
@@ -365,6 +353,7 @@
 						data={associations}
 						columns={associationColumns}
 						action="?/updateAssociation"
+						deleteAction="?/deleteAssociation"
 					/>
 				</div>
 
@@ -372,21 +361,36 @@
 			{:else if currentView === "events"}
 				<h1>Événements</h1>
 				<div class="table-container">
-					<TableEditor data={events} columns={eventColumns} action="?/updateEvent" />
+					<TableEditor
+						data={events}
+						columns={eventColumns}
+						action="?/updateEvent"
+						deleteAction="?/deleteEvent"
+					/>
 				</div>
 
 				<!-- LISTS VIEW -->
 			{:else if currentView === "lists"}
 				<h1>Listes</h1>
 				<div class="table-container">
-					<TableEditor data={lists} columns={listColumns} action="?/updateList" />
+					<TableEditor
+						data={lists}
+						columns={listColumns}
+						action="?/updateList"
+						deleteAction="?/deleteList"
+					/>
 				</div>
 
 				<!-- ROLES VIEW -->
 			{:else if currentView === "roles"}
 				<h1>Rôles</h1>
 				<div class="table-container">
-					<TableEditor data={roles} columns={roleColumns} action="?/updateRole" />
+					<TableEditor
+						data={roles}
+						columns={roleColumns}
+						action="?/updateRole"
+						deleteAction="?/deleteRole"
+					/>
 				</div>
 
 				<!-- SYSTEM VIEW -->
@@ -445,6 +449,34 @@
 							Ouverture des soumissions d'événements
 						</label>
 					</div>
+				</div>
+			{:else if currentView === "logs"}
+				<h1>Audit Logs</h1>
+				<div class="table-container">
+					<table class="table w-full">
+						<thead>
+							<tr>
+								<th>Action</th>
+								<th>User</th>
+								<th>Timestamp</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#if data.logs}
+								{#each data.logs as log}
+									<tr>
+										<td>{log.action}</td>
+										<td>{log.user}</td>
+										<td>{log.timestamp}</td>
+									</tr>
+								{/each}
+							{:else}
+								<tr>
+									<td colspan="3" class="text-center">No logs found</td>
+								</tr>
+							{/if}
+						</tbody>
+					</table>
 				</div>
 			{/if}
 		{/if}

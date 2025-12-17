@@ -182,4 +182,24 @@ describe("TableEditor Component", () => {
 		// const dateInputs = container.querySelectorAll('input[type="datetime-local"]');
 		// expect(dateInputs.length).toBe(1);
 	});
+
+	it("deletes item when Delete button is clicked and confirmed", async () => {
+		const deleteAction = "/api/delete";
+		(global.fetch as any).mockResolvedValue({ ok: true });
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+
+		render(TableEditor, {
+			data: mockData,
+			columns: mockColumns,
+			action: mockAction,
+			deleteAction: deleteAction,
+		});
+
+		const deleteButtons = screen.getAllByText("Supprimer");
+		await fireEvent.click(deleteButtons[0]);
+
+		expect(window.confirm).toHaveBeenCalled();
+		expect(global.fetch).toHaveBeenCalledWith(deleteAction, expect.any(Object));
+		expect(navigation.invalidateAll).toHaveBeenCalled();
+	});
 });

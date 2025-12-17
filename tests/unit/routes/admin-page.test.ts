@@ -208,10 +208,10 @@ describe("Admin Page", () => {
 
 		expect(global.confirm).toHaveBeenCalled();
 		expect(global.fetch).toHaveBeenCalledWith(
-			expect.stringContaining("/api/users"),
+			expect.stringContaining("?/deleteUser"),
 			expect.objectContaining({
-				method: "DELETE",
-				body: JSON.stringify({ id: 1 }),
+				method: "POST",
+				body: expect.any(FormData),
 			})
 		);
 	});

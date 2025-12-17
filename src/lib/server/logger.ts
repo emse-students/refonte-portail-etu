@@ -30,4 +30,19 @@ const logger = winston.createLogger({
 	],
 });
 
+const auditLogger = winston.createLogger({
+	level: "info",
+	format: combine(
+		timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+		printf(({ message, timestamp }) => {
+			return `${message} ; ${timestamp}`;
+		})
+	),
+	transports: [new winston.transports.File({ filename: "logs/audit.log" })],
+});
+
+export function logAudit(action: string, user: string) {
+	auditLogger.info(`${action} ; ${user}`);
+}
+
 export default logger;
