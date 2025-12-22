@@ -40,7 +40,7 @@
 		"svelte-check": "^4.3.4",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.7",
-		"vitest": "^4.0.15"
+		"vitest": "^4.0.16"
 	},
 	"dependencies": {
 		"@auth/core": "^0.41.1",
