@@ -55,18 +55,33 @@ export const PUT = async (event: RequestEvent) => {
 	const body = await event.request.json();
 	const { name, description, handle, color, icon, promo, association_id } = body;
 
-	await db`
-        UPDATE list 
-        SET 
-            name = ${name}, 
-            description = ${description},
-            handle = ${handle},
-            color = ${color || 0},
-            icon = ${icon || null},
-            promo = ${promo || null},
-            association_id = ${association_id || null}
-        WHERE id = ${id}
-    `;
+	const updates: { col: string; val: string | number | null }[] = [];
+	if (name != null) updates.push({ col: "name", val: name });
+	if (description != null) updates.push({ col: "description", val: description });
+	if (handle != null) updates.push({ col: "handle", val: handle });
+	if (color != null) updates.push({ col: "color", val: color });
+	if (icon != null) updates.push({ col: "icon", val: icon });
+	if (promo != null) updates.push({ col: "promo", val: promo });
+	if (association_id != null) updates.push({ col: "association_id", val: association_id });
+
+	if (updates.length > 0) {
+		const strings: string[] = [];
+		const values: (string | number | null)[] = [];
+
+		strings.push(`UPDATE list SET ${updates[0].col} = `);
+		values.push(updates[0].val);
+
+		for (let i = 1; i < updates.length; i++) {
+			strings.push(`, ${updates[i].col} = `);
+			values.push(updates[i].val);
+		}
+
+		strings.push(` WHERE id = `);
+		values.push(id);
+		strings.push("");
+
+		await db(strings as unknown as TemplateStringsArray, ...values);
+	}
 
 	return new Response(null, { status: 204 });
 };
