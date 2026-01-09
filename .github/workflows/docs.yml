@@ -16,13 +16,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
       - name: Prepare Documentation
         run: |
           mkdir docs-export
-          cp *.md docs-export/
+
+          # Convert all root Markdown files to HTML
+          for file in *.md; do
+            filename=$(basename "$file" .md)
+            echo "Converting $file to docs-export/$filename.html"
+            pandoc "$file" -f markdown -t html -s -o "docs-export/$filename.html" --metadata title="$filename"
+          done
+
+          # Copy custom manually created index
           cp docs/index.html docs-export/index.html
-          # If there are specific doc folders, copy them too
-          if [ -d "docs" ]; then cp -r docs docs-export/; fi
+
+          # Copy any other static assets from docs if needed
+          if [ -d "docs" ]; then cp -r docs/* docs-export/ 2>/dev/null || true; fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
