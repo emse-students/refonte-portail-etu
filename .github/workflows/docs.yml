@@ -20,7 +20,7 @@ jobs:
         run: |
           mkdir docs-export
           cp *.md docs-export/
-          cp README.md docs-export/index.md
+          cp docs/index.html docs-export/index.html
           # If there are specific doc folders, copy them too
           if [ -d "docs" ]; then cp -r docs docs-export/; fi
 
