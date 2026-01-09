@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SESSION_SYSTEM</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">SESSION_SYSTEM</h1>
+</header>
+<h1 id="système-de-session-sécurisé">Système de Session Sécurisé</h1>
+<h2 id="vue-densemble">Vue d’ensemble</h2>
+<p>Le portail étudiant utilise un système de session avec cookies
+sécurisés pour stocker les informations utilisateur et éviter de
+recharger ces données depuis la base de données à chaque requête.</p>
+<h2 id="architecture">Architecture</h2>
+<h3 id="composants-principaux">Composants principaux</h3>
+<ol type="1">
+<li><strong><code>src/lib/server/session.ts</code></strong> - Module de
+gestion des sessions
+<ul>
+<li>Chiffrement AES-256-CBC des données utilisateur</li>
+<li>Signature HMAC pour vérifier l’intégrité</li>
+<li>Gestion des cookies sécurisés</li>
+</ul></li>
+<li><strong><code>src/hooks.server.ts</code></strong> - Hook serveur
+principal
+<ul>
+<li>Vérifie l’authentification Auth.js</li>
+<li>Charge les données utilisateur (avec cache de session)</li>
+<li>Stocke les données dans <code>event.locals.userData</code></li>
+</ul></li>
+<li><strong>Routes API de session</strong>
+<ul>
+<li><code>/api/auth/logout</code> - Déconnexion (supprime le
+cookie)</li>
+<li><code>/api/auth/refresh</code> - Force le rafraîchissement de la
+session</li>
+</ul></li>
+</ol>
+<h2 id="fonctionnement">Fonctionnement</h2>
+<h3 id="première-connexion">Première connexion</h3>
+<ol type="1">
+<li>L’utilisateur s’authentifie via Auth.js (CAS EMSE)</li>
+<li>Le hook serveur récupère l’ID utilisateur depuis la session
+Auth.js</li>
+<li>Les données utilisateur complètes (incluant les memberships) sont
+chargées depuis la DB</li>
+<li>Ces données sont chiffrées et stockées dans un cookie sécurisé</li>
+<li>Les données sont également mises en cache dans
+<code>event.locals.userData</code></li>
+</ol>
+<h3 id="requêtes-suivantes">Requêtes suivantes</h3>
+<ol type="1">
+<li>Le hook serveur lit le cookie de session</li>
+<li>Les données sont déchiffrées et vérifiées (signature)</li>
+<li>Si valides, elles sont utilisées directement (pas d’appel DB)</li>
+<li>Les données sont mises en cache dans
+<code>event.locals.userData</code></li>
+</ol>
+<h3 id="sécurité-du-cookie">Sécurité du cookie</h3>
+<ul>
+<li><strong>Nom</strong> : <code>user_session</code></li>
+<li><strong>Chiffrement</strong> : AES-256-CBC avec IV aléatoire</li>
+<li><strong>Signature</strong> : HMAC-SHA256</li>
+<li><strong>HttpOnly</strong> : true (non accessible en JavaScript)</li>
+<li><strong>Secure</strong> : true en production (HTTPS uniquement)</li>
+<li><strong>SameSite</strong> : lax (protection CSRF)</li>
+<li><strong>Max-Age</strong> : 7 jours</li>
+</ul>
+<h3 id="format-du-cookie">Format du cookie</h3>
+<pre><code>&lt;IV_hex&gt;:&lt;données_chiffrées_hex&gt;.&lt;signature_hmac_hex&gt;</code></pre>
+<p>Exemple :</p>
+<pre><code>a1b2c3d4e5f6...:&lt;encrypted_data&gt;.&lt;hmac_signature&gt;</code></pre>
+<h2 id="utilisation-dans-le-code">Utilisation dans le code</h2>
+<h3 id="accéder-aux-données-utilisateur">Accéder aux données
+utilisateur</h3>
+<p>Dans n’importe quel endpoint serveur :</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { requireAuth } <span class="im">from</span> <span class="st">&quot;$lib/server/auth-middleware&quot;</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> GET <span class="op">=</span> <span class="kw">async</span> (event<span class="op">:</span> RequestEvent) <span class="kw">=&gt;</span> {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> user <span class="op">=</span> <span class="cf">await</span> <span class="fu">requireAuth</span>(<span class="bu">event</span>)<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>user) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">json</span>({ error<span class="op">:</span> <span class="st">&quot;Non autorisé&quot;</span> }<span class="op">,</span> { status<span class="op">:</span> <span class="dv">401</span> })<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// user contient toutes les données, incluant les memberships</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(user<span class="op">.</span><span class="at">memberships</span>)<span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">json</span>({ user })<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<h3 id="forcer-le-rafraîchissement">Forcer le rafraîchissement</h3>
+<p>Après modification des permissions ou du profil utilisateur :</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { clearSessionCookie } <span class="im">from</span> <span class="st">&quot;$lib/server/session&quot;</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Dans votre endpoint</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">clearSessionCookie</span>(<span class="bu">event</span>)<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Les données seront rechargées depuis la DB au prochain hook</span></span></code></pre></div>
+<p>Ou via l’API :</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Côté client</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&quot;/api/auth/refresh&quot;</span><span class="op">,</span> { <span class="dt">method</span><span class="op">:</span> <span class="st">&quot;POST&quot;</span> })<span class="op">;</span></span></code></pre></div>
+<h2 id="variables-denvironnement">Variables d’environnement</h2>
+<h3 id="requises">Requises</h3>
+<ul>
+<li><code>AUTH_SECRET</code> - Secret utilisé pour chiffrer et signer
+les sessions
+<ul>
+<li><strong>Important</strong> : Doit être une chaîne aléatoire
+sécurisée de 32+ caractères</li>
+<li>Utilisé pour la clé de chiffrement AES-256 (32 octets)</li>
+<li>Utilisé pour la signature HMAC</li>
+</ul></li>
+</ul>
+<h3 id="configuration">Configuration</h3>
+<p>Dans <code>.env</code> :</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="va">AUTH_SECRET</span><span class="op">=</span>votre-secret-tres-securise-de-32-caracteres-minimum</span></code></pre></div>
+<p>⚠️ <strong>Sécurité</strong> : Ne jamais commiter le fichier
+<code>.env</code> ou exposer <code>AUTH_SECRET</code></p>
+<h2 id="performance">Performance</h2>
+<h3 id="avant-avec-appel-api">Avant (avec appel API)</h3>
+<ul>
+<li>❌ Appel HTTP interne à chaque requête</li>
+<li>❌ Requête SQL complexe avec JOINs à chaque requête</li>
+<li>❌ Sérialisation/désérialisation JSON</li>
+</ul>
+<h3 id="après-avec-cookie-de-session">Après (avec cookie de
+session)</h3>
+<ul>
+<li>✅ Lecture du cookie uniquement (1ère requête uniquement pour
+charger DB)</li>
+<li>✅ Déchiffrement rapide en mémoire</li>
+<li>✅ Pas d’appel DB si cookie valide</li>
+<li>✅ Réduction de la charge sur la base de données</li>
+</ul>
+<h2 id="invalidation-de-session">Invalidation de session</h2>
+<h3 id="cas-dinvalidation-automatique">Cas d’invalidation
+automatique</h3>
+<ul>
+<li>Cookie expiré (&gt; 7 jours)</li>
+<li>Signature invalide (données modifiées)</li>
+<li>ID utilisateur ne correspond pas à la session Auth.js</li>
+<li>Erreur de déchiffrement</li>
+</ul>
+<h3 id="invalidation-manuelle">Invalidation manuelle</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Déconnexion</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&quot;/api/auth/logout&quot;</span><span class="op">,</span> { method<span class="op">:</span> <span class="st">&quot;POST&quot;</span> })<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Ou forcer le rafraîchissement</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&quot;/api/auth/refresh&quot;</span><span class="op">,</span> { method<span class="op">:</span> <span class="st">&quot;POST&quot;</span> })<span class="op">;</span></span></code></pre></div>
+<h2 id="logs-et-debugging">Logs et debugging</h2>
+<p>Les logs sont disponibles dans la console serveur :</p>
+<pre><code>Handling request for: /api/...
+Current locals before processing: { session: {...}, userData: {...} }</code></pre>
+<p>En cas d’erreur :</p>
+<pre><code>Erreur lors du chargement de userData: &lt;erreur&gt;
+Signature de session invalide
+Erreur lors du déchiffrement des données de session: &lt;erreur&gt;</code></pre>
+<h2 id="maintenance">Maintenance</h2>
+<h3 id="rotation-du-secret">Rotation du secret</h3>
+<p>Si vous devez changer <code>AUTH_SECRET</code> :</p>
+<ol type="1">
+<li>Tous les cookies existants deviendront invalides</li>
+<li>Les utilisateurs devront se reconnecter</li>
+<li>Les nouvelles sessions utiliseront le nouveau secret</li>
+</ol>
+<h3 id="migration">Migration</h3>
+<p>Pour migrer d’un système à l’autre, aucune action requise. Le système
+détectera automatiquement l’absence de cookie et rechargera les données
+depuis la DB.</p>
+<h2 id="développement">Développement</h2>
+<h3 id="tests-locaux">Tests locaux</h3>
+<p>Le système fonctionne en développement avec des cookies non-sécurisés
+(HTTP) :</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>secure<span class="op">:</span> <span class="bu">process</span><span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">PROD</span> <span class="op">===</span> <span class="st">&quot;true&quot;</span><span class="op">;</span></span></code></pre></div>
+<h3 id="production">Production</h3>
+<p>En production, assurez-vous que :</p>
+<ul>
+<li><code>PROD=true</code> est défini</li>
+<li>Le site utilise HTTPS</li>
+<li><code>AUTH_SECRET</code> est un secret fort et unique</li>
+</ul>
+</body>
+</html>
