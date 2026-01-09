@@ -2,7 +2,7 @@
 
 ## Accès
 
-La page d'administration est accessible à l'URL : `/dev/admin` (ou `/admin` selon votre configuration de base path)
+La page d'administration est accessible à l'URL : `/admin`
 
 ## Fonctionnalités
 

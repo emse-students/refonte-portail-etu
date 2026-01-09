@@ -12,20 +12,39 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bun-version: [latest, "1.1.0"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ matrix.bun-version }}
 
       - name: Install dependencies
         run: bun install
 
       - name: Generate SvelteKit files
         run: bunx svelte-kit sync
+
+      - name: Linting
+        run: bun run lint
+
+      - name: Code Style Check
+        run: bun run format:check
+
+      - name: Type Check
+        run: bun run check
 
       - name: Run tests
         run: bun run test
