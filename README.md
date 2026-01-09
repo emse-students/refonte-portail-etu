@@ -12,6 +12,17 @@ This README explains the project's purpose, how to run it locally, how to test a
 - Authentication using `@auth/sveltekit`
 - Responsive UI implemented with SvelteKit
 
+## Documentation
+
+- [Admin Guide](ADMIN_README.md) - Instructions for administrators.
+- [API Documentation](API_DOCUMENTATION.md) - Details on available API endpoints.
+- [Code Quality](CODE_QUALITY.md) - Standards and practices for maintaining code quality.
+- [Permissions & Associations](PERMISSIONS_ASSOCIATIONS.md) - HOWTO on association permissions.
+- [Reference](REFERENCE.md) - Technical references and configurations.
+- [Session System](SESSION_SYSTEM.md) - Explanation of the authentication and session management.
+- [Session Examples](SESSION_EXAMPLES.md) - Examples of session handling.
+- [Test Permissions](test-permissions.md) - Testing permission logic.
+
 ## Quick start (local development)
 
 Prerequisites
