@@ -8,14 +8,27 @@ Le système de permissions a été étendu pour gérer les permissions au niveau
 
 ### Types de Permissions
 
-1. **Permissions Globales** (dans `user.permissions`)
-   - `ADMIN` (1 << 3) : Accès à toutes les fonctionnalités admin
-   - `SITE_ADMIN` (1 << 4) : Gestion complète du site
+Le système utilise une hiérarchie de permissions basée sur des niveaux (Enum `Permission`).
+La vérification se fait par niveau : un utilisateur possédant un niveau N a automatiquement accès aux fonctionnalités de niveau N et inférieur (`>=`).
 
-2. **Permissions d'Association** (dans `role.permissions` via `member`)
-   - `ROLES` (1 << 0) : Gestion des rôles
-   - `MEMBERS` (1 << 1) : Gestion des membres
-   - `EVENTS` (1 << 2) : Gestion des événements
+**Niveaux définis :**
+
+- `MEMBER` (0) : Membre simple (accès de base)
+- `ROLES` (1) : Gestion des rôles et membres (peut promouvoir/rétrograder des membres)
+- `EVENTS` (2) : Gestion des événements (création, édition)
+- `ADMIN` (3) : Administration de l'association (accès complet à l'association)
+- `SITE_ADMIN` (4) : Super Administrateur (accès à tout le site, outrepasse toutes les permissions)
+
+### Logique d'Autorisation
+
+1. **Permissions Globales**
+   - Stockées dans `user.permissions`.
+   - Si un utilisateur a une permission globale suffisante (ex: `SITE_ADMIN`), il a accès à **toutes** les associations et listes.
+
+2. **Permissions d'Association / Liste**
+   - Stockées dans `role.permissions` via les memberships (`user.memberships`).
+   - S'appliquent uniquement à l'association ou la liste spécifique.
+   - Un utilisateur peut avoir le niveau `ADMIN` (3) dans l'association A, mais seulement `MEMBER` (0) dans l'association B.
 
 ### Structure des Données
 

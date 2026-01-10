@@ -1,59 +1,59 @@
-# Project Reference Documentation
+# Documentation de Référence du Projet
 
-This document provides a technical reference for the codebase, including architecture, data models, and API endpoints.
+Ce document fournit une référence technique pour la base de code, incluant l'architecture, les modèles de données et les points de terminaison de l'API.
 
-## Architecture Overview
+## Vue d'ensemble de l'Architecture
 
-The project is built using **SvelteKit** and follows a standard structure:
+Le projet est construit avec **SvelteKit** et suit une structure standard :
 
-- **`src/routes/`**: Contains the application's pages and API endpoints (file-based routing).
-- **`src/lib/`**: Contains shared utilities, components, and server-side logic.
-  - **`server/`**: Server-only code (database connections, logging, secrets).
-  - **`components/`**: Reusable Svelte components.
-  - **`utils.ts`**: General utility functions.
-- **`static/`**: Static assets served directly.
+- **`src/routes/`** : Contient les pages de l'application et les points de terminaison de l'API (routage basé sur les fichiers).
+- **`src/lib/`** : Contient les utilitaires partagés, les composants et la logique côté serveur.
+  - **`server/`** : Code réservé au serveur (connexions base de données, journalisation, secrets).
+  - **`components/`** : Composants Svelte réutilisables.
+  - **`utils.ts`** : Fonctions utilitaires générales.
+- **`static/`** : Actifs statiques servis directement.
 
-## Data Models
+## Modèles de Données
 
-The application uses the following core data entities (defined in `src/lib/databasetypes.d.ts`):
+L'application utilise les entités de données centrales suivantes (définies dans `src/lib/databasetypes.d.ts`) :
 
-- **Association**: Represents a student association (e.g., BDE, BDS).
-- **List**: A sub-group or campaign list attached to an association.
-- **User**: A student or administrator accessing the portal.
-- **Role**: Defines permissions and hierarchy within the system.
-- **Member**: Links a User to an Association/List with a specific Role.
-- **Event**: An event organized by an association.
+- **Association** : Représente une association étudiante (ex : BDE, BDS).
+- **List** : Un sous-groupe ou une liste de campagne rattachée à une association.
+- **User** : Un étudiant ou un administrateur accédant au portail.
+- **Role** : Définit les permissions et la hiérarchie au sein du système.
+- **Member** : Lie un Utilisateur à une Association/Liste avec un Rôle spécifique.
+- **Event** : Un événement organisé par une association.
 
-## API Reference
+## Référence de l'API
 
-The API is located at `/api` and includes the following namespaces:
+L'API est située à `/api` et inclut les espaces de noms suivants :
 
-| Endpoint Namespace  | Description                                     |
-| ------------------- | ----------------------------------------------- |
-| `/api/associations` | Manage associations (CRUD).                     |
-| `/api/auth`         | Authentication routes (login, logout, session). |
-| `/api/calendar`     | ICS calendar export and event retrieval.        |
-| `/api/config`       | Application configuration settings.             |
-| `/api/events`       | Event management.                               |
-| `/api/image`        | Image upload and retrieval.                     |
-| `/api/lists`        | Manage lists (campaigns/sub-groups).            |
-| `/api/members`      | Manage association members.                     |
-| `/api/roles`        | Role definitions and permissions.               |
-| `/api/users`        | User management.                                |
+| Espace de noms (Endpoint) | Description                                                  |
+| ------------------------- | ------------------------------------------------------------ |
+| `/api/associations`       | Gérer les associations (CRUD).                               |
+| `/api/auth`               | Routes d'authentification (connexion, déconnexion, session). |
+| `/api/calendar`           | Export de calendrier ICS et récupération d'événements.       |
+| `/api/config`             | Paramètres de configuration de l'application.                |
+| `/api/events`             | Gestion des événements.                                      |
+| `/api/image`              | Téléchargement et récupération d'images.                     |
+| `/api/lists`              | Gérer les listes (campagnes/sous-groupes).                   |
+| `/api/members`            | Gérer les membres d'association.                             |
+| `/api/roles`              | Définitions des rôles et permissions.                        |
+| `/api/users`              | Gestion des utilisateurs.                                    |
 
-## Key Configuration Files
+## Fichiers de Configuration Clés
 
-- **`svelte.config.js`**: SvelteKit configuration (adapters, preprocessors).
-- **`vite.config.ts`**: Vite build configuration, including plugins and testing setup.
-- **`vitest.config.ts`**: Configuration for the Vitest test runner.
-- **`playwright.config.ts`**: Configuration for E2E testing with Playwright.
-- **`eslint.config.js`**: Linting rules.
+- **`svelte.config.js`** : Configuration SvelteKit (adaptateurs, préprocesseurs).
+- **`vite.config.ts`** : Configuration de build Vite, incluant les plugins et la configuration des tests.
+- **`vitest.config.ts`** : Configuration pour le lanceur de tests Vitest.
+- **`playwright.config.ts`** : Configuration pour les tests E2E avec Playwright.
+- **`eslint.config.js`** : Règles de linting.
 
-## Testing
+## Tests
 
-- **Unit Tests**: Run via `bun run test` (Vitest). Located in `tests/unit` and alongside components.
-- **E2E Tests**: Run via `bun run test:e2e` (Playwright). Located in `tests/e2e`.
+- **Tests Unitaires** : Exécutés via `bun run test` (Vitest). Situés dans `tests/unit` et aux côtés des composants.
+- **Tests E2E** : Exécutés via `bun run test:e2e` (Playwright). Situés dans `tests/e2e`.
 
-## Logging
+## Journalisation
 
-Server-side logging is handled by `winston` (configured in `src/lib/server/logger.ts`). Logs are output to the console in JSON format in production.
+La journalisation côté serveur est gérée par `winston` (configuré dans `src/lib/server/logger.ts`). Les journaux sont sortis dans la console au format JSON en production.
