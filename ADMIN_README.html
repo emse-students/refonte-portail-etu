@@ -213,21 +213,21 @@ permissions)</li>
 </ol>
 <h2 id="routes-api-créées">Routes API Créées</h2>
 <p>Toutes les routes suivent le pattern REST standard :</p>
-<h3 id="devapiusers"><code>/dev/api/users</code></h3>
+<h3 id="apiusers"><code>/api/users</code></h3>
 <ul>
 <li><code>GET</code> : Liste tous les utilisateurs</li>
 <li><code>POST</code> : Crée un nouvel utilisateur</li>
 <li><code>PUT</code> : Met à jour un utilisateur existant</li>
 <li><code>DELETE</code> : Supprime un utilisateur</li>
 </ul>
-<h3 id="devapiroles"><code>/dev/api/roles</code></h3>
+<h3 id="apiroles"><code>/api/roles</code></h3>
 <ul>
 <li><code>GET</code> : Liste tous les rôles</li>
 <li><code>POST</code> : Crée un nouveau rôle</li>
 <li><code>PUT</code> : Met à jour un rôle</li>
 <li><code>DELETE</code> : Supprime un rôle</li>
 </ul>
-<h3 id="devapimembers"><code>/dev/api/members</code></h3>
+<h3 id="apimembers"><code>/api/members</code></h3>
 <ul>
 <li><code>GET</code> : Liste tous les membres avec JOIN sur users,
 associations et roles</li>
@@ -235,7 +235,7 @@ associations et roles</li>
 <li><code>PUT</code> : Met à jour un membre</li>
 <li><code>DELETE</code> : Supprime un membre</li>
 </ul>
-<h3 id="devapievents"><code>/dev/api/events</code></h3>
+<h3 id="apievents"><code>/api/events</code></h3>
 <ul>
 <li><code>GET</code> : Liste tous les événements avec JOIN sur
 associations</li>
@@ -243,13 +243,12 @@ associations</li>
 <li><code>PUT</code> : Met à jour un événement</li>
 <li><code>DELETE</code> : Supprime un événement</li>
 </ul>
-<h3 id="existantes-conservées">Existantes (conservées)</h3>
+<h3 id="existantes">Existantes</h3>
 <ul>
-<li><code>/dev/api/associations</code> : GET (liste), POST
-(création)</li>
-<li><code>/dev/api/associations/[id]</code> : GET, PUT, DELETE</li>
-<li><code>/dev/api/user/[id]</code> : GET (avec option fullUser)</li>
-<li><code>/dev/api/user/me</code> : GET (utilisateur connecté)</li>
+<li><code>/api/associations</code> : GET (liste), POST (création)</li>
+<li><code>/api/associations/[id]</code> : GET, PUT, DELETE</li>
+<li><code>/api/user/[id]</code> : GET (avec option fullUser)</li>
+<li><code>/api/user/me</code> : GET (utilisateur connecté)</li>
 </ul>
 <h2 id="sécurité">Sécurité</h2>
 <p>⚠️ <strong>Important</strong> : Toutes les opérations de modification

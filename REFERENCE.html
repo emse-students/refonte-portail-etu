@@ -168,125 +168,132 @@
 <header id="title-block-header">
 <h1 class="title">REFERENCE</h1>
 </header>
-<h1 id="project-reference-documentation">Project Reference
-Documentation</h1>
-<p>This document provides a technical reference for the codebase,
-including architecture, data models, and API endpoints.</p>
-<h2 id="architecture-overview">Architecture Overview</h2>
-<p>The project is built using <strong>SvelteKit</strong> and follows a
-standard structure:</p>
+<h1 id="documentation-de-référence-du-projet">Documentation de Référence
+du Projet</h1>
+<p>Ce document fournit une référence technique pour la base de code,
+incluant l’architecture, les modèles de données et les points de
+terminaison de l’API.</p>
+<h2 id="vue-densemble-de-larchitecture">Vue d’ensemble de
+l’Architecture</h2>
+<p>Le projet est construit avec <strong>SvelteKit</strong> et suit une
+structure standard :</p>
 <ul>
-<li><strong><code>src/routes/</code></strong>: Contains the
-application’s pages and API endpoints (file-based routing).</li>
-<li><strong><code>src/lib/</code></strong>: Contains shared utilities,
-components, and server-side logic.
+<li><strong><code>src/routes/</code></strong> : Contient les pages de
+l’application et les points de terminaison de l’API (routage basé sur
+les fichiers).</li>
+<li><strong><code>src/lib/</code></strong> : Contient les utilitaires
+partagés, les composants et la logique côté serveur.
 <ul>
-<li><strong><code>server/</code></strong>: Server-only code (database
-connections, logging, secrets).</li>
-<li><strong><code>components/</code></strong>: Reusable Svelte
-components.</li>
-<li><strong><code>utils.ts</code></strong>: General utility
-functions.</li>
+<li><strong><code>server/</code></strong> : Code réservé au serveur
+(connexions base de données, journalisation, secrets).</li>
+<li><strong><code>components/</code></strong> : Composants Svelte
+réutilisables.</li>
+<li><strong><code>utils.ts</code></strong> : Fonctions utilitaires
+générales.</li>
 </ul></li>
-<li><strong><code>static/</code></strong>: Static assets served
-directly.</li>
+<li><strong><code>static/</code></strong> : Actifs statiques servis
+directement.</li>
 </ul>
-<h2 id="data-models">Data Models</h2>
-<p>The application uses the following core data entities (defined in
-<code>src/lib/databasetypes.d.ts</code>):</p>
+<h2 id="modèles-de-données">Modèles de Données</h2>
+<p>L’application utilise les entités de données centrales suivantes
+(définies dans <code>src/lib/databasetypes.d.ts</code>) :</p>
 <ul>
-<li><strong>Association</strong>: Represents a student association
-(e.g., BDE, BDS).</li>
-<li><strong>List</strong>: A sub-group or campaign list attached to an
+<li><strong>Association</strong> : Représente une association étudiante
+(ex : BDE, BDS).</li>
+<li><strong>List</strong> : Un sous-groupe ou une liste de campagne
+rattachée à une association.</li>
+<li><strong>User</strong> : Un étudiant ou un administrateur accédant au
+portail.</li>
+<li><strong>Role</strong> : Définit les permissions et la hiérarchie au
+sein du système.</li>
+<li><strong>Member</strong> : Lie un Utilisateur à une Association/Liste
+avec un Rôle spécifique.</li>
+<li><strong>Event</strong> : Un événement organisé par une
 association.</li>
-<li><strong>User</strong>: A student or administrator accessing the
-portal.</li>
-<li><strong>Role</strong>: Defines permissions and hierarchy within the
-system.</li>
-<li><strong>Member</strong>: Links a User to an Association/List with a
-specific Role.</li>
-<li><strong>Event</strong>: An event organized by an association.</li>
 </ul>
-<h2 id="api-reference">API Reference</h2>
-<p>The API is located at <code>/api</code> and includes the following
-namespaces:</p>
+<h2 id="référence-de-lapi">Référence de l’API</h2>
+<p>L’API est située à <code>/api</code> et inclut les espaces de noms
+suivants :</p>
 <table>
 <colgroup>
-<col style="width: 28%" />
-<col style="width: 71%" />
+<col style="width: 29%" />
+<col style="width: 70%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th>Endpoint Namespace</th>
+<th>Espace de noms (Endpoint)</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>/api/associations</code></td>
-<td>Manage associations (CRUD).</td>
+<td>Gérer les associations (CRUD).</td>
 </tr>
 <tr class="even">
 <td><code>/api/auth</code></td>
-<td>Authentication routes (login, logout, session).</td>
+<td>Routes d’authentification (connexion, déconnexion, session).</td>
 </tr>
 <tr class="odd">
 <td><code>/api/calendar</code></td>
-<td>ICS calendar export and event retrieval.</td>
+<td>Export de calendrier ICS et récupération d’événements.</td>
 </tr>
 <tr class="even">
 <td><code>/api/config</code></td>
-<td>Application configuration settings.</td>
+<td>Paramètres de configuration de l’application.</td>
 </tr>
 <tr class="odd">
 <td><code>/api/events</code></td>
-<td>Event management.</td>
+<td>Gestion des événements.</td>
 </tr>
 <tr class="even">
 <td><code>/api/image</code></td>
-<td>Image upload and retrieval.</td>
+<td>Téléchargement et récupération d’images.</td>
 </tr>
 <tr class="odd">
 <td><code>/api/lists</code></td>
-<td>Manage lists (campaigns/sub-groups).</td>
+<td>Gérer les listes (campagnes/sous-groupes).</td>
 </tr>
 <tr class="even">
 <td><code>/api/members</code></td>
-<td>Manage association members.</td>
+<td>Gérer les membres d’association.</td>
 </tr>
 <tr class="odd">
 <td><code>/api/roles</code></td>
-<td>Role definitions and permissions.</td>
+<td>Définitions des rôles et permissions.</td>
 </tr>
 <tr class="even">
 <td><code>/api/users</code></td>
-<td>User management.</td>
+<td>Gestion des utilisateurs.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="key-configuration-files">Key Configuration Files</h2>
+<h2 id="fichiers-de-configuration-clés">Fichiers de Configuration
+Clés</h2>
 <ul>
-<li><strong><code>svelte.config.js</code></strong>: SvelteKit
-configuration (adapters, preprocessors).</li>
-<li><strong><code>vite.config.ts</code></strong>: Vite build
-configuration, including plugins and testing setup.</li>
-<li><strong><code>vitest.config.ts</code></strong>: Configuration for
-the Vitest test runner.</li>
-<li><strong><code>playwright.config.ts</code></strong>: Configuration
-for E2E testing with Playwright.</li>
-<li><strong><code>eslint.config.js</code></strong>: Linting rules.</li>
+<li><strong><code>svelte.config.js</code></strong> : Configuration
+SvelteKit (adaptateurs, préprocesseurs).</li>
+<li><strong><code>vite.config.ts</code></strong> : Configuration de
+build Vite, incluant les plugins et la configuration des tests.</li>
+<li><strong><code>vitest.config.ts</code></strong> : Configuration pour
+le lanceur de tests Vitest.</li>
+<li><strong><code>playwright.config.ts</code></strong> : Configuration
+pour les tests E2E avec Playwright.</li>
+<li><strong><code>eslint.config.js</code></strong> : Règles de
+linting.</li>
 </ul>
-<h2 id="testing">Testing</h2>
+<h2 id="tests">Tests</h2>
 <ul>
-<li><strong>Unit Tests</strong>: Run via <code>bun run test</code>
-(Vitest). Located in <code>tests/unit</code> and alongside
-components.</li>
-<li><strong>E2E Tests</strong>: Run via <code>bun run test:e2e</code>
-(Playwright). Located in <code>tests/e2e</code>.</li>
+<li><strong>Tests Unitaires</strong> : Exécutés via
+<code>bun run test</code> (Vitest). Situés dans <code>tests/unit</code>
+et aux côtés des composants.</li>
+<li><strong>Tests E2E</strong> : Exécutés via
+<code>bun run test:e2e</code> (Playwright). Situés dans
+<code>tests/e2e</code>.</li>
 </ul>
-<h2 id="logging">Logging</h2>
-<p>Server-side logging is handled by <code>winston</code> (configured in
-<code>src/lib/server/logger.ts</code>). Logs are output to the console
-in JSON format in production.</p>
+<h2 id="journalisation">Journalisation</h2>
+<p>La journalisation côté serveur est gérée par <code>winston</code>
+(configuré dans <code>src/lib/server/logger.ts</code>). Les journaux
+sont sortis dans la console au format JSON en production.</p>
 </body>
 </html>

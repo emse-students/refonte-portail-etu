@@ -241,21 +241,39 @@ globales (ADMIN, SITE_ADMIN) ou des permissions spécifiques à certaines
 associations via leurs memberships.</p>
 <h2 id="architecture">Architecture</h2>
 <h3 id="types-de-permissions">Types de Permissions</h3>
+<p>Le système utilise une hiérarchie de permissions basée sur des
+niveaux (Enum <code>Permission</code>). La vérification se fait par
+niveau : un utilisateur possédant un niveau N a automatiquement accès
+aux fonctionnalités de niveau N et inférieur (<code>&gt;=</code>).</p>
+<p><strong>Niveaux définis :</strong></p>
+<ul>
+<li><code>MEMBER</code> (0) : Membre simple (accès de base)</li>
+<li><code>ROLES</code> (1) : Gestion des rôles et membres (peut
+promouvoir/rétrograder des membres)</li>
+<li><code>EVENTS</code> (2) : Gestion des événements (création,
+édition)</li>
+<li><code>ADMIN</code> (3) : Administration de l’association (accès
+complet à l’association)</li>
+<li><code>SITE_ADMIN</code> (4) : Super Administrateur (accès à tout le
+site, outrepasse toutes les permissions)</li>
+</ul>
+<h3 id="logique-dautorisation">Logique d’Autorisation</h3>
 <ol type="1">
-<li><strong>Permissions Globales</strong> (dans
-<code>user.permissions</code>)
+<li><strong>Permissions Globales</strong>
 <ul>
-<li><code>ADMIN</code> (1 &lt;&lt; 3) : Accès à toutes les
-fonctionnalités admin</li>
-<li><code>SITE_ADMIN</code> (1 &lt;&lt; 4) : Gestion complète du
-site</li>
+<li>Stockées dans <code>user.permissions</code>.</li>
+<li>Si un utilisateur a une permission globale suffisante (ex:
+<code>SITE_ADMIN</code>), il a accès à <strong>toutes</strong> les
+associations et listes.</li>
 </ul></li>
-<li><strong>Permissions d’Association</strong> (dans
-<code>role.permissions</code> via <code>member</code>)
+<li><strong>Permissions d’Association / Liste</strong>
 <ul>
-<li><code>ROLES</code> (1 &lt;&lt; 0) : Gestion des rôles</li>
-<li><code>MEMBERS</code> (1 &lt;&lt; 1) : Gestion des membres</li>
-<li><code>EVENTS</code> (1 &lt;&lt; 2) : Gestion des événements</li>
+<li>Stockées dans <code>role.permissions</code> via les memberships
+(<code>user.memberships</code>).</li>
+<li>S’appliquent uniquement à l’association ou la liste spécifique.</li>
+<li>Un utilisateur peut avoir le niveau <code>ADMIN</code> (3) dans
+l’association A, mais seulement <code>MEMBER</code> (0) dans
+l’association B.</li>
 </ul></li>
 </ol>
 <h3 id="structure-des-données">Structure des Données</h3>

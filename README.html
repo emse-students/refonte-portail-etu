@@ -233,158 +233,161 @@
 <h1 class="title">README</h1>
 </header>
 <h1 id="portail-étudiants-emse">Portail Étudiants (EMSE)</h1>
-<p>This repository contains the SvelteKit-based student portal for EMSE:
-a small web app to list associations, manage events, export calendar
-data (ICS), and provide basic authentication and APIs.</p>
-<p>This README explains the project’s purpose, how to run it locally,
-how to test and build it, environment variables required, and common
-troubleshooting tips.</p>
-<h2 id="purpose">Purpose</h2>
+<p>Ce dépôt contient le portail étudiant basé sur SvelteKit pour l’EMSE
+: une petite application web pour lister les associations, gérer les
+événements, exporter les données de calendrier (ICS) et fournir une
+authentification de base et des APIs.</p>
+<p>Ce README explique l’objectif du projet, comment l’exécuter
+localement, comment le tester et le compiler, les variables
+d’environnement requises et des conseils de dépannage courants.</p>
+<h2 id="objectif">Objectif</h2>
 <ul>
-<li>Central directory for student associations</li>
-<li>Calendar of events and ICS export</li>
-<li>API endpoints for associations, events and users</li>
-<li>Authentication using <code>@auth/sveltekit</code></li>
-<li>Responsive UI implemented with SvelteKit</li>
+<li>Annuaire central pour les associations étudiantes</li>
+<li>Calendrier des événements et export ICS</li>
+<li>Endpoints API pour les associations, les événements et les
+utilisateurs</li>
+<li>Authentification utilisant <code>@auth/sveltekit</code></li>
+<li>Interface utilisateur réactive implémentée avec SvelteKit</li>
+</ul>
+<h2 id="services-externes-dépendances">Services Externes
+(Dépendances)</h2>
+<h3 id="migallery">Migallery</h3>
+<p>Le portail utilise <strong>Migallery</strong> pour l’hébergement et
+la gestion des images (logos associations, affiches événements). Les
+endpoints <code>/api/image</code> agissent comme un proxy authentifié
+vers cette instance Migallery.</p>
+<ul>
+<li><strong>URL</strong>: Configurable via
+<code>GALLERY_API_URL</code></li>
+<li><strong>Authentification</strong>: Clé API partagée
+(<code>GALLERY_API_KEY</code>)</li>
 </ul>
 <h2 id="documentation">Documentation</h2>
 <ul>
-<li><a href="ADMIN_README.md">Admin Guide</a> - Instructions for
-administrators.</li>
-<li><a href="API_DOCUMENTATION.md">API Documentation</a> - Details on
-available API endpoints.</li>
-<li><a href="CODE_QUALITY.md">Code Quality</a> - Standards and practices
-for maintaining code quality.</li>
+<li><a href="ADMIN_README.md">Guide Admin</a> - Instructions pour les
+administrateurs.</li>
+<li><a href="API_DOCUMENTATION.md">Documentation API</a> - Détails sur
+les endpoints API disponibles.</li>
+<li><a href="CODE_QUALITY.md">Qualité du Code</a> - Normes et pratiques
+pour maintenir la qualité du code.</li>
 <li><a href="PERMISSIONS_ASSOCIATIONS.md">Permissions &amp;
-Associations</a> - HOWTO on association permissions.</li>
-<li><a href="REFERENCE.md">Reference</a> - Technical references and
+Associations</a> - Guide sur les permissions des associations.</li>
+<li><a href="REFERENCE.md">Référence</a> - Références techniques et
 configurations.</li>
-<li><a href="SESSION_SYSTEM.md">Session System</a> - Explanation of the
-authentication and session management.</li>
-<li><a href="SESSION_EXAMPLES.md">Session Examples</a> - Examples of
-session handling.</li>
-<li><a href="test-permissions.md">Test Permissions</a> - Testing
-permission logic.</li>
+<li><a href="SESSION_SYSTEM.md">Système de Session</a> - Explication de
+l’authentification et de la gestion de session.</li>
+<li><a href="SESSION_EXAMPLES.md">Exemples de Session</a> - Exemples de
+gestion de session.</li>
+<li><a href="test-permissions.md">Test Permissions</a> - Tester la
+logique des permissions.</li>
 </ul>
-<h2 id="quick-start-local-development">Quick start (local
-development)</h2>
-<p>Prerequisites</p>
+<h2 id="démarrage-rapide-développement-local">Démarrage rapide
+(développement local)</h2>
+<p>Prérequis</p>
 <ul>
-<li>Bun (or Node 18+). The project is configured with Vite /
+<li>Bun (ou Node 18+). Le projet est configuré avec Vite /
 SvelteKit.</li>
-<li>A MySQL-compatible database (or a running instance for API
-routes)</li>
+<li>Une base de données compatible MySQL (ou une instance en cours
+d’exécution pour les routes API)</li>
 </ul>
 <ol type="1">
-<li>Bun installation (if not already installed)</li>
+<li>Installation de Bun (si ce n’est pas déjà fait)</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://bun.sh/install <span class="kw">|</span> <span class="fu">bash</span></span></code></pre></div>
 <ol start="2" type="1">
-<li>Install dependencies</li>
+<li>Installer les dépendances</li>
 </ol>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bun</span> install</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or: bun install</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ou : bun install</span></span></code></pre></div>
 <ol start="3" type="1">
-<li><p>Create a local <code>.env</code> file (see
+<li><p>Créer un fichier <code>.env</code> local (voir
 <code>.env.example</code>)</p></li>
-<li><p>Run the dev server</p></li>
+<li><p>Lancer le serveur de développement</p></li>
 </ol>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bun</span> run dev</span></code></pre></div>
-<p>Open the URL printed by Vite (usually http://localhost:5173).</p>
+<p>Ouvrez l’URL affichée par Vite (généralement
+http://localhost:5173).</p>
 <p>Notes</p>
 <ul>
-<li>For frontend-only development you can stub or mock API responses if
-the DB isn’t available.</li>
+<li>Pour le développement frontend uniquement, vous pouvez simuler ou
+mocker les réponses API si la base de données n’est pas disponible.</li>
 </ul>
-<h2 id="environment-variables">Environment variables</h2>
-<p>Create a <code>.env</code> file with the variables listed in
-<code>.env.example</code>. Key variables used by the code:</p>
+<h2 id="variables-denvironnement">Variables d’environnement</h2>
+<p>Créez un fichier <code>.env</code> avec les variables listées dans
+<code>.env.example</code>. Les variables clés utilisées par le code
+:</p>
 <ul>
-<li><code>DB_HOST</code> — database host</li>
-<li><code>DB_USER</code> — database username</li>
-<li><code>DB_PASSWORD</code> — database password</li>
-<li><code>DB_NAME</code> — database name</li>
-<li><code>DB_PORT</code> — database port (optional, default 3306)</li>
-<li><code>AUTH_SECRET</code> — secret used by the authentication library
-(if configured)</li>
+<li><code>DB_HOST</code> — hôte de la base de données</li>
+<li><code>DB_USER</code> — nom d’utilisateur de la base de données</li>
+<li><code>DB_PASSWORD</code> — mot de passe de la base de données</li>
+<li><code>DB_NAME</code> — nom de la base de données</li>
+<li><code>DB_PORT</code> — port de la base de données (optionnel, défaut
+3306)</li>
+<li><code>AUTH_SECRET</code> — secret utilisé par la bibliothèque
+d’authentification (si configuré)</li>
 </ul>
-<p>See <code>.env.example</code> for a template.</p>
+<p>Voir <code>.env.example</code> pour un modèle.</p>
 <h2 id="scripts">Scripts</h2>
 <ul>
-<li><code>bun run dev</code> — start dev server</li>
-<li><code>bun run build</code> — production build</li>
-<li><code>bun run preview</code> — preview the production build
-locally</li>
-<li><code>bun run check</code> — run svelte-check / typecheck</li>
+<li><code>bun run dev</code> — démarre le serveur de développement</li>
+<li><code>bun run build</code> — compilation pour la production</li>
+<li><code>bun run preview</code> — prévisualiser la compilation de
+production localement</li>
+<li><code>bun run check</code> — exécuter svelte-check / vérification de
+type</li>
 </ul>
-<h2 id="testing">Testing</h2>
+<h2 id="tests">Tests</h2>
 <ul>
-<li>Unit tests: Vitest is configured in the repo. Run with
+<li>Tests unitaires : Vitest est configuré dans le dépôt. Lancez avec
 <code>bunx vitest</code>.</li>
-<li>Example API tests exist under <code>tests/api/</code> and components
-tests under <code>tests/components/</code>.</li>
-<li>Manual API checks:
+<li>Des exemples de tests API existent sous <code>tests/api/</code> et
+des tests de composants sous <code>tests/components/</code>.</li>
+<li>Vérifications manuelles de l’API :
 <ul>
-<li><code>GET /api/associations</code> — should return JSON list of
-associations (with <code>icon</code> URLs)</li>
+<li><code>GET /api/associations</code> — doit retourner une liste JSON
+d’associations (avec les URLs <code>icon</code>)</li>
 <li><code>GET /api/calendar?start=YYYY-MM-DD&amp;end=YYYY-MM-DD</code> —
-returns events in range</li>
-<li><code>GET /api/calendar/ics</code> — download ICS file for upcoming
-events</li>
+retourne les événements dans la plage</li>
+<li><code>GET /api/calendar/ics</code> — télécharger le fichier ICS pour
+les événements à venir</li>
 </ul></li>
 </ul>
-<h2 id="apis-overview">APIs (overview)</h2>
+<h2 id="apis-aperçu">APIs (aperçu)</h2>
 <ul>
-<li><code>GET /api/associations</code> — list associations (processed to
-include icon URLs)</li>
-<li><code>POST /api/associations</code> — create association (requires
-auth)</li>
-<li><code>GET /api/calendar</code> — events query by range and optional
-associationId</li>
-<li><code>GET /api/calendar/ics</code> — ICS export of upcoming
-events</li>
-<li><code>GET /api/user/[id]</code> — user data</li>
+<li><code>GET /api/associations</code> — lister les associations
+(traitées pour inclure les URLs <code>icon</code>)</li>
+<li><code>POST /api/associations</code> — créer une association
+(requiert authentification)</li>
+<li><code>GET /api/calendar</code> — requête d’événements par plage et
+associationId optionnel</li>
+<li><code>GET /api/calendar/ics</code> — export ICS des événements à
+venir</li>
+<li><code>GET /api/user/[id]</code> — données utilisateur</li>
 </ul>
-<p>Explore <code>src/routes/api</code> for the full list of
+<p>Explorez <code>src/routes/api</code> pour la liste complète des
 endpoints.</p>
-<h2 id="database">Database</h2>
+<h2 id="base-de-données">Base de données</h2>
 <ul>
-<li>The app uses <code>mysql2/promise</code>. Database helper is in
-<code>src/lib/server/database.ts</code>.</li>
-<li>The helper <code>db</code> is a template literal function that
-parameterizes values (safe queries).</li>
-<li>Types are in <code>src/lib/databasetypes.d.ts</code>. Database rows
-(Raw types) are transformed into processed types for the frontend.</li>
+<li>L’application utilise <code>mysql2/promise</code>. L’assistant de
+base de données est dans <code>src/lib/server/database.ts</code>.</li>
+<li>L’assistant <code>db</code> est une fonction de gabarit littéral qui
+paramètre les valeurs (requêtes sécurisées).</li>
+<li>Les types sont dans <code>src/lib/databasetypes.d.ts</code>. Les
+lignes de la base de données (Types bruts) sont transformées en types
+traités pour le frontend.</li>
 </ul>
-<h2 id="security-notes">Security notes</h2>
+<h2 id="notes-de-sécurité">Notes de sécurité</h2>
 <ul>
-<li>Always use prepared queries or <code>escape()</code> when building
-SQL queries. This repo uses both the <code>db</code> template helper and
-explicit <code>escape()</code> in places with dynamic SQL.</li>
-<li>Protect auth secrets and database credentials. Don’t commit
-<code>.env</code> to git.</li>
+<li>Utilisez toujours des requêtes préparées ou <code>escape()</code>
+lors de la construction de requêtes SQL. Ce dépôt utilise à la fois
+l’assistant de gabarit <code>db</code> et <code>escape()</code>
+explicite dans les endroits avec du SQL dynamique.</li>
+<li>Protégez les secrets d’authentification et les identifiants de base
+de données. Ne commitez pas <code>.env</code> dans git.</li>
 </ul>
 <h2 id="ci-cd">CI / CD</h2>
-<ul>
-<li>A GitHub Actions workflow <code>/.github/workflows/deploy.yml</code>
-(example) builds on a remote server and restarts the app (example using
-<code>pm2</code>). Configure the self-hosted runner on</li>
-</ul>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<ul>
-<li><code>associations is null</code> on page: ensure the
-<code>+page</code> load function returns <code>associations</code> and
-the API <code>GET /api/associations</code> returns processed objects
-(including <code>icon</code> URL). See
-<code>src/routes/api/associations/+server.ts</code>.</li>
-<li><code>ENOENT: no such file or directory</code> for
-<code>databasetypes</code>: import types using <code>import type</code>
-and reference the <code>.d.ts</code> file if needed.</li>
-<li>DB connection errors: verify <code>.env</code> values and that MySQL
-is running.</li>
-</ul>
 </body>
 </html>

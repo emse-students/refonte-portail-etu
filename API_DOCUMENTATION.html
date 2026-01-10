@@ -232,22 +232,25 @@
 <header id="title-block-header">
 <h1 class="title">API_DOCUMENTATION</h1>
 </header>
-<h1 id="api-documentation">API Documentation</h1>
-<p>This document outlines the available API endpoints for the Student
-Portal.</p>
-<h2 id="base-url">Base URL</h2>
-<p>All API endpoints are prefixed with <code>/api</code>.</p>
-<h2 id="authentication">Authentication</h2>
-<p>Most endpoints require authentication. The system uses session-based
-authentication.</p>
-<h2 id="endpoints">Endpoints</h2>
-<h3 id="users">Users</h3>
+<h1 id="documentation-de-lapi">Documentation de l’API</h1>
+<p>Ce document décrit les points de terminaison (endpoints) de l’API
+disponibles pour le Portail Étudiant.</p>
+<h2 id="url-de-base">URL de base</h2>
+<p>Tous les points de terminaison de l’API sont préfixés par
+<code>/api</code>.</p>
+<h2 id="authentification">Authentification</h2>
+<p>La plupart des points de terminaison nécessitent une
+authentification. Le système utilise une authentification basée sur les
+sessions.</p>
+<h2 id="points-de-terminaison-endpoints">Points de Terminaison
+(Endpoints)</h2>
+<h3 id="utilisateurs-users">Utilisateurs (Users)</h3>
 <h4 id="get-apiusers"><code>GET /api/users</code></h4>
-<p>Retrieves a list of all users.</p>
+<p>Récupère une liste de tous les utilisateurs.</p>
 <ul>
-<li><p><strong>Permissions</strong>: <code>ADMIN</code> or
+<li><p><strong>Permissions</strong> : <code>ADMIN</code> ou
 <code>SITE_ADMIN</code></p></li>
-<li><p><strong>Response</strong>: Array of User objects.</p>
+<li><p><strong>Réponse</strong> : Tableau d’objets Utilisateur.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
@@ -263,11 +266,11 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div></li>
 </ul>
 <h4 id="post-apiusers"><code>POST /api/users</code></h4>
-<p>Creates a new user.</p>
+<p>Crée un nouvel utilisateur.</p>
 <ul>
-<li><p><strong>Permissions</strong>: <code>ADMIN</code> or
+<li><p><strong>Permissions</strong> : <code>ADMIN</code> ou
 <code>SITE_ADMIN</code></p></li>
-<li><p><strong>Body</strong>:</p>
+<li><p><strong>Corps (Body)</strong> :</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first_name&quot;</span><span class="fu">:</span> <span class="st">&quot;Jane&quot;</span><span class="fu">,</span></span>
@@ -278,20 +281,21 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
 </ul>
 <h4 id="delete-apiusers"><code>DELETE /api/users</code></h4>
-<p>Deletes a user.</p>
+<p>Supprime un utilisateur.</p>
 <ul>
-<li><p><strong>Permissions</strong>: <code>ADMIN</code> or
+<li><p><strong>Permissions</strong> : <code>ADMIN</code> ou
 <code>SITE_ADMIN</code></p></li>
-<li><p><strong>Body</strong>:</p>
+<li><p><strong>Corps (Body)</strong> :</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">}</span></span></code></pre></div></li>
 </ul>
 <h4 id="get-apiusersidroles"><code>GET /api/users/[id]/roles</code></h4>
-<p>Retrieves detailed role information for a specific user.</p>
+<p>Récupère les informations détaillées des rôles pour un utilisateur
+spécifique.</p>
 <ul>
-<li><p><strong>Permissions</strong>: <code>ADMIN</code> or
+<li><p><strong>Permissions</strong> : <code>ADMIN</code> ou
 <code>SITE_ADMIN</code></p></li>
-<li><p><strong>Response</strong>:</p>
+<li><p><strong>Réponse</strong> :</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
@@ -304,93 +308,221 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="
 </ul>
 <h3 id="associations">Associations</h3>
 <h4 id="get-apiassociations"><code>GET /api/associations</code></h4>
-<p>Retrieves a list of all associations.</p>
+<p>Récupère une liste de toutes les associations.</p>
 <ul>
-<li><p><strong>Permissions</strong>: Public (or Authenticated)</p></li>
-<li><p><strong>Response</strong>:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;handle&quot;</span><span class="fu">:</span> <span class="st">&quot;bde&quot;</span><span class="fu">,</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Bureau des Élèves&quot;</span><span class="fu">,</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;color&quot;</span><span class="fu">:</span> <span class="dv">16777215</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div></li>
+<li><strong>Permissions</strong> : Publique</li>
+<li><strong>Réponse</strong> : Tableau d’objets Association de
+base.</li>
 </ul>
-<h3 id="configuration-system">Configuration (System)</h3>
-<h4 id="get-apiconfig"><code>GET /api/config</code></h4>
-<p>Retrieves system configuration key-value pairs.</p>
+<h4
+id="get-apiassociationsid"><code>GET /api/associations/[id]</code></h4>
+<p>Récupère les détails d’une association spécifique.</p>
 <ul>
-<li><p><strong>Permissions</strong>: Authenticated</p></li>
-<li><p><strong>Response</strong>:</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maintenance_mode&quot;</span><span class="fu">:</span> <span class="st">&quot;false&quot;</span><span class="fu">,</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;global_announcement&quot;</span><span class="fu">:</span> <span class="st">&quot;Welcome!&quot;</span><span class="fu">,</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;event_submission_open&quot;</span><span class="fu">:</span> <span class="st">&quot;true&quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><strong>Paramètres de requête (Query Params)</strong> :
+<ul>
+<li><code>includeMembers</code> : <code>true</code> pour inclure la
+liste des membres.</li>
+</ul></li>
+<li><strong>Permissions</strong> : Publique</li>
+</ul>
+<h4 id="post-apiassociations"><code>POST /api/associations</code></h4>
+<p>Crée une nouvelle association.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> (Global)</li>
+<li><strong>Corps (Body)</strong> :
+<code>{ name, description, handle, icon, color }</code></li>
+</ul>
+<h4
+id="put-apiassociationsid"><code>PUT /api/associations/[id]</code></h4>
+<p>Met à jour une association.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> (Global) ou
+<code>ADMIN</code> de l’association</li>
+<li><strong>Corps (Body)</strong> :
+<code>{ name, description, handle, icon, color }</code></li>
+</ul>
+<h4
+id="delete-apiassociationsid"><code>DELETE /api/associations/[id]</code></h4>
+<p>Supprime une association.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> (Global) ou
+<code>ADMIN</code> de l’association</li>
+</ul>
+<h3 id="configuration-système">Configuration (Système)</h3>
+<h4 id="get-apiconfig"><code>GET /api/config</code></h4>
+<p>Récupère les paires clé-valeur de la configuration du système.</p>
+<ul>
+<li><p><strong>Permissions</strong> : Authentifié</p></li>
+<li><p><strong>Réponse</strong> :</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maintenance_mode&quot;</span><span class="fu">:</span> <span class="st">&quot;false&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;global_announcement&quot;</span><span class="fu">:</span> <span class="st">&quot;Bienvenue !&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;event_submission_open&quot;</span><span class="fu">:</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
 </ul>
 <h4 id="post-apiconfig"><code>POST /api/config</code></h4>
-<p>Updates a configuration value.</p>
+<p>Met à jour une valeur de configuration.</p>
 <ul>
-<li><p><strong>Permissions</strong>: <code>ADMIN</code>,
-<code>SITE_ADMIN</code>, or <code>EVENTS</code> (for event-related
-keys)</p></li>
-<li><p><strong>Body</strong>:</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;maintenance_mode&quot;</span><span class="fu">,</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;true&quot;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p><strong>Permissions</strong> : <code>ADMIN</code>,
+<code>SITE_ADMIN</code>, ou <code>EVENTS</code> (pour les clés liées aux
+événements)</p></li>
+<li><p><strong>Corps (Body)</strong> :</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;maintenance_mode&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
 </ul>
-<h3 id="events">Events</h3>
+<h3 id="événements-events">Événements (Events)</h3>
 <h4 id="get-apievents"><code>GET /api/events</code></h4>
-<p>Retrieves a list of events.</p>
+<p>Récupère une liste d’événements.</p>
 <ul>
-<li><strong>Permissions</strong>: Public</li>
-<li><strong>Response</strong>: Array of Event objects.</li>
+<li><strong>Paramètres de requête (Query Params)</strong> :
+<ul>
+<li><code>editable</code> : <code>true</code> pour récupérer uniquement
+les événements que l’utilisateur peut modifier (nécessite Auth).</li>
+</ul></li>
+<li><strong>Permissions</strong> : Publique (pour les événements
+validés), Authentifié (pour les filtres
+<code>editable=true</code>).</li>
+<li><strong>Réponse</strong> : Tableau d’objets Événement.</li>
 </ul>
 <h4 id="post-apievents"><code>POST /api/events</code></h4>
-<p>Creates a new event.</p>
+<p>Crée un nouvel événement.</p>
 <ul>
-<li><strong>Permissions</strong>: <code>EVENTS</code> or Association
-Admin</li>
-<li><strong>Body</strong>: Event details (name, date, description,
-etc.)</li>
+<li><p><strong>Permissions</strong> : <code>EVENTS</code> (Global) ou
+permission <code>EVENTS</code> de l’association.</p></li>
+<li><p><strong>Note</strong> : Si la config
+<code>event_submission_open</code> est fausse, seuls les gestionnaires
+globaux peuvent publier.</p></li>
+<li><p><strong>Corps (Body)</strong> :</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;association_id&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;list_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Soirée&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;start_date&quot;</span><span class="fu">:</span> <span class="st">&quot;ISOString&quot;</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;end_date&quot;</span><span class="fu">:</span> <span class="st">&quot;ISOString&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;location&quot;</span><span class="fu">:</span> <span class="st">&quot;Foyer&quot;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
 </ul>
-<h3 id="lists">Lists</h3>
-<h4 id="get-apilists"><code>GET /api/lists</code></h4>
-<p>Retrieves lists (e.g., BDE lists).</p>
-<h4 id="post-apilists"><code>POST /api/lists</code></h4>
-<p>Creates a new list.</p>
-<h3 id="members">Members</h3>
-<h4 id="get-apimembers"><code>GET /api/members</code></h4>
-<p>Retrieves members of associations or lists.</p>
-<h4 id="post-apimembers"><code>POST /api/members</code></h4>
-<p>Adds a member to an association or list.</p>
-<h3 id="roles">Roles</h3>
-<h4 id="get-apiroles"><code>GET /api/roles</code></h4>
-<p>Retrieves available roles.</p>
-<h4 id="post-apiroles"><code>POST /api/roles</code></h4>
-<p>Creates or updates a role.</p>
-<h3 id="calendar">Calendar</h3>
-<h4 id="get-apicalendar"><code>GET /api/calendar</code></h4>
-<p>Retrieves calendar events formatted for display.</p>
-<h3 id="images">Images</h3>
-<h4 id="post-apiimage"><code>POST /api/image</code></h4>
-<p>Uploads an image to the gallery service.</p>
+<h4 id="put-apievents"><code>PUT /api/events</code></h4>
+<p>Met à jour un événement.</p>
 <ul>
-<li><strong>Headers</strong>: <code>x-api-key</code> (internal use)</li>
-<li><strong>Body</strong>: FormData with <code>file</code> field.</li>
+<li><strong>Permissions</strong> : <code>EVENTS</code> (Global) ou
+permission <code>EVENTS</code> de l’association.</li>
+</ul>
+<h3 id="listes-lists">Listes (Lists)</h3>
+<h4 id="get-apilists"><code>GET /api/lists</code></h4>
+<p>Récupère les listes (par exemple, les listes BDE).</p>
+<ul>
+<li><strong>Permissions</strong> : Publique</li>
+<li><strong>Réponse</strong> : Tableau d’objets Liste.</li>
+</ul>
+<h4 id="get-apilistsid"><code>GET /api/lists/[id]</code></h4>
+<p>Récupère les détails d’une liste spécifique.</p>
+<ul>
+<li><strong>Paramètres de requête (Query Params)</strong> :
+<ul>
+<li><code>includeMembers</code> : <code>true</code> pour inclure les
+membres.</li>
+</ul></li>
+<li><strong>Permissions</strong> : Publique</li>
+</ul>
+<h4 id="post-apilists"><code>POST /api/lists</code></h4>
+<p>Crée une nouvelle liste.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> ou
+<code>SITE_ADMIN</code></li>
+<li><strong>Corps (Body)</strong> :
+<code>{ name, handle, description, association_id, promo, ... }</code></li>
+</ul>
+<h4 id="put-apilistsid"><code>PUT /api/lists/[id]</code></h4>
+<p>Met à jour une liste.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> (Global) ou
+Propriétaire de la Liste/Association ?</li>
+<li><strong>Corps (Body)</strong> : Mises à jour des champs.</li>
+</ul>
+<h4 id="delete-apilistsid"><code>DELETE /api/lists/[id]</code></h4>
+<p>Supprime une liste.</p>
+<h3 id="membres-members">Membres (Members)</h3>
+<h4 id="get-apimembers"><code>GET /api/members</code></h4>
+<p>Récupère les membres des associations ou des listes.</p>
+<h4 id="post-apimembers"><code>POST /api/members</code></h4>
+<p>Ajoute un membre à une association ou une liste.</p>
+<h3 id="rôles-roles">Rôles (Roles)</h3>
+<h4 id="get-apiroles"><code>GET /api/roles</code></h4>
+<p>Récupère les rôles disponibles.</p>
+<h4 id="post-apiroles"><code>POST /api/roles</code></h4>
+<p>Crée ou met à jour un rôle.</p>
+<h3 id="calendrier-calendar">Calendrier (Calendar)</h3>
+<h4 id="get-apicalendar"><code>GET /api/calendar</code></h4>
+<p>Récupère les événements du calendrier formatés pour l’affichage (ou
+ICS si implémenté).</p>
+<ul>
+<li><strong>Paramètres de requête (Query Params)</strong> :
+<ul>
+<li><code>start</code> : Date de début (AAAA-MM-JJ)</li>
+<li><code>end</code> : Date de fin (AAAA-MM-JJ)</li>
+<li><code>asso</code> : Filtrer par ID de l’association</li>
+<li><code>list</code> : Filtrer par ID de la liste</li>
+<li><code>unvalidated</code> : <code>true</code> pour inclure les
+événements non validés (nécessite des permissions)</li>
+<li><code>all</code> : <code>true</code> pour ignorer les autres filtres
+? (Logique spécifique à l’implémentation)</li>
+</ul></li>
+<li><strong>Permissions</strong> : Publique (par défaut), Authentifié
+(pour l’accès <code>unvalidated</code>).</li>
+</ul>
+<h3 id="images">Images</h3>
+<p>Cette API agit comme un proxy vers un service de galerie externe
+appelé <strong>Migallery</strong> (Un autre projet technique pour
+l’hébergement d’images).</p>
+<p><strong>Variables d’environnement requises :</strong></p>
+<ul>
+<li><code>GALLERY_API_URL</code> : URL de base de l’instance
+Migallery.</li>
+<li><code>GALLERY_API_KEY</code> : Clé API pour l’authentification
+partagée.</li>
+<li><code>PORTAL_URL</code> : URL d’origine envoyée à Migallery.</li>
+</ul>
+<h4 id="post-apiimage"><code>POST /api/image</code></h4>
+<p>Upload une image vers le service Migallery. Effectue un
+redimensionnement/recadrage automatique en JPEG 800x800px en utilisant
+<code>jimp</code> avant l’envoi.</p>
+<ul>
+<li><strong>Permissions</strong> : <code>ADMIN</code> (Global) ou Admin
+de l’Association/Liste spécifiée.</li>
+<li><strong>Corps (Body)</strong> : <code>FormData</code>
+<ul>
+<li><code>image</code> : Le fichier à uploader.</li>
+<li><code>association_id</code> OU <code>list_id</code> : Contexte pour
+la vérification des permissions.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON avec le nouvel ID/Détails de
+l’image.</li>
 </ul>
 <h4 id="get-apiimageid"><code>GET /api/image/[id]</code></h4>
-<p>Proxies an image from the gallery service.</p>
+<p>Proxy une image directement depuis le service Migallery.</p>
+<ul>
+<li><strong>Permissions</strong> : Publique</li>
+<li><strong>Réponse</strong> : Données binaires de l’image (avec le
+Content-Type correct).</li>
+</ul>
+<h4 id="delete-apiimageid"><code>DELETE /api/image/[id]</code></h4>
+<p>Supprime une image de la base de données locale et du service
+Migallery distant.</p>
+<ul>
+<li><strong>Permissions</strong> : Admin (À FAIRE : Vérifier
+l’implémentation explicite des permissions)</li>
+</ul>
 <h3 id="auth">Auth</h3>
 <h4 id="get-apiauthlogin"><code>GET /api/auth/login</code></h4>
-<p>Initiates the CAS login flow.</p>
+<p>Initialise le flux de connexion CAS.</p>
 <h4 id="get-apiauthlogout"><code>GET /api/auth/logout</code></h4>
-<p>Logs the user out.</p>
+<p>Déconnecte l’utilisateur.</p>
 </body>
 </html>
