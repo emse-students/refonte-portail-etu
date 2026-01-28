@@ -66,11 +66,10 @@ function encryptData(data: SessionData): string {
 	const cipher = createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
 
 	const jsonData = JSON.stringify(data);
-	let encrypted = cipher.update(jsonData, "utf8", "hex");
-	encrypted += cipher.final("hex");
+	const encrypted = Buffer.concat([cipher.update(jsonData, "utf8"), cipher.final()]);
 
-	// Retourner IV + données chiffrées
-	return iv.toString("hex") + ":" + encrypted;
+	// Retourner IV + données chiffrées en base64url pour minimiser la taille
+	return Buffer.concat([iv, encrypted]).toString("base64url");
 }
 
 /**
@@ -78,18 +77,34 @@ function encryptData(data: SessionData): string {
  */
 function decryptData(encryptedData: string): SessionData | null {
 	try {
-		const [ivHex, encrypted] = encryptedData.split(":");
-		if (!ivHex || !encrypted) return null;
+		// Supporter l'ancien format (hex:hex) pour la transition
+		if (encryptedData.includes(":")) {
+			const [ivHex, encryptedHex] = encryptedData.split(":");
+			if (!ivHex || !encryptedHex) return null;
 
-		const iv = Buffer.from(ivHex, "hex");
+			const iv = Buffer.from(ivHex, "hex");
+			const decipher = createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+
+			let decrypted = decipher.update(encryptedHex, "hex", "utf8");
+			decrypted += decipher.final("utf8");
+
+			return JSON.parse(decrypted) as SessionData;
+		}
+
+		// Nouveau format (base64url)
+		const buffer = Buffer.from(encryptedData, "base64url");
+		if (buffer.length < 17) return null; // IV (16) + min 1 byte data
+
+		const iv = buffer.subarray(0, 16);
+		const encrypted = buffer.subarray(16);
+
 		const decipher = createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+		// Note: decipher.update accepts buffer input
+		const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
 
-		let decrypted = decipher.update(encrypted, "hex", "utf8");
-		decrypted += decipher.final("utf8");
-
-		return JSON.parse(decrypted) as SessionData;
+		return JSON.parse(decrypted.toString("utf8")) as SessionData;
 	} catch (error) {
-		console.error("Erreur lors du déchiffrement des données de session:", error);
+		// console.error("Erreur lors du déchiffrement des données de session:", error);
 		return null;
 	}
 }
@@ -149,7 +164,8 @@ function expandSessionData(sessionData: SessionData): FullUser {
  * Génère une signature HMAC pour vérifier l'intégrité
  */
 function signData(data: string): string {
-	return createHmac("sha256", SESSION_SECRET).update(data).digest("hex");
+	// Utiliser base64url pour la signature aussi
+	return createHmac("sha256", SESSION_SECRET).update(data).digest("base64url");
 }
 
 /**
