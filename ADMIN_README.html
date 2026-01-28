@@ -192,17 +192,14 @@ permissions)</li>
 <li>Modifier handle, nom, description et couleur</li>
 <li>Créer et supprimer des associations</li>
 </ul></li>
-<li><strong>Rôles</strong> (<code>roles</code>)
-<ul>
-<li>Configurer les rôles disponibles</li>
-<li>Définir la hiérarchie et les permissions</li>
-<li>Ajouter/modifier/supprimer des rôles</li>
-</ul></li>
 <li><strong>Membres</strong> (<code>members</code>)
 <ul>
-<li>Lier utilisateurs et associations avec leurs rôles</li>
+<li>Lier utilisateurs et associations</li>
+<li>Définir les permissions, la hiérarchie et le nom du rôle
+directement</li>
 <li>Gérer la visibilité des membres</li>
-<li>Vue enrichie avec noms d’utilisateur, association et rôle</li>
+<li>Vue enrichie avec noms d’utilisateur, association et rôle
+(texte)</li>
 </ul></li>
 <li><strong>Événements</strong> (<code>events</code>)
 <ul>
@@ -220,17 +217,10 @@ permissions)</li>
 <li><code>PUT</code> : Met à jour un utilisateur existant</li>
 <li><code>DELETE</code> : Supprime un utilisateur</li>
 </ul>
-<h3 id="apiroles"><code>/api/roles</code></h3>
-<ul>
-<li><code>GET</code> : Liste tous les rôles</li>
-<li><code>POST</code> : Crée un nouveau rôle</li>
-<li><code>PUT</code> : Met à jour un rôle</li>
-<li><code>DELETE</code> : Supprime un rôle</li>
-</ul>
 <h3 id="apimembers"><code>/api/members</code></h3>
 <ul>
-<li><code>GET</code> : Liste tous les membres avec JOIN sur users,
-associations et roles</li>
+<li><code>GET</code> : Liste tous les membres avec JOIN sur users et
+associations</li>
 <li><code>POST</code> : Crée un nouveau membre</li>
 <li><code>PUT</code> : Met à jour un membre</li>
 <li><code>DELETE</code> : Supprime un membre</li>
@@ -273,7 +263,7 @@ consultation.</p>
 <ul>
 <li><strong>Dates</strong> : Utilisent un sélecteur datetime-local</li>
 <li><strong>Relations</strong> : Affichent des listes déroulantes
-(associations, users, roles)</li>
+(associations, users)</li>
 <li><strong>Booléens</strong> : Cases à cocher (ex: visible pour les
 membres)</li>
 <li><strong>Descriptions</strong> : Zone de texte multiligne</li>

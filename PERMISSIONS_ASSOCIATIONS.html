@@ -232,8 +232,8 @@
 <header id="title-block-header">
 <h1 class="title">PERMISSIONS_ASSOCIATIONS</h1>
 </header>
-<h1 id="système-de-permissions-par-association">Système de Permissions
-par Association</h1>
+<h1 id="système-de-permissions-par-association-mis-à-jour">Système de
+Permissions par Association (Mis à jour)</h1>
 <h2 id="vue-densemble">Vue d’ensemble</h2>
 <p>Le système de permissions a été étendu pour gérer les permissions au
 niveau des associations. Les utilisateurs peuvent avoir des permissions
@@ -247,14 +247,12 @@ niveau : un utilisateur possédant un niveau N a automatiquement accès
 aux fonctionnalités de niveau N et inférieur (<code>&gt;=</code>).</p>
 <p><strong>Niveaux définis :</strong></p>
 <ul>
-<li><code>MEMBER</code> (0) : Membre simple (accès de base)</li>
-<li><code>ROLES</code> (1) : Gestion des rôles et membres (peut
-promouvoir/rétrograder des membres)</li>
-<li><code>EVENTS</code> (2) : Gestion des événements (création,
-édition)</li>
-<li><code>ADMIN</code> (3) : Administration de l’association (accès
-complet à l’association)</li>
-<li><code>SITE_ADMIN</code> (4) : Super Administrateur (accès à tout le
+<li><code>MEMBER</code> (0) : Membre simple (accès de base, lecture
+seule)</li>
+<li><code>MANAGE</code> (1) : Gestion des membres et des événements</li>
+<li><code>ADMIN</code> (2) : Administration complète de l’association
+(accès à toutes les ressources)</li>
+<li><code>SITE_ADMIN</code> (3) : Super Administrateur (accès à tout le
 site, outrepasse toutes les permissions)</li>
 </ul>
 <h3 id="logique-dautorisation">Logique d’Autorisation</h3>
@@ -268,8 +266,8 @@ associations et listes.</li>
 </ul></li>
 <li><strong>Permissions d’Association / Liste</strong>
 <ul>
-<li>Stockées dans <code>role.permissions</code> via les memberships
-(<code>user.memberships</code>).</li>
+<li>Stockées directement dans <code>member.permissions</code> via les
+memberships (<code>user.memberships</code>).</li>
 <li>S’appliquent uniquement à l’association ou la liste spécifique.</li>
 <li>Un utilisateur peut avoir le niveau <code>ADMIN</code> (3) dans
 l’association A, mais seulement <code>MEMBER</code> (0) dans
@@ -286,10 +284,13 @@ class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> Member {</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    id<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    user<span class="op">:</span> User<span class="op">;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    role<span class="op">:</span> Role<span class="op">;</span> <span class="co">// Le rôle contient les permissions pour cette association</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    association<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> <span class="co">// ID de l&#39;association</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    visible<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    role_name<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> <span class="co">// Ex: &quot;Président&quot;, &quot;Trésorier&quot;, &quot;Membre&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    permissions<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> <span class="co">// Niveau de permission (0-3)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    hierarchy<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> <span class="co">// Niveau hiérarchique pour l&#39;affichage (0-10)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    association_id<span class="op">:</span> <span class="dt">number</span> <span class="op">|</span> <span class="dt">null</span><span class="op">;</span> <span class="co">// ID de l&#39;association si applicable</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    list_id<span class="op">:</span> <span class="dt">number</span> <span class="op">|</span> <span class="dt">null</span><span class="op">;</span> <span class="co">// ID de la liste si applicable</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    visible<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <h2 id="fonctions-utilitaires">Fonctions Utilitaires</h2>
 <h3
 id="hasassociationpermissionuser-associationid-permission"><code>hasAssociationPermission(user, associationId, permission)</code></h3>
@@ -358,24 +359,24 @@ supprimer</li>
 <h4 id="get-1">GET</h4>
 <ul>
 <li>Filtre automatiquement selon les associations où l’utilisateur a
-<code>MEMBERS</code></li>
+<code>MANAGE</code></li>
 <li>Les admins voient tous les membres</li>
 </ul>
 <h4 id="post-1">POST</h4>
 <ul>
-<li>Vérifie que l’utilisateur a <code>MEMBERS</code> pour
+<li>Vérifie que l’utilisateur a <code>MANAGE</code> pour
 l’<code>association_id</code> spécifiée</li>
 </ul>
 <h4 id="put-1">PUT</h4>
 <ul>
-<li>Vérifie <code>MEMBERS</code> pour l’association actuelle du
+<li>Vérifie <code>MANAGE</code> pour l’association actuelle du
 membre</li>
-<li>Si changement d’association : vérifie aussi <code>MEMBERS</code>
-pour la nouvelle association</li>
+<li>Si changement d’association : vérifie aussi <code>MANAGE</code> pour
+la nouvelle association</li>
 </ul>
 <h4 id="delete-1">DELETE</h4>
 <ul>
-<li>Vérifie <code>MEMBERS</code> pour l’association du membre à
+<li>Vérifie <code>MANAGE</code> pour l’association du membre à
 supprimer</li>
 </ul>
 <h2 id="chargement-des-données">Chargement des Données</h2>

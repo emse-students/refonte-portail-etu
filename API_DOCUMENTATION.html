@@ -260,10 +260,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;john@example.com&quot;</span><span class="fu">,</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;login&quot;</span><span class="fu">:</span> <span class="st">&quot;jdoe&quot;</span><span class="fu">,</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;promo&quot;</span><span class="fu">:</span> <span class="dv">2024</span><span class="fu">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;permissions&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;max_role_permissions&quot;</span><span class="fu">:</span> <span class="dv">0</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div></li>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;permissions&quot;</span><span class="fu">:</span> <span class="dv">0</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div></li>
 </ul>
 <h4 id="post-apiusers"><code>POST /api/users</code></h4>
 <p>Crée un nouvel utilisateur.</p>
@@ -300,7 +299,7 @@ spécifique.</p>
 class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;role_name&quot;</span><span class="fu">:</span> <span class="st">&quot;President&quot;</span><span class="fu">,</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;permissions&quot;</span><span class="fu">:</span> <span class="dv">15</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;permissions&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;association_name&quot;</span><span class="fu">:</span> <span class="st">&quot;BDE&quot;</span><span class="fu">,</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;list_name&quot;</span><span class="fu">:</span> <span class="kw">null</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
@@ -453,11 +452,6 @@ Propriétaire de la Liste/Association ?</li>
 <p>Récupère les membres des associations ou des listes.</p>
 <h4 id="post-apimembers"><code>POST /api/members</code></h4>
 <p>Ajoute un membre à une association ou une liste.</p>
-<h3 id="rôles-roles">Rôles (Roles)</h3>
-<h4 id="get-apiroles"><code>GET /api/roles</code></h4>
-<p>Récupère les rôles disponibles.</p>
-<h4 id="post-apiroles"><code>POST /api/roles</code></h4>
-<p>Crée ou met à jour un rôle.</p>
 <h3 id="calendrier-calendar">Calendrier (Calendar)</h3>
 <h4 id="get-apicalendar"><code>GET /api/calendar</code></h4>
 <p>Récupère les événements du calendrier formatés pour l’affichage (ou
