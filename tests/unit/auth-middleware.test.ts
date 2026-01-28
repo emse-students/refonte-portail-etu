@@ -111,7 +111,7 @@ describe("Auth Middleware", () => {
 
 		it("should return true if user is global admin", () => {
 			const user = createMockUser(Permission.ADMIN);
-			expect(hasAssociationPermission(user, assoId, Permission.ROLES)).toBe(true);
+			expect(hasAssociationPermission(user, assoId, Permission.MANAGE)).toBe(true);
 		});
 
 		it("should return true if user has permission in association", () => {
@@ -120,12 +120,14 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: assoId,
 					list_id: null,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(hasAssociationPermission(user, assoId, Permission.ROLES)).toBe(true);
+			expect(hasAssociationPermission(user, assoId, Permission.MANAGE)).toBe(true);
 		});
 
 		it("should return false if user has permission in OTHER association", () => {
@@ -134,12 +136,14 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: otherAssoId,
 					list_id: null,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(hasAssociationPermission(user, assoId, Permission.ROLES)).toBe(false);
+			expect(hasAssociationPermission(user, assoId, Permission.MANAGE)).toBe(false);
 		});
 
 		it("should return false if user has insufficient permission in association", () => {
@@ -148,19 +152,21 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: assoId,
 					list_id: null,
-					role: { id: 1, name: "Member", permissions: Permission.MEMBER, hierarchy: 1 },
+					role_name: "Member",
+					permissions: Permission.MEMBER,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(hasAssociationPermission(user, assoId, Permission.ROLES)).toBe(false);
+			expect(hasAssociationPermission(user, assoId, Permission.MANAGE)).toBe(false);
 		});
 	});
 
 	describe("getAuthorizedAssociationIds", () => {
 		it("should return null for global admin", () => {
 			const user = createMockUser(Permission.ADMIN);
-			expect(getAuthorizedAssociationIds(user, Permission.ROLES)).toBeNull();
+			expect(getAuthorizedAssociationIds(user, Permission.MANAGE)).toBeNull();
 		});
 
 		it("should return list of association IDs where user has permission", () => {
@@ -169,7 +175,9 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: 10,
 					list_id: null,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
@@ -177,7 +185,9 @@ describe("Auth Middleware", () => {
 					id: 2,
 					association_id: 20,
 					list_id: null,
-					role: { id: 2, name: "Member", permissions: Permission.MEMBER, hierarchy: 1 },
+					role_name: "Member",
+					permissions: Permission.MEMBER,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
@@ -185,17 +195,19 @@ describe("Auth Middleware", () => {
 					id: 3,
 					association_id: 30,
 					list_id: null,
-					role: { id: 3, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(getAuthorizedAssociationIds(user, Permission.ROLES)).toEqual([10, 30]);
+			expect(getAuthorizedAssociationIds(user, Permission.MANAGE)).toEqual([10, 30]);
 		});
 
 		it("should return empty array if no permissions", () => {
 			const user = createMockUser(0, []);
-			expect(getAuthorizedAssociationIds(user, Permission.ROLES)).toEqual([]);
+			expect(getAuthorizedAssociationIds(user, Permission.MANAGE)).toEqual([]);
 		});
 	});
 
@@ -239,7 +251,7 @@ describe("Auth Middleware", () => {
 
 		it("should return true if user is global admin", () => {
 			const user = createMockUser(Permission.ADMIN);
-			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(true);
+			expect(hasListPermission(user, listId, Permission.MANAGE)).toBe(true);
 		});
 
 		it("should return true if user has permission in list", () => {
@@ -248,12 +260,14 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: null,
 					list_id: listId,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(true);
+			expect(hasListPermission(user, listId, Permission.MANAGE)).toBe(true);
 		});
 
 		it("should return false if user has permission in OTHER list", () => {
@@ -262,12 +276,14 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: null,
 					list_id: otherListId,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 10,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(hasListPermission(user, listId, Permission.ROLES)).toBe(false);
+			expect(hasListPermission(user, listId, Permission.MANAGE)).toBe(false);
 		});
 	});
 
@@ -277,14 +293,14 @@ describe("Auth Middleware", () => {
 		it("should return authorized: true if has permission", async () => {
 			const user = createMockUser(Permission.ADMIN);
 			const event = createMockEvent(user);
-			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			const result = await checkAssociationPermission(event, assoId, Permission.MANAGE);
 			expect(result).toEqual({ authorized: true, user });
 		});
 
 		it("should return authorized: false and 403 if no permission", async () => {
 			const user = createMockUser(Permission.MEMBER);
 			const event = createMockEvent(user);
-			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			const result = await checkAssociationPermission(event, assoId, Permission.MANAGE);
 			expect(result.authorized).toBe(false);
 			if (!result.authorized) {
 				expect(result.response.status).toBe(403);
@@ -293,7 +309,7 @@ describe("Auth Middleware", () => {
 
 		it("should return authorized: false and 401 if not authenticated", async () => {
 			const event = createMockEvent(null);
-			const result = await checkAssociationPermission(event, assoId, Permission.ROLES);
+			const result = await checkAssociationPermission(event, assoId, Permission.MANAGE);
 			expect(result.authorized).toBe(false);
 			if (!result.authorized) {
 				expect(result.response.status).toBe(401);
@@ -307,14 +323,14 @@ describe("Auth Middleware", () => {
 		it("should return authorized: true if has permission", async () => {
 			const user = createMockUser(Permission.ADMIN);
 			const event = createMockEvent(user);
-			const result = await checkListPermission(event, listId, Permission.ROLES);
+			const result = await checkListPermission(event, listId, Permission.MANAGE);
 			expect(result).toEqual({ authorized: true, user });
 		});
 
 		it("should return authorized: false and 403 if no permission", async () => {
 			const user = createMockUser(Permission.MEMBER);
 			const event = createMockEvent(user);
-			const result = await checkListPermission(event, listId, Permission.ROLES);
+			const result = await checkListPermission(event, listId, Permission.MANAGE);
 			expect(result.authorized).toBe(false);
 			if (!result.authorized) {
 				expect(result.response.status).toBe(403);
@@ -323,7 +339,7 @@ describe("Auth Middleware", () => {
 
 		it("should return authorized: false and 401 if not authenticated", async () => {
 			const event = createMockEvent(null);
-			const result = await checkListPermission(event, listId, Permission.ROLES);
+			const result = await checkListPermission(event, listId, Permission.MANAGE);
 			expect(result.authorized).toBe(false);
 			if (!result.authorized) {
 				expect(result.response.status).toBe(401);
@@ -334,7 +350,7 @@ describe("Auth Middleware", () => {
 	describe("getAuthorizedListIds", () => {
 		it("should return null for global admin", () => {
 			const user = createMockUser(Permission.ADMIN);
-			expect(getAuthorizedListIds(user, Permission.ROLES)).toBeNull();
+			expect(getAuthorizedListIds(user, Permission.MANAGE)).toBeNull();
 		});
 
 		it("should return list of list IDs where user has permission", () => {
@@ -343,7 +359,9 @@ describe("Auth Middleware", () => {
 					id: 1,
 					association_id: null,
 					list_id: 10,
-					role: { id: 1, name: "Admin", permissions: Permission.ROLES, hierarchy: 1 },
+					role_name: "Admin",
+					permissions: Permission.MANAGE,
+					hierarchy: 10,
 					user: {} as any,
 					visible: true,
 				},
@@ -351,17 +369,19 @@ describe("Auth Middleware", () => {
 					id: 2,
 					association_id: null,
 					list_id: 20,
-					role: { id: 2, name: "Member", permissions: Permission.MEMBER, hierarchy: 1 },
+					role_name: "Member",
+					permissions: Permission.MEMBER,
+					hierarchy: 1,
 					user: {} as any,
 					visible: true,
 				},
 			]);
-			expect(getAuthorizedListIds(user, Permission.ROLES)).toEqual([10]);
+			expect(getAuthorizedListIds(user, Permission.MANAGE)).toEqual([10]);
 		});
 
 		it("should return empty array if no permissions", () => {
 			const user = createMockUser(0, []);
-			expect(getAuthorizedListIds(user, Permission.ROLES)).toEqual([]);
+			expect(getAuthorizedListIds(user, Permission.MANAGE)).toEqual([]);
 		});
 	});
 });

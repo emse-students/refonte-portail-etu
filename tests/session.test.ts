@@ -40,12 +40,9 @@ describe("Session System", () => {
 					email: "test.user@etu.emse.fr",
 					promo: 2024,
 				},
-				role: {
-					id: 1,
-					name: "Membre",
-					permissions: 1,
-					hierarchy: 1,
-				},
+				role_name: "Membre",
+				permissions: 1,
+				hierarchy: 1,
 			},
 			{
 				id: 2,
@@ -60,12 +57,9 @@ describe("Session System", () => {
 					email: "test.user@etu.emse.fr",
 					promo: 2024,
 				},
-				role: {
-					id: 2,
-					name: "Membre Liste",
-					permissions: 2,
-					hierarchy: 1,
-				},
+				role_name: "Membre Liste",
+				permissions: 2,
+				hierarchy: 1,
 			},
 		],
 	};
@@ -91,11 +85,11 @@ describe("Session System", () => {
 
 			const assocMembership = restoredUser?.memberships.find((m) => m.association_id === 1);
 			expect(assocMembership).toBeDefined();
-			expect(assocMembership?.role.permissions).toBe(1);
+			expect(assocMembership?.permissions).toBe(1);
 
 			const listMembership = restoredUser?.memberships.find((m) => m.list_id === 2);
 			expect(listMembership).toBeDefined();
-			expect(listMembership?.role.permissions).toBe(2);
+			expect(listMembership?.permissions).toBe(2);
 		});
 
 		it("should return null for invalid signature", () => {

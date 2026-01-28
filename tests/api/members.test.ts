@@ -22,7 +22,7 @@ vi.mock("$lib/server/auth-middleware", () => ({
 
 describe("Members API", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.resetAllMocks();
 	});
 
 	describe("GET /api/members", () => {
@@ -187,16 +187,25 @@ describe("Members API", () => {
 		it("should update member if authorized", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>)
 				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
-				.mockResolvedValueOnce([{ permissions: 0 }]) // Role fetch
 				.mockResolvedValueOnce([]); // Update
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
-				user: { permissions: 0, memberships: [] },
+				user: {
+					permissions: 0,
+					memberships: [{ association_id: 1, permissions: 2 }], // Authorize high permissions
+				},
 			});
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ id: 1, user_id: 1, association_id: 1, role_id: 2 }),
+				body: JSON.stringify({
+					id: 1,
+					user_id: 1,
+					association_id: 1,
+					role_name: "New Role",
+					permissions: 1,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -205,13 +214,19 @@ describe("Members API", () => {
 
 			expect(response.status).toBe(200);
 			expect(data.success).toBe(true);
-			expect(db).toHaveBeenCalledTimes(3); // Select + Role Fetch + Update
+			expect(db).toHaveBeenCalledTimes(2); // Select + Update
 		});
 
 		it("should return 400 if id is missing", async () => {
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 2 }),
+				body: JSON.stringify({
+					user_id: 1,
+					association_id: 1,
+					role_name: "New Role",
+					permissions: 1,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -225,7 +240,13 @@ describe("Members API", () => {
 		it("should return 400 if association_id is missing", async () => {
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ id: 1, user_id: 1, role_id: 2 }),
+				body: JSON.stringify({
+					id: 1,
+					user_id: 1,
+					role_name: "New Role",
+					permissions: 1,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -241,7 +262,14 @@ describe("Members API", () => {
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ id: 999, user_id: 1, association_id: 1, role_id: 2 }),
+				body: JSON.stringify({
+					id: 999,
+					user_id: 1,
+					association_id: 1,
+					role_name: "New Role",
+					permissions: 1,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -272,9 +300,8 @@ describe("Members API", () => {
 
 		it("should check permission for new association when changing", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce([{ association_id: 1 }])
-				.mockResolvedValueOnce([{ permissions: 0 }])
-				.mockResolvedValueOnce([]);
+				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
+				.mockResolvedValueOnce([]); // Update
 			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
 				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }) // Old association
 				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }); // New association
@@ -299,7 +326,14 @@ describe("Members API", () => {
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ id: 1, user_id: 1, association_id: 2, role_id: 2 }),
+				body: JSON.stringify({
+					id: 1,
+					user_id: 1,
+					association_id: 2,
+					role_name: "New Role",
+					permissions: 1,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 

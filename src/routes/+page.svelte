@@ -19,11 +19,11 @@
 	const canProposeEvent = $derived.by(() => {
 		if (!user) return false;
 		// Global permission
-		if (hasPermission(user.permissions, Permission.EVENTS)) return true;
+		if (hasPermission(user.permissions, Permission.MANAGE)) return true;
 
 		// Association permission
 		if (user.memberships) {
-			return user.memberships.some((m) => hasPermission(m.role.permissions, Permission.EVENTS));
+			return user.memberships.some((m) => hasPermission(m.permissions, Permission.MANAGE));
 		}
 		return false;
 	});

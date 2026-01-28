@@ -47,13 +47,13 @@ function compactUserData(userData: FullUser): SessionData {
 			.filter((m) => m.list_id !== null && m.list_id !== undefined)
 			.map((m) => ({
 				id: m.list_id as number,
-				permissions: m.role.permissions,
+				permissions: m.permissions,
 			})),
 		associations: userData.memberships
 			.filter((m) => m.association_id !== null && m.association_id !== undefined)
 			.map((m) => ({
 				id: m.association_id as number,
-				permissions: m.role.permissions,
+				permissions: m.permissions,
 			})),
 	};
 }
@@ -117,12 +117,9 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					login: sessionData.login,
 					promo: sessionData.promo,
 				},
-				role: {
-					id: 0, // ID de rôle inconnu
-					name: "",
-					permissions: m.permissions,
-					hierarchy: 0,
-				},
+				role_name: "",
+				permissions: m.permissions,
+				hierarchy: 0,
 				list_id: m.id,
 				association_id: null,
 				visible: true,
@@ -137,12 +134,9 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					login: sessionData.login,
 					promo: sessionData.promo,
 				},
-				role: {
-					id: 0, // ID de rôle inconnu
-					name: "",
-					permissions: m.permissions,
-					hierarchy: 0,
-				},
+				role_name: "",
+				permissions: m.permissions,
+				hierarchy: 0,
 				association_id: m.id,
 				list_id: null,
 				visible: true,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Member, RawUser, Role } from "$lib/databasetypes";
+	import type { Member, RawUser } from "$lib/databasetypes";
 	import SvelteMarkdown from "svelte-markdown";
 	import MemberCard from "$lib/components/MemberCard.svelte";
 	import EventCard from "$lib/components/EventCard.svelte";
@@ -13,76 +13,38 @@
 	let { data } = $props();
 	const list = $derived(data.list);
 	const events = $derived(data.events || []);
-	const roles = $derived(data.roles || []);
 	const userData = $derived(data.userData);
 	const isAdmin = $derived(hasPermission(userData?.permissions || 0, Permission.ADMIN));
 
 	let editMode = $state(false);
 	let showAddMemberModal = $state(false);
-	let showEditRoleModal = $state(false);
+	let showEditMemberModal = $state(false);
 	let showDeleteConfirmModal = $state(false);
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
-	let selectedRole = $state<Role["id"] | "new">();
 
-	//Role search
-	let roleSearchQuery = $state("");
-	let showRoleResults = $state(false);
-	const filteredRoles = $derived(
-		roles.filter((r: Role) => r.name.toLowerCase().includes(roleSearchQuery.toLowerCase()))
-	);
-
-	function selectRole(role: Role, context: "add" | "edit") {
-		if (context === "add") {
-			newMemberRoleId = role.id;
-		} else {
-			selectedRole = role.id;
-		}
-		roleSearchQuery = role.name;
-		showRoleResults = false;
-	}
-
-	function handleCreateRoleClick(context: "add" | "edit") {
-		createRoleContext = context;
-		newRoleName = roleSearchQuery; // Pre-fill with search query
-		newRoleHierarchy = 0;
-		newRolePermissions = 0;
-		showCreateRoleModal = true;
-		showRoleResults = false;
-	}
+	// Member editing/creation fields
+	let memberRoleName = $state("");
+	let memberHierarchy = $state(0);
+	let memberPermissions = $state(0);
 
 	// For adding member
 	let searchQuery = $state("");
 	let searchResults: RawUser[] = $state([]);
 	let selectedUserToAdd: RawUser | null = $state(null);
-	let newMemberRoleId = $state();
-
-	$effect(() => {
-		if (roles.length > 0 && !newMemberRoleId) {
-			newMemberRoleId = roles[0].id;
-		}
-	});
-
-	// Role creation
-	let showCreateRoleModal = $state(false);
-	let newRoleName = $state("");
-	let newRoleHierarchy = $state(0);
-	let newRolePermissions = $state(0);
-	let createRoleContext: "add" | "edit" | null = $state(null);
 
 	const maxPermissionLevel = $derived.by(() => {
 		if (!userData) return 0;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
 		const membership = userData.memberships.find((m) => m.list_id === list.id);
-		return membership ? membership.role.permissions : 0;
+		return membership ? membership.permissions : 0;
 	});
 
 	const availablePermissions = $derived(
 		[
 			{ value: Permission.MEMBER, label: "Membre (0)" },
-			{ value: Permission.ROLES, label: "Gestion Rôles & Membres (1)" },
-			{ value: Permission.EVENTS, label: "Gestion Événements (2)" },
-			{ value: Permission.ADMIN, label: "Administration (3)" },
+			{ value: Permission.MANAGE, label: "Gestion Membres & Événements (1)" },
+			{ value: Permission.ADMIN, label: "Administration (2)" },
 		].filter((p) => p.value <= maxPermissionLevel)
 	);
 
@@ -90,14 +52,13 @@
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
 
-		// Check if user is a member of this list with ROLES permission
+		// Check if user is a member of this list with MANAGE permission
 		const listMembership = userData.memberships.find((m) => m.list_id === list.id);
-		if (listMembership && hasPermission(listMembership.role.permissions, Permission.ROLES))
-			return true;
+		if (listMembership && hasPermission(listMembership.permissions, Permission.MANAGE)) return true;
 
-		// Also check if user is admin of the parent list
+		// Also check if user is admin of the parent association
 		const assocMembership = userData.memberships.find((m) => m.list_id === list.id);
-		if (assocMembership && hasPermission(assocMembership.role.permissions, Permission.ROLES))
+		if (assocMembership && hasPermission(assocMembership.permissions, Permission.MANAGE))
 			return true;
 
 		return false;
@@ -108,7 +69,7 @@
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
 		const membership = userData.memberships.find((m) => m.list_id === list.id);
 		if (!membership) return false;
-		return hasPermission(membership.role.permissions, Permission.ADMIN);
+		return hasPermission(membership.permissions, Permission.ADMIN);
 	});
 
 	const adminButtonText = $derived.by(() => {
@@ -181,13 +142,15 @@
 		}
 	}
 
-	function openEditRoleModal(member: Member) {
+	function openEditMemberModal(member: Member) {
 		selectedMember = member;
-		selectedRole = member.role.id;
-		showEditRoleModal = true;
+		memberRoleName = member.role_name;
+		memberHierarchy = member.hierarchy;
+		memberPermissions = member.permissions;
+		showEditMemberModal = true;
 	}
 
-	async function updateMemberRole() {
+	async function updateMember() {
 		if (!selectedMember) return;
 		const res = await fetch("/api/members", {
 			method: "PUT",
@@ -197,15 +160,23 @@
 				user_id: selectedMember.user.id,
 				association_id: null,
 				list_id: list.id,
-				role_id: selectedRole,
+				role_name: memberRoleName,
+				hierarchy: memberHierarchy,
+				permissions: memberPermissions,
 				visible: selectedMember.visible,
 			}),
 		});
 		if (res.ok) {
-			showEditRoleModal = false;
+			showEditMemberModal = false;
+			const member = list.members.find((m) => m.id === selectedMember!.id);
+			if (member) {
+				member.role_name = memberRoleName;
+				member.hierarchy = memberHierarchy;
+				member.permissions = memberPermissions;
+			}
 			await invalidateAll();
 		} else {
-			alert("Erreur lors de la modification du rôle");
+			alert("Erreur lors de la modification du membre");
 		}
 	}
 
@@ -235,7 +206,9 @@
 				user_id: selectedUserToAdd.id,
 				association_id: null,
 				list_id: list.id,
-				role_id: newMemberRoleId,
+				role_name: memberRoleName,
+				hierarchy: memberHierarchy,
+				permissions: memberPermissions,
 				visible: true,
 			}),
 		});
@@ -250,47 +223,12 @@
 		}
 	}
 
-	async function createRole() {
-		const res = await fetch("/api/roles", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				name: newRoleName,
-				hierarchy: newRoleHierarchy,
-				permissions: newRolePermissions,
-				association_id: null,
-				list_id: list.id,
-			}),
-		});
-
-		if (res.ok) {
-			const data = await res.json();
-			showCreateRoleModal = false;
-			// Invalidate to refresh roles list
-			await invalidateAll();
-			// Select the new role
-			if (createRoleContext === "add") {
-				newMemberRoleId = data.id;
-			} else if (createRoleContext === "edit") {
-				selectedRole = data.id;
-			}
-			roleSearchQuery = newRoleName;
-		} else {
-			const err = await res.json();
-			alert(err.message || "Erreur lors de la création du rôle");
-		}
-	}
-
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
-		list.members
-			?.filter((m) => m.role.hierarchy >= 6)
-			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		list.members?.filter((m) => m.hierarchy >= 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 	const otherMembers = $derived(
-		list.members
-			?.filter((m) => m.role.hierarchy < 6)
-			.sort((a, b) => b.role.hierarchy - a.role.hierarchy) || []
+		list.members?.filter((m) => m.hierarchy < 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 </script>
 
@@ -339,7 +277,9 @@
 					class="add-member-btn"
 					onclick={() => {
 						showAddMemberModal = true;
-						roleSearchQuery = "";
+						memberRoleName = "";
+						memberHierarchy = 0;
+						memberPermissions = 0;
 					}}
 				>
 					+ Ajouter un membre
@@ -358,7 +298,7 @@
 								isBureau={true}
 								{editMode}
 								onRemove={requestRemoveMember}
-								onEditRole={openEditRoleModal}
+								onEditMember={openEditMemberModal}
 								hidden={!member.visible}
 							/>
 						{/if}
@@ -377,7 +317,7 @@
 								{member}
 								{editMode}
 								onRemove={requestRemoveMember}
-								onEditRole={openEditRoleModal}
+								onEditMember={openEditMemberModal}
 								hidden={!member.visible}
 							/>
 						{/if}
@@ -431,30 +371,41 @@
 		</div>
 		{#if selectedUserToAdd}
 			<div class="form-group">
-				<label for="role-search-add">Rôle</label>
+				<label for="member-role-add">Nom du rôle</label>
 				<input
-					id="role-search-add"
+					id="member-role-add"
 					type="text"
-					bind:value={roleSearchQuery}
-					placeholder="Rechercher ou créer un rôle..."
-					onfocus={() => (showRoleResults = true)}
-					autocomplete="off"
+					bind:value={memberRoleName}
+					placeholder="Ex: Président, Membre..."
 				/>
-				{#if showRoleResults && roleSearchQuery}
-					<div class="search-results">
-						{#each filteredRoles as role}
-							<button class="search-result-item" onclick={() => selectRole(role, "add")}>
-								{role.name}
-							</button>
-						{/each}
-						<button
-							class="search-result-item create-role-item"
-							onclick={() => handleCreateRoleClick("add")}
+			</div>
+			<div class="form-group">
+				<label for="member-hierarchy-add">Hiérarchie (0-10)</label>
+				<input
+					id="member-hierarchy-add"
+					type="number"
+					bind:value={memberHierarchy}
+					min="0"
+					max="10"
+					placeholder="0"
+				/>
+				<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+					{#if memberHierarchy >= 6}
+						<strong style="color: var(--color-primary);"
+							>Ce membre sera affiché dans le Bureau.</strong
 						>
-							+ Créer un nouveau rôle...
-						</button>
-					</div>
-				{/if}
+					{:else}
+						Ce membre sera affiché dans la liste des membres standards.
+					{/if}
+				</small>
+			</div>
+			<div class="form-group">
+				<label for="member-permissions-add">Permissions</label>
+				<select id="member-permissions-add" bind:value={memberPermissions}>
+					{#each availablePermissions as perm}
+						<option value={perm.value}>{perm.label}</option>
+					{/each}
+				</select>
 			</div>
 			<div class="modal-actions">
 				<button class="cancel-btn" onclick={() => (showAddMemberModal = false)}>Annuler</button>
@@ -464,90 +415,54 @@
 	</Modal>
 
 	<Modal
-		bind:open={showEditRoleModal}
+		bind:open={showEditMemberModal}
 		title={selectedMember
-			? `Modifier le rôle ${of(selectedMember.user.first_name)}${selectedMember.user.first_name}`
-			: "Modifier le rôle"}
+			? `Modifier ${of(selectedMember.user.first_name)}${selectedMember.user.first_name}`
+			: "Modifier le membre"}
 	>
 		{#if selectedMember}
 			<div class="form-group">
-				<label for="role-search-edit">Rôle</label>
+				<label for="member-role-edit">Nom du rôle</label>
 				<input
-					id="role-search-edit"
+					id="member-role-edit"
 					type="text"
-					bind:value={roleSearchQuery}
-					placeholder="Rechercher ou créer un rôle..."
-					onfocus={() => (showRoleResults = true)}
-					autocomplete="off"
+					bind:value={memberRoleName}
+					placeholder="Ex: Président, Membre..."
 				/>
-				{#if showRoleResults && roleSearchQuery}
-					<div class="search-results">
-						{#each filteredRoles as role}
-							<button class="search-result-item" onclick={() => selectRole(role, "edit")}>
-								{role.name}
-							</button>
-						{/each}
-						<button
-							class="search-result-item create-role-item"
-							onclick={() => handleCreateRoleClick("edit")}
+			</div>
+			<div class="form-group">
+				<label for="member-hierarchy-edit">Hiérarchie (0-10)</label>
+				<input
+					id="member-hierarchy-edit"
+					type="number"
+					bind:value={memberHierarchy}
+					min="0"
+					max="10"
+					placeholder="0"
+				/>
+				<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+					{#if memberHierarchy >= 6}
+						<strong style="color: var(--color-primary);"
+							>Ce membre sera affiché dans le Bureau.</strong
 						>
-							+ Créer un nouveau rôle...
-						</button>
-					</div>
-				{/if}
+					{:else}
+						Ce membre sera affiché dans la liste des membres standards.
+					{/if}
+				</small>
+			</div>
+			<div class="form-group">
+				<label for="member-permissions-edit">Permissions</label>
+				<select id="member-permissions-edit" bind:value={memberPermissions}>
+					{#each availablePermissions as perm}
+						<option value={perm.value}>{perm.label}</option>
+					{/each}
+				</select>
 			</div>
 			<div class="modal-actions">
-				<button class="cancel-btn" onclick={() => (showEditRoleModal = false)}>Annuler</button>
-				<button class="primary-btn" onclick={updateMemberRole}>Enregistrer</button>
+				<button class="cancel-btn" onclick={() => (showEditMemberModal = false)}>Annuler</button>
+				<button class="primary-btn" onclick={updateMember}>Enregistrer</button>
 			</div>
 		{/if}
-	</Modal>
-
-	<Modal bind:open={showCreateRoleModal} title="Créer un nouveau rôle">
-		<div class="form-group">
-			<label for="new-role-name">Nom du rôle</label>
-			<input type="text" id="new-role-name" bind:value={newRoleName} placeholder="Ex: Trésorier" />
-		</div>
-		<div class="form-group">
-			<label for="new-role-hierarchy">Hiérarchie (0-10)</label>
-			<input
-				type="number"
-				id="new-role-hierarchy"
-				bind:value={newRoleHierarchy}
-				min="0"
-				max="10"
-				placeholder="0"
-			/>
-			<small style="color: #718096; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
-				Plus la valeur est élevée, plus le rôle est important.
-				{#if newRoleHierarchy >= 6}
-					<strong style="color: var(--color-primary);">Ce rôle sera affiché dans le Bureau.</strong>
-				{:else}
-					Ce rôle sera affiché dans la liste des membres standards.
-				{/if}
-			</small>
-		</div>
-		<div class="form-group">
-			<label for="new-role-permissions">Permissions</label>
-			<select id="new-role-permissions" bind:value={newRolePermissions}>
-				{#each availablePermissions as perm}
-					<option value={perm.value}>{perm.label}</option>
-				{/each}
-			</select>
-		</div>
-		<div class="modal-actions">
-			<button
-				class="cancel-btn"
-				onclick={() => {
-					showCreateRoleModal = false;
-					if (createRoleContext === "add" && newMemberRoleId === "new")
-						newMemberRoleId = roles[0]?.id;
-					if (createRoleContext === "edit" && selectedRole === "new")
-						selectedRole = selectedMember?.role.id;
-				}}>Annuler</button
-			>
-			<button class="primary-btn" onclick={createRole}>Créer</button>
-		</div>
 	</Modal>
 
 	<Modal bind:open={showEditListModal} title="Modifier la liste">
@@ -705,16 +620,6 @@
 	}
 
 	.search-result-item:hover {
-		background: var(--color-bg-2);
-	}
-
-	.create-role-item {
-		font-weight: 600;
-		color: var(--color-primary);
-		border-top: 1px solid var(--color-bg-2);
-	}
-
-	.create-role-item:hover {
 		background: var(--color-bg-2);
 	}
 
@@ -1017,15 +922,6 @@
 
 	:global([data-theme="dark"]) .search-result-item:hover {
 		background: var(--color-bg-1);
-	}
-
-	:global([data-theme="dark"]) .create-role-item {
-		color: var(--accent-primary);
-		border-top-color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .create-role-item:hover {
-		background: rgba(176, 196, 177, 0.1);
 	}
 
 	:global([data-theme="dark"]) .cancel-btn {

@@ -18,8 +18,8 @@ export const load: PageServerLoad = async (event) => {
 	const configRows = await db`SELECT value FROM config WHERE key_name = 'event_submission_open'`;
 	const isOpen = configRows.length > 0 && configRows[0].value === "true";
 
-	const authorizedAssocIds = getAuthorizedAssociationIds(user, Permission.EVENTS);
-	const authorizedListIds = getAuthorizedListIds(user, Permission.EVENTS);
+	const authorizedAssocIds = getAuthorizedAssociationIds(user, Permission.MANAGE);
+	const authorizedListIds = getAuthorizedListIds(user, Permission.MANAGE);
 
 	// Check if submission is open
 	if (authorizedAssocIds !== null) {

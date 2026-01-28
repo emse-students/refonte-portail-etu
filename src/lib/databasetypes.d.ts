@@ -35,21 +35,14 @@ export type RawUser = {
 	edited_at: Date;
 };
 
-export type RawRole = {
-	id: number;
-	name: string;
-	hierarchy: number;
-	permissions: number;
-	created_at: Date;
-	edited_at: Date;
-};
-
 export type RawMember = {
 	id: number;
 	visible: boolean;
 	user_id: number;
 	association_id: number | null;
-	role_id: number;
+	role_name: string;
+	permissions: number;
+	hierarchy: number;
 	list_id: number | null;
 	created_at: Date;
 	edited_at: Date;
@@ -103,17 +96,12 @@ export type User = {
 	promo: number;
 };
 
-export type Role = {
-	id: number;
-	name: string;
-	permissions: number;
-	hierarchy: number;
-};
-
 export type Member = {
 	id: number;
 	user: User;
-	role: Role;
+	role_name: string;
+	permissions: number;
+	hierarchy: number;
 	association_id: number | null;
 	list_id: number | null;
 	visible: boolean;

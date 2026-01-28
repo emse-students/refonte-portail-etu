@@ -66,10 +66,9 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 	}
 	const membersData = (await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
-               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
+               m.role_name as role_name, m.permissions as role_permissions, m.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
-        JOIN role r ON m.role_id = r.id
         WHERE m.association_id = ${raw.id}
     `) as {
 		member_id: number;
@@ -79,7 +78,6 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 		last_name: string;
 		user_email: string;
 		user_login: string;
-		role_id: number;
 		role_name: string;
 		role_permissions: number;
 		hierarchy: number;
@@ -96,12 +94,9 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 					login: m.user_login,
 					promo: m.user_promo,
 				},
-				role: {
-					id: m.role_id,
-					name: m.role_name,
-					permissions: m.role_permissions,
-					hierarchy: m.hierarchy,
-				},
+				role_name: m.role_name,
+				permissions: m.role_permissions,
+				hierarchy: m.hierarchy,
 				id: m.member_id,
 				visible: m.visible,
 				association_id: raw.id,
@@ -137,10 +132,9 @@ export async function getBasicList(raw: RawList): Promise<List> {
 export async function getListWithMembers(raw: RawList): Promise<List> {
 	const membersData = (await db`
         SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
-               r.id as role_id, r.name as role_name, r.permissions as role_permissions, r.hierarchy as hierarchy, u.promo as user_promo
+               m.role_name as role_name, m.permissions as role_permissions, m.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
-        JOIN role r ON m.role_id = r.id
         WHERE m.list_id = ${raw.id}
     `) as {
 		member_id: number;
@@ -167,12 +161,9 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 					login: m.user_login,
 					promo: m.user_promo,
 				},
-				role: {
-					id: m.role_id,
-					name: m.role_name,
-					permissions: m.role_permissions,
-					hierarchy: m.hierarchy,
-				},
+				role_name: m.role_name,
+				permissions: m.role_permissions,
+				hierarchy: m.hierarchy,
 				id: m.member_id,
 				visible: m.visible,
 				list_id: raw.id,

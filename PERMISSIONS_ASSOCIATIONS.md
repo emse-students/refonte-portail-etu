@@ -1,4 +1,4 @@
-# Système de Permissions par Association
+# Système de Permissions par Association (Mis à jour)
 
 ## Vue d'ensemble
 
@@ -13,11 +13,10 @@ La vérification se fait par niveau : un utilisateur possédant un niveau N a au
 
 **Niveaux définis :**
 
-- `MEMBER` (0) : Membre simple (accès de base)
-- `ROLES` (1) : Gestion des rôles et membres (peut promouvoir/rétrograder des membres)
-- `EVENTS` (2) : Gestion des événements (création, édition)
-- `ADMIN` (3) : Administration de l'association (accès complet à l'association)
-- `SITE_ADMIN` (4) : Super Administrateur (accès à tout le site, outrepasse toutes les permissions)
+- `MEMBER` (0) : Membre simple (accès de base, lecture seule)
+- `MANAGE` (1) : Gestion des membres et des événements
+- `ADMIN` (2) : Administration complète de l'association (accès à toutes les ressources)
+- `SITE_ADMIN` (3) : Super Administrateur (accès à tout le site, outrepasse toutes les permissions)
 
 ### Logique d'Autorisation
 
@@ -26,7 +25,7 @@ La vérification se fait par niveau : un utilisateur possédant un niveau N a au
    - Si un utilisateur a une permission globale suffisante (ex: `SITE_ADMIN`), il a accès à **toutes** les associations et listes.
 
 2. **Permissions d'Association / Liste**
-   - Stockées dans `role.permissions` via les memberships (`user.memberships`).
+   - Stockées directement dans `member.permissions` via les memberships (`user.memberships`).
    - S'appliquent uniquement à l'association ou la liste spécifique.
    - Un utilisateur peut avoir le niveau `ADMIN` (3) dans l'association A, mais seulement `MEMBER` (0) dans l'association B.
 
@@ -41,8 +40,11 @@ interface AuthenticatedUser extends RawUser {
 interface Member {
 	id: number;
 	user: User;
-	role: Role; // Le rôle contient les permissions pour cette association
-	association: number; // ID de l'association
+	role_name: string; // Ex: "Président", "Trésorier", "Membre"
+	permissions: number; // Niveau de permission (0-3)
+	hierarchy: number; // Niveau hiérarchique pour l'affichage (0-10)
+	association_id: number | null; // ID de l'association si applicable
+	list_id: number | null; // ID de la liste si applicable
 	visible: boolean;
 }
 ```
@@ -109,21 +111,21 @@ Récupère la liste des IDs d'associations pour lesquelles l'utilisateur a une p
 
 #### GET
 
-- Filtre automatiquement selon les associations où l'utilisateur a `MEMBERS`
+- Filtre automatiquement selon les associations où l'utilisateur a `MANAGE`
 - Les admins voient tous les membres
 
 #### POST
 
-- Vérifie que l'utilisateur a `MEMBERS` pour l'`association_id` spécifiée
+- Vérifie que l'utilisateur a `MANAGE` pour l'`association_id` spécifiée
 
 #### PUT
 
-- Vérifie `MEMBERS` pour l'association actuelle du membre
-- Si changement d'association : vérifie aussi `MEMBERS` pour la nouvelle association
+- Vérifie `MANAGE` pour l'association actuelle du membre
+- Si changement d'association : vérifie aussi `MANAGE` pour la nouvelle association
 
 #### DELETE
 
-- Vérifie `MEMBERS` pour l'association du membre à supprimer
+- Vérifie `MANAGE` pour l'association du membre à supprimer
 
 ## Chargement des Données
 

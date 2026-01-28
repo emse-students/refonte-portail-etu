@@ -20,7 +20,6 @@
 
 	let showCreateModal = $state(false);
 	let newListName = $state("");
-	let newListHandle = $state("");
 	let newListColor = $state(0);
 	let newListIcon = $state<number | null>(null);
 	let newListDescription = $state("");
@@ -34,7 +33,6 @@
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				name: newListName,
-				handle: newListHandle,
 				color: newListColor,
 				icon: newListIcon,
 				description: newListDescription,
@@ -46,7 +44,6 @@
 		if (res.ok) {
 			showCreateModal = false;
 			newListName = "";
-			newListHandle = "";
 			newListColor = 0;
 			newListIcon = null;
 			newListDescription = "";
@@ -142,15 +139,6 @@
 		<div class="form-group">
 			<label for="new-list-name">Nom de la liste</label>
 			<input type="text" id="new-list-name" bind:value={newListName} placeholder="Ex: BDE 2024" />
-		</div>
-		<div class="form-group">
-			<label for="new-list-handle">Handle (URL)</label>
-			<input
-				type="text"
-				id="new-list-handle"
-				bind:value={newListHandle}
-				placeholder="Ex: bde-2024"
-			/>
 		</div>
 		<div class="form-group">
 			<label for="new-list-promo">Campagnes</label>

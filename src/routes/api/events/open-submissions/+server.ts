@@ -5,7 +5,7 @@ import Permission from "$lib/permissions";
 import db from "$lib/server/database";
 
 export async function POST(event: RequestEvent) {
-	const user = await requirePermission(event, Permission.EVENTS);
+	const user = await requirePermission(event, Permission.MANAGE);
 	if (!user) {
 		return forbiddenResponse(
 			"Vous n'avez pas la permission d'ouvrir les soumissions d'événements."

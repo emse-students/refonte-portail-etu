@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 	import Permission, { getPermissionName } from "$lib/permissions";
 	import TableEditor from "$lib/components/TableEditor.svelte";
-	import type { RawEvent, RawList, RawRole } from "$lib/databasetypes";
+	import type { RawEvent, RawList } from "$lib/databasetypes";
 
 	//let { data } = $props();
 
@@ -15,7 +15,6 @@
 		| "associations"
 		| "events"
 		| "lists"
-		| "roles"
 		| "system";
 	type User = {
 		id: number;
@@ -46,7 +45,6 @@
 	let associations = $state<Association[]>([]);
 	let events = $state<RawEvent[]>([]);
 	let lists = $state<RawList[]>([]);
-	let roles = $state<RawRole[]>([]);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
@@ -87,13 +85,12 @@
 	async function loadAllData() {
 		loading = true;
 		try {
-			const [usersRes, assosRes, configRes, eventsRes, listsRes, rolesRes] = await Promise.all([
+			const [usersRes, assosRes, configRes, eventsRes, listsRes] = await Promise.all([
 				fetch(resolve("/api/users")),
 				fetch(resolve("/api/associations")),
 				fetch(resolve("/api/config")),
 				fetch(resolve("/api/events")),
 				fetch(resolve("/api/lists")),
-				fetch(resolve("/api/roles")),
 			]);
 
 			if (usersRes.ok) users = await usersRes.json();
@@ -104,7 +101,6 @@
 			}
 			if (eventsRes.ok) events = await eventsRes.json();
 			if (listsRes.ok) lists = await listsRes.json();
-			if (rolesRes.ok) roles = await rolesRes.json();
 		} catch (e) {
 			error = "Erreur de chargement des données";
 			console.error(e);
@@ -191,13 +187,6 @@
 		{ key: "promo", label: "Promo", editable: true, type: "number" },
 		{ key: "color", label: "Color", editable: true, type: "number" },
 	];
-
-	const roleColumns = [
-		{ key: "id", label: "ID" },
-		{ key: "name", label: "Name", editable: true },
-		{ key: "hierarchy", label: "Hierarchy", editable: true, type: "number" },
-		{ key: "permissions", label: "Permissions", editable: true, type: "number" },
-	];
 </script>
 
 <div class="admin-container">
@@ -224,9 +213,6 @@
 			</button>
 			<button class:active={currentView === "lists"} onclick={() => (currentView = "lists")}>
 				Listes
-			</button>
-			<button class:active={currentView === "roles"} onclick={() => (currentView = "roles")}>
-				Rôles
 			</button>
 			<button class:active={currentView === "system"} onclick={() => (currentView = "system")}>
 				Système
@@ -375,18 +361,6 @@
 						columns={listColumns}
 						action="?/updateList"
 						deleteAction="?/deleteList"
-					/>
-				</div>
-
-				<!-- ROLES VIEW -->
-			{:else if currentView === "roles"}
-				<h1>Rôles</h1>
-				<div class="table-container">
-					<TableEditor
-						data={roles}
-						columns={roleColumns}
-						action="?/updateRole"
-						deleteAction="?/deleteRole"
 					/>
 				</div>
 

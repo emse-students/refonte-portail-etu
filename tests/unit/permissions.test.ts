@@ -5,10 +5,9 @@ describe("Permissions System", () => {
 	describe("Permission Enum", () => {
 		it("should have correct values", () => {
 			expect(Permission.MEMBER).toBe(0);
-			expect(Permission.ROLES).toBe(1);
-			expect(Permission.EVENTS).toBe(2);
-			expect(Permission.ADMIN).toBe(3);
-			expect(Permission.SITE_ADMIN).toBe(4);
+			expect(Permission.MANAGE).toBe(1);
+			expect(Permission.ADMIN).toBe(2);
+			expect(Permission.SITE_ADMIN).toBe(3);
 		});
 	});
 
@@ -19,21 +18,20 @@ describe("Permissions System", () => {
 		});
 
 		it("should return true if user has higher permission", () => {
-			expect(hasPermission(Permission.ROLES, Permission.MEMBER)).toBe(true);
+			expect(hasPermission(Permission.MANAGE, Permission.MEMBER)).toBe(true);
 			expect(hasPermission(Permission.SITE_ADMIN, Permission.ADMIN)).toBe(true);
 		});
 
 		it("should return false if user has lower permission", () => {
-			expect(hasPermission(Permission.MEMBER, Permission.ROLES)).toBe(false);
-			expect(hasPermission(Permission.EVENTS, Permission.ADMIN)).toBe(false);
+			expect(hasPermission(Permission.MEMBER, Permission.MANAGE)).toBe(false);
+			expect(hasPermission(Permission.MANAGE, Permission.ADMIN)).toBe(false);
 		});
 	});
 
 	describe("getPermissionName", () => {
 		it("should return correct names", () => {
 			expect(getPermissionName(Permission.MEMBER)).toBe("Membre");
-			expect(getPermissionName(Permission.ROLES)).toBe("Gestion Rôles & Membres");
-			expect(getPermissionName(Permission.EVENTS)).toBe("Gestion Événements");
+			expect(getPermissionName(Permission.MANAGE)).toBe("Gestion des Membres & Événements");
 			expect(getPermissionName(Permission.ADMIN)).toBe("Administration");
 			expect(getPermissionName(Permission.SITE_ADMIN)).toBe("Super Admin");
 		});

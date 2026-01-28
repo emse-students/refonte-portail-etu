@@ -27,7 +27,8 @@ export const POST = async (event: RequestEvent) => {
 
 	const body = await event.request.json();
 
-	const { name, description, handle, icon, color } = body;
+	const { name, description, icon, color } = body;
+	const handle = name.toLowerCase().replace(/[^a-z]/g, "");
 
 	await db`
         INSERT INTO association (name, description, handle, icon, color)

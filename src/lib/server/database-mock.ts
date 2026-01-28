@@ -28,10 +28,6 @@ export default async function mockDb<T = RowDataPacket>(
 		return [TestData.event] as unknown as T[];
 	}
 
-	if (lowerQuery.includes("from role")) {
-		return [TestData.adminRole] as unknown as T[];
-	}
-
 	// Default empty array
 	return [] as unknown as T[];
 }
@@ -60,7 +56,9 @@ export async function getAssociationWithMembers(_raw: RawAssociation) {
 		association_id: TestData.member.association_id,
 		list_id: TestData.member.list_id,
 		user: TestData.user,
-		role: TestData.adminRole,
+		role_name: TestData.member.role_name,
+		permissions: TestData.member.permissions,
+		hierarchy: TestData.member.hierarchy,
 	};
 
 	return {

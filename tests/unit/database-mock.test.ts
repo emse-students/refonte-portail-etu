@@ -28,11 +28,6 @@ describe("Database Mock", () => {
 		expect(result).toEqual([TestData.event]);
 	});
 
-	it("should return role data for role query", async () => {
-		const result = await mockDb`SELECT * FROM role`;
-		expect(result).toEqual([TestData.adminRole]);
-	});
-
 	it("should return empty array for unknown query", async () => {
 		const result = await mockDb`SELECT * FROM unknown_table`;
 		expect(result).toEqual([]);

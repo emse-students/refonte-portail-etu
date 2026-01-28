@@ -3,6 +3,7 @@ import { handle } from "../../src/hooks.server";
 import * as sessionModule from "../../src/lib/server/session";
 import db from "../../src/lib/server/database";
 import logger from "../../src/lib/server/logger";
+import Permission from "$lib/permissions";
 
 // Mock dependencies
 vi.mock("$lib/server/logger", () => ({
@@ -247,7 +248,7 @@ describe("Server Hooks", () => {
 				user_login: "user1",
 				role_id: 1,
 				role_name: "Admin",
-				role_permissions: 4, // SITE_ADMIN
+				role_permissions: Permission.SITE_ADMIN,
 				hierarchy: 10,
 				user_promo: 2025,
 			},
@@ -256,7 +257,7 @@ describe("Server Hooks", () => {
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(mockEvent.locals.userData.permissions).toBe(4);
+		expect(mockEvent.locals.userData.permissions).toBe(Permission.SITE_ADMIN);
 	});
 
 	it("should elevate user permissions to ADMIN if a role has ADMIN permission", async () => {
@@ -281,7 +282,7 @@ describe("Server Hooks", () => {
 				user_login: "user1",
 				role_id: 1,
 				role_name: "Admin",
-				role_permissions: 3, // ADMIN
+				role_permissions: Permission.ADMIN, // ADMIN
 				hierarchy: 10,
 				user_promo: 2025,
 			},
@@ -290,7 +291,7 @@ describe("Server Hooks", () => {
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(mockEvent.locals.userData.permissions).toBe(3);
+		expect(mockEvent.locals.userData.permissions).toBe(Permission.ADMIN);
 	});
 
 	it("should prioritize SITE_ADMIN over ADMIN if user has both", async () => {
@@ -315,7 +316,7 @@ describe("Server Hooks", () => {
 				user_login: "user1",
 				role_id: 1,
 				role_name: "Admin",
-				role_permissions: 3, // ADMIN
+				role_permissions: Permission.ADMIN, // ADMIN
 				hierarchy: 10,
 				user_promo: 2025,
 			},
@@ -330,7 +331,7 @@ describe("Server Hooks", () => {
 				user_login: "user1",
 				role_id: 2,
 				role_name: "Site Admin",
-				role_permissions: 4, // SITE_ADMIN
+				role_permissions: Permission.SITE_ADMIN, // SITE_ADMIN
 				hierarchy: 10,
 				user_promo: 2025,
 			},
@@ -339,6 +340,6 @@ describe("Server Hooks", () => {
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(mockEvent.locals.userData.permissions).toBe(4);
+		expect(mockEvent.locals.userData.permissions).toBe(Permission.SITE_ADMIN);
 	});
 });

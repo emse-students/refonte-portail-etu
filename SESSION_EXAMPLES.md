@@ -92,7 +92,7 @@ export const PUT = async (event: RequestEvent) => {
 	const userId = parseInt(event.params.id || "0");
 
 	// Modifier les rôles de l'utilisateur
-	await db`UPDATE member SET role_id = ${newRoleId} WHERE user_id = ${userId}`;
+	await db`UPDATE member SET role_name = ${newRoleName}, permissions = ${newPermissions} WHERE user_id = ${userId}`;
 
 	// Si c'est l'utilisateur actuel, invalider sa session
 	// pour forcer le rechargement de ses nouvelles permissions

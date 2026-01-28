@@ -19,7 +19,6 @@
 	let searchQuery = $state("");
 	let showCreateModal = $state(false);
 	let newAssoName = $state("");
-	let newAssoHandle = $state("");
 	let newAssoColor = $state(0);
 	let newAssoIcon = $state<number | null>(null);
 	let newAssoDescription = $state("");
@@ -32,7 +31,6 @@
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				name: newAssoName,
-				handle: newAssoHandle,
 				color: newAssoColor,
 				icon: newAssoIcon,
 				description: newAssoDescription,
@@ -42,7 +40,6 @@
 		if (res.ok) {
 			showCreateModal = false;
 			newAssoName = "";
-			newAssoHandle = "";
 			newAssoColor = 0;
 			newAssoIcon = null;
 			newAssoDescription = "";
@@ -118,10 +115,6 @@
 		<div class="form-group">
 			<label for="new-asso-name">Nom de l'association</label>
 			<input type="text" id="new-asso-name" bind:value={newAssoName} placeholder="Ex: BDE" />
-		</div>
-		<div class="form-group">
-			<label for="new-asso-handle">Handle (URL)</label>
-			<input type="text" id="new-asso-handle" bind:value={newAssoHandle} placeholder="Ex: bde" />
 		</div>
 		<div class="form-group">
 			<label for="new-asso-color">Couleur (Hex)</label>

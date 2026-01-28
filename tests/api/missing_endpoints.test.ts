@@ -440,7 +440,7 @@ describe("Missing Endpoints API", () => {
 		describe("POST /api/events/finalize-submission", () => {
 			it("should finalize submission if authorized", async () => {
 				(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-					permissions: Permission.EVENTS,
+					permissions: Permission.MANAGE,
 				});
 				(hasPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
 				(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
@@ -476,7 +476,7 @@ describe("Missing Endpoints API", () => {
 
 			it("should return 500 if database error occurs", async () => {
 				(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-					permissions: Permission.EVENTS,
+					permissions: Permission.MANAGE,
 				});
 				(hasPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
 				(db as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("DB Error"));

@@ -1,4 +1,4 @@
-import type { RawAssociation, RawUser, RawMember, RawRole, RawEvent } from "$lib/databasetypes";
+import type { RawAssociation, RawUser, RawMember, RawEvent } from "$lib/databasetypes";
 
 export const TestData = {
 	association: {
@@ -23,15 +23,6 @@ export const TestData = {
 		edited_at: new Date(),
 	} as RawUser,
 
-	adminRole: {
-		id: 1,
-		name: "Admin",
-		hierarchy: 10,
-		permissions: 3, // ADMIN
-		created_at: new Date(),
-		edited_at: new Date(),
-	} as RawRole,
-
 	event: {
 		id: 1,
 		association_id: 1,
@@ -50,7 +41,9 @@ export const TestData = {
 		visible: true,
 		user_id: 1,
 		association_id: 1,
-		role_id: 1,
+		role_name: "Admin",
+		permissions: 3, // BASIC
+		hierarchy: 10,
 		list_id: null,
 		created_at: new Date(),
 		edited_at: new Date(),

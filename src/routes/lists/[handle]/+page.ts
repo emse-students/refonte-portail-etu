@@ -1,4 +1,4 @@
-import type { List, RawEvent, Role } from "$lib/databasetypes";
+import type { List, RawEvent } from "$lib/databasetypes";
 import { resolve } from "$app/paths";
 import type { PageLoad } from "./$types";
 
@@ -12,12 +12,8 @@ export const load: PageLoad = async (event) => {
 		.fetch(`${resolve("/api/calendar")}?list=${list.id}`)
 		.then((res) => res.json());
 
-	// Fetch roles
-	const roles: Role[] = await event.fetch(resolve("/api/roles")).then((res) => res.json());
-
 	return {
 		list,
-		roles,
 		events,
 	};
 };

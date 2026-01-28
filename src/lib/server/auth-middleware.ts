@@ -142,7 +142,7 @@ export function hasAssociationPermission(
 	return user.memberships.some(
 		(membership) =>
 			membership.association_id === associationId &&
-			hasPermission(membership.role.permissions, permission)
+			hasPermission(membership.permissions, permission)
 	);
 }
 
@@ -170,7 +170,7 @@ export function hasListPermission(
 
 	return user.memberships.some(
 		(membership) =>
-			membership.list_id === listId && hasPermission(membership.role.permissions, permission)
+			membership.list_id === listId && hasPermission(membership.permissions, permission)
 	);
 }
 
@@ -257,7 +257,7 @@ export function getAuthorizedAssociationIds(
 	}
 
 	return user.memberships
-		.filter((membership) => hasPermission(membership.role.permissions, permission))
+		.filter((membership) => hasPermission(membership.permissions, permission))
 		.map((membership) => membership.association_id)
 		.filter((m) => m !== undefined && m !== null) as number[];
 }
@@ -278,7 +278,7 @@ export function getAuthorizedListIds(
 	}
 
 	return user.memberships
-		.filter((membership) => hasPermission(membership.role.permissions, permission))
+		.filter((membership) => hasPermission(membership.permissions, permission))
 		.map((membership) => membership.list_id)
 		.filter((l) => l !== undefined && l !== null) as number[];
 }

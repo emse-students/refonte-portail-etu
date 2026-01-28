@@ -19,8 +19,8 @@ export const GET = async (event: RequestEvent) => {
 			return json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
-		const authorizedLists = getAuthorizedListIds(user, Permission.EVENTS);
+		const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MANAGE);
+		const authorizedLists = getAuthorizedListIds(user, Permission.MANAGE);
 
 		// Si null, l'utilisateur est admin et peut tout voir
 		if (authorizedAssociations === null || authorizedLists === null) {
@@ -100,16 +100,16 @@ export const POST = async (event: RequestEvent) => {
 
 	// Vérifier les permissions
 	if (association_id) {
-		const authCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
+		const authCheck = await checkAssociationPermission(event, association_id, Permission.MANAGE);
 		if (!authCheck.authorized) return authCheck.response;
 	} else if (list_id) {
-		const authCheck = await checkListPermission(event, list_id, Permission.EVENTS);
+		const authCheck = await checkListPermission(event, list_id, Permission.MANAGE);
 		if (!authCheck.authorized) return authCheck.response;
 	}
 
 	// Check if event submission is open
 	// Global managers bypass this check
-	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MANAGE);
 	const isGlobalManager = authorizedAssociations === null; // null means global access
 
 	if (!isGlobalManager) {
@@ -175,17 +175,17 @@ export const PUT = async (event: RequestEvent) => {
 		const authCheck = await checkAssociationPermission(
 			event,
 			existingEvent.association_id,
-			Permission.EVENTS
+			Permission.MANAGE
 		);
 		if (!authCheck.authorized) return authCheck.response;
 	} else if (existingEvent.list_id) {
-		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.EVENTS);
+		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.MANAGE);
 		if (!authCheck.authorized) return authCheck.response;
 	}
 
 	// Si on change d'entité, vérifier aussi la permission pour la nouvelle
 	if (association_id && existingEvent.association_id !== association_id) {
-		const newAuthCheck = await checkAssociationPermission(event, association_id, Permission.EVENTS);
+		const newAuthCheck = await checkAssociationPermission(event, association_id, Permission.MANAGE);
 		if (!newAuthCheck.authorized)
 			return json(
 				{ error: "Forbidden", message: "Pas de permission pour la nouvelle association" },
@@ -193,7 +193,7 @@ export const PUT = async (event: RequestEvent) => {
 			);
 	}
 	if (list_id && existingEvent.list_id !== list_id) {
-		const newAuthCheck = await checkListPermission(event, list_id, Permission.EVENTS);
+		const newAuthCheck = await checkListPermission(event, list_id, Permission.MANAGE);
 		if (!newAuthCheck.authorized)
 			return json(
 				{ error: "Forbidden", message: "Pas de permission pour la nouvelle liste" },
@@ -202,7 +202,7 @@ export const PUT = async (event: RequestEvent) => {
 	}
 
 	// Determine validation status update
-	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.EVENTS);
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MANAGE);
 	const isGlobalManager = authorizedAssociations === null;
 
 	// Check submission state
@@ -286,11 +286,11 @@ export const DELETE = async (event: RequestEvent) => {
 		const authCheck = await checkAssociationPermission(
 			event,
 			existingEvent.association_id,
-			Permission.EVENTS
+			Permission.MANAGE
 		);
 		if (!authCheck.authorized) return authCheck.response;
 	} else if (existingEvent.list_id) {
-		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.EVENTS);
+		const authCheck = await checkListPermission(event, existingEvent.list_id, Permission.MANAGE);
 		if (!authCheck.authorized) return authCheck.response;
 	}
 

@@ -43,8 +43,8 @@ export const load: PageServerLoad = async (event) => {
 	let authorizedListIds: number[] = [];
 
 	if (user) {
-		const authAssocs = getAuthorizedAssociationIds(user, Permission.EVENTS);
-		const authLists = getAuthorizedListIds(user, Permission.EVENTS);
+		const authAssocs = getAuthorizedAssociationIds(user, Permission.MANAGE);
+		const authLists = getAuthorizedListIds(user, Permission.MANAGE);
 
 		if (authAssocs === null || authLists === null) {
 			// Global admin

@@ -7,14 +7,14 @@
 		editMode = false,
 		hidden = false,
 		onRemove = (_id: number) => {},
-		onEditRole = (_member: Member) => {},
+		onEditMember = (_member: Member) => {},
 	}: {
 		member: Member;
 		isBureau?: boolean;
 		editMode?: boolean;
 		hidden?: boolean;
 		onRemove?: (id: number) => void;
-		onEditRole?: (member: Member) => void;
+		onEditMember?: (member: Member) => void;
 	} = $props();
 
 	let imageLoaded = $state(false);
@@ -32,8 +32,8 @@
 		onRemove(member.id);
 	}
 
-	function handleEditRole() {
-		onEditRole(member);
+	function handleEditMember() {
+		onEditMember(member);
 	}
 
 	// Générer les initiales pour le placeholder
@@ -72,7 +72,7 @@
 				{member.user.last_name}
 			</div>
 			<div class="member-role-container">
-				<span class="member-role">{member.role.name}</span>
+				<span class="member-role">{member.role_name}</span>
 				{#if member.user.promo}
 					<span class="member-promo">{member.user.promo}</span>
 				{/if}
@@ -85,7 +85,7 @@
 
 	{#if editMode}
 		<div class="edit-controls">
-			<button class="edit-btn" onclick={handleEditRole}>Modifier rôle</button>
+			<button class="edit-btn" onclick={handleEditMember}>Modifier</button>
 			<button class="remove-btn" onclick={handleRemove}>Retirer</button>
 		</div>
 	{/if}

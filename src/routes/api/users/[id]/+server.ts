@@ -64,12 +64,9 @@ export const GET = async (event: RequestEvent) => {
 				permissions: m.user_permissions,
 				promo: m.user_promo,
 			},
-			role: {
-				id: m.role_id,
-				name: m.role_name,
-				permissions: m.role_permissions,
-				hierarchy: m.hierarchy,
-			},
+			role_name: m.role_name,
+			permissions: m.role_permissions,
+			hierarchy: m.hierarchy,
 		}));
 
 		return json({ user: { ...user, memberships } }, { status: 200 });

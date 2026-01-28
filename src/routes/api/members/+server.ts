@@ -14,23 +14,22 @@ export const GET = async (event: RequestEvent) => {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.ROLES);
+	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MANAGE);
 
 	// Si null, l'utilisateur est admin et peut tout voir
 	if (authorizedAssociations === null) {
 		const members = await db`
             SELECT
-                m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
+                m.id, m.visible, m.user_id, m.association_id, m.list_id,
                 u.first_name, u.last_name, u.email,
                 a.name as association_name,
                 l.name as list_name,
-                r.name as role_name
+                m.role_name as role_name
             FROM
                 member m
             LEFT JOIN user u ON m.user_id = u.id
             LEFT JOIN association a ON m.association_id = a.id
             LEFT JOIN list l ON m.list_id = l.id
-            LEFT JOIN role r ON m.role_id = r.id
             ORDER BY m.id DESC
         `;
 		return json(members);
@@ -43,17 +42,16 @@ export const GET = async (event: RequestEvent) => {
 
 	const members = await db`
         SELECT
-            m.id, m.visible, m.user_id, m.association_id, m.role_id, m.list_id,
+            m.id, m.visible, m.user_id, m.association_id, m.list_id,
             u.first_name, u.last_name, u.email,
             a.name as association_name,
             l.name as list_name,
-            r.name as role_name
+            m.role_name as role_name
         FROM
             member m
         LEFT JOIN user u ON m.user_id = u.id
         LEFT JOIN association a ON m.association_id = a.id
         LEFT JOIN list l ON m.list_id = l.id
-        LEFT JOIN role r ON m.role_id = r.id
         WHERE m.association_id IN (${authorizedAssociations})
         ORDER BY m.id DESC
     `;
@@ -63,23 +61,17 @@ export const GET = async (event: RequestEvent) => {
 
 export const POST = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { user_id, association_id, role_id, list_id, visible } = body;
+	const { user_id, association_id, role_name, permissions, hierarchy, list_id, visible } = body;
 
 	if (!association_id) {
 		return json({ error: "association_id is required" }, { status: 400 });
 	}
 
-	// Vérifier que l'utilisateur a la permission ROLES pour cette association spécifique
+	// Vérifier que l'utilisateur a la permission MANAGE pour cette association spécifique
 	const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
-	const authCheck = await checkAssociationPermission(event, association_id, Permission.ROLES);
+	const authCheck = await checkAssociationPermission(event, association_id, Permission.MANAGE);
 	if (!authCheck.authorized) {
 		return authCheck.response;
-	}
-
-	// Vérifier que l'utilisateur ne donne pas un rôle supérieur au sien
-	const targetRole = (await db`SELECT permissions FROM role WHERE id = ${role_id}`)[0];
-	if (!targetRole) {
-		return json({ error: "Role not found" }, { status: 404 });
 	}
 
 	let maxPermissions = 0;
@@ -88,11 +80,11 @@ export const POST = async (event: RequestEvent) => {
 	} else {
 		const membership = authCheck.user.memberships.find((m) => m.association_id === association_id);
 		if (membership) {
-			maxPermissions = membership.role.permissions;
+			maxPermissions = membership.permissions;
 		}
 	}
 
-	if (targetRole.permissions > maxPermissions) {
+	if (permissions > maxPermissions) {
 		return json(
 			{
 				error: "Forbidden",
@@ -103,8 +95,8 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	await db`
-        INSERT INTO member (user_id, association_id, role_id, list_id, visible)
-        VALUES (${user_id}, ${association_id || null}, ${role_id}, ${list_id || null}, ${visible !== false})
+        INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, list_id, visible)
+        VALUES (${user_id}, ${association_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${list_id || null}, ${visible !== false})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -115,7 +107,7 @@ export const POST = async (event: RequestEvent) => {
 
 export const PUT = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { id, user_id, association_id, role_id, list_id, visible } = body;
+	const { id, user_id, association_id, role_name, permissions, hierarchy, list_id, visible } = body;
 
 	if (!id || !association_id) {
 		return json({ error: "id and association_id are required" }, { status: 400 });
@@ -134,7 +126,7 @@ export const PUT = async (event: RequestEvent) => {
 	const authCheck = await checkAssociationPermission(
 		event,
 		existingMember.association_id,
-		Permission.ROLES
+		Permission.MANAGE
 	);
 	if (!authCheck.authorized) {
 		return authCheck.response;
@@ -145,7 +137,7 @@ export const PUT = async (event: RequestEvent) => {
 		const newAssocAuthCheck = await checkAssociationPermission(
 			event,
 			association_id,
-			Permission.ROLES
+			Permission.MANAGE
 		);
 		if (!newAssocAuthCheck.authorized) {
 			return json(
@@ -158,12 +150,7 @@ export const PUT = async (event: RequestEvent) => {
 		}
 	}
 
-	// Vérifier que l'utilisateur ne donne pas un rôle supérieur au sien
 	const targetAssociationId = association_id || existingMember.association_id;
-	const targetRole = (await db`SELECT permissions FROM role WHERE id = ${role_id}`)[0];
-	if (!targetRole) {
-		return json({ error: "Role not found" }, { status: 404 });
-	}
 
 	let maxPermissions = 0;
 	if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
@@ -173,11 +160,11 @@ export const PUT = async (event: RequestEvent) => {
 			(m) => m.association_id === targetAssociationId
 		);
 		if (membership) {
-			maxPermissions = membership.role.permissions;
+			maxPermissions = membership.permissions;
 		}
 	}
 
-	if (targetRole.permissions > maxPermissions) {
+	if (permissions > maxPermissions) {
 		return json(
 			{
 				error: "Forbidden",
@@ -190,7 +177,7 @@ export const PUT = async (event: RequestEvent) => {
 	await db`
         UPDATE member 
         SET user_id = ${user_id}, association_id = ${association_id || null}, 
-            role_id = ${role_id}, list_id = ${list_id || null}, visible = ${visible !== false}
+            role_name = ${role_name}, permissions = ${permissions}, hierarchy = ${hierarchy}, list_id = ${list_id || null}, visible = ${visible !== false}
         WHERE id = ${id}
     `;
 
@@ -219,7 +206,7 @@ export const DELETE = async (event: RequestEvent) => {
 	const authCheck = await checkAssociationPermission(
 		event,
 		existingMember.association_id,
-		Permission.ROLES
+		Permission.MANAGE
 	);
 	if (!authCheck.authorized) {
 		return authCheck.response;

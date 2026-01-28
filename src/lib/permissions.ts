@@ -1,9 +1,8 @@
 enum Permission {
 	MEMBER = 0,
-	ROLES = 1,
-	EVENTS = 2,
-	ADMIN = 3,
-	SITE_ADMIN = 4,
+	MANAGE = 1,
+	ADMIN = 2,
+	SITE_ADMIN = 3,
 }
 
 export default Permission;
@@ -16,10 +15,8 @@ export function getPermissionName(level: number): string {
 	switch (level) {
 		case Permission.MEMBER:
 			return "Membre";
-		case Permission.ROLES:
-			return "Gestion Rôles & Membres";
-		case Permission.EVENTS:
-			return "Gestion Événements";
+		case Permission.MANAGE:
+			return "Gestion des Membres & Événements";
 		case Permission.ADMIN:
 			return "Administration";
 		case Permission.SITE_ADMIN:

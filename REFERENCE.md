@@ -20,8 +20,7 @@ L'application utilise les entités de données centrales suivantes (définies da
 - **Association** : Représente une association étudiante (ex : BDE, BDS).
 - **List** : Un sous-groupe ou une liste de campagne rattachée à une association.
 - **User** : Un étudiant ou un administrateur accédant au portail.
-- **Role** : Définit les permissions et la hiérarchie au sein du système.
-- **Member** : Lie un Utilisateur à une Association/Liste avec un Rôle spécifique.
+- **Member** : Lie un Utilisateur à une Association/Liste avec des permissions spécifiques.
 - **Event** : Un événement organisé par une association.
 
 ## Référence de l'API
@@ -38,7 +37,6 @@ L'API est située à `/api` et inclut les espaces de noms suivants :
 | `/api/image`              | Téléchargement et récupération d'images.                     |
 | `/api/lists`              | Gérer les listes (campagnes/sous-groupes).                   |
 | `/api/members`            | Gérer les membres d'association.                             |
-| `/api/roles`              | Définitions des rôles et permissions.                        |
 | `/api/users`              | Gestion des utilisateurs.                                    |
 
 ## Fichiers de Configuration Clés

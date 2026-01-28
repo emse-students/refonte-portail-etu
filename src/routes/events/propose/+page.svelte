@@ -63,7 +63,7 @@
 		if (!user) return false;
 
 		// Check global permission
-		if (hasPermission(user.permissions, Permission.EVENTS)) {
+		if (hasPermission(user.permissions, Permission.MANAGE)) {
 			selectedEvent = event;
 			showForm = true;
 			return true;
@@ -74,7 +74,7 @@
 			const hasAssocPerm = user.memberships.some(
 				(m) =>
 					m.association_id === event.association_id &&
-					hasPermission(m.role.permissions, Permission.EVENTS)
+					hasPermission(m.permissions, Permission.MANAGE)
 			);
 			if (hasAssocPerm) {
 				selectedEvent = event;
@@ -86,7 +86,7 @@
 		// Check list permission
 		if (event.list_id && user.memberships) {
 			const hasListPerm = user.memberships.some(
-				(m) => m.list_id === event.list_id && hasPermission(m.role.permissions, Permission.EVENTS)
+				(m) => m.list_id === event.list_id && hasPermission(m.permissions, Permission.MANAGE)
 			);
 			if (hasListPerm) {
 				selectedEvent = event;
@@ -105,7 +105,7 @@
 
 	const isGlobalEventManager = $derived.by(() => {
 		if (!user) return false;
-		return hasPermission(user.permissions, Permission.EVENTS);
+		return hasPermission(user.permissions, Permission.MANAGE);
 	});
 
 	function requestCloseAndValidate() {

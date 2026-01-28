@@ -38,7 +38,8 @@ export const POST = async (event: RequestEvent) => {
 
 	const body = await event.request.json();
 
-	const { handle, name, description, association_id, promo, color, icon } = body;
+	const { name, description, association_id, promo, color, icon } = body;
+	const handle = name.toLowerCase().replace(/[^a-z]/g, "");
 
 	await db`
         INSERT INTO list (handle, name, description, association_id, promo, color, icon)

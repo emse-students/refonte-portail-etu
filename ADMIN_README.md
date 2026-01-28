@@ -21,17 +21,13 @@ Cette interface permet de gérer toutes les tables principales de la base de don
    - Modifier handle, nom, description et couleur
    - Créer et supprimer des associations
 
-3. **Rôles** (`roles`)
-   - Configurer les rôles disponibles
-   - Définir la hiérarchie et les permissions
-   - Ajouter/modifier/supprimer des rôles
-
-4. **Membres** (`members`)
-   - Lier utilisateurs et associations avec leurs rôles
+3. **Membres** (`members`)
+   - Lier utilisateurs et associations
+   - Définir les permissions, la hiérarchie et le nom du rôle directement
    - Gérer la visibilité des membres
-   - Vue enrichie avec noms d'utilisateur, association et rôle
+   - Vue enrichie avec noms d'utilisateur, association et rôle (texte)
 
-5. **Événements** (`events`)
+4. **Événements** (`events`)
    - Créer et gérer les événements
    - Associer aux associations
    - Définir dates, lieu et description
@@ -47,16 +43,9 @@ Toutes les routes suivent le pattern REST standard :
 - `PUT` : Met à jour un utilisateur existant
 - `DELETE` : Supprime un utilisateur
 
-### `/api/roles`
-
-- `GET` : Liste tous les rôles
-- `POST` : Crée un nouveau rôle
-- `PUT` : Met à jour un rôle
-- `DELETE` : Supprime un rôle
-
 ### `/api/members`
 
-- `GET` : Liste tous les membres avec JOIN sur users, associations et roles
+- `GET` : Liste tous les membres avec JOIN sur users et associations
 - `POST` : Crée un nouveau membre
 - `PUT` : Met à jour un membre
 - `DELETE` : Supprime un membre
@@ -94,7 +83,7 @@ Les opérations de lecture (GET) sont publiques pour faciliter la consultation.
 ## Champs Spéciaux
 
 - **Dates** : Utilisent un sélecteur datetime-local
-- **Relations** : Affichent des listes déroulantes (associations, users, roles)
+- **Relations** : Affichent des listes déroulantes (associations, users)
 - **Booléens** : Cases à cocher (ex: visible pour les membres)
 - **Descriptions** : Zone de texte multiligne
 

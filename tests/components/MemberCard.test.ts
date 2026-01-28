@@ -17,12 +17,9 @@ describe("MemberCard Component", () => {
 			login: "john.doe",
 			promo: 2024,
 		},
-		role: {
-			id: 1,
-			name: "President",
-			permissions: 0,
-			hierarchy: 10,
-		},
+		role_name: "President",
+		permissions: 0,
+		hierarchy: 10,
 	};
 
 	it("should render member name and role", () => {
@@ -41,32 +38,32 @@ describe("MemberCard Component", () => {
 
 	it("should not show edit controls by default", () => {
 		render(MemberCard, { member: mockMember });
-		expect(screen.queryByText("Modifier rôle")).not.toBeInTheDocument();
+		expect(screen.queryByText("Modifier")).not.toBeInTheDocument();
 		expect(screen.queryByText("Retirer")).not.toBeInTheDocument();
 	});
 
 	it("should show edit controls when editMode is true", () => {
 		render(MemberCard, { member: mockMember, editMode: true });
-		expect(screen.getByText("Modifier rôle")).toBeInTheDocument();
-		expect(screen.getByText("Retirer")).toBeInTheDocument();
+		expect(screen.getByText(/Modifier/)).toBeInTheDocument();
+		expect(screen.getByText(/Retirer/)).toBeInTheDocument();
 	});
 
 	it("should fire events when buttons are clicked", async () => {
 		const onRemove = vi.fn();
-		const onEditRole = vi.fn();
+		const onEditMember = vi.fn();
 
 		render(MemberCard, {
 			member: mockMember,
 			editMode: true,
 			onRemove,
-			onEditRole,
+			onEditMember,
 		});
 
 		await fireEvent.click(screen.getByText("Retirer"));
 		expect(onRemove).toHaveBeenCalledWith(mockMember.id);
 
-		await fireEvent.click(screen.getByText("Modifier rôle"));
-		expect(onEditRole).toHaveBeenCalledWith(mockMember);
+		await fireEvent.click(screen.getByText("Modifier"));
+		expect(onEditMember).toHaveBeenCalledWith(mockMember);
 	});
 
 	it("should apply bureau styles when isBureau is true", () => {

@@ -37,10 +37,9 @@ vi.mock("$lib/utils", () => ({
 vi.stubGlobal("fetch", vi.fn());
 
 describe("Associations Handle Page Load", () => {
-	it("should fetch association, events, and roles", async () => {
+	it("should fetch association and events", async () => {
 		const mockAssociation = { id: 1, name: "Test Asso" };
 		const mockEvents = [{ id: 1, title: "Event 1" }];
-		const mockRoles = [{ id: 1, name: "Prez" }];
 
 		const fetchMock = vi.fn().mockImplementation((url) => {
 			if (url.includes("/api/associations/handle/test-asso")) {
@@ -51,11 +50,6 @@ describe("Associations Handle Page Load", () => {
 			if (url.includes("/api/calendar?asso=1")) {
 				return Promise.resolve({
 					json: () => Promise.resolve(mockEvents),
-				});
-			}
-			if (url.includes("/api/roles")) {
-				return Promise.resolve({
-					json: () => Promise.resolve(mockRoles),
 				});
 			}
 			return Promise.reject(new Error(`Unexpected URL: ${url}`));
@@ -71,10 +65,9 @@ describe("Associations Handle Page Load", () => {
 		expect(result).toEqual({
 			association: mockAssociation,
 			events: mockEvents,
-			roles: mockRoles,
 		});
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 });
 
@@ -96,7 +89,9 @@ describe("Associations Handle Page Component", () => {
 					permissions: 0,
 					promo: 2024,
 				},
-				role: { id: 1, name: "Président", permissions: Permission.ADMIN, hierarchy: 10 },
+				role_name: "Président",
+				permissions: Permission.ADMIN,
+				hierarchy: 10,
 				association_id: 1,
 				list_id: null,
 				visible: true,
@@ -112,7 +107,9 @@ describe("Associations Handle Page Component", () => {
 					permissions: 0,
 					promo: 2024,
 				},
-				role: { id: 2, name: "Membre", permissions: Permission.MEMBER, hierarchy: 1 },
+				role_name: "Membre",
+				permissions: Permission.MEMBER,
+				hierarchy: 1,
 				association_id: 1,
 				list_id: null,
 				visible: true,
@@ -138,11 +135,6 @@ describe("Associations Handle Page Component", () => {
 		},
 	];
 
-	const mockRoles = [
-		{ id: 1, name: "Président", permissions: Permission.ADMIN, hierarchy: 10 },
-		{ id: 2, name: "Membre", permissions: Permission.MEMBER, hierarchy: 1 },
-	];
-
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(global.fetch).mockResolvedValue({
@@ -157,7 +149,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: undefined,
 					session: undefined,
 				},
@@ -173,7 +164,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: undefined,
 					session: undefined,
 				},
@@ -197,7 +187,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: undefined,
 					session: undefined,
 				},
@@ -213,7 +202,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: mockEvents,
-					roles: mockRoles,
 					userData: undefined,
 					session: undefined,
 				},
@@ -229,7 +217,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: undefined,
 					session: undefined,
 				},
@@ -257,7 +244,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -281,7 +267,9 @@ describe("Associations Handle Page Component", () => {
 					id: 10,
 					association_id: 1,
 					list_id: null,
-					role: { id: 3, name: "Manager", permissions: Permission.ROLES, hierarchy: 5 },
+					role_name: "Manager",
+					permissions: Permission.MANAGE,
+					hierarchy: 5,
 					user: {
 						id: 2,
 						first_name: "Role",
@@ -301,7 +289,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: memberWithRoles,
 					session: undefined,
 				},
@@ -328,7 +315,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -361,7 +347,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -404,7 +389,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -436,7 +420,9 @@ describe("Associations Handle Page Component", () => {
 					id: 5,
 					association_id: 1,
 					list_id: null,
-					role: { id: 1, name: "Président", permissions: Permission.ADMIN, hierarchy: 10 },
+					role_name: "Président",
+					permissions: Permission.ADMIN,
+					hierarchy: 10,
 					user: {
 						id: 1,
 						first_name: "Admin",
@@ -456,7 +442,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminMember,
 					session: undefined,
 				},
@@ -487,7 +472,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -523,7 +507,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -567,7 +550,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -606,7 +588,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -631,7 +612,7 @@ describe("Associations Handle Page Component", () => {
 		});
 	});
 
-	it("opens edit role modal for a member", async () => {
+	it("opens edit member modal", async () => {
 		const adminUser = {
 			id: 1,
 			first_name: "Admin",
@@ -648,7 +629,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -657,12 +637,12 @@ describe("Associations Handle Page Component", () => {
 
 		await fireEvent.click(screen.getByText("Administration"));
 
-		// Find the edit role button for a member
-		const editButtons = screen.getAllByText("Modifier rôle");
+		// Find the edit button for a member
+		const editButtons = screen.getAllByText("Modifier");
 		await fireEvent.click(editButtons[0]);
 
 		// Modal should be open with member's name
-		expect(screen.getByText(/Modifier le rôle/)).toBeInTheDocument();
+		expect(screen.getByText(/Modifier 'John/)).toBeInTheDocument();
 	});
 
 	it("updates member role", async () => {
@@ -687,7 +667,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -696,7 +675,7 @@ describe("Associations Handle Page Component", () => {
 
 		await fireEvent.click(screen.getByText("Administration"));
 
-		const editButtons = screen.getAllByText("Modifier rôle");
+		const editButtons = screen.getAllByText("Modifier");
 		await fireEvent.click(editButtons[0]);
 
 		// Click save
@@ -713,7 +692,7 @@ describe("Associations Handle Page Component", () => {
 		});
 	});
 
-	it("selects user from search results and shows role selection", async () => {
+	it("selects user from search results and shows role input", async () => {
 		const adminUser = {
 			id: 1,
 			first_name: "Admin",
@@ -739,7 +718,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -752,15 +730,16 @@ describe("Associations Handle Page Component", () => {
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
 		await fireEvent.input(searchInput, { target: { value: "new" } });
 
+		// Wait for search results
 		await waitFor(() => {
-			expect(screen.getByText(/New User/)).toBeInTheDocument();
+			expect(screen.getByText(/New\s+User/)).toBeInTheDocument();
 		});
 
 		// Select the user
-		await fireEvent.click(screen.getByText(/New User/));
+		await fireEvent.click(screen.getByText(/New\s+User/));
 
-		// Role selection should appear
-		expect(screen.getByLabelText("Rôle")).toBeInTheDocument();
+		// Role input should appear
+		expect(screen.getByLabelText("Nom du rôle")).toBeInTheDocument();
 	});
 
 	it("adds a new member", async () => {
@@ -794,7 +773,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -808,10 +786,14 @@ describe("Associations Handle Page Component", () => {
 		await fireEvent.input(searchInput, { target: { value: "new" } });
 
 		await waitFor(() => {
-			expect(screen.getByText(/New User/)).toBeInTheDocument();
+			expect(screen.getByText(/New\s+User/)).toBeInTheDocument();
 		});
 
-		await fireEvent.click(screen.getByText(/New User/));
+		await fireEvent.click(screen.getByText(/New\s+User/));
+
+		// Need to fill required fields like role name
+		const roleInput = screen.getByLabelText("Nom du rôle");
+		await fireEvent.input(roleInput, { target: { value: "Membre" } });
 
 		// Click the add button
 		const addBtn = screen.getByText("Ajouter");
@@ -820,142 +802,6 @@ describe("Associations Handle Page Component", () => {
 		await waitFor(() => {
 			expect(global.fetch).toHaveBeenCalledWith(
 				"/api/members",
-				expect.objectContaining({
-					method: "POST",
-				})
-			);
-		});
-	});
-
-	it("opens create role modal from add member modal", async () => {
-		const adminUser = {
-			id: 1,
-			first_name: "Admin",
-			last_name: "User",
-			login: "admin",
-			email: "admin@test.com",
-			permissions: Permission.ADMIN,
-			promo: 2024,
-			memberships: [],
-		};
-
-		const mockUsers = [
-			{ id: 10, first_name: "New", last_name: "User", login: "newuser", email: "new@test.com" },
-		];
-
-		vi.mocked(global.fetch).mockResolvedValue({
-			ok: true,
-			json: async () => mockUsers,
-		} as Response);
-
-		render(AssociationHandlePage, {
-			props: {
-				data: {
-					association: mockAssociation,
-					events: [],
-					roles: mockRoles,
-					userData: adminUser,
-					session: undefined,
-				},
-			},
-		});
-
-		await fireEvent.click(screen.getByText("Administration"));
-		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
-
-		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
-		await fireEvent.input(searchInput, { target: { value: "new" } });
-
-		await waitFor(() => {
-			expect(screen.getByText(/New User/)).toBeInTheDocument();
-		});
-
-		await fireEvent.click(screen.getByText(/New User/));
-
-		// Type in role search
-		const roleInput = screen.getByLabelText("Rôle");
-		await fireEvent.focus(roleInput);
-		await fireEvent.input(roleInput, { target: { value: "NewRole" } });
-
-		// Click create new role
-		await waitFor(() => {
-			expect(screen.getByText("+ Créer un nouveau rôle...")).toBeInTheDocument();
-		});
-		await fireEvent.click(screen.getByText("+ Créer un nouveau rôle..."));
-
-		expect(screen.getByText("Créer un nouveau rôle")).toBeInTheDocument();
-	});
-
-	it("creates a new role", async () => {
-		const adminUser = {
-			id: 1,
-			first_name: "Admin",
-			last_name: "User",
-			login: "admin",
-			email: "admin@test.com",
-			permissions: Permission.ADMIN,
-			promo: 2024,
-			memberships: [],
-		};
-
-		const mockUsers = [
-			{ id: 10, first_name: "New", last_name: "User", login: "newuser", email: "new@test.com" },
-		];
-
-		vi.mocked(global.fetch)
-			.mockResolvedValueOnce({
-				ok: true,
-				json: async () => mockUsers,
-			} as Response)
-			.mockResolvedValueOnce({
-				ok: true,
-				json: async () => ({ id: 99, name: "NewRole" }),
-			} as Response);
-
-		render(AssociationHandlePage, {
-			props: {
-				data: {
-					association: mockAssociation,
-					events: [],
-					roles: mockRoles,
-					userData: adminUser,
-					session: undefined,
-				},
-			},
-		});
-
-		await fireEvent.click(screen.getByText("Administration"));
-		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
-
-		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
-		await fireEvent.input(searchInput, { target: { value: "new" } });
-
-		await waitFor(() => {
-			expect(screen.getByText(/New User/)).toBeInTheDocument();
-		});
-
-		await fireEvent.click(screen.getByText(/New User/));
-
-		const roleInput = screen.getByLabelText("Rôle");
-		await fireEvent.focus(roleInput);
-		await fireEvent.input(roleInput, { target: { value: "NewRole" } });
-
-		await waitFor(() => {
-			expect(screen.getByText("+ Créer un nouveau rôle...")).toBeInTheDocument();
-		});
-		await fireEvent.click(screen.getByText("+ Créer un nouveau rôle..."));
-
-		// Fill in role details
-		const roleNameInput = screen.getByLabelText("Nom du rôle");
-		await fireEvent.input(roleNameInput, { target: { value: "NewRole" } });
-
-		// Create the role
-		const createBtn = screen.getByText("Créer");
-		await fireEvent.click(createBtn);
-
-		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				"/api/roles",
 				expect.objectContaining({
 					method: "POST",
 				})
@@ -980,7 +826,6 @@ describe("Associations Handle Page Component", () => {
 				data: {
 					association: mockAssociation,
 					events: [],
-					roles: mockRoles,
 					userData: adminUser,
 					session: undefined,
 				},
@@ -1001,62 +846,6 @@ describe("Associations Handle Page Component", () => {
 		// Modal should close
 		await waitFor(() => {
 			expect(screen.queryByText("Confirmer la suppression")).not.toBeInTheDocument();
-		});
-	});
-
-	it("filters roles based on search query", async () => {
-		const adminUser = {
-			id: 1,
-			first_name: "Admin",
-			last_name: "User",
-			login: "admin",
-			email: "admin@test.com",
-			permissions: Permission.ADMIN,
-			promo: 2024,
-			memberships: [],
-		};
-
-		const mockUsers = [
-			{ id: 10, first_name: "New", last_name: "User", login: "newuser", email: "new@test.com" },
-		];
-
-		vi.mocked(global.fetch).mockResolvedValue({
-			ok: true,
-			json: async () => mockUsers,
-		} as Response);
-
-		render(AssociationHandlePage, {
-			props: {
-				data: {
-					association: mockAssociation,
-					events: [],
-					roles: mockRoles,
-					userData: adminUser,
-					session: undefined,
-				},
-			},
-		});
-
-		await fireEvent.click(screen.getByText("Administration"));
-		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
-
-		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
-		await fireEvent.input(searchInput, { target: { value: "new" } });
-
-		await waitFor(() => {
-			expect(screen.getByText(/New User/)).toBeInTheDocument();
-		});
-
-		await fireEvent.click(screen.getByText(/New User/));
-
-		const roleInput = screen.getByLabelText("Rôle");
-		await fireEvent.focus(roleInput);
-		await fireEvent.input(roleInput, { target: { value: "Prés" } });
-
-		// Should filter to show only Président (multiple because also shown in member card)
-		await waitFor(() => {
-			const presidents = screen.getAllByText("Président");
-			expect(presidents.length).toBeGreaterThan(0);
 		});
 	});
 });

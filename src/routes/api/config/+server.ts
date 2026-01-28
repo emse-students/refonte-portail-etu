@@ -38,7 +38,7 @@ export const POST = async (event: RequestEvent) => {
 	) {
 		// Check if they are event manager (global EVENTS permission)
 		// The prompt says "The user with global Event permissions (ie event manager) can open event submission"
-		if (!hasPermission(user.permissions, Permission.EVENTS)) {
+		if (!hasPermission(user.permissions, Permission.MANAGE)) {
 			return json({ error: "Forbidden" }, { status: 403 });
 		}
 		// If they have global EVENTS permission, we check if they are restricted to specific associations

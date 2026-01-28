@@ -29,8 +29,7 @@ Récupère une liste de tous les utilisateurs.
   		"email": "john@example.com",
   		"login": "jdoe",
   		"promo": 2024,
-  		"permissions": 0,
-  		"max_role_permissions": 0
+  		"permissions": 0
   	}
   ]
   ```
@@ -71,7 +70,7 @@ Récupère les informations détaillées des rôles pour un utilisateur spécifi
   [
   	{
   		"role_name": "President",
-  		"permissions": 15,
+  		"permissions": 2,
   		"association_name": "BDE",
   		"list_name": null
   	}
@@ -224,16 +223,6 @@ Récupère les membres des associations ou des listes.
 #### `POST /api/members`
 
 Ajoute un membre à une association ou une liste.
-
-### Rôles (Roles)
-
-#### `GET /api/roles`
-
-Récupère les rôles disponibles.
-
-#### `POST /api/roles`
-
-Crée ou met à jour un rôle.
 
 ### Calendrier (Calendar)
 

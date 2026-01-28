@@ -210,44 +210,4 @@ export const actions: Actions = {
 			return fail(500, { error: "Database error" });
 		}
 	},
-	updateRole: async ({ request, locals }) => {
-		if (!locals.session) return fail(401);
-		const data = await request.formData();
-		const id = data.get("id");
-		const name = data.get("name");
-		const hierarchy = data.get("hierarchy");
-		const permissions = data.get("permissions");
-
-		if (!id) return fail(400, { error: "Missing ID" });
-
-		try {
-			await db`UPDATE role SET 
-				name = ${name}, 
-				hierarchy = ${hierarchy}, 
-				permissions = ${permissions},
-				edited_at = NOW()
-				WHERE id = ${id}`;
-
-			logAudit(`Update Role ${id}`, locals.userData?.login || String(locals.session?.user?.id));
-			return { success: true };
-		} catch (err) {
-			logger.error("Error updating role", err);
-			return fail(500, { error: "Database error" });
-		}
-	},
-	deleteRole: async ({ request, locals }) => {
-		if (!locals.session) return fail(401);
-		const data = await request.formData();
-		const id = data.get("id");
-		if (!id) return fail(400, { error: "Missing ID" });
-
-		try {
-			await db`DELETE FROM role WHERE id = ${id}`;
-			logAudit(`Delete Role ${id}`, locals.userData?.login || String(locals.session?.user?.id));
-			return { success: true };
-		} catch (err) {
-			logger.error("Error deleting role", err);
-			return fail(500, { error: "Database error" });
-		}
-	},
 };

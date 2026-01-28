@@ -10,7 +10,7 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	// Only global event managers can finalize submission
-	if (!hasPermission(user.permissions, Permission.EVENTS)) {
+	if (!hasPermission(user.permissions, Permission.MANAGE)) {
 		return json({ error: "Forbidden" }, { status: 403 });
 	}
 

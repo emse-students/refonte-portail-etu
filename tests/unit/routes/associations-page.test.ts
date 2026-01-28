@@ -42,28 +42,27 @@ describe("Associations Page", () => {
 			{
 				id: 1,
 				user: { id: 1, first_name: "John", last_name: "Doe" },
-				role: { id: 1, name: "Prez", hierarchy: 10, permissions: 0 },
+				role_name: "Prez",
+				hierarchy: 10,
+				permissions: 0,
 				visible: true,
 			},
 			{
 				id: 2,
 				user: { id: 2, first_name: "Jane", last_name: "Smith" },
-				role: { id: 2, name: "Member", hierarchy: 1, permissions: 0 },
+				role_name: "Member",
+				hierarchy: 1,
+				permissions: 0,
 				visible: true,
 			},
 		],
 	};
 
 	const mockEvents = [{ id: 1, title: "Event 1" }];
-	const mockRoles = [
-		{ id: 1, name: "Prez" },
-		{ id: 2, name: "Member" },
-	];
 
 	const mockData = {
 		association: mockAssociation,
 		events: mockEvents,
-		roles: mockRoles,
 		userData: {
 			permissions: 0,
 			memberships: [],

@@ -71,7 +71,7 @@ describe("Home Page", () => {
 		const { page } = await import("$app/state");
 		page.data = {
 			session: { user: { name: "Admin" } },
-			userData: { permissions: Permission.EVENTS, memberships: [] },
+			userData: { permissions: Permission.MANAGE, memberships: [] },
 			eventSubmissionOpen: true,
 		} as any;
 
@@ -85,7 +85,7 @@ describe("Home Page", () => {
 			session: { user: { name: "Assoc Member" } },
 			userData: {
 				permissions: 0,
-				memberships: [{ role: { permissions: Permission.EVENTS } }],
+				memberships: [{ permissions: Permission.MANAGE }],
 			},
 			eventSubmissionOpen: true,
 		} as any;

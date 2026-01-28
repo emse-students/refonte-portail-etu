@@ -401,7 +401,7 @@ describe("Events Propose Page - Global Event Manager", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -786,7 +786,7 @@ describe("Events Propose Page - handleEventClick", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -817,7 +817,7 @@ describe("Events Propose Page - handleEventClick", () => {
 				{
 					association_id: 1,
 					list_id: null,
-					role: { permissions: Permission.EVENTS },
+					role: { permissions: Permission.MANAGE },
 				},
 			],
 		};
@@ -848,7 +848,7 @@ describe("Events Propose Page - handleEventClick", () => {
 				{
 					association_id: null,
 					list_id: 1,
-					role: { permissions: Permission.EVENTS },
+					role: { permissions: Permission.MANAGE },
 				},
 			],
 		};
@@ -898,7 +898,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -923,7 +923,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -948,7 +948,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -990,7 +990,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1039,7 +1039,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1078,7 +1078,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1116,7 +1116,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1162,7 +1162,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1213,7 +1213,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
@@ -1254,7 +1254,7 @@ describe("Events Propose Page - Admin Actions with Mocked User", () => {
 			last_name: "User",
 			login: "admin",
 			email: "admin@test.com",
-			permissions: Permission.EVENTS,
+			permissions: Permission.MANAGE,
 			promo: 2024,
 			memberships: [],
 		};
