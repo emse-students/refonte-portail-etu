@@ -1,18 +1,17 @@
 import { redirect, fail, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { requirePermission } from "$lib/server/auth-middleware";
-import Permission from "$lib/permissions";
+import { requireAdmin } from "$lib/server/auth-middleware";
 import db from "$lib/server/database";
 import logger, { logAudit } from "$lib/server/logger";
 
 export const load: PageServerLoad = async (event) => {
-	// Récupérer la session de l'utilisateur depuis les `locals`
-	const user = await requirePermission(event, Permission.ADMIN);
-
 	// Si l'utilisateur n'est pas connecté, le rediriger vers la page de connexion
 	if (!event.locals.session) {
 		throw redirect(303, "/auth/signin");
 	}
+
+	// Récupérer la session de l'utilisateur depuis les `locals`
+	const user = await requireAdmin(event);
 
 	// Vérifier si l'utilisateur a le rôle 'ADMIN'
 	// Adaptez la condition à la structure de votre objet utilisateur et à vos rôles

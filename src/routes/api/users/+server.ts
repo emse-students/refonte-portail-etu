@@ -1,13 +1,13 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
 import Permission from "$lib/permissions";
-import { checkPermission } from "$lib/server/auth-middleware";
+import { checkAdmin } from "$lib/server/auth-middleware";
 import type { RawUser } from "$lib/databasetypes";
 
 export const GET = async () => {
 	const users = await db<RawUser & { max_role_permissions: number | null }>`
         SELECT
-            u.id, u.first_name, u.last_name, u.email, u.login, u.promo,
+            u.id, u.first_name, u.last_name, u.email, u.login, u.promo, u.admin,
             MAX(r.permissions) as max_role_permissions
         FROM
             user u
@@ -20,9 +20,7 @@ export const GET = async () => {
 	// Map max_role_permissions to global permissions logic
 	const usersWithPermissions = users.map((u) => {
 		let globalPermissions = 0;
-		if (u.max_role_permissions === Permission.SITE_ADMIN) {
-			globalPermissions = Permission.SITE_ADMIN;
-		} else if (u.max_role_permissions === Permission.ADMIN) {
+		if (u.max_role_permissions === Permission.ADMIN) {
 			globalPermissions = Permission.ADMIN;
 		}
 		return {
@@ -35,8 +33,7 @@ export const GET = async () => {
 };
 
 export const POST = async (event: RequestEvent) => {
-	// Création d'utilisateur nécessite SITE_ADMIN
-	const authCheck = await checkPermission(event, Permission.SITE_ADMIN);
+	const authCheck = await checkAdmin(event);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}
@@ -54,10 +51,8 @@ export const POST = async (event: RequestEvent) => {
 		headers: { "Content-Type": "application/json" },
 	});
 };
-
 export const PUT = async (event: RequestEvent) => {
-	// Modification d'utilisateur nécessite SITE_ADMIN
-	const authCheck = await checkPermission(event, Permission.SITE_ADMIN);
+	const authCheck = await checkAdmin(event);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}
@@ -76,8 +71,7 @@ export const PUT = async (event: RequestEvent) => {
 };
 
 export const DELETE = async (event: RequestEvent) => {
-	// Suppression d'utilisateur nécessite SITE_ADMIN
-	const authCheck = await checkPermission(event, Permission.SITE_ADMIN);
+	const authCheck = await checkAdmin(event);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}

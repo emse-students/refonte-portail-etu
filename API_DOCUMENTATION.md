@@ -18,7 +18,7 @@ La plupart des points de terminaison nécessitent une authentification. Le syst�
 
 Récupère une liste de tous les utilisateurs.
 
-- **Permissions** : `ADMIN` ou `SITE_ADMIN`
+- **Permissions** : `ADMIN`
 - **Réponse** : Tableau d'objets Utilisateur.
   ```json
   [
@@ -38,7 +38,7 @@ Récupère une liste de tous les utilisateurs.
 
 Crée un nouvel utilisateur.
 
-- **Permissions** : `ADMIN` ou `SITE_ADMIN`
+- **Permissions** : `ADMIN`
 - **Corps (Body)** :
   ```json
   {
@@ -54,7 +54,7 @@ Crée un nouvel utilisateur.
 
 Supprime un utilisateur.
 
-- **Permissions** : `ADMIN` ou `SITE_ADMIN`
+- **Permissions** : `ADMIN`
 - **Corps (Body)** :
   ```json
   { "id": 1 }
@@ -64,7 +64,7 @@ Supprime un utilisateur.
 
 Récupère les informations détaillées des rôles pour un utilisateur spécifique.
 
-- **Permissions** : `ADMIN` ou `SITE_ADMIN`
+- **Permissions** : `ADMIN`
 - **Réponse** :
   ```json
   [
@@ -134,7 +134,7 @@ Récupère les paires clé-valeur de la configuration du système.
 
 Met à jour une valeur de configuration.
 
-- **Permissions** : `ADMIN`, `SITE_ADMIN`, ou `EVENTS` (pour les clés liées aux événements)
+- **Permissions** : `ADMIN` (pour les clés liées aux événements)
 - **Corps (Body)** :
   ```json
   {
@@ -158,7 +158,7 @@ Récupère une liste d'événements.
 
 Crée un nouvel événement.
 
-- **Permissions** : `EVENTS` (Global) ou permission `EVENTS` de l'association.
+- **Permissions** : `ADMIN` (Global) ou permission `MANAGE` de l'association.
 - **Note** : Si la config `event_submission_open` est fausse, seuls les gestionnaires globaux peuvent publier.
 - **Corps (Body)** :
   ```json
@@ -177,7 +177,7 @@ Crée un nouvel événement.
 
 Met à jour un événement.
 
-- **Permissions** : `EVENTS` (Global) ou permission `EVENTS` de l'association.
+- **Permissions** : `ADMIN` (Global) ou permission `MANAGE` de l'association.
 
 ### Listes (Lists)
 
@@ -200,14 +200,14 @@ Récupère les détails d'une liste spécifique.
 
 Crée une nouvelle liste.
 
-- **Permissions** : `ADMIN` ou `SITE_ADMIN`
+- **Permissions** : `ADMIN`
 - **Corps (Body)** : `{ name, handle, description, association_id, promo, ... }`
 
 #### `PUT /api/lists/[id]`
 
 Met à jour une liste.
 
-- **Permissions** : `ADMIN` (Global) ou Propriétaire de la Liste/Association ?
+- **Permissions** : `MANAGE` de la Liste/Association ?
 - **Corps (Body)** : Mises à jour des champs.
 
 #### `DELETE /api/lists/[id]`
@@ -254,7 +254,7 @@ Cette API agit comme un proxy vers un service de galerie externe appelé **Migal
 Upload une image vers le service Migallery.
 Effectue un redimensionnement/recadrage automatique en JPEG 800x800px en utilisant `jimp` avant l'envoi.
 
-- **Permissions** : `ADMIN` (Global) ou Admin de l'Association/Liste spécifiée.
+- **Permissions** : `MANAGE` de l'Association/Liste spécifiée.
 - **Corps (Body)** : `FormData`
   - `image` : Le fichier à uploader.
   - `association_id` OU `list_id` : Contexte pour la vérification des permissions.

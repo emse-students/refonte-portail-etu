@@ -27,6 +27,7 @@ export const GET = async (event: RequestEvent) => {
                 r.name as role_name, 
                 r.permissions as role_permissions, 
                 r.hierarchy as hierarchy,
+				u.admin as admin,
                 u.promo as user_promo
             FROM member m
             JOIN user u ON m.user_id = u.id
@@ -48,6 +49,7 @@ export const GET = async (event: RequestEvent) => {
 			role_permissions: number;
 			hierarchy: number;
 			user_promo: number;
+			admin: boolean;
 		}[];
 
 		const memberships: Member[] = membershipsData.map((m) => ({
@@ -63,6 +65,7 @@ export const GET = async (event: RequestEvent) => {
 				login: m.user_login,
 				permissions: m.user_permissions,
 				promo: m.user_promo,
+				admin: m.admin,
 			},
 			role_name: m.role_name,
 			permissions: m.role_permissions,

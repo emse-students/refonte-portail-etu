@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET, POST, PUT, DELETE } from "../../src/routes/api/users/+server";
 import db from "$lib/server/database";
-import { checkPermission } from "$lib/server/auth-middleware";
+import { checkPermission, checkAdmin } from "$lib/server/auth-middleware";
 import type { RequestEvent } from "@sveltejs/kit";
 
 // Mock dependencies
@@ -11,6 +11,7 @@ vi.mock("$lib/server/database", () => ({
 
 vi.mock("$lib/server/auth-middleware", () => ({
 	checkPermission: vi.fn(),
+	checkAdmin: vi.fn(),
 }));
 
 describe("Users API", () => {
@@ -33,7 +34,7 @@ describe("Users API", () => {
 
 	describe("POST /api/users", () => {
 		it("should create user if authorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 			});
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
@@ -57,7 +58,7 @@ describe("Users API", () => {
 		});
 
 		it("should fail if unauthorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: false,
 				response: new Response("Unauthorized", { status: 403 }),
 			});
@@ -78,7 +79,7 @@ describe("Users API", () => {
 
 	describe("PUT /api/users", () => {
 		it("should update user if authorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 			});
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
@@ -100,7 +101,7 @@ describe("Users API", () => {
 		});
 
 		it("should fail if unauthorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: false,
 				response: new Response("Unauthorized", { status: 403 }),
 			});
@@ -122,7 +123,7 @@ describe("Users API", () => {
 
 	describe("DELETE /api/users", () => {
 		it("should delete user if authorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 			});
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
@@ -140,7 +141,7 @@ describe("Users API", () => {
 		});
 
 		it("should fail if unauthorized", async () => {
-			(checkPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkAdmin as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: false,
 				response: new Response("Unauthorized", { status: 403 }),
 			});

@@ -88,6 +88,7 @@ describe("Associations Handle Page Component", () => {
 					email: "jdoe@test.com",
 					permissions: 0,
 					promo: 2024,
+					admin: false,
 				},
 				role_name: "Président",
 				permissions: Permission.ADMIN,
@@ -106,6 +107,7 @@ describe("Associations Handle Page Component", () => {
 					email: "jsmith@test.com",
 					permissions: 0,
 					promo: 2024,
+					admin: false,
 				},
 				role_name: "Membre",
 				permissions: Permission.MEMBER,
@@ -223,8 +225,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.queryByText("Administration")).not.toBeInTheDocument();
-		expect(screen.queryByText("Gérer les membres")).not.toBeInTheDocument();
+		expect(screen.queryByText("Gérer l'association")).not.toBeInTheDocument();
 	});
 
 	it("shows admin button when user has ADMIN permission", () => {
@@ -236,6 +237,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -250,10 +252,10 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.getByText("Administration")).toBeInTheDocument();
+		expect(screen.getByText("Gérer l'association")).toBeInTheDocument();
 	});
 
-	it("shows 'Gérer les membres' button for user with ROLES permission in association", () => {
+	it("shows 'Gérer l'association' button for user with ROLES permission in association", () => {
 		const memberWithRoles = {
 			id: 2,
 			first_name: "Role",
@@ -262,6 +264,7 @@ describe("Associations Handle Page Component", () => {
 			email: "role@test.com",
 			permissions: 0,
 			promo: 2024,
+			admin: false,
 			memberships: [
 				{
 					id: 10,
@@ -278,6 +281,7 @@ describe("Associations Handle Page Component", () => {
 						email: "role@test.com",
 						permissions: 0,
 						promo: 2024,
+						admin: false,
 					},
 					visible: true,
 				},
@@ -295,7 +299,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.getByText("Gérer les membres")).toBeInTheDocument();
+		expect(screen.getByText("Gérer l'association")).toBeInTheDocument();
 	});
 
 	it("toggles edit mode when admin button is clicked", async () => {
@@ -307,6 +311,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -321,7 +326,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		const adminBtn = screen.getByText("Administration");
+		const adminBtn = screen.getByText("Gérer l'association");
 		await fireEvent.click(adminBtn);
 
 		// Button text should change
@@ -339,6 +344,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -354,7 +360,7 @@ describe("Associations Handle Page Component", () => {
 		});
 
 		// Enter edit mode
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		// Click add member
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
@@ -372,6 +378,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -395,7 +402,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -415,6 +422,7 @@ describe("Associations Handle Page Component", () => {
 			email: "adminmember@test.com",
 			permissions: 0,
 			promo: 2024,
+			admin: true,
 			memberships: [
 				{
 					id: 5,
@@ -431,6 +439,7 @@ describe("Associations Handle Page Component", () => {
 						email: "adminmember@test.com",
 						permissions: 0,
 						promo: 2024,
+						admin: true,
 					},
 					visible: true,
 				},
@@ -449,7 +458,7 @@ describe("Associations Handle Page Component", () => {
 		});
 
 		// Enter edit mode
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		// "Éditer les informations" button should appear
 		expect(screen.getByText("Éditer les informations")).toBeInTheDocument();
@@ -464,6 +473,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -478,7 +488,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 		await fireEvent.click(screen.getByText("Éditer les informations"));
 
 		expect(screen.getByText("Modifier l'association")).toBeInTheDocument();
@@ -494,6 +504,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -513,7 +524,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 		await fireEvent.click(screen.getByText("Éditer les informations"));
 
 		const nameInput = screen.getByLabelText("Nom de l'association");
@@ -542,6 +553,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -556,7 +568,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		// Find the remove button for a member
 		const removeButtons = screen.getAllByText("Retirer");
@@ -575,6 +587,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -594,7 +607,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		const removeButtons = screen.getAllByText("Retirer");
 		await fireEvent.click(removeButtons[0]);
@@ -621,6 +634,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -635,7 +649,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		// Find the edit button for a member
 		const editButtons = screen.getAllByText("Modifier");
@@ -654,6 +668,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -673,7 +688,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		const editButtons = screen.getAllByText("Modifier");
 		await fireEvent.click(editButtons[0]);
@@ -701,11 +716,18 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
 		const mockUsers = [
-			{ id: 10, first_name: "New", last_name: "User", login: "newuser", email: "new@test.com" },
+			{
+				id: 10,
+				first_name: "New",
+				last_name: "User",
+				login: "newuser",
+				email: "new@test.com",
+			},
 		];
 
 		vi.mocked(global.fetch).mockResolvedValue({
@@ -724,7 +746,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -751,6 +773,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -779,7 +802,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -818,6 +841,7 @@ describe("Associations Handle Page Component", () => {
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
 			promo: 2024,
+			admin: true,
 			memberships: [],
 		};
 
@@ -832,7 +856,7 @@ describe("Associations Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer l'association"));
 
 		const removeButtons = screen.getAllByText("Retirer");
 		await fireEvent.click(removeButtons[0]);

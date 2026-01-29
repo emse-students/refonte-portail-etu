@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Le système de permissions a été étendu pour gérer les permissions au niveau des associations. Les utilisateurs peuvent avoir des permissions globales (ADMIN, SITE_ADMIN) ou des permissions spécifiques à certaines associations via leurs memberships.
+Le système de permissions a été étendu pour gérer les permissions au niveau des associations. Les utilisateurs peuvent avoir des permissions globales (ADMIN) ou des permissions spécifiques à certaines associations via leurs memberships.
 
 ## Architecture
 
@@ -16,13 +16,11 @@ La vérification se fait par niveau : un utilisateur possédant un niveau N a au
 - `MEMBER` (0) : Membre simple (accès de base, lecture seule)
 - `MANAGE` (1) : Gestion des membres et des événements
 - `ADMIN` (2) : Administration complète de l'association (accès à toutes les ressources)
-- `SITE_ADMIN` (3) : Super Administrateur (accès à tout le site, outrepasse toutes les permissions)
 
 ### Logique d'Autorisation
 
-1. **Permissions Globales**
-   - Stockées dans `user.permissions`.
-   - Si un utilisateur a une permission globale suffisante (ex: `SITE_ADMIN`), il a accès à **toutes** les associations et listes.
+1. **Admin Site**
+   - Un utilisateur est admin site si user.admin vaut true.
 
 2. **Permissions d'Association / Liste**
    - Stockées directement dans `member.permissions` via les memberships (`user.memberships`).
@@ -57,7 +55,7 @@ Vérifie si un utilisateur a une permission pour une association spécifique.
 
 **Comportement :**
 
-- Les admins globaux (ADMIN, SITE_ADMIN) ont toutes les permissions
+- Les admins globaux (ADMIN) ont toutes les permissions
 - Sinon, vérifie les memberships de l'utilisateur pour l'association donnée
 - Retourne `true` si l'utilisateur a le membership avec la permission requise
 
@@ -160,7 +158,7 @@ POST /api/events
 **Vérifications :**
 
 1. L'utilisateur est-il authentifié ?
-2. A-t-il ADMIN ou SITE_ADMIN ? → OK
+2. A-t-il ADMIN ? → OK
 3. Sinon, a-t-il un membership dans l'association 5 avec permission EVENTS ? → OK ou 403
 
 ### Obtenir ses événements éditables
@@ -176,7 +174,7 @@ GET /api/events?editable=true
 
 ## Notes Importantes
 
-1. **Admins Globaux** : Les utilisateurs avec `ADMIN` ou `SITE_ADMIN` outrepassent toutes les restrictions d'association
+1. **Admins Globaux** : Les utilisateurs avec `ADMIN` (ou user.admin) outrepassent toutes les restrictions d'association
 2. **Validation** : Toutes les routes vérifient l'existence de l'entité avant de vérifier les permissions
 3. **Changement d'association** : Lors de la modification (PUT), si l'association change, les deux associations doivent être autorisées
 4. **Filtrage automatique** : Les routes GET filtrent automatiquement selon les permissions de l'utilisateur

@@ -32,10 +32,7 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	// Only global admins can change config
-	if (
-		!hasPermission(user.permissions, Permission.ADMIN) &&
-		!hasPermission(user.permissions, Permission.SITE_ADMIN)
-	) {
+	if (!user.admin && !hasPermission(user.permissions, Permission.ADMIN)) {
 		// Check if they are event manager (global EVENTS permission)
 		// The prompt says "The user with global Event permissions (ie event manager) can open event submission"
 		if (!hasPermission(user.permissions, Permission.MANAGE)) {

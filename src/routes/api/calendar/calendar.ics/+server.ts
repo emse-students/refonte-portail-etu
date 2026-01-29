@@ -1,4 +1,5 @@
 import db from "$lib/server/database";
+import type { RequestEvent } from "./$types";
 
 function toICSDate(d: Date) {
 	// Ensure UTC and format YYYYMMDDTHHMMSSZ
@@ -18,14 +19,25 @@ function escapeICS(text: string | null | undefined) {
 		.replace(/([,;])/g, "\\$1");
 }
 
-export async function GET() {
-	const rows = await db`
+export async function GET({ url }: RequestEvent) {
+	const assoId = url.searchParams.get("asso") ? Number(url.searchParams.get("asso")) : null;
+
+	let query = db`
     SELECT e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, a.name as association_name
     FROM event e
     LEFT JOIN association a ON e.association_id = a.id
     WHERE e.end_date >= CURRENT_TIMESTAMP AND e.validated = true
-    ORDER BY e.start_date ASC
   `;
+
+	if (assoId) {
+		query = db`
+      ${query} AND e.association_id = ${assoId}
+    `;
+	}
+
+	query = db`${query} ORDER BY e.start_date ASC`;
+
+	const rows = await query;
 
 	const icsLines: string[] = [];
 	icsLines.push("BEGIN:VCALENDAR");

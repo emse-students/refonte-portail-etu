@@ -101,6 +101,7 @@ describe("Lists Handle Page Component", () => {
 					login: "jdoe",
 					email: "jdoe@test.com",
 					permissions: 0,
+					admin: false,
 					promo: 2024,
 				},
 				role_name: "Président",
@@ -119,6 +120,7 @@ describe("Lists Handle Page Component", () => {
 					login: "jsmith",
 					email: "jsmith@test.com",
 					permissions: 0,
+					admin: false,
 					promo: 2024,
 				},
 				role_name: "Membre",
@@ -278,6 +280,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -304,6 +307,7 @@ describe("Lists Handle Page Component", () => {
 			login: "rolemanager",
 			email: "role@test.com",
 			permissions: 0,
+			admin: false,
 			promo: 2024,
 			memberships: [
 				{
@@ -321,6 +325,7 @@ describe("Lists Handle Page Component", () => {
 						email: "role@test.com",
 						permissions: 0,
 						promo: 2024,
+						admin: false,
 					},
 					visible: true,
 				},
@@ -349,6 +354,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -381,6 +387,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -414,6 +421,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -457,6 +465,7 @@ describe("Lists Handle Page Component", () => {
 			login: "adminmember",
 			email: "adminmember@test.com",
 			permissions: 0,
+			admin: true,
 			promo: 2024,
 			memberships: [
 				{
@@ -473,6 +482,7 @@ describe("Lists Handle Page Component", () => {
 						login: "adminmember",
 						email: "adminmember@test.com",
 						permissions: 0,
+						admin: true,
 						promo: 2024,
 					},
 					visible: true,
@@ -506,6 +516,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -536,6 +547,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -584,6 +596,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -617,6 +630,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -663,6 +677,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -696,6 +711,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -743,6 +759,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -792,6 +809,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};
@@ -855,6 +873,7 @@ describe("Lists Handle Page Component", () => {
 			login: "admin",
 			email: "admin@test.com",
 			permissions: Permission.ADMIN,
+			admin: true,
 			promo: 2024,
 			memberships: [],
 		};

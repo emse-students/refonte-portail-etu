@@ -47,7 +47,7 @@
 
 ### Scénario 1 : Admin Global
 
-**Utilisateur :** Permissions = ADMIN ou SITE_ADMIN
+**Utilisateur :** Permissions = ADMIN
 **Résultat attendu :** Accès à toutes les associations
 
 ### Scénario 2 : Membre avec EVENTS pour Association A

@@ -35,7 +35,11 @@ describe("Calendar API", () => {
 		it("should return correct ICS headers", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
-			const response = await GET_ICS();
+			const url = new URL("http://localhost/api/calendar/calendar.ics");
+			const event = { url } as RequestEvent;
+
+			//@ts-ignore
+			const response = await GET_ICS(event);
 
 			expect(response.status).toBe(200);
 			expect(response.headers.get("Content-Type")).toBe("text/calendar; charset=utf-8");
@@ -63,7 +67,11 @@ describe("Calendar API", () => {
 
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
 
-			const response = await GET_ICS();
+			const url = new URL("http://localhost/api/calendar/calendar.ics");
+			const event = { url } as RequestEvent;
+
+			//@ts-ignore
+			const response = await GET_ICS(event);
 			const text = await response.text();
 
 			// Check basic structure
@@ -96,7 +104,11 @@ describe("Calendar API", () => {
 
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
 
-			const response = await GET_ICS();
+			const url = new URL("http://localhost/api/calendar/calendar.ics");
+			const event = { url } as RequestEvent;
+
+			//@ts-ignore
+			const response = await GET_ICS(event);
 			const text = await response.text();
 
 			expect(text).toContain("SUMMARY:Event\\, with\\; special chars");
@@ -119,7 +131,11 @@ describe("Calendar API", () => {
 
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
 
-			const response = await GET_ICS();
+			const url = new URL("http://localhost/api/calendar/calendar.ics");
+			const event = { url } as RequestEvent;
+
+			//@ts-ignore
+			const response = await GET_ICS(event);
 			const text = await response.text();
 
 			expect(text).toContain("SUMMARY:(no title)");

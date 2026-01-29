@@ -11,6 +11,7 @@ vi.mock("@sveltejs/kit", () => ({
 
 vi.mock("../../../src/lib/server/auth-middleware", () => ({
 	requirePermission: vi.fn(),
+	requireAdmin: vi.fn(),
 }));
 
 describe("Admin Page Server Load", () => {
@@ -46,6 +47,7 @@ describe("Admin Page Server Load", () => {
 		// So requirePermission likely returns null if not authorized but doesn't redirect itself?
 		// Let's assume requirePermission returns null if not authorized.
 		vi.mocked(authMiddleware.requirePermission).mockResolvedValue(null);
+		vi.mocked(authMiddleware.requireAdmin).mockResolvedValue(null);
 
 		try {
 			await load(event);
@@ -61,12 +63,13 @@ describe("Admin Page Server Load", () => {
 			locals: { session: { user: { id: 1 } } },
 		} as any;
 
-		const mockUser = { id: 1, permissions: Permission.ADMIN };
+		const mockUser = { id: 1, admin: true, permissions: Permission.ADMIN };
 		vi.mocked(authMiddleware.requirePermission).mockResolvedValue(mockUser as any);
+		vi.mocked(authMiddleware.requireAdmin).mockResolvedValue(mockUser as any);
 
 		const result = await load(event);
 
 		expect(result).toEqual({});
-		expect(authMiddleware.requirePermission).toHaveBeenCalledWith(event, Permission.ADMIN);
+		expect(authMiddleware.requireAdmin).toHaveBeenCalledWith(event);
 	});
 });

@@ -35,7 +35,8 @@
 
 	const maxPermissionLevel = $derived.by(() => {
 		if (!userData) return 0;
-		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
+		if (userData.admin) return Permission.ADMIN;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.ADMIN;
 		const membership = userData.memberships.find((m) => m.list_id === list.id);
 		return membership ? membership.permissions : 0;
 	});

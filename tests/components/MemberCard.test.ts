@@ -16,6 +16,7 @@ describe("MemberCard Component", () => {
 			email: "john.doe@example.com",
 			login: "john.doe",
 			promo: 2024,
+			admin: false,
 		},
 		role_name: "President",
 		permissions: 0,

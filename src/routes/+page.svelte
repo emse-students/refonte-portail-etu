@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Calendar from "$lib/components/calendar/Calendar.svelte";
+	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 
 	// load session
@@ -27,6 +28,20 @@
 		}
 		return false;
 	});
+
+	let showCalendarModal = $state(false);
+	let isCopied = $state(false);
+
+	const calendarUrl = $derived(`${page.url.origin}/api/calendar/calendar.ics`);
+	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
+
+	function copyLink() {
+		navigator.clipboard.writeText(calendarUrl);
+		isCopied = true;
+		setTimeout(() => {
+			isCopied = false;
+		}, 2000);
+	}
 </script>
 
 <svelte:head>
@@ -55,6 +70,9 @@
 			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
 		</h1>
 		<div class="actions">
+			<button class="btn-secondary" onclick={() => (showCalendarModal = true)}>
+				📅 S'abonner au calendrier
+			</button>
 			{#if canProposeEvent}
 				<a href="/events/propose" class="btn-primary">Gestion d'événements</a>
 			{/if}
@@ -64,6 +82,75 @@
 	<div class="calendar-fixed-container">
 		<Calendar showUnvalidated={true} {initialEvents} {initialDate} />
 	</div>
+
+	<Modal bind:open={showCalendarModal} title="Ajouter au calendrier">
+		<div style="padding: 1rem;">
+			<p>Pour ajouter les événements du portail à votre calendrier personnel :</p>
+
+			<div style="margin-bottom: 2rem;">
+				<h3
+					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
+				>
+					Google Agenda
+				</h3>
+				<ol style="margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.6;">
+					<li>Copiez le lien ci-dessous</li>
+					<li>
+						Ouvrez <a
+							href="https://calendar.google.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							style="color: var(--color-primary); text-decoration-line: underline;">Google Agenda</a
+						>
+					</li>
+					<li>
+						Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
+					</li>
+					<li>Sélectionnez <strong>À partir de l'URL</strong></li>
+					<li>Collez le lien et validez</li>
+				</ol>
+
+				<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+					<input
+						type="text"
+						readonly
+						value={calendarUrl}
+						style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
+						onclick={(e) => e.currentTarget.select()}
+					/>
+					<button
+						class="btn-secondary"
+						style="padding: 0.5rem 1rem; min-width: 80px;"
+						onclick={copyLink}
+					>
+						{isCopied ? "Copié !" : "Copier"}
+					</button>
+				</div>
+			</div>
+
+			<div>
+				<h3
+					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
+				>
+					Mobile (iOS / Android)
+				</h3>
+				<p style="margin-bottom: 1rem;">
+					Cliquez sur le bouton ci-dessous pour vous abonner automatiquement :
+				</p>
+				<a
+					href={webcalUrl}
+					class="btn-primary"
+					style="display: block; text-align: center; text-decoration: none;"
+				>
+					S'abonner automatiquement
+				</a>
+			</div>
+
+			<div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+				<button class="btn-secondary" onclick={() => (showCalendarModal = false)}>Fermer</button>
+			</div>
+		</div>
+	</Modal>
 </section>
 
 <style>
@@ -183,6 +270,29 @@
 		.calendar-fixed-container {
 			padding: 1.5rem;
 		}
+	}
+
+	.btn-secondary {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background-color: var(--color-bg-1);
+		color: var(--color-text);
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--radius-md);
+		font-weight: 600;
+		transition: all 0.2s ease;
+		border: 1px solid transparent;
+		cursor: pointer;
+	}
+
+	.btn-secondary:hover {
+		filter: brightness(0.95);
+		transform: translateY(-2px);
+	}
+
+	.btn-secondary:active {
+		transform: translateY(0);
 	}
 
 	@media (max-width: 768px) {

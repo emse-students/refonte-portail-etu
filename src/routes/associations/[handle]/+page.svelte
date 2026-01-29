@@ -6,6 +6,7 @@
 	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
+	import { page } from "$app/stores";
 	import { of } from "$lib/utils.js";
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
@@ -24,8 +25,23 @@
 	let showAddMemberModal = $state(false);
 	let showEditMemberModal = $state(false);
 	let showDeleteConfirmModal = $state(false);
+	let showCalendarModal = $state(false);
 	let selectedMember: Member | null = $state(null);
 	let memberToDelete: Member | null = $state(null);
+	let isCopied = $state(false);
+
+	const calendarUrl = $derived(
+		`${$page.url.origin}/api/calendar/calendar.ics?asso=${association.id}`
+	);
+	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
+
+	function copyLink() {
+		navigator.clipboard.writeText(calendarUrl);
+		isCopied = true;
+		setTimeout(() => {
+			isCopied = false;
+		}, 2000);
+	}
 
 	// Member editing/creation fields
 	let memberRoleName = $state("");
@@ -39,7 +55,7 @@
 
 	const maxPermissionLevel = $derived.by(() => {
 		if (!userData) return 0;
-		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.SITE_ADMIN;
+		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.ADMIN;
 		const membership = userData.memberships.find((m) => m.association_id === association.id);
 		return membership ? membership.permissions : 0;
 	});
@@ -61,18 +77,9 @@
 		return hasPermission(membership.permissions, Permission.MANAGE);
 	});
 
-	const canEditDetails = $derived.by(() => {
-		if (!userData) return false;
-		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
-		const membership = userData.memberships.find((m) => m.association_id === association.id);
-		if (!membership) return false;
-		return hasPermission(membership.permissions, Permission.ADMIN);
-	});
-
 	const adminButtonText = $derived.by(() => {
 		if (editMode) return "Terminer l'édition";
-		if (canEditDetails) return "Administration";
-		return "Gérer les membres";
+		return "Gérer l'association";
 	});
 
 	let showEditAssociationModal = $state(false);
@@ -244,7 +251,7 @@
 				<button class="action-btn" onclick={() => (editMode = !editMode)}>
 					{adminButtonText}
 				</button>
-				{#if editMode && canEditDetails}
+				{#if editMode}
 					<button class="action-btn secondary" onclick={openEditAssociationModal}>
 						Éditer les informations
 					</button>
@@ -318,7 +325,14 @@
 		{/if}
 
 		<section class="events-section">
-			<h2>Événements à venir</h2>
+			<div
+				style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;"
+			>
+				<h2 style="margin: 0;">Événements à venir</h2>
+				<button class="action-btn secondary" onclick={() => (showCalendarModal = true)}>
+					📅 Ajouter au calendrier
+				</button>
+			</div>
 			{#if events.length === 0}
 				<p class="empty-state">Aucun événement à venir pour cette association.</p>
 			{:else}
@@ -330,6 +344,53 @@
 			{/if}
 		</section>
 	</div>
+
+	<Modal bind:open={showCalendarModal} title="Ajouter au calendrier">
+		<div style="padding: 1rem;">
+			<p>Pour ajouter les événements de l'association à votre calendrier Google Agenda :</p>
+			<ol style="margin-left: 1.5rem; margin-bottom: 1.5rem; line-height: 1.6;">
+				<li>Copiez le lien ci-dessous</li>
+				<li>
+					Ouvrez <a
+						href="https://calendar.google.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						style="color: var(--color-primary); text-decoration-line: underline;">Google Agenda</a
+					>
+				</li>
+				<li>
+					Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
+				</li>
+				<li>Sélectionnez <strong>À partir de l'URL</strong></li>
+				<li>Collez le lien et validez</li>
+			</ol>
+
+			<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+				<input
+					type="text"
+					readonly
+					value={calendarUrl}
+					style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
+					onclick={(e) => e.currentTarget.select()}
+				/>
+				<button class="action-btn" style="min-width: 80px;" onclick={copyLink}>
+					{isCopied ? "Copié !" : "Copier"}
+				</button>
+			</div>
+
+			<a
+				href={webcalUrl}
+				class="action-btn"
+				style="display: block; text-align: center; margin-bottom: 1rem; text-decoration: none;"
+			>
+				S'abonner automatiquement (iOS/Android)
+			</a>
+
+			<div class="modal-actions">
+				<button class="primary-btn" onclick={() => (showCalendarModal = false)}>Fermer</button>
+			</div>
+		</div>
+	</Modal>
 
 	<Modal bind:open={showAddMemberModal} title="Ajouter un membre">
 		<div class="form-group">

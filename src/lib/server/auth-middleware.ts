@@ -35,7 +35,29 @@ export async function requirePermission(
 		return null;
 	}
 
+	if (user.admin) {
+		return user;
+	}
+
 	if (!hasPermission(user.permissions, permission)) {
+		return null;
+	}
+
+	return user;
+}
+
+/**
+ * Vérifie qu'un utilisateur est administrateur du site
+ * @param event RequestEvent de SvelteKit
+ * @returns Utilisateur si admin, null sinon
+ */
+export async function requireAdmin(event: RequestEvent): Promise<AuthenticatedUser | null> {
+	const user = await requireAuth(event);
+	if (!user) {
+		return null;
+	}
+
+	if (!user.admin) {
 		return null;
 	}
 
@@ -87,11 +109,32 @@ export async function checkPermission(
 		return { authorized: false, response: unauthorizedResponse() };
 	}
 
+	if (user.admin) {
+		return { authorized: true, user };
+	}
+
 	if (!hasPermission(user.permissions, permission)) {
 		return { authorized: false, response: forbiddenResponse() };
 	}
 
 	return { authorized: true, user };
+}
+
+export async function checkAdmin(
+	event: RequestEvent
+): Promise<
+	{ authorized: true; user: AuthenticatedUser } | { authorized: false; response: Response }
+> {
+	const user = await requireAuth(event);
+	if (!user) {
+		return { authorized: false, response: unauthorizedResponse() };
+	}
+
+	if (user.admin) {
+		return { authorized: true, user };
+	}
+
+	return { authorized: false, response: forbiddenResponse() };
 }
 
 /**
@@ -117,7 +160,7 @@ export function verifySessionConsistency(event: RequestEvent): boolean {
 
 /**
  * Vérifie qu'un utilisateur a une permission spécifique pour une association donnée
- * Les permissions globales (ADMIN, SITE_ADMIN) outrepassent les permissions d'association
+ * Les admins globaux outrepassent les permissions d'association
  *
  * @param user Utilisateur authentifié avec ses memberships
  * @param associationId ID de l'association concernée
@@ -129,8 +172,8 @@ export function hasAssociationPermission(
 	associationId: number,
 	permission: Permission
 ): boolean {
-	// Si l'utilisateur a la permission globalement, il l'a pour toutes les associations
-	if (hasPermission(user.permissions, permission)) {
+	// Si l'utilisateur est admin, il a la permission pour toutes les associations
+	if (hasPermission(user.permissions, Permission.ADMIN)) {
 		return true;
 	}
 
@@ -160,7 +203,7 @@ export function hasListPermission(
 	permission: Permission
 ): boolean {
 	// Global permission overrides
-	if (hasPermission(user.permissions, permission)) {
+	if (hasPermission(user.permissions, Permission.ADMIN)) {
 		return true;
 	}
 
@@ -246,8 +289,8 @@ export function getAuthorizedAssociationIds(
 	user: AuthenticatedUser,
 	permission: Permission
 ): number[] | null {
-	// Si l'utilisateur a la permission globalement, il a accès à toutes les associations
-	if (hasPermission(user.permissions, permission)) {
+	// Si l'utilisateur est admin, il a accès à toutes les associations
+	if (hasPermission(user.permissions, Permission.ADMIN)) {
 		return null; // null = toutes les associations
 	}
 
@@ -269,7 +312,7 @@ export function getAuthorizedListIds(
 	user: AuthenticatedUser,
 	permission: Permission
 ): number[] | null {
-	if (hasPermission(user.permissions, permission)) {
+	if (hasPermission(user.permissions, Permission.ADMIN)) {
 		return null;
 	}
 

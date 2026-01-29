@@ -31,6 +31,7 @@ export type RawUser = {
 	email: string;
 	login: string;
 	promo: number;
+	admin: boolean;
 	created_at: Date;
 	edited_at: Date;
 };
@@ -94,6 +95,7 @@ export type User = {
 	login: string;
 	email: string;
 	promo: number;
+	admin: boolean;
 };
 
 export type Member = {

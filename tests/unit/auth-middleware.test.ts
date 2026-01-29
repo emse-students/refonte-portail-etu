@@ -10,6 +10,7 @@ import {
 	checkAssociationPermission,
 	checkListPermission,
 	getAuthorizedListIds,
+	checkAdmin,
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -36,6 +37,7 @@ function createMockUser(permissions: number = 0, memberships: Member[] = []): Fu
 		promo: 2024,
 		permissions,
 		memberships,
+		admin: false,
 	};
 }
 

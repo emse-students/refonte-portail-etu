@@ -105,7 +105,7 @@
 
 	const isGlobalEventManager = $derived.by(() => {
 		if (!user) return false;
-		return hasPermission(user.permissions, Permission.MANAGE);
+		if (hasPermission(user.permissions, Permission.ADMIN)) return true;
 	});
 
 	function requestCloseAndValidate() {

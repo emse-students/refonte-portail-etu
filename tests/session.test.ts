@@ -26,6 +26,7 @@ describe("Session System", () => {
 		email: "test.user@etu.emse.fr",
 		promo: 2024,
 		permissions: 0,
+		admin: false,
 		memberships: [
 			{
 				id: 1,
@@ -39,6 +40,7 @@ describe("Session System", () => {
 					login: "test.user",
 					email: "test.user@etu.emse.fr",
 					promo: 2024,
+					admin: false,
 				},
 				role_name: "Membre",
 				permissions: 1,
@@ -56,6 +58,7 @@ describe("Session System", () => {
 					login: "test.user",
 					email: "test.user@etu.emse.fr",
 					promo: 2024,
+					admin: false,
 				},
 				role_name: "Membre Liste",
 				permissions: 2,

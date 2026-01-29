@@ -27,6 +27,7 @@ type SessionData = {
 	email: string;
 	login: string;
 	promo: number;
+	admin: boolean;
 	lists: CompactMembership[];
 	associations: CompactMembership[];
 };
@@ -43,6 +44,7 @@ function compactUserData(userData: FullUser): SessionData {
 		login: userData.login,
 		permissions: userData.permissions,
 		promo: userData.promo,
+		admin: userData.admin,
 		lists: userData.memberships
 			.filter((m) => m.list_id !== null && m.list_id !== undefined)
 			.map((m) => ({
@@ -104,7 +106,7 @@ function decryptData(encryptedData: string): SessionData | null {
 
 		return JSON.parse(decrypted.toString("utf8")) as SessionData;
 	} catch (error) {
-		// console.error("Erreur lors du déchiffrement des données de session:", error);
+		console.error("Erreur lors du déchiffrement des données de session:", error);
 		return null;
 	}
 }
@@ -121,6 +123,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 		login: sessionData.login,
 		permissions: sessionData.permissions,
 		promo: sessionData.promo,
+		admin: sessionData.admin,
 		memberships: [
 			...sessionData.lists.map((m) => ({
 				id: 0, // ID de membre inconnu
@@ -131,6 +134,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					email: sessionData.email,
 					login: sessionData.login,
 					promo: sessionData.promo,
+					admin: sessionData.admin,
 				},
 				role_name: "",
 				permissions: m.permissions,
@@ -148,6 +152,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 					email: sessionData.email,
 					login: sessionData.login,
 					promo: sessionData.promo,
+					admin: sessionData.admin,
 				},
 				role_name: "",
 				permissions: m.permissions,

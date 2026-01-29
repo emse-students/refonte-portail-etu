@@ -17,10 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.2.x
+      #      - name: Setup Bun
+      #        uses: oven-sh/setup-bun@v2.1.0
+      #        with:
+      #          bun-version: latest
 
       - name: Install dependencies
         run: |

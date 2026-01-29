@@ -1,12 +1,11 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { requirePermission } from "$lib/server/auth-middleware";
-import Permission from "$lib/permissions";
+import { requireAdmin } from "$lib/server/auth-middleware";
 import logger from "$lib/server/logger";
 import fs from "fs";
 
 export const load: PageServerLoad = async (event) => {
-	const user = await requirePermission(event, Permission.ADMIN);
+	const user = await requireAdmin(event);
 
 	if (!event.locals.session) {
 		throw redirect(303, "/auth/signin");

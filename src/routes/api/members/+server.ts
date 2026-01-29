@@ -1,6 +1,6 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
 import db from "$lib/server/database";
-import Permission, { hasPermission } from "$lib/permissions";
+import Permission from "$lib/permissions";
 import {
 	requireAuth,
 	getAuthorizedAssociationIds,
@@ -75,8 +75,8 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	let maxPermissions = 0;
-	if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
-		maxPermissions = Permission.SITE_ADMIN;
+	if (authCheck.user.admin) {
+		maxPermissions = Permission.ADMIN;
 	} else {
 		const membership = authCheck.user.memberships.find((m) => m.association_id === association_id);
 		if (membership) {
@@ -153,8 +153,8 @@ export const PUT = async (event: RequestEvent) => {
 	const targetAssociationId = association_id || existingMember.association_id;
 
 	let maxPermissions = 0;
-	if (hasPermission(authCheck.user.permissions, Permission.ADMIN)) {
-		maxPermissions = Permission.SITE_ADMIN;
+	if (authCheck.user.admin) {
+		maxPermissions = Permission.ADMIN;
 	} else {
 		const membership = authCheck.user.memberships.find(
 			(m) => m.association_id === targetAssociationId

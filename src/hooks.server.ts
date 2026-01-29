@@ -53,34 +53,21 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				// Récupérer les memberships avec un JOIN
 				const membershipsData = (await db`
 					SELECT 
-						m.id as member_id, 
-						m.visible, 
-						m.association_id,
-						u.id as user_id, 
-						u.first_name, 
-						u.last_name,
-						u.promo as user_promo,
-						u.email as user_email, 
-						u.login as user_login,
-						m.role_name as role_name, 
-						m.permissions as role_permissions, 
-						m.hierarchy as hierarchy
-					FROM member m
-					JOIN user u ON m.user_id = u.id
-					WHERE m.user_id = ${user.id}
+						id as member_id, 
+						visible, 
+						association_id,
+						role_name, 
+						permissions as role_permissions, 
+						hierarchy
+					FROM member
+					WHERE user_id = ${user.id}
 				`) as {
 					member_id: number;
 					visible: boolean;
 					association_id: number;
-					user_id: number;
-					first_name: string;
-					last_name: string;
-					user_email: string;
-					user_login: string;
 					role_name: string;
 					role_permissions: number;
 					hierarchy: number;
-					user_promo: number;
 				}[];
 
 				const memberships: Member[] = membershipsData.map((m) => ({
@@ -88,14 +75,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					visible: m.visible,
 					association_id: m.association_id,
 					list_id: null,
-					user: {
-						id: m.user_id,
-						first_name: m.first_name,
-						last_name: m.last_name,
-						email: m.user_email,
-						login: m.user_login,
-						promo: m.user_promo,
-					},
+					user,
 					role_name: m.role_name,
 					permissions: m.role_permissions,
 					hierarchy: m.hierarchy,
@@ -103,10 +83,14 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 
 				// Calculer les permissions globales
 				let globalPermissions = 0;
-				const maxPermissions = Math.max(...memberships.map((m) => m.permissions));
-				if (maxPermissions >= Permission.SITE_ADMIN) {
-					globalPermissions = Permission.SITE_ADMIN;
-				} else if (maxPermissions >= Permission.ADMIN) {
+				if (memberships.length > 0) {
+					const maxPermissions = Math.max(...memberships.map((m) => m.permissions));
+					if (maxPermissions >= Permission.ADMIN) {
+						globalPermissions = Permission.ADMIN;
+					}
+				}
+
+				if (user.admin) {
 					globalPermissions = Permission.ADMIN;
 				}
 
