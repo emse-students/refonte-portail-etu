@@ -237,8 +237,8 @@ Permissions par Association (Mis à jour)</h1>
 <h2 id="vue-densemble">Vue d’ensemble</h2>
 <p>Le système de permissions a été étendu pour gérer les permissions au
 niveau des associations. Les utilisateurs peuvent avoir des permissions
-globales (ADMIN, SITE_ADMIN) ou des permissions spécifiques à certaines
-associations via leurs memberships.</p>
+globales (ADMIN) ou des permissions spécifiques à certaines associations
+via leurs memberships.</p>
 <h2 id="architecture">Architecture</h2>
 <h3 id="types-de-permissions">Types de Permissions</h3>
 <p>Le système utilise une hiérarchie de permissions basée sur des
@@ -252,17 +252,12 @@ seule)</li>
 <li><code>MANAGE</code> (1) : Gestion des membres et des événements</li>
 <li><code>ADMIN</code> (2) : Administration complète de l’association
 (accès à toutes les ressources)</li>
-<li><code>SITE_ADMIN</code> (3) : Super Administrateur (accès à tout le
-site, outrepasse toutes les permissions)</li>
 </ul>
 <h3 id="logique-dautorisation">Logique d’Autorisation</h3>
 <ol type="1">
-<li><strong>Permissions Globales</strong>
+<li><strong>Admin Site</strong>
 <ul>
-<li>Stockées dans <code>user.permissions</code>.</li>
-<li>Si un utilisateur a une permission globale suffisante (ex:
-<code>SITE_ADMIN</code>), il a accès à <strong>toutes</strong> les
-associations et listes.</li>
+<li>Un utilisateur est admin site si user.admin vaut true.</li>
 </ul></li>
 <li><strong>Permissions d’Association / Liste</strong>
 <ul>
@@ -298,8 +293,7 @@ id="hasassociationpermissionuser-associationid-permission"><code>hasAssociationP
 spécifique.</p>
 <p><strong>Comportement :</strong></p>
 <ul>
-<li>Les admins globaux (ADMIN, SITE_ADMIN) ont toutes les
-permissions</li>
+<li>Les admins globaux (ADMIN) ont toutes les permissions</li>
 <li>Sinon, vérifie les memberships de l’utilisateur pour l’association
 donnée</li>
 <li>Retourne <code>true</code> si l’utilisateur a le membership avec la
@@ -405,7 +399,7 @@ class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb4-
 <p><strong>Vérifications :</strong></p>
 <ol type="1">
 <li>L’utilisateur est-il authentifié ?</li>
-<li>A-t-il ADMIN ou SITE_ADMIN ? → OK</li>
+<li>A-t-il ADMIN ? → OK</li>
 <li>Sinon, a-t-il un membership dans l’association 5 avec permission
 EVENTS ? → OK ou 403</li>
 </ol>
@@ -422,8 +416,8 @@ a EVENTS</li>
 <h2 id="notes-importantes">Notes Importantes</h2>
 <ol type="1">
 <li><strong>Admins Globaux</strong> : Les utilisateurs avec
-<code>ADMIN</code> ou <code>SITE_ADMIN</code> outrepassent toutes les
-restrictions d’association</li>
+<code>ADMIN</code> (ou user.admin) outrepassent toutes les restrictions
+d’association</li>
 <li><strong>Validation</strong> : Toutes les routes vérifient
 l’existence de l’entité avant de vérifier les permissions</li>
 <li><strong>Changement d’association</strong> : Lors de la modification
