@@ -1,5 +1,6 @@
-import db from "$lib/server/database";
+import db, { escape, getPool } from "$lib/server/database";
 import type { RequestEvent } from "./$types";
+import type { RowDataPacket } from "mysql2/promise";
 
 function toICSDate(d: Date) {
 	// Ensure UTC and format YYYYMMDDTHHMMSSZ
@@ -22,22 +23,32 @@ function escapeICS(text: string | null | undefined) {
 export async function GET({ url }: RequestEvent) {
 	const assoId = url.searchParams.get("asso") ? Number(url.searchParams.get("asso")) : null;
 
-	let query = db`
-    SELECT e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, a.name as association_name
-    FROM event e
-    LEFT JOIN association a ON e.association_id = a.id
-    WHERE e.end_date >= CURRENT_TIMESTAMP AND e.validated = true
-  `;
+	let queryString =
+		"SELECT e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, a.name as association_name \
+    FROM event e \
+    LEFT JOIN association a ON e.association_id = a.id \
+    WHERE e.end_date >= CURRENT_TIMESTAMP AND e.validated = true";
 
 	if (assoId) {
-		query = db`
-      ${query} AND e.association_id = ${assoId}
-    `;
+		queryString += ` AND e.association_id = ${escape(assoId)} `;
 	}
 
-	query = db`${query} ORDER BY e.start_date ASC`;
+	queryString += " ORDER BY e.start_date ASC";
 
-	const rows = await query;
+	const rows = await getPool()
+		.query<
+			({
+				id: number;
+				title: string | null;
+				start_date: string;
+				end_date: string;
+				description: string | null;
+				location: string | null;
+				association_id: number | null;
+				association_name: string | null;
+			} & RowDataPacket)[]
+		>(queryString)
+		.then((res) => res[0]);
 
 	const icsLines: string[] = [];
 	icsLines.push("BEGIN:VCALENDAR");
