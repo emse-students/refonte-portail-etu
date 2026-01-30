@@ -35,8 +35,8 @@ export async function GET({ url }: RequestEvent) {
 
 	queryString += " ORDER BY e.start_date ASC";
 
-	const rows = await getPool()
-		.query<
+	const rows = (
+		await getPool().query<
 			({
 				id: number;
 				title: string | null;
@@ -48,7 +48,7 @@ export async function GET({ url }: RequestEvent) {
 				association_name: string | null;
 			} & RowDataPacket)[]
 		>(queryString)
-		.then((res) => res[0]);
+	)[0];
 
 	const icsLines: string[] = [];
 	icsLines.push("BEGIN:VCALENDAR");
