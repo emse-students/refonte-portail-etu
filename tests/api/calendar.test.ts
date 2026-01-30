@@ -27,13 +27,14 @@ describe("Calendar API", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-			query: vi.fn().mockResolvedValue([]),
+			query: vi.fn().mockResolvedValue([[], undefined]),
 		});
 	});
 
 	describe("ICS Endpoint", () => {
 		it("should return correct ICS headers", async () => {
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+			const queryMock = vi.fn().mockResolvedValue([[], undefined]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ query: queryMock });
 
 			const url = new URL("http://localhost/api/calendar/calendar.ics");
 			const event = { url } as RequestEvent;
@@ -65,7 +66,8 @@ describe("Calendar API", () => {
 				},
 			];
 
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
+			const queryMock = vi.fn().mockResolvedValue([mockEvents, undefined]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ query: queryMock });
 
 			const url = new URL("http://localhost/api/calendar/calendar.ics");
 			const event = { url } as RequestEvent;
@@ -102,7 +104,8 @@ describe("Calendar API", () => {
 				},
 			];
 
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
+			const queryMock = vi.fn().mockResolvedValue([mockEvents, undefined]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ query: queryMock });
 
 			const url = new URL("http://localhost/api/calendar/calendar.ics");
 			const event = { url } as RequestEvent;
@@ -129,7 +132,8 @@ describe("Calendar API", () => {
 				},
 			];
 
-			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockEvents);
+			const queryMock = vi.fn().mockResolvedValue([mockEvents, undefined]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ query: queryMock });
 
 			const url = new URL("http://localhost/api/calendar/calendar.ics");
 			const event = { url } as RequestEvent;
