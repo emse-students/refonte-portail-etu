@@ -50,6 +50,7 @@
 <svelte:window onkeydown={handleKeydown} onpopstate={handlePopstate} />
 
 {#if open}
+	<div class="backdrop-visual" transition:fade={{ duration: 200 }}></div>
 	<div
 		class="modal-backdrop"
 		onclick={close}
@@ -85,18 +86,29 @@
 {/if}
 
 <style>
-	.modal-backdrop {
+	.backdrop-visual {
 		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 		background: rgba(0, 0, 0, 0.5);
+		z-index: 1000;
+		backdrop-filter: blur(4px);
+		pointer-events: none;
+	}
+
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		/* background and backdrop-filter moved to .backdrop-visual */
 		display: flex;
 		align-items: flex-start;
 		justify-content: center;
 		z-index: 1000;
-		backdrop-filter: blur(4px);
 		overflow-y: auto;
 		padding: 2rem 0;
 		cursor: pointer;

@@ -101,19 +101,6 @@
 		</ul>
 	</nav>
 	<div class="header-right">
-		<button
-			class="theme-toggle"
-			onclick={toggleTheme}
-			aria-label={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
-		>
-			{#if isDark}
-				<!-- Sun icon -->
-				<Sun width="20" height="20" class="icon" />
-			{:else}
-				<!-- Moon icon -->
-				<Moon width="20" height="20" class="icon" />
-			{/if}
-		</button>
 		{#if user}
 			<button onclick={() => signOut()} class="login-btn">Se déconnecter</button>
 		{:else}

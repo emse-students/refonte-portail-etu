@@ -6,8 +6,8 @@
 	// load session
 	import { page } from "$app/state";
 	import type { RawEvent } from "$lib/databasetypes";
-	let session = page.data.session;
-	let user = page.data.userData;
+	let session = $derived(page.data.session);
+	let user = $derived(page.data.userData);
 	let initialEvents = $derived(
 		page.data.initialEvents?.map((e: RawEvent) => ({
 			...e,
@@ -65,7 +65,7 @@
 </svelte:head>
 
 <section>
-	<div class="header-row">
+	<div class="header-container">
 		<h1>
 			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
 		</h1>
@@ -168,36 +168,30 @@
 	}
 
 	h1 {
-		width: 100%;
 		font-size: 2.5rem;
 		font-weight: 700;
-		margin-bottom: 2rem;
 		color: var(--color-primary);
 		letter-spacing: -0.02em;
+		text-align: center;
+		margin: 0;
 		/* Removed animation to improve LCP */
 	}
 
-	.header-row {
+	.header-container {
 		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		display: flex;
+		flex-direction: column;
 		align-items: center;
 		margin-bottom: 2rem;
-	}
-
-	.header-row h1 {
-		grid-column: 2;
-		margin-bottom: 0;
-		width: auto;
-		text-align: center;
+		gap: 1.5rem;
 	}
 
 	.actions {
-		grid-column: 3;
-		justify-self: end;
 		display: flex;
 		gap: 1rem;
 		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.btn-primary {
