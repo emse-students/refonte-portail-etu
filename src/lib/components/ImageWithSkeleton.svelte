@@ -52,11 +52,6 @@
 		animation: shimmer 1.5s infinite;
 	}
 
-	/* Dark mode support for skeleton */
-	:global([data-theme="dark"]) .skeleton {
-		background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
-	}
-
 	@keyframes shimmer {
 		0% {
 			background-position: 200% 0;

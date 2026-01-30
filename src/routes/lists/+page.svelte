@@ -267,10 +267,6 @@
 		background: var(--color-primary-dark);
 	}
 
-	:global([data-theme="dark"]) .primary-btn:hover {
-		background: var(--color-primary-light);
-	}
-
 	.container {
 		max-width: 1400px;
 		margin: 0 auto;
@@ -338,10 +334,6 @@
 		background: var(--color-primary-dark);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-lg);
-	}
-
-	:global([data-theme="dark"]) .promo-header:hover {
-		background: var(--color-primary-light);
 	}
 
 	.promo-header h2 {

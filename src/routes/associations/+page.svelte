@@ -216,10 +216,6 @@
 		background: var(--color-primary-dark);
 	}
 
-	:global([data-theme="dark"]) .primary-btn:hover {
-		background: var(--color-primary-light);
-	}
-
 	.container {
 		max-width: 1400px;
 		margin: 0 auto;
@@ -340,43 +336,6 @@
 		font-size: 1rem;
 		color: var(--color-text-light);
 		margin: 0;
-	}
-
-	:global([data-theme="dark"]) header h1 {
-		color: var(--accent-primary);
-	}
-
-	:global([data-theme="dark"]) header p {
-		color: var(--text-secondary);
-	}
-
-	:global([data-theme="dark"]) .search-input {
-		background: var(--bg-secondary);
-		border-color: var(--color-text-light);
-		color: var(--text-primary);
-	}
-
-	:global([data-theme="dark"]) .search-input:focus {
-		border-color: var(--accent-primary);
-		box-shadow: var(--shadow-md);
-	}
-
-	:global([data-theme="dark"]) .search-input::placeholder {
-		color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .clear-btn {
-		background: var(--bg-secondary);
-		color: var(--text-secondary);
-	}
-
-	:global([data-theme="dark"]) .clear-btn:hover {
-		background: var(--accent-primary);
-		color: var(--color-text-on-primary);
-	}
-
-	:global([data-theme="dark"]) .no-results h2 {
-		color: var(--text-secondary);
 	}
 
 	.grid {

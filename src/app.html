@@ -6,15 +6,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="google-site-verification" content="U_WqYWDs5Qycn5TjgaXSPrUhAeElz4arf4lneGqfyGI" />
 		<link rel="preload" as="image" href="%sveltekit.assets%/logo.png" />
-		<script>
-			(function () {
-				const savedTheme = localStorage.getItem("theme");
-				const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-				if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-					document.documentElement.setAttribute("data-theme", "dark");
-				}
-			})();
-		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

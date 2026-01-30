@@ -130,37 +130,6 @@
 		color: var(--color-primary);
 	}
 
-	/* Dark mode support */
-	:global([data-theme="dark"]) .association-card {
-		background: var(--bg-secondary);
-		border-color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .association-card:hover {
-		border-color: var(--color-secondary);
-		box-shadow: var(--shadow-lg);
-	}
-
-	:global([data-theme="dark"]) .association-card::before {
-		background: var(--color-secondary);
-	}
-
-	:global([data-theme="dark"]) :global(.association-logo) {
-		background: var(--bg-secondary);
-	}
-
-	:global([data-theme="dark"]) .association-logo-placeholder {
-		background: var(--color-primary);
-	}
-
-	:global([data-theme="dark"]) .association-name {
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .association-card:hover .association-name {
-		color: var(--color-secondary);
-	}
-
 	@media (max-width: 768px) {
 		:global(.association-logo),
 		.association-logo-placeholder {

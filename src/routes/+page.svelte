@@ -33,6 +33,9 @@
 	let isCopied = $state(false);
 
 	const calendarUrl = $derived(`${page.url.origin}/api/calendar/calendar.ics`);
+	const googleCalendarUrl = $derived(
+		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl)}`
+	);
 	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
 
 	function copyLink() {
@@ -91,48 +94,63 @@
 				<h3
 					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
 				>
-					Google Agenda
+					Google Agenda / Android
 				</h3>
-				<ol style="margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.6;">
-					<li>Copiez le lien ci-dessous</li>
-					<li>
-						Ouvrez <a
-							href="https://calendar.google.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							style="color: var(--color-primary); text-decoration-line: underline;">Google Agenda</a
-						>
-					</li>
-					<li>
-						Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
-					</li>
-					<li>Sélectionnez <strong>À partir de l'URL</strong></li>
-					<li>Collez le lien et validez</li>
-				</ol>
+				<a
+					href={googleCalendarUrl}
+					target="_blank"
+					class="btn-primary"
+					style="display: block; text-align: center; text-decoration: none; margin-bottom: 1rem;"
+				>
+					Ajouter à Google Agenda
+				</a>
 
-				<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-					<input
-						type="text"
-						readonly
-						value={calendarUrl}
-						style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
-						onclick={(e) => e.currentTarget.select()}
-					/>
-					<button
-						class="btn-secondary"
-						style="padding: 0.5rem 1rem; min-width: 80px;"
-						onclick={copyLink}
+				<details>
+					<summary style="cursor: pointer; color: var(--color-text-light);"
+						>Ou ajouter manuellement</summary
 					>
-						{isCopied ? "Copié !" : "Copier"}
-					</button>
-				</div>
+					<ol style="margin-left: 1.5rem; margin-top: 1rem; margin-bottom: 1rem; line-height: 1.6;">
+						<li>Copiez le lien ci-dessous</li>
+						<li>
+							Ouvrez <a
+								href="https://calendar.google.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								style="color: var(--color-primary); text-decoration-line: underline;"
+								>Google Agenda</a
+							>
+						</li>
+						<li>
+							Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
+						</li>
+						<li>Sélectionnez <strong>À partir de l'URL</strong></li>
+						<li>Collez le lien et validez</li>
+					</ol>
+
+					<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+						<input
+							type="text"
+							readonly
+							value={calendarUrl}
+							style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
+							onclick={(e) => e.currentTarget.select()}
+						/>
+						<button
+							class="btn-secondary"
+							style="padding: 0.5rem 1rem; min-width: 80px;"
+							onclick={copyLink}
+						>
+							{isCopied ? "Copié !" : "Copier"}
+						</button>
+					</div>
+				</details>
 			</div>
 
 			<div>
 				<h3
 					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
 				>
-					Mobile (iOS / Android)
+					iOS (Apple Calendar) / Autres
 				</h3>
 				<p style="margin-bottom: 1rem;">
 					Cliquez sur le bouton ci-dessous pour vous abonner automatiquement :
@@ -207,15 +225,6 @@
 
 	.btn-primary:hover {
 		background-color: var(--color-primary-dark);
-	}
-
-	:global([data-theme="dark"]) h1 {
-		color: var(--accent-primary);
-	}
-
-	:global([data-theme="dark"]) .calendar-fixed-container {
-		background: var(--bg-secondary);
-		box-shadow: var(--shadow-lg);
 	}
 
 	@keyframes fadeInDown {

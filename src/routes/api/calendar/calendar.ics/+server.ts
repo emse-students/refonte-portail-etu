@@ -1,4 +1,4 @@
-import db, { escape, getPool } from "$lib/server/database";
+import { escape, getPool } from "$lib/server/database";
 import type { RequestEvent } from "./$types";
 import type { RowDataPacket } from "mysql2/promise";
 

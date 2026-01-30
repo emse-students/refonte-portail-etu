@@ -347,43 +347,6 @@
 		color: var(--color-secondary);
 	}
 
-	:global([data-theme="dark"]) .modal {
-		background: var(--bg-secondary, #1f2937);
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-	}
-
-	:global([data-theme="dark"]) .modal-content h2 {
-		color: var(--text-primary, #f7fafc);
-	}
-
-	:global([data-theme="dark"]) .modal-section {
-		color: var(--text-secondary, #cbd5e0);
-	}
-
-	:global([data-theme="dark"]) .modal-section strong {
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .modal-section a {
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .close-btn {
-		background: var(--color-bg-1);
-		color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .close-btn:hover,
-	:global([data-theme="dark"]) .close-btn:focus {
-		background: var(--color-secondary);
-		color: white;
-	}
-
-	/* Tone down event pills in dark mode */
-	:global([data-theme="dark"]) .event-stack-item {
-		filter: brightness(0.85);
-	}
-
 	@keyframes fadeIn {
 		from {
 			opacity: 0;

@@ -33,6 +33,9 @@
 	const calendarUrl = $derived(
 		`${$page.url.origin}/api/calendar/calendar.ics?asso=${association.id}`
 	);
+	const googleCalendarUrl = $derived(
+		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl)}`
+	);
 	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
 
 	function copyLink() {
@@ -347,44 +350,76 @@
 
 	<Modal bind:open={showCalendarModal} title="Ajouter au calendrier">
 		<div style="padding: 1rem;">
-			<p>Pour ajouter les événements de l'association à votre calendrier Google Agenda :</p>
-			<ol style="margin-left: 1.5rem; margin-bottom: 1.5rem; line-height: 1.6;">
-				<li>Copiez le lien ci-dessous</li>
-				<li>
-					Ouvrez <a
-						href="https://calendar.google.com"
-						target="_blank"
-						rel="noopener noreferrer"
-						style="color: var(--color-primary); text-decoration-line: underline;">Google Agenda</a
-					>
-				</li>
-				<li>
-					Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
-				</li>
-				<li>Sélectionnez <strong>À partir de l'URL</strong></li>
-				<li>Collez le lien et validez</li>
-			</ol>
+			<p>Pour ajouter les événements de l'association à votre calendrier personnel :</p>
 
-			<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-				<input
-					type="text"
-					readonly
-					value={calendarUrl}
-					style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
-					onclick={(e) => e.currentTarget.select()}
-				/>
-				<button class="action-btn" style="min-width: 80px;" onclick={copyLink}>
-					{isCopied ? "Copié !" : "Copier"}
-				</button>
+			<div style="margin-bottom: 2rem;">
+				<h3
+					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
+				>
+					Google Agenda / Android
+				</h3>
+				<a
+					href={googleCalendarUrl}
+					target="_blank"
+					class="action-btn"
+					style="display: block; text-align: center; text-decoration: none; margin-bottom: 1rem;"
+				>
+					Ajouter à Google Agenda
+				</a>
+
+				<details>
+					<summary style="cursor: pointer; color: var(--color-text-light);"
+						>Ou ajouter manuellement</summary
+					>
+					<ol
+						style="margin-left: 1.5rem; margin-top: 1rem; margin-bottom: 1.5rem; line-height: 1.6;"
+					>
+						<li>Copiez le lien ci-dessous</li>
+						<li>
+							Ouvrez <a
+								href="https://calendar.google.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								style="color: var(--color-primary); text-decoration-line: underline;"
+								>Google Agenda</a
+							>
+						</li>
+						<li>
+							Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
+						</li>
+						<li>Sélectionnez <strong>À partir de l'URL</strong></li>
+						<li>Collez le lien et validez</li>
+					</ol>
+
+					<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+						<input
+							type="text"
+							readonly
+							value={calendarUrl}
+							style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
+							onclick={(e) => e.currentTarget.select()}
+						/>
+						<button class="action-btn" style="min-width: 80px;" onclick={copyLink}>
+							{isCopied ? "Copié !" : "Copier"}
+						</button>
+					</div>
+				</details>
 			</div>
 
-			<a
-				href={webcalUrl}
-				class="action-btn"
-				style="display: block; text-align: center; margin-bottom: 1rem; text-decoration: none;"
-			>
-				S'abonner automatiquement (iOS/Android)
-			</a>
+			<div>
+				<h3
+					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
+				>
+					iOS (Apple Calendar) / Autres
+				</h3>
+				<a
+					href={webcalUrl}
+					class="action-btn"
+					style="display: block; text-align: center; margin-bottom: 1rem; text-decoration: none;"
+				>
+					S'abonner automatiquement
+				</a>
+			</div>
 
 			<div class="modal-actions">
 				<button class="primary-btn" onclick={() => (showCalendarModal = false)}>Fermer</button>

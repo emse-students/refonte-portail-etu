@@ -3,8 +3,6 @@
 	import { page } from "$app/state";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 	import { onMount, tick } from "svelte";
-	import Sun from "$lib/components/icons/Sun.svelte";
-	import Moon from "$lib/components/icons/Moon.svelte";
 
 	// Load the associations and lists from the api
 
@@ -16,21 +14,7 @@
 	let underlineStyle = $state("");
 
 	// Theme state
-	let isDark = $state(false);
 	let isMenuOpen = $state(false);
-
-	function toggleTheme() {
-		isDark = !isDark;
-		if (typeof document !== "undefined") {
-			if (isDark) {
-				document.documentElement.setAttribute("data-theme", "dark");
-				localStorage.setItem("theme", "dark");
-			} else {
-				document.documentElement.removeAttribute("data-theme");
-				localStorage.setItem("theme", "light");
-			}
-		}
-	}
 
 	function updateUnderline() {
 		if (typeof window === "undefined" || !navUl) return;
@@ -51,9 +35,6 @@
 	}
 
 	onMount(() => {
-		// Initialize theme state from DOM (handled by app.html script)
-		isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
 		updateUnderline();
 		// Update on window resize
 		window.addEventListener("resize", updateUnderline);

@@ -66,42 +66,6 @@
 	color: var(--color-text);
 }
 
-[data-theme="dark"] {
-	/* Dark mode palette */
-	--color-primary: #6423b8; /* Steel Blue */
-	--color-primary-light: #778da9;
-	--color-primary-dark: #1b263b;
-	--color-secondary: #e09f3e; /* Gold pops on dark */
-	--color-accent: #e0e1dd;
-	--color-accent-light: #f4f1de;
-
-	/* Dark backgrounds */
-	--color-bg-0: #0d1b2a;
-	--color-bg-1: #1b263b;
-	--color-bg-2: #25324b; /* Slightly lighter navy */
-	--color-bg-gradient-start: #0d1b2a;
-	--color-bg-gradient-mid: #1b263b;
-	--color-bg-gradient-end: #0d1b2a;
-
-	/* Text */
-	--color-text: #e0e1dd;
-	--color-text-light: #a9b4c2;
-	--color-text-on-dark: #e0e1dd;
-	--color-text-on-primary: #0d1b2a;
-
-	/* Shadows adjusted for dark mode */
-	--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-	--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-
-	/* Aliases for components */
-	--text-primary: var(--color-text);
-	--text-secondary: var(--color-text-light);
-	--bg-secondary: var(--color-bg-2);
-	--accent-primary: var(--color-primary);
-}
-
 * {
 	box-sizing: border-box;
 }

@@ -602,16 +602,6 @@
 		border-radius: 8px;
 	}
 
-	/* Dark mode support for skeleton */
-	:global([data-theme="dark"]) .calendar-cell-skeleton {
-		background: linear-gradient(
-			90deg,
-			var(--color-bg-2) 25%,
-			var(--color-bg-1) 50%,
-			var(--color-bg-2) 75%
-		);
-	}
-
 	@keyframes shimmer {
 		0% {
 			background-position: 200% 0;
@@ -629,73 +619,5 @@
 	.desktop-view td {
 		height: 158px;
 		vertical-align: top;
-	}
-
-	/* Dark mode support for calendar */
-
-	:global([data-theme="dark"]) .calendar-title-main {
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .calendar-title-sub {
-		color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .calendar-title-sub b {
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow {
-		background: var(--color-bg-1);
-		border-color: var(--color-bg-2);
-		color: var(--color-text);
-	}
-
-	:global([data-theme="dark"]) .calendar-arrow:hover {
-		background: var(--color-primary);
-		border-color: var(--color-primary);
-		color: var(--color-text-on-primary);
-	}
-
-	:global([data-theme="dark"]) .calendar-weekdays-row {
-		background: var(--color-bg-1);
-	}
-
-	:global([data-theme="dark"]) .calendar-weekday-header {
-		color: var(--color-text);
-		border-bottom-color: var(--color-text-light);
-	}
-
-	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-track {
-		background: var(--color-bg-1);
-	}
-
-	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb {
-		background: var(--color-primary-light);
-	}
-
-	:global([data-theme="dark"]) .calendar-table-wrapper::-webkit-scrollbar-thumb:hover {
-		background: var(--color-bg-2);
-	}
-
-	/* Mobile dark mode */
-	:global([data-theme="dark"]) .calendar-month-label {
-		background: var(--color-bg-1);
-		color: var(--color-text);
-		border-bottom-color: var(--color-bg-2);
-	}
-
-	:global([data-theme="dark"]) .mobile-day {
-		background: var(--color-bg-0);
-		border-bottom-color: var(--color-bg-2);
-	}
-
-	:global([data-theme="dark"]) .mobile-day.is-today .mobile-date-column .day-number {
-		background: var(--color-primary);
-		color: var(--color-text-on-primary);
-	}
-
-	:global([data-theme="dark"]) .no-events {
-		color: var(--color-text-light);
 	}
 </style>
