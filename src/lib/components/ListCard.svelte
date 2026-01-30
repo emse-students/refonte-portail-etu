@@ -82,8 +82,8 @@
 	}
 
 	:global(.list-logo) {
-		width: 100%;
-		height: 250px;
+		width: 200px;
+		height: 200px;
 		object-fit: cover;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
@@ -91,8 +91,8 @@
 	}
 
 	.list-logo-placeholder {
-		width: 100%;
-		height: 250px;
+		width: 200px;
+		height: 200px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

@@ -79,16 +79,16 @@
 	}
 
 	:global(.association-logo) {
-		width: 100%;
-		height: 250px;
+		width: 200px;
+		height: 200px;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
 		box-sizing: border-box;
 	}
 
 	.association-logo-placeholder {
-		width: 100%;
-		height: 250px;
+		width: 200px;
+		height: 200px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
