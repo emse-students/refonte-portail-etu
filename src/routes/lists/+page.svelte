@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { List } from "$lib/databasetypes";
+	import type { Association, List } from "$lib/databasetypes";
 	import ListCard from "$lib/components/ListCard.svelte";
 	import Modal from "$lib/components/Modal.svelte";
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
@@ -15,6 +15,8 @@
 	// svelte-ignore state_referenced_locally
 	const lists: ListWithAssociation[] = data.lists || [];
 	// svelte-ignore state_referenced_locally
+	const associations: Association[] = data.associations || [];
+	// svelte-ignore state_referenced_locally
 	const userData = data.userData;
 	console.log("Lists loaded:", lists);
 
@@ -24,6 +26,7 @@
 	let newListIcon = $state<number | null>(null);
 	let newListDescription = $state("");
 	let newListPromo = $state(new Date().getFullYear());
+	let newListAssociationId = $state<number | null>(null);
 
 	const canCreate = $derived(userData && hasPermission(userData.permissions, Permission.ADMIN));
 
@@ -37,7 +40,7 @@
 				icon: newListIcon,
 				description: newListDescription,
 				promo: newListPromo,
-				association_id: null, // TODO: Add association selection if needed
+				association_id: newListAssociationId,
 			}),
 		});
 
@@ -47,6 +50,7 @@
 			newListColor = 0;
 			newListIcon = null;
 			newListDescription = "";
+			newListAssociationId = null;
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la création de la liste");
@@ -119,7 +123,11 @@
 				onclick={() => togglePromo(promo)}
 				aria-expanded={openPromos.has(promo)}
 			>
-				<h2>Campagnes {promo}</h2>
+				{#if promo === 0}
+					<h2>Campagnes non spécifiées</h2>
+				{:else}
+					<h2>Campagnes {promo}</h2>
+				{/if}
 				<span class="toggle-icon" class:open={openPromos.has(promo)}>
 					<ChevronDown width="24" height="24" class="icon" />
 				</span>
@@ -148,6 +156,15 @@
 				bind:value={newListPromo}
 				placeholder={new Date().getFullYear().toString()}
 			/>
+		</div>
+		<div class="form-group">
+			<label for="new-list-association">Association</label>
+			<select id="new-list-association" bind:value={newListAssociationId}>
+				<option value={null}>Aucune</option>
+				{#each associations as assoc}
+					<option value={assoc.id}>{assoc.name}</option>
+				{/each}
+			</select>
 		</div>
 		<div class="form-group">
 			<label for="new-list-color">Couleur (Hex)</label>
@@ -347,7 +364,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 		gap: 2rem;
 		animation: fadeIn 0.8s ease-out 0.2s backwards;
 	}
@@ -454,8 +471,8 @@
 		}
 
 		.grid {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
 		}
 	}
 </style>

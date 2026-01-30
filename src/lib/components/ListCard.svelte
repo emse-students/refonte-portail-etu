@@ -83,7 +83,7 @@
 
 	:global(.list-logo) {
 		width: 100%;
-		height: 200px;
+		height: 250px;
 		object-fit: cover;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
@@ -92,7 +92,7 @@
 
 	.list-logo-placeholder {
 		width: 100%;
-		height: 200px;
+		height: 250px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

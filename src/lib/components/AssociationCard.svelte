@@ -80,7 +80,7 @@
 
 	:global(.association-logo) {
 		width: 100%;
-		height: 200px;
+		height: 250px;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
 		box-sizing: border-box;
@@ -88,7 +88,7 @@
 
 	.association-logo-placeholder {
 		width: 100%;
-		height: 200px;
+		height: 250px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

@@ -205,7 +205,7 @@
 	.primary-btn {
 		padding: 0.75rem 1.5rem;
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -214,6 +214,10 @@
 
 	.primary-btn:hover {
 		background: var(--color-primary-dark);
+	}
+
+	:global([data-theme="dark"]) .primary-btn:hover {
+		background: var(--color-primary-light);
 	}
 
 	.container {
@@ -255,7 +259,7 @@
 		font-size: 1.2rem;
 		color: var(--color-text-light);
 		max-width: 700px;
-		margin: 0 auto 2rem auto;
+		margin: 0 auto;
 		line-height: 1.6;
 	}
 
@@ -377,7 +381,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 		gap: 2rem;
 		animation: fadeIn 0.8s ease-out 0.2s backwards;
 	}
