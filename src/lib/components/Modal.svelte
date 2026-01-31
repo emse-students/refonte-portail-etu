@@ -94,7 +94,6 @@
 		height: 100%;
 		background: rgba(0, 0, 0, 0.5);
 		z-index: 1000;
-		backdrop-filter: blur(4px);
 		pointer-events: none;
 	}
 

@@ -332,8 +332,11 @@
 				</h2>
 				{#each Array(new Date(m.year, m.month + 1, 0).getDate()) as _, dayIdx}
 					{@const date = new Date(m.year, m.month, dayIdx + 1)}
+					{@const dayEnd = new Date(m.year, m.month, dayIdx + 1, 23, 59, 59, 999)}
 					{@const isToday = new Date().toDateString() === date.toDateString()}
-					{@const dayEvents = m.events.filter((event) => event.start_date.getDate() === dayIdx + 1)}
+					{@const dayEvents = m.events.filter(
+						(event) => event.start_date <= dayEnd && event.end_date >= date
+					)}
 
 					<div class="mobile-day" class:is-today={isToday}>
 						<div class="mobile-date-column">

@@ -15,12 +15,11 @@
 	} = $props();
 
 	const eventsForDay = $derived(
-		events.filter(
-			(event) =>
-				event.start_date.getFullYear() === dayDate.getFullYear() &&
-				event.start_date.getMonth() === dayDate.getMonth() &&
-				event.start_date.getDate() === dayDate.getDate()
-		)
+		events.filter((event) => {
+			const dayEnd = new Date(dayDate);
+			dayEnd.setHours(23, 59, 59, 999);
+			return event.start_date <= dayEnd && event.end_date >= dayDate;
+		})
 	);
 
 	const count = $derived(Math.min(eventsForDay.length, 3));

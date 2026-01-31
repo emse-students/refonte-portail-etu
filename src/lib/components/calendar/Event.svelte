@@ -247,10 +247,7 @@
 			position: absolute;
 		}
 	}
-	.event-title-only.clickable:hover,
-	.event-title-only.clickable:focus {
-		filter: brightness(0.95);
-	}
+
 	.modal-overlay {
 		position: fixed;
 		top: 0;
@@ -258,7 +255,6 @@
 		width: 100vw;
 		height: 100vh;
 		background: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(4px);
 		z-index: 2000;
 		display: flex;
 		align-items: center;
