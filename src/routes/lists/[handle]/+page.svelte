@@ -35,7 +35,6 @@
 
 	const maxPermissionLevel = $derived.by(() => {
 		if (!userData) return 0;
-		if (userData.admin) return Permission.ADMIN;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return Permission.ADMIN;
 		const membership = userData.memberships.find((m) => m.list_id === list.id);
 		return membership ? membership.permissions : 0;
@@ -58,25 +57,18 @@
 		if (listMembership && hasPermission(listMembership.permissions, Permission.MANAGE)) return true;
 
 		// Also check if user is admin of the parent association
-		const assocMembership = userData.memberships.find((m) => m.list_id === list.id);
+		const assocMembership = userData.memberships.find(
+			(m) => m.association_id === list.association_id
+		);
 		if (assocMembership && hasPermission(assocMembership.permissions, Permission.MANAGE))
 			return true;
 
 		return false;
 	});
 
-	const canEditDetails = $derived.by(() => {
-		if (!userData) return false;
-		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
-		const membership = userData.memberships.find((m) => m.list_id === list.id);
-		if (!membership) return false;
-		return hasPermission(membership.permissions, Permission.ADMIN);
-	});
-
 	const adminButtonText = $derived.by(() => {
 		if (editMode) return "Terminer l'édition";
-		if (canEditDetails) return "Administration";
-		return "Gérer les membres";
+		return "Gérer la liste";
 	});
 
 	function requestRemoveMember(id: number) {
@@ -123,7 +115,7 @@
 			showEditListModal = false;
 			await invalidateAll();
 		} else {
-			alert("Erreur lors de la modification de l'list");
+			alert("Erreur lors de la modification de la liste");
 		}
 	}
 
@@ -136,6 +128,7 @@
 		});
 		if (res.ok) {
 			showDeleteConfirmModal = false;
+			list.members = list.members.filter((m) => m.id !== memberToDelete!.id);
 			memberToDelete = null;
 			await invalidateAll();
 		} else {
@@ -254,7 +247,7 @@
 				<button class="action-btn" onclick={() => (editMode = !editMode)}>
 					{adminButtonText}
 				</button>
-				{#if editMode && canEditDetails}
+				{#if editMode}
 					<button class="action-btn secondary" onclick={openEditListModal}>
 						Éditer les informations
 					</button>
@@ -524,10 +517,9 @@
 <style>
 	/* ... existing styles ... */
 	.action-btn {
-		margin-top: 1rem;
 		padding: 0.5rem 1rem;
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -540,11 +532,12 @@
 	}
 
 	.action-btn.secondary {
-		background: var(--color-text-light);
+		background: var(--color-bg-1);
+		color: var(--color-text);
 	}
 
 	.action-btn.secondary:hover {
-		background: var(--color-primary-dark);
+		filter: brightness(0.9);
 	}
 
 	.header-actions {
@@ -561,8 +554,8 @@
 
 	.add-member-btn {
 		padding: 0.75rem 1.5rem;
-		background: #10b981;
-		color: white;
+		background: var(--color-primary);
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -571,7 +564,7 @@
 	}
 
 	.add-member-btn:hover {
-		background: #059669;
+		background: var(--color-primary-dark);
 	}
 
 	.form-group {
@@ -582,7 +575,7 @@
 	.form-group label {
 		display: block;
 		margin-bottom: 0.5rem;
-		color: var(--color-text-light);
+		color: var(--color-text);
 		font-weight: 500;
 	}
 
@@ -590,10 +583,12 @@
 	.form-group select {
 		width: 100%;
 		padding: 0.75rem;
-		border: 1px solid var(--color-bg-2);
+		border: 1px solid var(--color-bg-1);
 		border-radius: 8px;
 		font-size: 1rem;
 		box-sizing: border-box;
+		background: var(--bg-secondary);
+		color: var(--color-text);
 	}
 
 	.search-results {
@@ -601,8 +596,8 @@
 		top: 100%;
 		left: 0;
 		width: 100%;
-		background: white;
-		border: 1px solid var(--color-bg-2);
+		background: var(--bg-secondary);
+		border: 1px solid var(--color-bg-1);
 		border-radius: 8px;
 		max-height: 200px;
 		overflow-y: auto;
@@ -618,10 +613,11 @@
 		border: none;
 		cursor: pointer;
 		transition: background 0.1s;
+		color: var(--color-text);
 	}
 
 	.search-result-item:hover {
-		background: var(--color-bg-2);
+		background: var(--color-bg-1);
 	}
 
 	.modal-actions {
@@ -633,8 +629,8 @@
 
 	.cancel-btn {
 		padding: 0.75rem 1.5rem;
-		background: var(--color-bg-2);
-		color: var(--color-text-light);
+		background: var(--color-bg-1);
+		color: var(--color-text);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -644,7 +640,7 @@
 	.primary-btn {
 		padding: 0.75rem 1.5rem;
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-text-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -657,8 +653,8 @@
 
 	.remove-btn {
 		padding: 0.75rem 1.5rem;
-		background: #fee2e2;
-		color: #c53030;
+		background: var(--color-secondary);
+		color: var(--color-primary-dark);
 		border: none;
 		border-radius: 8px;
 		font-weight: 600;
@@ -666,7 +662,7 @@
 	}
 
 	.remove-btn:hover {
-		background: #fecaca;
+		filter: brightness(0.9);
 	}
 
 	.container {
@@ -706,7 +702,7 @@
 
 	.subtitle {
 		font-size: 1.25rem;
-		color: var(--color-text-light);
+		color: var(--color-text);
 		margin: 0;
 	}
 
@@ -741,7 +737,7 @@
 
 	section {
 		width: 100%;
-		background: white;
+		background: var(--bg-secondary);
 		border-radius: 16px;
 		padding: 2rem;
 		box-shadow: var(--shadow-md);
@@ -757,7 +753,7 @@
 
 	.description-content {
 		font-size: 1.05rem;
-		color: var(--color-text-light);
+		color: var(--color-text);
 		line-height: 1.7;
 	}
 
@@ -779,7 +775,7 @@
 	}
 
 	.bureau-section {
-		background: linear-gradient(135deg, var(--color-bg-2) 0%, var(--color-bg-1) 100%);
+		background: linear-gradient(135deg, var(--color-bg-1) 0%, var(--color-bg-2) 100%);
 		border: 2px solid var(--color-primary);
 	}
 

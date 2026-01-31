@@ -85,6 +85,14 @@
 		return "Gérer l'association";
 	});
 
+	function requestRemoveMember(id: number) {
+		const member = association.members.find((m) => m.id === id);
+		if (member) {
+			memberToDelete = member;
+			showDeleteConfirmModal = true;
+		}
+	}
+
 	let showEditAssociationModal = $state(false);
 	let editAssociationName = $state("");
 	let editAssociationDescription = $state("");
@@ -119,14 +127,6 @@
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification de l'association");
-		}
-	}
-
-	function requestRemoveMember(id: number) {
-		const member = association.members.find((m) => m.id === id);
-		if (member) {
-			memberToDelete = member;
-			showDeleteConfirmModal = true;
 		}
 	}
 
