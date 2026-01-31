@@ -58,6 +58,7 @@ export async function getBasicAssociation(raw: RawAssociation): Promise<Associat
 		members: [],
 		icon: raw.icon,
 		color: raw.color,
+		archived: raw.archived,
 	};
 }
 
@@ -113,6 +114,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 		members: members,
 		icon: raw.icon,
 		color: raw.color,
+		archived: raw.archived,
 	};
 }
 

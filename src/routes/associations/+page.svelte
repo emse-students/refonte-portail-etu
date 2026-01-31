@@ -56,6 +56,9 @@
 				association.description?.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 	);
+
+	const activeAssociations = $derived(filteredAssociations.filter((a) => !a.archived));
+	const archivedAssociations = $derived(filteredAssociations.filter((a) => a.archived));
 </script>
 
 <svelte:head>
@@ -97,13 +100,26 @@
 		{/if}
 	</header>
 
-	{#if filteredAssociations.length > 0}
+	{#if activeAssociations.length > 0}
 		<div class="grid">
-			{#each filteredAssociations as association}
+			{#each activeAssociations as association}
 				<AssociationCard {association} />
 			{/each}
 		</div>
-	{:else}
+	{/if}
+
+	{#if archivedAssociations.length > 0}
+		{#if activeAssociations.length > 0}
+			<h2 class="section-title">Archives</h2>
+		{/if}
+		<div class="grid archived">
+			{#each archivedAssociations as association}
+				<AssociationCard {association} />
+			{/each}
+		</div>
+	{/if}
+
+	{#if activeAssociations.length === 0 && archivedAssociations.length === 0}
 		<div class="no-results">
 			<NoResults width="64" height="64" stroke-width="1.5" class="icon" />
 			<h2>Aucune association trouvée</h2>
@@ -160,6 +176,20 @@
 
 	.create-btn:hover {
 		background: var(--color-primary-dark);
+	}
+
+	.section-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--color-text);
+		margin: 3rem 0 1.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--color-bg-2);
+	}
+
+	.grid.archived {
+		opacity: 0.7;
+		filter: grayscale(100%);
 	}
 
 	.form-group {

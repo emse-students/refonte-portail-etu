@@ -87,6 +87,7 @@ describe("Lists Handle Page Component", () => {
 			created_at: new Date(),
 			edited_at: new Date(),
 			description: "An association description",
+			archived: false,
 		},
 		association_id: 1,
 		icon: null,

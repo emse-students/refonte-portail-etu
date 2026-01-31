@@ -119,6 +119,7 @@ describe("Associations Handle Page Component", () => {
 		],
 		icon: null,
 		color: 0,
+		archived: false,
 	};
 
 	const mockEvents = [

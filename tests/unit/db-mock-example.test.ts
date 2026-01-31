@@ -32,6 +32,7 @@ describe("Database Mocking Pattern", () => {
 				color: 0x000000,
 				created_at: new Date(),
 				edited_at: new Date(),
+				archived: false,
 			},
 		];
 

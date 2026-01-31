@@ -8,7 +8,16 @@ global.fetch = vi.fn() as unknown as typeof fetch;
 
 describe("EventForm Component", () => {
 	const mockAssociations: Association[] = [
-		{ id: 1, name: "Asso 1", handle: "asso1", description: "", icon: null, color: 0, members: [] },
+		{
+			id: 1,
+			name: "Asso 1",
+			handle: "asso1",
+			description: "",
+			icon: null,
+			color: 0,
+			archived: false,
+			members: [],
+		},
 	];
 	const mockLists: List[] = [
 		{

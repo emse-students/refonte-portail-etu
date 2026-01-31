@@ -7,6 +7,7 @@ export type RawAssociation = {
 	description: string;
 	icon: number | null;
 	color: number;
+	archived: boolean;
 	created_at: Date;
 	edited_at: Date;
 };
@@ -73,6 +74,7 @@ export type Association = {
 	members: Member[];
 	icon: number | null;
 	color: number;
+	archived: boolean;
 };
 
 export type List = {

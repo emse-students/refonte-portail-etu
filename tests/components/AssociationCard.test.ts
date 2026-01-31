@@ -18,6 +18,7 @@ describe("AssociationCard Component", () => {
 		icon: 189,
 		members: [],
 		color: 0xff0000,
+		archived: false,
 	};
 
 	it("should render association name", () => {
