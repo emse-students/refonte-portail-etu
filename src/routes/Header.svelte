@@ -221,27 +221,6 @@
 		gap: 1rem;
 	}
 
-	.theme-toggle {
-		background: rgba(255, 255, 255, 0.15);
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: 8px;
-		width: 36px;
-		height: 36px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		backdrop-filter: blur(10px);
-		padding: 0;
-	}
-
-	.theme-toggle:hover {
-		background: rgba(255, 255, 255, 0.25);
-		transform: translateY(-1px);
-	}
-
 	.login-btn {
 		background: rgba(255, 255, 255, 0.15);
 		color: #ffffff;

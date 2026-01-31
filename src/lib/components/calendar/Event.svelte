@@ -93,6 +93,22 @@
 		}
 		openModal();
 	}
+	function duplicateEvent() {
+		if (typeof window === "undefined") return;
+
+		const params = new URLSearchParams();
+		params.set("title", title);
+		if (description) params.set("description", description);
+		if (location) params.set("location", location);
+		params.set("start_date", start_date.toISOString());
+		params.set("end_date", end_date.toISOString());
+		if (association_id) params.set("association_id", association_id.toString());
+		if (list_id) params.set("list_id", list_id.toString());
+		params.set("action", "duplicate");
+
+		window.location.href = `${resolve("/events/propose")}?${params.toString()}`;
+	}
+
 	function closeModal() {
 		showModal = false;
 		history.back();
@@ -111,7 +127,25 @@
 		<div class="modal" role="presentation" onclick={(event) => event.stopPropagation()}>
 			<button class="close-btn" onclick={closeModal} aria-label="Fermer">&times;</button>
 			<div class="modal-content">
-				<h2>{title}</h2>
+				<div class="modal-header-actions">
+					<h2>{title}</h2>
+					<button class="duplicate-btn" onclick={duplicateEvent} title="Dupliquer l'événement">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
+								d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+							></path></svg
+						>
+					</button>
+				</div>
 				<div class="modal-section">
 					<strong>Date :</strong>
 					{start_date.toLocaleDateString()}
@@ -317,8 +351,37 @@
 		font-size: 1.75rem;
 		font-weight: 700;
 		color: var(--color-text);
-		margin: 0 0 0.5rem 0;
+		margin: 0;
 		line-height: 1.3;
+		flex: 1;
+	}
+
+	.modal-header-actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-bottom: 0.5rem;
+		padding-right: 2rem; /* Make space for close button */
+	}
+
+	.duplicate-btn {
+		background: transparent;
+		border: 1px solid var(--color-text-light);
+		color: var(--color-text-light);
+		padding: 0.4rem;
+		border-radius: 6px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.duplicate-btn:hover {
+		background: var(--color-bg-2);
+		color: var(--color-primary);
+		border-color: var(--color-primary);
 	}
 
 	.modal-section {

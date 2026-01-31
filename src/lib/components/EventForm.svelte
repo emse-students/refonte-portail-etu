@@ -10,6 +10,7 @@
 		onClose,
 		onSuccess,
 		event,
+		defaults,
 		isOpen,
 		isGlobalAdmin = false,
 	} = $props<{
@@ -20,6 +21,7 @@
 		onClose: () => void;
 		onSuccess: () => void;
 		event?: RawEvent;
+		defaults?: Partial<RawEvent>;
 		isOpen: boolean;
 		isGlobalAdmin?: boolean;
 	}>();
@@ -35,39 +37,50 @@
 
 	function getInitialState(
 		event: RawEvent | undefined,
+		defaults: Partial<RawEvent> | undefined,
 		initialDate: Date | undefined,
 		association: Association | undefined,
 		associations: Association[] | undefined,
 		lists: List[] | undefined
 	) {
 		return {
-			entityType: (event?.list_id ? "list" : "association") as "association" | "list",
+			entityType: (event?.list_id || defaults?.list_id ? "list" : "association") as
+				| "association"
+				| "list",
 			selectedAssociationId:
 				event?.association_id ||
+				defaults?.association_id ||
 				association?.id ||
 				(associations && associations.length === 1 ? associations[0].id : ""),
-			selectedListId: event?.list_id || (lists && lists.length === 1 ? lists[0].id : ""),
-			title: event?.title || "",
-			description: event?.description || "",
+			selectedListId:
+				event?.list_id || defaults?.list_id || (lists && lists.length === 1 ? lists[0].id : ""),
+			title: event?.title || defaults?.title || "",
+			description: event?.description || defaults?.description || "",
 			startDate: event
 				? formatDateForInput(event.start_date)
-				: initialDate
-					? formatDateForInput(initialDate)
-					: "",
+				: defaults?.start_date
+					? formatDateForInput(defaults.start_date)
+					: initialDate
+						? formatDateForInput(initialDate)
+						: "",
 			endDate: event
 				? formatDateForInput(event.end_date)
-				: initialDate
-					? formatDateForInput(new Date(initialDate.getTime() + 3600000))
-					: "",
-			location: event?.location || "",
+				: defaults?.end_date
+					? formatDateForInput(defaults.end_date)
+					: initialDate
+						? formatDateForInput(new Date(initialDate.getTime() + 3600000))
+						: "",
+			location: event?.location || defaults?.location || "",
 		};
 	}
 
 	//svelte-ignore state_referenced_locally
-	let formState = $state(getInitialState(event, initialDate, association, associations, lists));
+	let formState = $state(
+		getInitialState(event, defaults, initialDate, association, associations, lists)
+	);
 
 	$effect(() => {
-		formState = getInitialState(event, initialDate, association, associations, lists);
+		formState = getInitialState(event, defaults, initialDate, association, associations, lists);
 	});
 
 	let showDeleteConfirm = $state(false);

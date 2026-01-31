@@ -26,9 +26,28 @@
 
 	let selectedDate = $state<Date | undefined>(undefined);
 	let selectedEvent = $state<RawEvent | undefined>(undefined);
+	let duplicateDefaults = $state<Partial<RawEvent> | undefined>(undefined);
 	let calendarComponent = $state<Calendar | undefined>(undefined);
 
 	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		if (params.get("action") === "duplicate") {
+			duplicateDefaults = {
+				title: params.get("title") || "",
+				description: params.get("description") || "",
+				location: params.get("location") || "",
+				start_date: params.get("start_date") ? new Date(params.get("start_date")!) : new Date(),
+				end_date: params.get("end_date") ? new Date(params.get("end_date")!) : new Date(),
+				association_id: params.get("association_id") ? Number(params.get("association_id")) : null,
+				list_id: params.get("list_id") ? Number(params.get("list_id")) : null,
+			};
+			showForm = true;
+			// Clean URL
+			const url = new URL(window.location.href);
+			url.search = "";
+			window.history.replaceState({}, "", url);
+		}
+
 		const interval = setInterval(async () => {
 			// Refresh calendar every 5 seconds to get latest events
 			calendarComponent?.refresh();
@@ -211,11 +230,13 @@
 			{lists}
 			initialDate={selectedDate}
 			event={selectedEvent}
+			defaults={duplicateDefaults}
 			{isOpen}
 			isGlobalAdmin={isGlobalEventManager}
 			onClose={() => (showForm = false)}
 			onSuccess={() => {
 				showForm = false;
+				duplicateDefaults = undefined;
 				calendarComponent?.refresh();
 			}}
 		/>
