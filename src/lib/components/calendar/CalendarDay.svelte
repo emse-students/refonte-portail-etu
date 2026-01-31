@@ -56,7 +56,7 @@
 
 <style>
 	:root {
-		--calendar-cell-size: 150px;
+		--calendar-cell-size: 180px;
 		--calendar-max-cell-size: 200px;
 	}
 	.calendar-cell {

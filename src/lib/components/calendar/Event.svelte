@@ -91,12 +91,22 @@
 		return "#" + color.toString(16).padStart(6, "0");
 	}
 
+	function getContrastColor(hexColor: string) {
+		const r = parseInt(hexColor.substr(1, 2), 16);
+		const g = parseInt(hexColor.substr(3, 2), 16);
+		const b = parseInt(hexColor.substr(5, 2), 16);
+		const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+		return yiq >= 128 ? "#1a202c" : "#ffffff";
+	}
+
 	// svelte-ignore state_referenced_locally
 	let color = $derived(
 		entity_color
 			? intToHex(entity_color)
 			: palette[Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length]
 	);
+
+	let textColor = $derived(getContrastColor(color));
 
 	let showModal = $state(false);
 	function openModal() {
@@ -198,7 +208,18 @@
 				{#if entity_name}
 					<div class="modal-section">
 						<strong>{is_list ? "Liste" : "Association"} :</strong>
-						<a href={entity_link}>{entity_name}</a>
+						<a href={entity_link} class="entity-link">
+							{#if entity_icon}
+								<img
+									src={resolve(`/api/image/${entity_icon}`)}
+									alt=""
+									class="entity-icon-small"
+									width="24"
+									height="24"
+								/>
+							{/if}
+							{entity_name}
+						</a>
 					</div>
 				{/if}
 				{#if description}
@@ -217,7 +238,7 @@
 	role="presentation"
 	onclick={handleClick}
 	title="Voir les détails"
-	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
+	style="background: {color}; color: {textColor}; --stack-index: {i}; --stack-count: {count};"
 >
 	<span class="event-title-text">
 		{#if entity_icon}
@@ -225,8 +246,8 @@
 				src={resolve(`/api/image/${entity_icon}`)}
 				alt=""
 				class="event-icon"
-				width="16"
-				height="16"
+				width="20"
+				height="20"
 			/>
 		{/if}
 		{title}
@@ -236,21 +257,40 @@
 <style>
 	.event-title-text {
 		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
 		max-width: 100%;
-		display: flex;
-		align-items: center;
-		gap: 4px;
+		display: -webkit-box;
+		line-clamp: 2;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		text-align: center;
+		line-height: 1.2;
+		font-size: 0.85rem;
 	}
 
 	.event-icon {
-		width: 16px;
-		height: 16px;
+		width: 20px;
+		height: 20px;
 		border-radius: 50%;
 		object-fit: cover;
 		background: white;
-		flex-shrink: 0;
+		vertical-align: text-bottom;
+		margin-right: 4px;
+		display: inline-block;
+	}
+
+	.entity-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.entity-icon-small {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		object-fit: cover;
+		background: white;
+		border: 1px solid var(--color-bg-2);
 	}
 
 	.event-stack-item {

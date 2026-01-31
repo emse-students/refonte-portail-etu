@@ -10,6 +10,7 @@
 	import { of } from "$lib/utils.js";
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import ImageWithSkeleton from "$lib/components/ImageWithSkeleton.svelte";
 
 	let { data } = $props();
 	// svelte-ignore state_referenced_locally
@@ -248,7 +249,18 @@
 </svelte:head>
 <div class="container">
 	<header class="page-header">
-		<h1>{association.name}</h1>
+		<div class="header-content">
+			{#if association.icon}
+				<div class="logo">
+					<ImageWithSkeleton
+						src="/assets/associations/{association.icon}"
+						alt={association.name}
+						class="asso-logo-skeleton"
+					/>
+				</div>
+			{/if}
+			<h1>{association.name}</h1>
+		</div>
 		{#if canEdit}
 			<div class="header-actions">
 				<button class="action-btn" onclick={() => (editMode = !editMode)}>
@@ -760,6 +772,33 @@
 		padding: 3rem 2rem;
 		min-height: calc(100vh - 8rem);
 		box-sizing: border-box;
+	}
+
+	.header-content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.logo {
+		width: 64px;
+		height: 64px;
+		flex-shrink: 0;
+		border-radius: 12px;
+		overflow: hidden;
+		background: var(--bg-secondary);
+		box-shadow: var(--shadow-sm);
+	}
+
+	:global(.asso-logo-skeleton) {
+		height: 100%;
+		width: 100%;
+	}
+
+	:global(.asso-logo-skeleton img) {
+		object-fit: contain !important;
 	}
 
 	.page-header {
