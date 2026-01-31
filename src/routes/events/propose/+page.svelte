@@ -218,6 +218,7 @@
 			initialDate={nextMonth}
 			onEventClick={handleEventClick}
 			showAllUnvalidated={true}
+			{user}
 		/>
 	</div>
 

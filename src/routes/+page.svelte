@@ -83,7 +83,7 @@
 	</div>
 
 	<div class="calendar-fixed-container">
-		<Calendar showUnvalidated={true} {initialEvents} {initialDate} />
+		<Calendar showUnvalidated={true} {initialEvents} {initialDate} {user} />
 	</div>
 
 	<Modal bind:open={showCalendarModal} title="Ajouter au calendrier">

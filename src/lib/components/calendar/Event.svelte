@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { Association, List, RawEvent } from "$lib/databasetypes";
+	import type { Association, List, RawEvent, FullUser } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { resolve } from "$app/paths";
 	import { onMount } from "svelte";
+	import Permission, { hasPermission } from "$lib/permissions";
 
 	let {
 		title,
@@ -20,11 +21,13 @@
 		count,
 		onEventClick,
 		mode = "stack",
+		user,
 	}: RawEvent & {
 		i?: number;
 		count?: number;
 		onEventClick?: (event: RawEvent) => boolean;
 		mode?: "stack" | "list";
+		user?: FullUser;
 	} = $props();
 
 	// get the association or list name from id
@@ -32,6 +35,23 @@
 	let entity_handle = $state("");
 	let entity_link = $state("");
 	let is_list = $state(false);
+
+	const canDuplicate = $derived.by(() => {
+		if (!user) return false;
+		if (hasPermission(user.permissions, Permission.MANAGE)) return true;
+
+		if (association_id && user.memberships) {
+			const member = user.memberships.find((m) => m.association_id === association_id);
+			if (member && hasPermission(member.permissions, Permission.MANAGE)) return true;
+		}
+
+		if (list_id && user.memberships) {
+			const member = user.memberships.find((m) => m.list_id === list_id);
+			if (member && hasPermission(member.permissions, Permission.MANAGE)) return true;
+		}
+
+		return false;
+	});
 
 	onMount(() => {
 		if (association_id) {
@@ -129,22 +149,24 @@
 			<div class="modal-content">
 				<div class="modal-header-actions">
 					<h2>{title}</h2>
-					<button class="duplicate-btn" onclick={duplicateEvent} title="Dupliquer l'événement">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="20"
-							height="20"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
-								d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-							></path></svg
-						>
-					</button>
+					{#if canDuplicate}
+						<button class="duplicate-btn" onclick={duplicateEvent} title="Dupliquer l'événement">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path
+									d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+								></path></svg
+							>
+						</button>
+					{/if}
 				</div>
 				<div class="modal-section">
 					<strong>Date :</strong>
@@ -188,10 +210,16 @@
 	title="Voir les détails"
 	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
 >
-	{title}
+	<span class="event-title-text">{title}</span>
 </div>
 
 <style>
+	.event-title-text {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 100%;
+	}
 	.event-stack-item {
 		position: absolute;
 		left: 0;

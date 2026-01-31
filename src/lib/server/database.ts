@@ -18,6 +18,7 @@ function ensurePool() {
 			database: env.DB_NAME,
 			port: Number(env.DB_PORT) || 3306,
 			connectionLimit: 10,
+			timezone: "Z",
 		});
 	}
 }

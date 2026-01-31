@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RawEvent as CalendarEvent } from "$lib/databasetypes";
+	import type { RawEvent as CalendarEvent, FullUser } from "$lib/databasetypes";
 	import Event from "./Event.svelte";
 
 	let {
@@ -7,11 +7,13 @@
 		events,
 		onAddEvent,
 		onEventClick,
+		user,
 	}: {
 		dayDate: Date;
 		events: CalendarEvent[];
 		onAddEvent?: () => void;
 		onEventClick?: (event: CalendarEvent) => boolean;
+		user?: FullUser;
 	} = $props();
 
 	const eventsForDay = $derived(
@@ -32,7 +34,7 @@
 			<span class="month">{dayDate.toLocaleString("fr-FR", { month: "short" })}</span>
 		</div>
 		{#each eventsForDay.slice(0, 3) as event, i (event.id)}
-			<Event {...event} {i} {count} {onEventClick} />
+			<Event {...event} {i} {count} {onEventClick} {user} />
 		{/each}
 		{#if eventsForDay.length > 3}
 			<div class="event-overflow">+{eventsForDay.length - 3} autres</div>

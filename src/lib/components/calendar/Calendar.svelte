@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import type { RawEvent as CalendarEvent } from "$lib/databasetypes";
+	import type { RawEvent as CalendarEvent, FullUser } from "$lib/databasetypes";
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
 	import { resolve } from "$app/paths";
@@ -14,6 +14,7 @@
 		showUnvalidated = false,
 		showAllUnvalidated = false,
 		initialEvents = [],
+		user,
 	}: {
 		onDayClick?: (date: Date) => void;
 		initialDate?: Date;
@@ -21,6 +22,7 @@
 		showUnvalidated?: boolean;
 		showAllUnvalidated?: boolean;
 		initialEvents?: CalendarEvent[];
+		user?: FullUser;
 	} = $props();
 
 	// Desktop state
@@ -307,6 +309,7 @@
 										{events}
 										onAddEvent={onDayClick ? () => onDayClick?.(dayDate) : undefined}
 										{onEventClick}
+										{user}
 									/>
 								</td>
 							{/each}
@@ -347,7 +350,7 @@
 						</div>
 						<div class="mobile-events-column">
 							{#each dayEvents as event}
-								<Event {...event} mode="list" />
+								<Event {...event} mode="list" {user} />
 							{:else}
 								<div class="no-events">Rien de prévu</div>
 							{/each}

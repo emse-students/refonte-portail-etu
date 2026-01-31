@@ -37,10 +37,10 @@ export async function fetchEvents(options: FetchEventsOptions): Promise<RawEvent
 	const conditions: string[] = ["1=1"];
 
 	if (hasStart) {
-		conditions.push(`e.start_date >= ${escape(start!.toISOString())}`);
+		conditions.push(`e.end_date >= ${escape(start!.toISOString())}`);
 	}
 	if (hasEnd) {
-		conditions.push(`e.end_date <= ${escape(end!.toISOString())}`);
+		conditions.push(`e.start_date <= ${escape(end!.toISOString())}`);
 	}
 	if (hasAssoc) {
 		conditions.push(`e.association_id = ${escape(assocId!)}`);
