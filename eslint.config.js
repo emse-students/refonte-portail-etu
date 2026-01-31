@@ -17,6 +17,8 @@ export default [
 			"*.config.*",
 			"tests/",
 			"coverage/",
+			"static/",
+			"src/lib/assets/",
 		],
 	},
 	{

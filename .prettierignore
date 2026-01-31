@@ -6,6 +6,7 @@ node_modules/
 
 # Static files
 static/
+src/lib/assets/
 
 # Package files
 package-lock.json

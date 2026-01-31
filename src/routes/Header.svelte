@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { asset, resolve } from "$app/paths";
+	import { resolve } from "$app/paths";
+	import logoBde from "$lib/assets/logo.png";
 	import { page } from "$app/state";
 	import { signIn, signOut } from "@auth/sveltekit/client";
 	import { onMount, tick } from "svelte";
@@ -51,7 +52,7 @@
 <header>
 	<div class="header-left">
 		<a href="/">
-			<img src={asset("/logo.png")} alt="Logo BDE EMSE" class="logo-bde" width="40" height="40" />
+			<img src={logoBde} alt="Logo BDE EMSE" class="logo-bde" width="40" height="40" />
 			<span class="site-title">Portail Étudiant</span>
 		</a>
 	</div>

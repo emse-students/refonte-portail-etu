@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
+	import { onMount } from "svelte";
 	import type { RawEvent as CalendarEvent, FullUser } from "$lib/databasetypes";
 	import CalendarDay from "./CalendarDay.svelte";
 	import Event from "./Event.svelte";
