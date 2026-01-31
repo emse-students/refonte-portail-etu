@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { Association, List, RawEvent, FullUser } from "$lib/databasetypes";
+	import type { RawEvent, FullUser } from "$lib/databasetypes";
 	import { pushState } from "$app/navigation";
 	import { resolve } from "$app/paths";
-	import { onMount } from "svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 
 	let {
@@ -12,7 +11,15 @@
 		location,
 		description,
 		association_id,
+		association_name,
+		association_handle,
+		association_color,
+		association_icon,
 		list_id,
+		list_name,
+		list_handle,
+		list_color,
+		list_icon,
 		id,
 		validated,
 		created_at,
@@ -23,6 +30,14 @@
 		mode = "stack",
 		user,
 	}: RawEvent & {
+		association_name?: string;
+		association_handle?: string;
+		association_color?: number;
+		association_icon?: number;
+		list_name?: string;
+		list_handle?: string;
+		list_color?: number;
+		list_icon?: number;
 		i?: number;
 		count?: number;
 		onEventClick?: (event: RawEvent) => boolean;
@@ -31,10 +46,16 @@
 	} = $props();
 
 	// get the association or list name from id
-	let entity_name = $state("");
-	let entity_handle = $state("");
-	let entity_link = $state("");
-	let is_list = $state(false);
+	let is_list = $derived(!!list_id);
+	let entity_name = $derived(association_name || list_name || "");
+	let entity_handle = $derived(association_handle || list_handle || "");
+	let entity_color = $derived(association_color || list_color);
+	let entity_icon = $derived(association_icon || list_icon);
+	let entity_link = $derived(
+		entity_handle
+			? resolve(is_list ? `/lists/${entity_handle}` : `/associations/${entity_handle}`)
+			: ""
+	);
 
 	const canDuplicate = $derived.by(() => {
 		if (!user) return false;
@@ -53,27 +74,6 @@
 		return false;
 	});
 
-	onMount(() => {
-		if (association_id) {
-			fetch(resolve(`/api/associations/${association_id}`))
-				.then((res) => res.json())
-				.then((data: Association) => {
-					entity_name = data.name;
-					entity_handle = data.handle;
-					entity_link = resolve(`/associations/${entity_handle}`);
-				});
-		} else if (list_id) {
-			is_list = true;
-			fetch(resolve(`/api/lists/${list_id}`))
-				.then((res) => res.json())
-				.then((data: List) => {
-					entity_name = data.name;
-					entity_handle = data.handle;
-					entity_link = resolve(`/lists/${entity_handle}`);
-				});
-		}
-	});
-
 	const palette = [
 		"#f7c873",
 		"#7ec4cf",
@@ -86,8 +86,17 @@
 		"#ce93d8",
 		"#ffd54f",
 	];
+
+	function intToHex(color: number): string {
+		return "#" + color.toString(16).padStart(6, "0");
+	}
+
 	// svelte-ignore state_referenced_locally
-	let color = palette[Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length];
+	let color = $derived(
+		entity_color
+			? intToHex(entity_color)
+			: palette[Array.from(title).reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length]
+	);
 
 	let showModal = $state(false);
 	function openModal() {
@@ -210,7 +219,18 @@
 	title="Voir les détails"
 	style="background: {color}; --stack-index: {i}; --stack-count: {count};"
 >
-	<span class="event-title-text">{title}</span>
+	<span class="event-title-text">
+		{#if entity_icon}
+			<img
+				src={resolve(`/api/image/${entity_icon}`)}
+				alt=""
+				class="event-icon"
+				width="16"
+				height="16"
+			/>
+		{/if}
+		{title}
+	</span>
 </div>
 
 <style>
@@ -219,7 +239,20 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 100%;
+		display: flex;
+		align-items: center;
+		gap: 4px;
 	}
+
+	.event-icon {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		object-fit: cover;
+		background: white;
+		flex-shrink: 0;
+	}
+
 	.event-stack-item {
 		position: absolute;
 		left: 0;

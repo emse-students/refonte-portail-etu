@@ -78,8 +78,8 @@ export async function fetchEvents(options: FetchEventsOptions): Promise<RawEvent
 		await getPool()!.query(`
         SELECT 
             e.id, e.title, e.start_date, e.end_date, e.description, e.location, e.association_id, e.list_id, e.validated,
-            a.name as association_name, a.color as association_color,
-            l.name as list_name, l.color as list_color
+            a.name as association_name, a.handle as association_handle, a.color as association_color, a.icon as association_icon,
+            l.name as list_name, l.handle as list_handle, l.color as list_color, l.icon as list_icon
         FROM event e
         LEFT JOIN association a ON e.association_id = a.id
         LEFT JOIN list l ON e.list_id = l.id
