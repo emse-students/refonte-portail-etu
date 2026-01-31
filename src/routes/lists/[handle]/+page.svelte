@@ -6,9 +6,11 @@
 	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
+	import { resolve } from "$app/paths";
 	import { of } from "$lib/utils.js";
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import ImageWithSkeleton from "$lib/components/ImageWithSkeleton.svelte";
 
 	let { data } = $props();
 	const list = $derived(data.list);
@@ -232,7 +234,18 @@
 </svelte:head>
 <div class="container">
 	<header class="page-header">
-		<h1>{list.name}</h1>
+		<div class="header-content">
+			{#if list.icon}
+				<div class="logo">
+					<ImageWithSkeleton
+						src={resolve("/api/image/") + list.icon}
+						alt={list.name}
+						class="asso-logo-skeleton"
+					/>
+				</div>
+			{/if}
+			<h1>{list.name}</h1>
+		</div>
 		{#if list.association}
 			<p class="subtitle">
 				Liste
@@ -672,6 +685,33 @@
 		padding: 3rem 2rem;
 		min-height: calc(100vh - 8rem);
 		box-sizing: border-box;
+	}
+
+	.header-content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.logo {
+		width: 100px;
+		height: 100px;
+		flex-shrink: 0;
+		border-radius: 12px;
+		overflow: hidden;
+		background: var(--bg-secondary);
+		box-shadow: var(--shadow-sm);
+	}
+
+	:global(.asso-logo-skeleton) {
+		height: 100%;
+		width: 100%;
+	}
+
+	:global(.asso-logo-skeleton img) {
+		object-fit: contain !important;
 	}
 
 	.page-header {

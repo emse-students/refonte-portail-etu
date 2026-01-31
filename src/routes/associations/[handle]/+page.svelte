@@ -11,6 +11,7 @@
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
 	import ImageWithSkeleton from "$lib/components/ImageWithSkeleton.svelte";
+	import { resolve } from "$app/paths";
 
 	let { data } = $props();
 	// svelte-ignore state_referenced_locally
@@ -253,7 +254,7 @@
 			{#if association.icon}
 				<div class="logo">
 					<ImageWithSkeleton
-						src="/assets/associations/{association.icon}"
+						src={resolve("/api/image/") + association.icon}
 						alt={association.name}
 						class="asso-logo-skeleton"
 					/>
@@ -783,8 +784,8 @@
 	}
 
 	.logo {
-		width: 64px;
-		height: 64px;
+		width: 100px;
+		height: 100px;
 		flex-shrink: 0;
 		border-radius: 12px;
 		overflow: hidden;

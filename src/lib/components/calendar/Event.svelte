@@ -365,8 +365,8 @@
 		margin: 0;
 		text-align: center;
 		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		/* text-overflow: ellipsis; handled by line-clamp */
+		white-space: normal;
 		cursor: pointer;
 		transition: all 0.2s ease;
 		background: var(--event-bg, inherit);
