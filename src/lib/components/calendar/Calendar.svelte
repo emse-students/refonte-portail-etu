@@ -126,9 +126,10 @@
 			<ChevronLeft width="24" height="24" class="" />
 		</button>
 		<span class="calendar-title">
+			<span class="calendar-title-main">Calendrier des événements</span>
 			<span class="calendar-title-sub">
 				Semaine du <b
-					>{weekStart.toLocaleDateString(undefined, {
+					>{weekStart.toLocaleDateString("fr", {
 						day: "2-digit",
 						month: "long",
 						year: "numeric",
@@ -146,7 +147,7 @@
 				<tr class="calendar-weekdays-row">
 					{#each getWeekDays(weekStart) as dayDate}
 						<th class="calendar-weekday-header">
-							{dayDate.toLocaleDateString(undefined, { weekday: "long" })}
+							{dayDate.toLocaleDateString("fr", { weekday: "long" })}
 						</th>
 					{/each}
 				</tr>
@@ -206,12 +207,9 @@
 
 					<div class="mobile-day" class:is-today={isToday}>
 						<div class="mobile-date-column">
-							<span class="day-name"
-								>{date.toLocaleDateString(undefined, { weekday: "short" })}</span
-							>
+							<span class="day-name">{date.toLocaleDateString("fr", { weekday: "short" })}</span>
 							<span class="day-number">{date.getDate()}</span>
-							<span class="day-month">{date.toLocaleDateString(undefined, { month: "short" })}</span
-							>
+							<span class="day-month">{date.toLocaleDateString("fr", { month: "short" })}</span>
 						</div>
 						<div class="mobile-events-column">
 							{#each dayEvents as event}
@@ -311,7 +309,10 @@
 		.mobile-calendar-title {
 			display: block;
 			text-align: center;
-			margin-top: 1rem;
+			margin-bottom: 1rem;
+		}
+		.calendar-nav .calendar-title-main {
+			display: none;
 		}
 		.calendar-nav {
 			gap: 1rem;
