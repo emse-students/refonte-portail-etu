@@ -114,7 +114,9 @@
 		{/if}
 		<div class="grid archived">
 			{#each archivedAssociations as association}
-				<AssociationCard {association} />
+				<div class="archived-item">
+					<AssociationCard {association} />
+				</div>
 			{/each}
 		</div>
 	{/if}
@@ -187,10 +189,8 @@
 		border-top: 1px solid var(--color-bg-2);
 	}
 
-	.grid.archived {
-		opacity: 0.7;
-		filter: grayscale(100%);
-	}
+	/* .grid.archived {
+	} */
 
 	.form-group {
 		margin-bottom: 1.5rem;
@@ -373,6 +373,17 @@
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 		gap: 2rem;
 		animation: fadeIn 0.8s ease-out 0.2s backwards;
+	}
+
+	.archived-item {
+		filter: grayscale(100%);
+		opacity: 0.7;
+		transition: all 0.3s ease;
+	}
+
+	.archived-item:hover {
+		filter: grayscale(0%);
+		opacity: 1;
 	}
 
 	@keyframes fadeIn {

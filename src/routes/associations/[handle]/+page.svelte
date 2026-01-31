@@ -6,7 +6,7 @@
 	import Modal from "$lib/components/Modal.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 	import { of } from "$lib/utils.js";
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
@@ -31,10 +31,10 @@
 	let isCopied = $state(false);
 
 	const calendarUrl = $derived(
-		`${$page.url.origin}/api/calendar/calendar.ics?asso=${association.id}`
+		`${page.url.origin}/api/calendar/calendar.ics?asso=${association.id}`
 	);
 	const googleCalendarUrl = $derived(
-		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl)}`
+		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl.replace("https://", "http://"))}`
 	);
 	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
 

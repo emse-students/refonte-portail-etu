@@ -299,35 +299,35 @@ describe("Calendar Component - Mobile View", () => {
 		expect(document.querySelector(".mobile-view")).toBeInTheDocument();
 	});
 
-	it("loads current month on mobile mount", async () => {
-		const now = new Date();
-		render(Calendar, {});
-
-		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/calendar"));
-		});
-	});
-
-	it("handles mobile scroll event", async () => {
+	it("renders 1 week in mobile view", async () => {
 		render(Calendar, { initialDate: new Date("2023-01-15") });
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalled();
+			const mobileDays = document.querySelectorAll(".mobile-day");
+			expect(mobileDays.length).toBe(7);
 		});
+	});
 
-		// Wait for mobile months to be loaded
+	it("navigates weeks in mobile view", async () => {
+		const { getByLabelText } = render(Calendar, { initialDate: new Date("2023-01-09") }); // Mon Jan 09
+
+		// Wait for initial load
 		await waitFor(() => {
-			expect(document.querySelector(".mobile-month")).toBeInTheDocument();
+			const mobileDays = document.querySelectorAll(".mobile-day");
+			expect(mobileDays.length).toBe(7);
 		});
 
-		const mobileView = document.querySelector(".mobile-view");
-		if (mobileView) {
-			// Simulate scroll to bottom
-			Object.defineProperty(mobileView, "scrollTop", { value: 100, writable: true });
-			Object.defineProperty(mobileView, "clientHeight", { value: 500, writable: true });
-			Object.defineProperty(mobileView, "scrollHeight", { value: 600, writable: true });
-			await fireEvent.scroll(mobileView);
-		}
+		// Initial: Jan 09 - Jan 15
+		// Check for Jan 09 in the document
+		expect(document.body.textContent).toContain("9");
+
+		const nextButton = getByLabelText("Semaine suivante");
+		await fireEvent.click(nextButton);
+
+		// Should navigate to Jan 16 (next week)
+		await waitFor(() => {
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringMatching(/start=2023-01-1[56]/));
+		});
 	});
 });
 

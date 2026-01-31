@@ -82,7 +82,7 @@
 	}
 
 	:global(.list-logo) {
-		width: 200px;
+		width: 100%;
 		height: 200px;
 		object-fit: cover;
 		background: var(--bg-secondary);
@@ -91,7 +91,7 @@
 	}
 
 	.list-logo-placeholder {
-		width: 200px;
+		width: 100%;
 		height: 200px;
 		display: flex;
 		align-items: center;

@@ -79,7 +79,7 @@
 	}
 
 	:global(.association-logo) {
-		width: 200px;
+		width: 100%;
 		height: 200px;
 		background: var(--bg-secondary);
 		transition: transform 0.3s ease;
@@ -87,7 +87,7 @@
 	}
 
 	.association-logo-placeholder {
-		width: 200px;
+		width: 100%;
 		height: 200px;
 		display: flex;
 		align-items: center;

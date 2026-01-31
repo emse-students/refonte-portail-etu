@@ -47,8 +47,12 @@
 		return d;
 	}
 
+	let isMobile = $state(false);
+
 	// Pre-compute weeks once when weekStart changes
-	const visibleWeeks = $derived(Array.from({ length: 4 }, (_, i) => addDays(weekStart, i * 7)));
+	const visibleWeeks = $derived(
+		Array.from({ length: isMobile ? 1 : 4 }, (_, i) => addDays(weekStart, i * 7))
+	);
 	const weekDaysCache = new Map<number, Date[]>();
 
 	function getWeekDays(start: Date): Date[] {
@@ -61,17 +65,6 @@
 		}
 		return weekDaysCache.get(key)!;
 	}
-
-	// Mobile state
-	let mobileMonths: {
-		month: number;
-		year: number;
-		events: CalendarEvent[];
-	}[] = $state([]);
-	let loadingMonths = new Set<string>();
-	let loadingPrev = $state(false);
-	let loadingNext = $state(false);
-	let isMobile = $state(false);
 
 	async function fetchEventsRange(start: Date, end: Date): Promise<CalendarEvent[]> {
 		const params = new URLSearchParams({
@@ -106,152 +99,22 @@
 		loadWeeks(addDays(weekStart, 7));
 	}
 
-	// Mobile infinite scroll
-	async function fetchEvents(year: number, month: number): Promise<CalendarEvent[]> {
-		const start = new Date(year, month, 1);
-		const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
-		return fetchEventsRange(start, end);
-	}
+	onMount(() => {
+		const mediaQuery = window.matchMedia("(max-width: 700px)");
+		isMobile = mediaQuery.matches;
 
-	async function loadMobileMonth(y: number, m: number, prepend = false) {
-		const key = `${y}-${m}`;
-		if (loadingMonths.has(key) || mobileMonths.some((mm) => mm.year === y && mm.month === m)) {
-			return;
-		}
-		loadingMonths.add(key);
-		const container = document.querySelector(".calendar.mobile-view");
-		const prevScrollHeight = container ? container.scrollHeight : 0;
-		const prevScrollTop = container ? container.scrollTop : 0;
+		const handler = (e: MediaQueryListEvent) => (isMobile = e.matches);
+		mediaQuery.addEventListener("change", handler);
 
-		if (prepend) {
-			loadingPrev = true;
-		} else {
-			loadingNext = true;
+		if (events.length === 0) {
+			loadWeeks(weekStart);
 		}
 
-		try {
-			const data = await fetchEvents(y, m);
-			if (prepend) {
-				mobileMonths = [{ month: m, year: y, events: data }, ...mobileMonths];
-				await tick();
-				if (container) {
-					const newScrollHeight = container.scrollHeight;
-					container.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
-				}
-			} else {
-				mobileMonths = [...mobileMonths, { month: m, year: y, events: data }];
-			}
-		} finally {
-			if (prepend) {
-				loadingPrev = false;
-			} else {
-				loadingNext = false;
-			}
-			loadingMonths.delete(key);
-		}
-	}
-
-	// Throttle scroll handler for better performance
-	let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-
-	function handleMobileScroll(e: UIEvent) {
-		if (scrollTimeout) return;
-
-		scrollTimeout = setTimeout(() => {
-			scrollTimeout = null;
-			processScroll(e);
-		}, 100);
-	}
-
-	function processScroll(e: UIEvent) {
-		const el = e.target as HTMLElement;
-		if (!el || mobileMonths.length === 0) return;
-
-		if (el.scrollTop === 0) {
-			const first = mobileMonths[0];
-			let m = first.month - 1;
-			let y = first.year;
-			if (m < 0) {
-				m = 11;
-				y--;
-			}
-			loadMobileMonth(y, m, true);
-		} else if (el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
-			const last = mobileMonths[mobileMonths.length - 1];
-			let m = last.month + 1;
-			let y = last.year;
-			if (m > 11) {
-				m = 0;
-				y++;
-			}
-			loadMobileMonth(y, m);
-		}
-
-		// Cleanup distant months for memory efficiency
-		if (mobileMonths.length > 5) {
-			const months = Array.from(el.querySelectorAll(".mobile-month"));
-			let firstVisible = 0;
-			let lastVisible = months.length - 1;
-
-			for (let i = 0; i < months.length; i++) {
-				const rect = (months[i] as HTMLElement).getBoundingClientRect();
-				if (rect.bottom > 0 && rect.top < window.innerHeight) {
-					firstVisible = i;
-					break;
-				}
-			}
-
-			for (let i = months.length - 1; i >= 0; i--) {
-				const rect = (months[i] as HTMLElement).getBoundingClientRect();
-				if (rect.top < window.innerHeight && rect.bottom > 0) {
-					lastVisible = i;
-					break;
-				}
-			}
-
-			const keepStart = Math.max(0, firstVisible - 2);
-			const keepEnd = Math.min(mobileMonths.length, lastVisible + 3);
-			if (keepStart > 0 || keepEnd < mobileMonths.length) {
-				const firstKept = months[keepStart];
-				const prevTop = firstKept ? (firstKept as HTMLElement).getBoundingClientRect().top : 0;
-				mobileMonths = mobileMonths.slice(keepStart, keepEnd);
-				tick().then(() => {
-					const newFirstKept = el.querySelectorAll(".mobile-month")[0];
-					if (newFirstKept) {
-						const newTop = (newFirstKept as HTMLElement).getBoundingClientRect().top;
-						el.scrollTop += newTop - prevTop;
-					}
-				});
-			}
-		}
-	}
-
-	onMount(async () => {
-		isMobile = window.matchMedia("(max-width: 700px)").matches;
-
-		if (isMobile) {
-			const now = new Date();
-			await loadMobileMonth(now.getFullYear(), now.getMonth());
-		} else {
-			if (events.length === 0) {
-				await loadWeeks(weekStart);
-			}
-		}
+		return () => mediaQuery.removeEventListener("change", handler);
 	});
 
 	export function refresh() {
-		if (isMobile) {
-			// Refresh all currently loaded months
-			const promises = mobileMonths.map(async (m) => {
-				const data = await fetchEvents(m.year, m.month);
-				return { ...m, events: data };
-			});
-			Promise.all(promises).then((updatedMonths) => {
-				mobileMonths = updatedMonths;
-			});
-		} else {
-			loadWeeks(weekStart);
-		}
+		loadWeeks(weekStart);
 	}
 </script>
 
@@ -320,24 +183,24 @@
 		</table>
 	</div>
 
-	<!-- Mobile vertical view with infinite scroll -->
-	<div class="calendar mobile-view" onscroll={handleMobileScroll}>
-		{#if loadingPrev}
+	<!-- Mobile vertical view -->
+	<div class="calendar mobile-view">
+		{#if isLoading}
 			<div class="spinner spinner-mobile"></div>
-		{/if}
-		{#each mobileMonths as m}
-			<div class="mobile-month">
-				<h2 class="calendar-month-label">
-					{new Date(m.year, m.month).toLocaleString(undefined, {
-						month: "long",
-						year: "numeric",
-					})}
-				</h2>
-				{#each Array(new Date(m.year, m.month + 1, 0).getDate()) as _, dayIdx}
-					{@const date = new Date(m.year, m.month, dayIdx + 1)}
-					{@const dayEnd = new Date(m.year, m.month, dayIdx + 1, 23, 59, 59, 999)}
+		{:else}
+			{#each visibleWeeks as weekStartDate}
+				{#each getWeekDays(weekStartDate) as date}
+					{@const dayEnd = new Date(
+						date.getFullYear(),
+						date.getMonth(),
+						date.getDate(),
+						23,
+						59,
+						59,
+						999
+					)}
 					{@const isToday = new Date().toDateString() === date.toDateString()}
-					{@const dayEvents = m.events.filter(
+					{@const dayEvents = events.filter(
 						(event) => event.start_date <= dayEnd && event.end_date >= date
 					)}
 
@@ -347,6 +210,8 @@
 								>{date.toLocaleDateString(undefined, { weekday: "short" })}</span
 							>
 							<span class="day-number">{date.getDate()}</span>
+							<span class="day-month">{date.toLocaleDateString(undefined, { month: "short" })}</span
+							>
 						</div>
 						<div class="mobile-events-column">
 							{#each dayEvents as event}
@@ -357,10 +222,7 @@
 						</div>
 					</div>
 				{/each}
-			</div>
-		{/each}
-		{#if loadingNext}
-			<div class="spinner spinner-mobile"></div>
+			{/each}
 		{/if}
 	</div>
 </div>
@@ -444,31 +306,26 @@
 
 	@media (max-width: 700px) {
 		.calendar-nav {
-			display: none;
+			gap: 1rem;
+			padding: 1rem;
 		}
+		.calendar-title-main {
+			font-size: 1.1rem;
+		}
+		.calendar-title-sub {
+			font-size: 0.85rem;
+		}
+
 		.desktop-view {
 			display: none;
 		}
 		.mobile-view {
 			display: block;
+			/* Let the page scroll naturally, no internal scroll needed since we have buttons */
+			height: auto;
+			overflow: visible;
 		}
-		.calendar-month-label {
-			font-size: 1.2rem;
-			font-weight: 600;
-			color: var(--color-text);
-			text-transform: capitalize;
-			display: block;
-			padding: 1rem;
-			background: var(--bg-secondary);
-			position: sticky;
-			top: 0;
-			z-index: 10;
-			margin: 0;
-			border-bottom: 1px solid var(--color-bg-2);
-		}
-		.mobile-month {
-			margin-bottom: 0;
-		}
+
 		.mobile-day {
 			display: flex;
 			border-bottom: 1px solid var(--color-bg-2);
@@ -479,7 +336,8 @@
 			background: var(--color-primary);
 			color: var(--color-text-on-primary);
 		}
-		.mobile-day.is-today .mobile-date-column .day-name {
+		.mobile-day.is-today .mobile-date-column .day-name,
+		.mobile-day.is-today .mobile-date-column .day-month {
 			color: var(--color-primary);
 			font-weight: 700;
 		}
@@ -490,7 +348,13 @@
 			flex-direction: column;
 			align-items: center;
 			padding: 1rem 0.5rem;
-			gap: 0.25rem;
+			gap: 0.1rem;
+		}
+		.day-month {
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			color: var(--color-text-light);
+			font-weight: 500;
 		}
 		.day-name {
 			font-size: 0.75rem;
@@ -501,8 +365,8 @@
 		.day-number {
 			font-size: 1.25rem;
 			font-weight: 500;
-			width: 36px;
-			height: 36px;
+			width: 32px;
+			height: 32px;
 			display: flex;
 			align-items: center;
 			justify-content: center;

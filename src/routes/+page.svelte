@@ -34,7 +34,7 @@
 
 	const calendarUrl = $derived(`${page.url.origin}/api/calendar/calendar.ics`);
 	const googleCalendarUrl = $derived(
-		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl)}`
+		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl.replace("https://", "http://"))}`
 	);
 	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
 
