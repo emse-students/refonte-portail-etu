@@ -19,7 +19,9 @@ describe("Event Component", () => {
 		edited_at: new Date(),
 		association_id: 1,
 		list_id: null,
-	};
+		association_name: "Test Asso",
+		association_handle: "test-asso",
+	} as any;
 
 	const mockEventList: RawEvent = {
 		id: 2,
@@ -33,34 +35,17 @@ describe("Event Component", () => {
 		edited_at: new Date(),
 		association_id: null,
 		list_id: 1,
-	};
+		list_name: "Test List",
+		list_handle: "test-list",
+	} as any;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(global.fetch as any).mockResolvedValue({
-			json: async () => ({ name: "Test Asso", handle: "test-asso" }),
-		});
 	});
 
 	it("renders event title", () => {
 		render(Event, { ...mockEventAsso });
 		expect(screen.getByText("Test Event")).toBeInTheDocument();
-	});
-
-	it("fetches association details if association_id is present", async () => {
-		render(Event, { ...mockEventAsso });
-
-		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/associations/1"));
-		});
-	});
-
-	it("fetches list details if list_id is present", async () => {
-		render(Event, { ...mockEventList });
-
-		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/api/lists/1"));
-		});
 	});
 
 	it("opens modal on click", async () => {

@@ -78,7 +78,7 @@ describe("Lists Page", () => {
 		};
 		render(ListsPage, { data: adminData } as any);
 
-		const adminBtn = screen.getByText("Administration");
+		const adminBtn = screen.getByText("Gérer la liste");
 		expect(adminBtn).toBeInTheDocument();
 
 		await fireEvent.click(adminBtn);
@@ -97,7 +97,7 @@ describe("Lists Page", () => {
 		render(ListsPage, { data: adminData } as any);
 
 		// Enter edit mode
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		// Click add member
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));

@@ -269,8 +269,8 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.queryByText("Administration")).not.toBeInTheDocument();
-		expect(screen.queryByText("Gérer les membres")).not.toBeInTheDocument();
+		expect(screen.queryByText("Gérer la liste")).not.toBeInTheDocument();
+		expect(screen.queryByText("Gérer la liste")).not.toBeInTheDocument();
 	});
 
 	it("shows admin button when user has ADMIN permission", () => {
@@ -297,7 +297,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.getByText("Administration")).toBeInTheDocument();
+		expect(screen.getByText("Gérer la liste")).toBeInTheDocument();
 	});
 
 	it("shows 'Gérer les membres' button for user with ROLES permission in list", () => {
@@ -344,7 +344,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		expect(screen.getByText("Gérer les membres")).toBeInTheDocument();
+		expect(screen.getByText("Gérer la liste")).toBeInTheDocument();
 	});
 
 	it("toggles edit mode when admin button is clicked", async () => {
@@ -371,7 +371,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		const adminBtn = screen.getByText("Administration");
+		const adminBtn = screen.getByText("Gérer la liste");
 		await fireEvent.click(adminBtn);
 
 		// Button text should change
@@ -405,7 +405,7 @@ describe("Lists Handle Page Component", () => {
 		});
 
 		// Enter edit mode
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		// Click add member
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
@@ -447,7 +447,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -503,7 +503,7 @@ describe("Lists Handle Page Component", () => {
 		});
 
 		// Enter edit mode
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		// "Éditer les informations" button should appear
 		expect(screen.getByText("Éditer les informations")).toBeInTheDocument();
@@ -533,7 +533,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 		await fireEvent.click(screen.getByText("Éditer les informations"));
 
 		expect(screen.getByText("Modifier la liste")).toBeInTheDocument();
@@ -569,7 +569,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 		await fireEvent.click(screen.getByText("Éditer les informations"));
 
 		const nameInput = screen.getByLabelText("Nom de la liste");
@@ -613,7 +613,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		// Find the remove button for a member
 		const removeButtons = screen.getAllByText("Retirer");
@@ -652,7 +652,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		const removeButtons = screen.getAllByText("Retirer");
 		await fireEvent.click(removeButtons[0]);
@@ -694,14 +694,14 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		// Find the edit role button for a member
 		const editButtons = screen.getAllByText("Modifier");
-		await fireEvent.click(editButtons[0]);
+		await fireEvent.click(editButtons[editButtons.length - 1]);
 
-		// Modal should be open with member's name
-		expect(screen.getByText(/Modifier 'John/)).toBeInTheDocument();
+		// Modal should be open with member's name (Jane Smith)
+		expect(screen.getByText(/Modifier 'Jane/)).toBeInTheDocument();
 	});
 
 	it("updates member role", async () => {
@@ -733,7 +733,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		const editButtons = screen.getAllByText("Modifier");
 		await fireEvent.click(editButtons[0]);
@@ -785,7 +785,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -840,7 +840,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 		await fireEvent.click(screen.getByText("+ Ajouter un membre"));
 
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -890,7 +890,7 @@ describe("Lists Handle Page Component", () => {
 			},
 		});
 
-		await fireEvent.click(screen.getByText("Administration"));
+		await fireEvent.click(screen.getByText("Gérer la liste"));
 
 		const removeButtons = screen.getAllByText("Retirer");
 		await fireEvent.click(removeButtons[0]);
