@@ -8,11 +8,10 @@ export const GET = async () => {
 	const users = await db<RawUser & { max_role_permissions: number | null }>`
         SELECT
             u.id, u.first_name, u.last_name, u.email, u.login, u.promo, u.admin,
-            MAX(r.permissions) as max_role_permissions
+            MAX(m.permissions) as max_role_permissions
         FROM
             user u
         LEFT JOIN member m ON u.id = m.user_id
-        LEFT JOIN role r ON m.role_id = r.id
         GROUP BY u.id
         ORDER BY u.id DESC
     `;

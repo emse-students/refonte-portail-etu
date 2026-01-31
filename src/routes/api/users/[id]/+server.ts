@@ -22,16 +22,13 @@ export const GET = async (event: RequestEvent) => {
                 u.last_name, 
                 u.email as user_email, 
                 u.login as user_login,
-                u.permissions as user_permissions,
-                r.id as role_id, 
-                r.name as role_name, 
-                r.permissions as role_permissions, 
-                r.hierarchy as hierarchy,
+                m.role_name, 
+                m.permissions as role_permissions, 
+                m.hierarchy,
 				u.admin as admin,
                 u.promo as user_promo
             FROM member m
             JOIN user u ON m.user_id = u.id
-            JOIN role r ON m.role_id = r.id
             WHERE m.user_id = ${id}
         `) as {
 			member_id: number;
@@ -43,8 +40,6 @@ export const GET = async (event: RequestEvent) => {
 			last_name: string;
 			user_email: string;
 			user_login: string;
-			user_permissions: number;
-			role_id: number;
 			role_name: string;
 			role_permissions: number;
 			hierarchy: number;
@@ -57,16 +52,7 @@ export const GET = async (event: RequestEvent) => {
 			visible: m.visible,
 			association_id: m.association_id,
 			list_id: m.list_id,
-			user: {
-				id: m.user_id,
-				first_name: m.first_name,
-				last_name: m.last_name,
-				email: m.user_email,
-				login: m.user_login,
-				permissions: m.user_permissions,
-				promo: m.user_promo,
-				admin: m.admin,
-			},
+			user: user!,
 			role_name: m.role_name,
 			permissions: m.role_permissions,
 			hierarchy: m.hierarchy,
