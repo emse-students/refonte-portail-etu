@@ -78,7 +78,7 @@ describe("Calendar Component", () => {
 		// The component uses getStartOfWeek which goes back to Monday.
 		// Jan 1st 2023 is a Sunday. So previous Monday is Dec 26th 2022.
 
-		expect(screen.getByText(/Calendrier des événements/i)).toBeInTheDocument();
+		expect(screen.getAllByText(/Calendrier des événements/i)[0]).toBeInTheDocument();
 		expect(screen.getByText(/Semaine du/i)).toBeInTheDocument();
 	});
 
@@ -169,7 +169,7 @@ describe("Calendar Component", () => {
 		render(Calendar, {});
 
 		// Should render without error
-		expect(screen.getByText(/Calendrier des événements/i)).toBeInTheDocument();
+		expect(screen.getAllByText(/Calendrier des événements/i)[0]).toBeInTheDocument();
 	});
 
 	it("calls onDayClick when day is clicked", async () => {
@@ -495,7 +495,7 @@ describe("Calendar Component - Edge Cases", () => {
 			expect(global.fetch).toHaveBeenCalled();
 		});
 
-		expect(screen.getByText(/Calendrier des événements/)).toBeInTheDocument();
+		expect(screen.getAllByText(/Calendrier des événements/)[0]).toBeInTheDocument();
 	});
 
 	it("handles empty initial state", () => {
@@ -507,7 +507,7 @@ describe("Calendar Component - Edge Cases", () => {
 		render(Calendar, { initialDate: new Date("2023-01-15") });
 
 		// Component should still render
-		expect(screen.getByText(/Calendrier des événements/)).toBeInTheDocument();
+		expect(screen.getAllByText(/Calendrier des événements/)[0]).toBeInTheDocument();
 	});
 
 	it("handles year boundary navigation", async () => {

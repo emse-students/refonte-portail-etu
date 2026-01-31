@@ -119,13 +119,13 @@
 </script>
 
 <div class="calendar-responsive">
+	<div class="calendar-title-main mobile-calendar-title">Calendrier des événements</div>
 	<!-- Desktop: Month navigation -->
 	<div class="calendar-nav">
 		<button class="calendar-arrow" onclick={loadPrevWeek} aria-label="Semaine précédente">
 			<ChevronLeft width="24" height="24" class="" />
 		</button>
 		<span class="calendar-title">
-			<span class="calendar-title-main">Calendrier des événements</span>
 			<span class="calendar-title-sub">
 				Semaine du <b
 					>{weekStart.toLocaleDateString(undefined, {
@@ -240,6 +240,9 @@
 		max-width: 100%;
 		overflow: hidden;
 	}
+	.mobile-calendar-title {
+		display: none;
+	}
 	.calendar-nav {
 		display: flex;
 		align-items: center;
@@ -305,6 +308,11 @@
 	}
 
 	@media (max-width: 700px) {
+		.mobile-calendar-title {
+			display: block;
+			text-align: center;
+			margin-top: 1rem;
+		}
 		.calendar-nav {
 			gap: 1rem;
 			padding: 1rem;
