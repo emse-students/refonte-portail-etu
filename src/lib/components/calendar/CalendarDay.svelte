@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { RawEvent as CalendarEvent, FullUser } from "$lib/databasetypes";
 	import Event from "./Event.svelte";
+	import Modal from "$lib/components/Modal.svelte";
 
 	let {
 		dayDate,
@@ -15,6 +16,8 @@
 		onEventClick?: (event: CalendarEvent) => boolean;
 		user?: FullUser;
 	} = $props();
+
+	let showDayModal = $state(false);
 
 	const eventsForDay = $derived(
 		events.filter((event) => {
@@ -37,7 +40,15 @@
 			<Event {...event} {i} {count} {onEventClick} {user} />
 		{/each}
 		{#if eventsForDay.length > 3}
-			<div class="event-overflow">+{eventsForDay.length - 3} autres</div>
+			<button
+				class="event-overflow-btn"
+				onclick={(e) => {
+					e.stopPropagation();
+					showDayModal = true;
+				}}
+			>
+				+{eventsForDay.length - 3} autres
+			</button>
 		{/if}
 	</div>
 	{#if onAddEvent}
@@ -52,6 +63,17 @@
 			+
 		</button>
 	{/if}
+
+	<Modal
+		bind:open={showDayModal}
+		title={`Événements du ${dayDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}`}
+	>
+		<div class="day-events-list">
+			{#each eventsForDay as event (event.id)}
+				<Event {...event} mode="list" {onEventClick} {user} />
+			{/each}
+		</div>
+	</Modal>
 </div>
 
 <style>
@@ -90,24 +112,39 @@
 		pointer-events: none;
 	}
 
-	.event-overflow {
+	.event-overflow-btn {
 		position: absolute;
 		left: 0;
 		right: 0;
 		bottom: 8px;
-		width: 100%;
+		width: calc(100% - 16px);
+		margin: 0 8px;
 		text-align: center;
 		font-size: 0.8em;
 		color: var(--color-primary);
 		background: var(--bg-secondary);
 		box-shadow: var(--shadow-sm);
 		z-index: 3;
-		pointer-events: none;
+		pointer-events: auto;
 		padding: 4px 0;
 		border-radius: 4px;
-		margin: 0 8px;
-		width: calc(100% - 16px);
 		font-weight: 600;
+		border: none;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.event-overflow-btn:hover {
+		background: var(--color-bg-1);
+	}
+
+	.day-events-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		max-height: 60vh;
+		overflow-y: auto;
+		padding: 0.5rem;
 	}
 
 	.date-badge {
