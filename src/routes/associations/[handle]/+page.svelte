@@ -11,6 +11,7 @@
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
 	import ImageWithSkeleton from "$lib/components/ImageWithSkeleton.svelte";
+	import ColorPicker from "$lib/components/ColorPicker.svelte";
 	import { resolve } from "$app/paths";
 
 	let { data } = $props();
@@ -575,8 +576,7 @@
 			<input type="text" id="asso-handle" bind:value={editAssociationHandle} />
 		</div>
 		<div class="form-group">
-			<label for="asso-color">Couleur (Hex)</label>
-			<input type="number" id="asso-color" bind:value={editAssociationColor} />
+			<ColorPicker bind:value={editAssociationColor} label="Couleur de l'association" />
 		</div>
 		<div class="form-group">
 			<label for="asso-icon">Logo</label>

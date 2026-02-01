@@ -1,5 +1,6 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
 	import { invalidateAll } from "$app/navigation";
+	import ColorPicker from "$lib/components/ColorPicker.svelte";
 
 	let {
 		data = [],
@@ -112,6 +113,10 @@
 											type="datetime-local"
 											bind:value={editData[col.key]}
 										/>
+									{:else if col.type === "color-integer"}
+										<div class="color-picker-wrapper">
+											<ColorPicker bind:value={editData[col.key] as number} label="" />
+										</div>
 									{:else}
 										<input
 											class="input input-bordered input-sm"

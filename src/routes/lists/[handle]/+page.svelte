@@ -11,6 +11,7 @@
 
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
 	import ImageWithSkeleton from "$lib/components/ImageWithSkeleton.svelte";
+	import ColorPicker from "$lib/components/ColorPicker.svelte";
 
 	let { data } = $props();
 	const list = $derived(data.list);
@@ -486,8 +487,7 @@
 			<input type="number" id="list-promo" bind:value={editListPromo} />
 		</div>
 		<div class="form-group">
-			<label for="list-color">Couleur (Hex)</label>
-			<input type="number" id="list-color" bind:value={editListColor} />
+			<ColorPicker bind:value={editListColor} label="Couleur de la liste" />
 		</div>
 		<div class="form-group">
 			<label for="list-icon">Logo</label>

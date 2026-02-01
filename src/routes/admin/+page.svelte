@@ -166,7 +166,7 @@
 		{ key: "name", label: "Name", editable: true },
 		{ key: "handle", label: "Handle", editable: true },
 		{ key: "description", label: "Description", editable: true },
-		{ key: "color", label: "Color", editable: true, type: "number" },
+		{ key: "color", label: "Color", editable: true, type: "color-integer" },
 	];
 
 	const eventColumns = [
@@ -185,7 +185,7 @@
 		{ key: "handle", label: "Handle", editable: true },
 		{ key: "description", label: "Description", editable: true },
 		{ key: "promo", label: "Promo", editable: true, type: "number" },
-		{ key: "color", label: "Color", editable: true, type: "number" },
+		{ key: "color", label: "Color", editable: true, type: "color-integer" },
 	];
 </script>
 
