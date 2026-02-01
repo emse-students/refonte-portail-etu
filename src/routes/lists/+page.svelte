@@ -3,6 +3,7 @@
 	import ListCard from "$lib/components/ListCard.svelte";
 	import Modal from "$lib/components/Modal.svelte";
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import ColorPicker from "$lib/components/ColorPicker.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
 	import ChevronDown from "$lib/components/icons/ChevronDown.svelte";
@@ -167,13 +168,7 @@
 			</select>
 		</div>
 		<div class="form-group">
-			<label for="new-list-color">Couleur (Hex)</label>
-			<input
-				type="number"
-				id="new-list-color"
-				bind:value={newListColor}
-				placeholder="Ex: 0xFF0000"
-			/>
+			<ColorPicker bind:value={newListColor} label="Couleur de la liste" />
 		</div>
 		<div class="form-group">
 			<label for="new-list-icon">Logo</label>

@@ -3,6 +3,7 @@
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import Modal from "$lib/components/Modal.svelte";
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
+	import ColorPicker from "$lib/components/ColorPicker.svelte";
 	import Permission, { hasPermission } from "$lib/permissions";
 	import { invalidateAll } from "$app/navigation";
 	import Search from "$lib/components/icons/Search.svelte";
@@ -135,13 +136,7 @@
 			<input type="text" id="new-asso-name" bind:value={newAssoName} placeholder="Ex: BDE" />
 		</div>
 		<div class="form-group">
-			<label for="new-asso-color">Couleur (Hex)</label>
-			<input
-				type="number"
-				id="new-asso-color"
-				bind:value={newAssoColor}
-				placeholder="Ex: 0xFF0000"
-			/>
+			<ColorPicker bind:value={newAssoColor} label="Couleur de l'association" />
 		</div>
 		<div class="form-group">
 			<label for="new-asso-icon">Logo</label>
