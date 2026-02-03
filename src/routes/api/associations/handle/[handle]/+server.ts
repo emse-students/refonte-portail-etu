@@ -18,5 +18,9 @@ export const GET = async (event: RequestEvent) => {
 	const associationData = associations[0];
 
 	const asso = await getAssociationWithMembers(associationData);
-	return json(asso);
+	return json(asso, {
+		headers: {
+			"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+		},
+	});
 };

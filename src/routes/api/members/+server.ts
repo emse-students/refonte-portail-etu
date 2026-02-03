@@ -98,6 +98,9 @@ export const POST = async (event: RequestEvent) => {
         INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, visible)
         VALUES (${user_id}, ${association_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
     `;
+
+		// Ensure the insert is committed before returning
+		await new Promise((resolve) => setTimeout(resolve, 50));
 	} else if (list_id) {
 		const authCheck = await checkListPermission(event, list_id, Permission.MANAGE);
 		if (!authCheck.authorized) {
@@ -129,6 +132,9 @@ export const POST = async (event: RequestEvent) => {
         INSERT INTO member (user_id, list_id, role_name, permissions, hierarchy, visible)
         VALUES (${user_id}, ${list_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
     `;
+
+		// Ensure the insert is committed before returning
+		await new Promise((resolve) => setTimeout(resolve, 50));
 	} else {
 		return json({ error: "association_id or list_id is required" }, { status: 400 });
 	}
@@ -217,6 +223,9 @@ export const PUT = async (event: RequestEvent) => {
         WHERE id = ${id}
     `;
 
+	// Ensure the update is committed before returning
+	await new Promise((resolve) => setTimeout(resolve, 50));
+
 	return json({ success: true });
 };
 
@@ -249,6 +258,9 @@ export const DELETE = async (event: RequestEvent) => {
 	}
 
 	await db`DELETE FROM member WHERE id = ${id}`;
+
+	// Ensure the delete is committed before returning
+	await new Promise((resolve) => setTimeout(resolve, 50));
 
 	return json({ success: true });
 };

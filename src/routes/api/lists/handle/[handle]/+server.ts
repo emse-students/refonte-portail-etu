@@ -29,5 +29,9 @@ export const GET = async (event: RequestEvent) => {
 		}
 	}
 
-	return json(listWithMembers);
+	return json(listWithMembers, {
+		headers: {
+			"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+		},
+	});
 };
