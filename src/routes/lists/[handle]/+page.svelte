@@ -15,6 +15,7 @@
 
 	let { data } = $props();
 	const list = $derived(data.list);
+	const members = $derived(list.members || []);
 	const events = $derived(data.events || []);
 	const userData = $derived(data.userData);
 	const isAdmin = $derived(hasPermission(userData?.permissions || 0, Permission.ADMIN));
@@ -75,7 +76,7 @@
 	});
 
 	function requestRemoveMember(id: number) {
-		const member = list.members.find((m) => m.id === id);
+		const member = members.find((m) => m.id === id);
 		if (member) {
 			memberToDelete = member;
 			showDeleteConfirmModal = true;
@@ -131,7 +132,6 @@
 		});
 		if (res.ok) {
 			showDeleteConfirmModal = false;
-			list.members = list.members.filter((m) => m.id !== memberToDelete!.id);
 			memberToDelete = null;
 			await invalidateAll();
 		} else {
@@ -165,12 +165,6 @@
 		});
 		if (res.ok) {
 			showEditMemberModal = false;
-			const member = list.members.find((m) => m.id === selectedMember!.id);
-			if (member) {
-				member.role_name = memberRoleName;
-				member.hierarchy = memberHierarchy;
-				member.permissions = memberPermissions;
-			}
 			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du membre");
@@ -222,10 +216,10 @@
 
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
-		list.members?.filter((m) => m.hierarchy >= 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
+		members?.filter((m) => m.hierarchy >= 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 	const otherMembers = $derived(
-		list.members?.filter((m) => m.hierarchy < 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
+		members?.filter((m) => m.hierarchy < 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 </script>
 
