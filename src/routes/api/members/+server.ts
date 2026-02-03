@@ -1,11 +1,13 @@
 import { json, type RequestEvent } from "@sveltejs/kit";
-import db from "$lib/server/database";
+import db, { getPool } from "$lib/server/database";
 import Permission from "$lib/permissions";
 import {
 	requireAuth,
 	getAuthorizedAssociationIds,
 	checkAssociationPermission,
 	checkListPermission,
+	hasAssociationPermission,
+	hasListPermission,
 } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
@@ -94,13 +96,23 @@ export const POST = async (event: RequestEvent) => {
 			);
 		}
 
-		await db`
-        INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, visible)
-        VALUES (${user_id}, ${association_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
-    `;
+		const [result] = await getPool().query(
+			"INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, visible) VALUES (?, ?, ?, ?, ?, ?)",
+			[user_id, association_id || null, role_name, permissions, hierarchy, visible !== false]
+		);
 
 		// Ensure the insert is committed before returning
 		await new Promise((resolve) => setTimeout(resolve, 50));
+
+		// Récupérer l'ID du membre inséré
+		const insertId = (result as { insertId: number }).insertId;
+
+		return json(
+			{ success: true, id: insertId },
+			{
+				status: 201,
+			}
+		);
 	} else if (list_id) {
 		const authCheck = await checkListPermission(event, list_id, Permission.MANAGE);
 		if (!authCheck.authorized) {
@@ -128,100 +140,94 @@ export const POST = async (event: RequestEvent) => {
 			);
 		}
 
-		await db`
-        INSERT INTO member (user_id, list_id, role_name, permissions, hierarchy, visible)
-        VALUES (${user_id}, ${list_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
-    `;
+		const [result] = await getPool().query(
+			"INSERT INTO member (user_id, list_id, role_name, permissions, hierarchy, visible) VALUES (?, ?, ?, ?, ?, ?)",
+			[user_id, list_id || null, role_name, permissions, hierarchy, visible !== false]
+		);
 
 		// Ensure the insert is committed before returning
 		await new Promise((resolve) => setTimeout(resolve, 50));
+
+		// Récupérer l'ID du membre inséré
+		const insertId = (result as { insertId: number }).insertId;
+
+		return json(
+			{ success: true, id: insertId },
+			{
+				status: 201,
+			}
+		);
 	} else {
 		return json({ error: "association_id or list_id is required" }, { status: 400 });
 	}
-
-	return json(
-		{ success: true },
-		{
-			status: 201,
-		}
-	);
 };
 
 export const PUT = async (event: RequestEvent) => {
 	const body = await event.request.json();
-	const { id, user_id, association_id, role_name, permissions, hierarchy, list_id, visible } = body;
+	const { id, role_name, permissions, hierarchy, visible } = body;
 
-	if (!id || !association_id) {
-		return json({ error: "id and association_id are required" }, { status: 400 });
+	if (!id) {
+		return json({ error: "id is required" }, { status: 400 });
 	}
 
-	// Récupérer le membre existant pour vérifier son association
 	const existingMember = await db`
-        SELECT association_id FROM member WHERE id = ${id}
-    `.then((rows) => rows?.[0]);
+			SELECT * FROM member WHERE id = ${id}
+		`.then((rows) => rows?.[0]);
 
 	if (!existingMember) {
 		return json({ error: "Member not found" }, { status: 404 });
 	}
 
-	// Vérifier la permission pour l'association actuelle du membre
-	const authCheck = await checkAssociationPermission(
-		event,
-		existingMember.association_id,
-		Permission.MANAGE
-	);
-	if (!authCheck.authorized) {
-		return authCheck.response;
-	}
-
-	// Si on change l'association, vérifier aussi la permission pour la nouvelle association
-	if (existingMember.association_id !== association_id) {
-		const newAssocAuthCheck = await checkAssociationPermission(
+	if (existingMember.association_id !== null) {
+		// Vérifier la permission pour l'association actuelle du membre
+		const authCheck = await checkAssociationPermission(
 			event,
-			association_id,
+			existingMember.association_id,
 			Permission.MANAGE
 		);
-		if (!newAssocAuthCheck.authorized) {
+		if (!authCheck.authorized) {
+			return authCheck.response;
+		}
+
+		if (!hasAssociationPermission(authCheck.user, existingMember.association_id, permissions)) {
 			return json(
 				{
 					error: "Forbidden",
-					message: "Vous n'avez pas la permission de déplacer ce membre vers cette association",
+					message:
+						"Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
 				},
 				{ status: 403 }
 			);
 		}
-	}
-
-	const targetAssociationId = association_id || existingMember.association_id;
-
-	let maxPermissions = 0;
-	if (authCheck.user.admin) {
-		maxPermissions = Permission.ADMIN;
-	} else {
-		const membership = authCheck.user.memberships.find(
-			(m) => m.association_id === targetAssociationId
-		);
-		if (membership) {
-			maxPermissions = membership.permissions;
+	} else if (existingMember.list_id !== null) {
+		// Vérifier la permission pour la liste actuelle du membre
+		const authCheck = await checkListPermission(event, existingMember.list_id, Permission.MANAGE);
+		if (!authCheck.authorized) {
+			return authCheck.response;
 		}
-	}
 
-	if (permissions > maxPermissions) {
+		if (!hasListPermission(authCheck.user, existingMember.list_id, permissions)) {
+			return json(
+				{
+					error: "Forbidden",
+					message:
+						"Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
+				},
+				{ status: 403 }
+			);
+		}
+	} else {
 		return json(
-			{
-				error: "Forbidden",
-				message: "Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
-			},
-			{ status: 403 }
+			{ error: "Member is not associated with an association or a list" },
+			{ status: 400 }
 		);
 	}
 
 	await db`
-        UPDATE member 
-        SET user_id = ${user_id}, association_id = ${association_id || null}, 
-            role_name = ${role_name}, permissions = ${permissions}, hierarchy = ${hierarchy}, list_id = ${list_id || null}, visible = ${visible !== false}
-        WHERE id = ${id}
-    `;
+			UPDATE member 
+			SET role_name = ${role_name}, permissions = ${permissions}, hierarchy = ${hierarchy}, visible = ${visible !== false}
+			WHERE id = ${id}
+		`;
 
 	// Ensure the update is committed before returning
 	await new Promise((resolve) => setTimeout(resolve, 50));

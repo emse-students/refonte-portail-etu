@@ -71,7 +71,10 @@
 		[
 			{ value: Permission.MEMBER, label: "Membre (0)" },
 			{ value: Permission.MANAGE, label: "Gestion Membres & Événements (1)" },
-			{ value: Permission.ADMIN, label: "Administration (2)" },
+			{
+				value: Permission.ADMIN,
+				label: "Administration (A NE DONNER QU'AU SECRETAIRE/PREZ BDE) (2)",
+			},
 		].filter((p) => p.value <= maxPermissionLevel)
 	);
 
@@ -142,9 +145,12 @@
 			body: JSON.stringify({ id: memberToDelete.id }),
 		});
 		if (res.ok) {
+			// Mettre à jour le state local
+			if (memberToDelete) {
+				association.members = association.members.filter((m) => m.id !== memberToDelete!.id);
+			}
 			showDeleteConfirmModal = false;
 			memberToDelete = null;
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de la suppression du membre");
 		}
@@ -165,9 +171,6 @@
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				id: selectedMember.id,
-				user_id: selectedMember.user.id,
-				association_id: association.id,
-				list_id: null,
 				role_name: memberRoleName,
 				hierarchy: memberHierarchy,
 				permissions: memberPermissions,
@@ -175,8 +178,16 @@
 			}),
 		});
 		if (res.ok) {
+			// Mettre à jour le membre dans le state local
+			const memberIndex = association.members.findIndex((m) => m.id === selectedMember!.id);
+			if (memberIndex !== -1) {
+				association.members[memberIndex].role_name = memberRoleName;
+				association.members[memberIndex].hierarchy = memberHierarchy;
+				association.members[memberIndex].permissions = memberPermissions;
+				// Forcer la réactivité
+				association.members = [...association.members];
+			}
 			showEditMemberModal = false;
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du membre");
 		}
@@ -217,11 +228,23 @@
 			}),
 		});
 		if (res.ok) {
+			const data = await res.json();
+			// Ajouter le nouveau membre au state local
+			const newMember: Member = {
+				id: data.id || Date.now(), // Utiliser l'ID retourné ou temporaire
+				user: selectedUserToAdd,
+				role_name: memberRoleName,
+				hierarchy: memberHierarchy,
+				permissions: memberPermissions,
+				visible: true,
+				association_id: association.id,
+				list_id: null,
+			};
+			association.members = [...association.members, newMember];
 			showAddMemberModal = false;
 			selectedUserToAdd = null;
 			searchQuery = "";
 			searchResults = [];
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de l'ajout du membre");
 		}

@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET, POST, PUT, DELETE } from "../../src/routes/api/members/+server";
-import db from "$lib/server/database";
+import db, { getPool } from "$lib/server/database";
 import {
 	requireAuth,
 	getAuthorizedAssociationIds,
 	checkAssociationPermission,
 	checkListPermission,
+	hasAssociationPermission,
+	hasListPermission,
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -13,6 +15,9 @@ import type { RequestEvent } from "@sveltejs/kit";
 // Mock dependencies
 vi.mock("$lib/server/database", () => ({
 	default: vi.fn(),
+	getPool: vi.fn(() => ({
+		query: vi.fn(),
+	})),
 }));
 
 vi.mock("$lib/server/auth-middleware", () => ({
@@ -20,6 +25,8 @@ vi.mock("$lib/server/auth-middleware", () => ({
 	getAuthorizedAssociationIds: vi.fn(),
 	checkAssociationPermission: vi.fn(),
 	checkListPermission: vi.fn(),
+	hasAssociationPermission: vi.fn(),
+	hasListPermission: vi.fn(),
 }));
 
 describe("Members API", () => {
@@ -92,13 +99,21 @@ describe("Members API", () => {
 				authorized: true,
 				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce([{ permissions: 0 }])
-				.mockResolvedValueOnce([]);
+			const mockQuery = vi.fn().mockResolvedValue([{ insertId: 1 }]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+				query: mockQuery,
+			});
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
-				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1 }),
+				body: JSON.stringify({
+					user_id: 1,
+					association_id: 1,
+					role_name: "Test",
+					permissions: 0,
+					hierarchy: 1,
+					visible: true,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -107,7 +122,7 @@ describe("Members API", () => {
 
 			expect(response.status).toBe(201);
 			expect(data.success).toBe(true);
-			expect(db).toHaveBeenCalled();
+			expect(mockQuery).toHaveBeenCalled();
 		});
 
 		it("should fail if unauthorized", async () => {
@@ -147,9 +162,10 @@ describe("Members API", () => {
 				authorized: true,
 				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce([{ permissions: 0 }])
-				.mockResolvedValueOnce([]);
+			const mockQuery = vi.fn().mockResolvedValue([{ insertId: 1 }]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+				query: mockQuery,
+			});
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
@@ -174,9 +190,10 @@ describe("Members API", () => {
 				authorized: true,
 				user: { permissions: 0, memberships: [] },
 			});
-			(db as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce([{ permissions: 0 }])
-				.mockResolvedValueOnce([]);
+			const mockQuery = vi.fn().mockResolvedValue([{ insertId: 1 }]);
+			(getPool as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+				query: mockQuery,
+			});
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
@@ -193,7 +210,7 @@ describe("Members API", () => {
 			const response = await POST(event);
 
 			expect(response.status).toBe(201);
-			expect(db).toHaveBeenCalled();
+			expect(mockQuery).toHaveBeenCalled();
 		});
 	});
 
@@ -209,13 +226,12 @@ describe("Members API", () => {
 					memberships: [{ association_id: 1, permissions: 2 }], // Authorize high permissions
 				},
 			});
+			(hasAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
 				body: JSON.stringify({
 					id: 1,
-					user_id: 1,
-					association_id: 1,
 					role_name: "New Role",
 					permissions: 1,
 					hierarchy: 1,
@@ -235,8 +251,6 @@ describe("Members API", () => {
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
 				body: JSON.stringify({
-					user_id: 1,
-					association_id: 1,
 					role_name: "New Role",
 					permissions: 1,
 					hierarchy: 1,
@@ -248,30 +262,10 @@ describe("Members API", () => {
 			const data = await response.json();
 
 			expect(response.status).toBe(400);
-			expect(data.error).toBe("id and association_id are required");
+			expect(data.error).toBe("id is required");
 		});
 
-		it("should return 400 if association_id is missing", async () => {
-			const request = new Request("http://localhost/api/members", {
-				method: "PUT",
-				body: JSON.stringify({
-					id: 1,
-					user_id: 1,
-					role_name: "New Role",
-					permissions: 1,
-					hierarchy: 1,
-				}),
-			});
-			const event = { request } as RequestEvent;
-
-			const response = await PUT(event);
-			const data = await response.json();
-
-			expect(response.status).toBe(400);
-			expect(data.error).toBe("id and association_id are required");
-		});
-
-		it("should return 404 if member not found", async () => {
+		it("should return 404 if the member doesn't exist", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([]); // Not found
 
 			const request = new Request("http://localhost/api/members", {
@@ -303,7 +297,7 @@ describe("Members API", () => {
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
-				body: JSON.stringify({ id: 1, user_id: 1, association_id: 1, role_id: 2 }),
+				body: JSON.stringify({ id: 1 }),
 			});
 			const event = { request } as RequestEvent;
 
@@ -312,40 +306,23 @@ describe("Members API", () => {
 			expect(response.status).toBe(403);
 		});
 
-		it("should check permission for new association when changing", async () => {
-			(db as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce([{ association_id: 1 }]) // Existing member
-				.mockResolvedValueOnce([]); // Update
-			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }) // Old association
-				.mockResolvedValueOnce({ authorized: true, user: { permissions: 0, memberships: [] } }); // New association
-
-			const request = new Request("http://localhost/api/members", {
-				method: "PUT",
-				body: JSON.stringify({ id: 1, user_id: 1, association_id: 2, role_id: 2 }), // Different association
-			});
-			const event = { request } as RequestEvent;
-
-			const response = await PUT(event);
-
-			expect(response.status).toBe(200);
-			expect(checkAssociationPermission).toHaveBeenCalledTimes(2);
-		});
-
-		it("should fail if permission denied for new association", async () => {
+		it("should fail if assigning higher permissions than user has", async () => {
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([{ association_id: 1 }]);
-			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>)
-				.mockResolvedValueOnce({ authorized: true }) // Old association
-				.mockResolvedValueOnce({ authorized: false }); // New association
+			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+				authorized: true,
+				user: {
+					permissions: 1,
+					memberships: [{ association_id: 1, permissions: 1 }],
+				},
+			});
+			(hasAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
 			const request = new Request("http://localhost/api/members", {
 				method: "PUT",
 				body: JSON.stringify({
 					id: 1,
-					user_id: 1,
-					association_id: 2,
 					role_name: "New Role",
-					permissions: 1,
+					permissions: 2, // Higher than user's 1
 					hierarchy: 1,
 				}),
 			});

@@ -135,9 +135,12 @@
 			body: JSON.stringify({ id: memberToDelete.id }),
 		});
 		if (res.ok) {
+			// Mettre à jour le state local
+			if (memberToDelete) {
+				list.members = list.members.filter((m) => m.id !== memberToDelete!.id);
+			}
 			showDeleteConfirmModal = false;
 			memberToDelete = null;
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de la suppression du membre");
 		}
@@ -158,9 +161,6 @@
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
 				id: selectedMember.id,
-				user_id: selectedMember.user.id,
-				association_id: null,
-				list_id: list.id,
 				role_name: memberRoleName,
 				hierarchy: memberHierarchy,
 				permissions: memberPermissions,
@@ -168,8 +168,16 @@
 			}),
 		});
 		if (res.ok) {
+			// Mettre à jour le membre dans le state local
+			const memberIndex = list.members.findIndex((m) => m.id === selectedMember!.id);
+			if (memberIndex !== -1) {
+				list.members[memberIndex].role_name = memberRoleName;
+				list.members[memberIndex].hierarchy = memberHierarchy;
+				list.members[memberIndex].permissions = memberPermissions;
+				// Forcer la réactivité
+				list.members = [...list.members];
+			}
 			showEditMemberModal = false;
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de la modification du membre");
 		}
@@ -208,11 +216,23 @@
 			}),
 		});
 		if (res.ok) {
+			const data = await res.json();
+			// Ajouter le nouveau membre au state local
+			const newMember: Member = {
+				id: data.id || Date.now(), // Utiliser l'ID retourné ou temporaire
+				user: selectedUserToAdd,
+				role_name: memberRoleName,
+				hierarchy: memberHierarchy,
+				permissions: memberPermissions,
+				visible: true,
+				association_id: null,
+				list_id: list.id,
+			};
+			list.members = [...list.members, newMember];
 			showAddMemberModal = false;
 			selectedUserToAdd = null;
 			searchQuery = "";
 			searchResults = [];
-			await invalidateAll();
 		} else {
 			alert("Erreur lors de l'ajout du membre");
 		}

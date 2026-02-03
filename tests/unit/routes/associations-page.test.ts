@@ -71,7 +71,10 @@ describe("Associations Page", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		global.fetch = vi.fn() as unknown as typeof fetch;
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({}),
+		} as Response) as unknown as typeof fetch;
 	});
 
 	it("renders association details", () => {
@@ -130,9 +133,10 @@ describe("Associations Page", () => {
 
 		// Mock user search response
 		vi.mocked(global.fetch).mockResolvedValueOnce({
+			ok: true,
 			json: () =>
 				Promise.resolve([{ id: 3, first_name: "New", last_name: "User", login: "newuser" }]),
-		} as any);
+		} as Response);
 
 		// Search user
 		const searchInput = screen.getByLabelText("Rechercher un utilisateur");
@@ -143,7 +147,10 @@ describe("Associations Page", () => {
 		await fireEvent.click(screen.getByText("New User (newuser)"));
 
 		// Mock add member response
-		vi.mocked(global.fetch).mockResolvedValueOnce({ ok: true } as any);
+		vi.mocked(global.fetch).mockResolvedValueOnce({
+			ok: true,
+			json: async () => ({ success: true, id: 10 }),
+		} as Response);
 
 		// Click Add
 		await fireEvent.click(screen.getByText("Ajouter"));
