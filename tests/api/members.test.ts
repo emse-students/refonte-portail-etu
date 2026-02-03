@@ -5,6 +5,7 @@ import {
 	requireAuth,
 	getAuthorizedAssociationIds,
 	checkAssociationPermission,
+	checkListPermission,
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -18,6 +19,7 @@ vi.mock("$lib/server/auth-middleware", () => ({
 	requireAuth: vi.fn(),
 	getAuthorizedAssociationIds: vi.fn(),
 	checkAssociationPermission: vi.fn(),
+	checkListPermission: vi.fn(),
 }));
 
 describe("Members API", () => {
@@ -126,10 +128,10 @@ describe("Members API", () => {
 			expect(db).not.toHaveBeenCalled();
 		});
 
-		it("should return 400 if association_id is missing", async () => {
+		it("should return 400 if association_id and list_id are missing", async () => {
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
-				body: JSON.stringify({ user_id: 1, role_id: 1 }),
+				body: JSON.stringify({ user_id: 1, role_name: "Member", permissions: 0, hierarchy: 1 }),
 			});
 			const event = { request } as RequestEvent;
 
@@ -137,7 +139,7 @@ describe("Members API", () => {
 			const data = await response.json();
 
 			expect(response.status).toBe(400);
-			expect(data.error).toBe("association_id is required");
+			expect(data.error).toBe("association_id or list_id is required");
 		});
 
 		it("should create member with visible=true by default", async () => {
@@ -151,7 +153,13 @@ describe("Members API", () => {
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
-				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1 }),
+				body: JSON.stringify({
+					user_id: 1,
+					association_id: 1,
+					role_name: "Member",
+					permissions: 0,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
@@ -162,7 +170,7 @@ describe("Members API", () => {
 		});
 
 		it("should create member with list_id if provided", async () => {
-			(checkAssociationPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+			(checkListPermission as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 				authorized: true,
 				user: { permissions: 0, memberships: [] },
 			});
@@ -172,7 +180,13 @@ describe("Members API", () => {
 
 			const request = new Request("http://localhost/api/members", {
 				method: "POST",
-				body: JSON.stringify({ user_id: 1, association_id: 1, role_id: 1, list_id: 1 }),
+				body: JSON.stringify({
+					user_id: 1,
+					role_name: "Member",
+					list_id: 1,
+					permissions: 0,
+					hierarchy: 1,
+				}),
 			});
 			const event = { request } as RequestEvent;
 
