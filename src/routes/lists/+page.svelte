@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Association, List } from "$lib/databasetypes";
+	import type { List } from "$lib/databasetypes";
 	import ListCard from "$lib/components/ListCard.svelte";
 	import Modal from "$lib/components/Modal.svelte";
 	import ImageUpload from "$lib/components/ImageUpload.svelte";
@@ -13,13 +13,10 @@
 	}
 
 	let { data } = $props();
-	// svelte-ignore state_referenced_locally
-	const lists: ListWithAssociation[] = data.lists || [];
-	// svelte-ignore state_referenced_locally
-	const associations: Association[] = data.associations || [];
-	// svelte-ignore state_referenced_locally
-	const userData = data.userData;
-	console.log("Lists loaded:", lists);
+
+	const lists = $derived(data.lists || []);
+	const associations = $derived(data.associations || []);
+	const userData = $derived(data.userData);
 
 	let showCreateModal = $state(false);
 	let newListName = $state("");
@@ -58,35 +55,39 @@
 		}
 	}
 
-	// Grouper les listes par promotion
-	const listsByPromo = lists.reduce(
-		(acc, list) => {
-			const promo = list.promo || 0;
-			if (!acc[promo]) {
-				acc[promo] = [];
-			}
-			acc[promo].push(list);
-			return acc;
-		},
-		{} as Record<number, ListWithAssociation[]>
+	// Grouper les listes par promotion (reactive)
+	const listsByPromo = $derived(
+		lists.reduce(
+			(acc, list) => {
+				const promo = list.promo || 0;
+				if (!acc[promo]) {
+					acc[promo] = [];
+				}
+				acc[promo].push(list);
+				return acc;
+			},
+			{} as Record<number, ListWithAssociation[]>
+		)
 	);
 
-	// Trier chaque groupe par nom d'association
-	Object.values(listsByPromo).forEach((promoLists) => {
-		promoLists.sort((a, b) => {
-			const nameA = a.association_name || "";
-			const nameB = b.association_name || "";
-			return nameA.localeCompare(nameB);
+	// Convertir en tableau et trier par promotion (plus récent d'abord)
+	const promoSections = $derived.by(() => {
+		// Trier chaque groupe par nom d'association
+		Object.values(listsByPromo).forEach((promoLists) => {
+			promoLists.sort((a, b) => {
+				const nameA = a.association_name || "";
+				const nameB = b.association_name || "";
+				return nameA.localeCompare(nameB);
+			});
 		});
+
+		return Object.entries(listsByPromo)
+			.map(([promo, lists]) => ({ promo: Number(promo), lists }))
+			.sort((a, b) => b.promo - a.promo);
 	});
 
-	// Convertir en tableau et trier par promotion (plus récent d'abord)
-	const promoSections = Object.entries(listsByPromo)
-		.map(([promo, lists]) => ({ promo: Number(promo), lists }))
-		.sort((a, b) => b.promo - a.promo);
-
 	// État pour gérer les sections ouvertes/fermées
-	let openPromos = $state<Set<number>>(new Set(promoSections.map((s) => s.promo)));
+	let openPromos = $state<Set<number>>(new Set());
 
 	function togglePromo(promo: number) {
 		if (openPromos.has(promo)) {

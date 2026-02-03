@@ -490,6 +490,8 @@
 		color: var(--color-text-light);
 		word-break: break-word;
 		line-height: 1.6;
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	.modal-section strong {

@@ -34,11 +34,11 @@ describe("Lists Page", () => {
 		expect(screen.getByText("Campagnes 2024")).toBeInTheDocument();
 	});
 
-	it("renders list cards for open promos", () => {
+	it("does not render list cards by default (all promos closed)", () => {
 		render(ListsPage, { data: { lists: mockLists } } as any);
-		// By default, all promos are open
-		const cards = screen.getAllByTestId("list-card-mock");
-		expect(cards).toHaveLength(3);
+		// By default, all promos are closed
+		const cards = screen.queryAllByTestId("list-card-mock");
+		expect(cards).toHaveLength(0);
 	});
 
 	it("toggles promo section", async () => {
@@ -46,18 +46,22 @@ describe("Lists Page", () => {
 
 		const promo2025Header = screen.getByRole("button", { name: /Campagnes 2025/ });
 
-		// Close 2025 section
-		await fireEvent.click(promo2025Header);
-
-		// Should only see 1 card (from 2024)
-		const cardsAfterClose = screen.getAllByTestId("list-card-mock");
-		expect(cardsAfterClose).toHaveLength(1);
+		// Initially no cards are shown
+		let cards = screen.queryAllByTestId("list-card-mock");
+		expect(cards).toHaveLength(0);
 
 		// Open 2025 section
 		await fireEvent.click(promo2025Header);
 
-		// Should see all 3 cards again
+		// Should see 2 cards (from 2025)
 		const cardsAfterOpen = screen.getAllByTestId("list-card-mock");
-		expect(cardsAfterOpen).toHaveLength(3);
+		expect(cardsAfterOpen).toHaveLength(2);
+
+		// Close 2025 section
+		await fireEvent.click(promo2025Header);
+
+		// Should see no cards again
+		const cardsAfterClose = screen.queryAllByTestId("list-card-mock");
+		expect(cardsAfterClose).toHaveLength(0);
 	});
 });

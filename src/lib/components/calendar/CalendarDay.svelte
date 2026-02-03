@@ -28,11 +28,24 @@
 	);
 
 	const count = $derived(Math.min(eventsForDay.length, 3));
+
+	// Check if this day is today
+	const isToday = $derived.by(() => {
+		const today = new Date();
+		return (
+			dayDate.getDate() === today.getDate() &&
+			dayDate.getMonth() === today.getMonth() &&
+			dayDate.getFullYear() === today.getFullYear()
+		);
+	});
 </script>
 
-<div class="calendar-cell">
+<div class="calendar-cell" class:today={isToday}>
 	<div class="event-stack">
-		<div class="date-badge {eventsForDay.length > 0 ? 'fade-on-hover' : ''}">
+		<div
+			class="date-badge {eventsForDay.length > 0 ? 'fade-on-hover' : ''}"
+			class:today-badge={isToday}
+		>
 			<span class="day-number">{dayDate.getDate()}</span>
 			<span class="month">{dayDate.toLocaleString("fr-FR", { month: "short" })}</span>
 		</div>
@@ -99,6 +112,11 @@
 
 	.calendar-cell:hover {
 		box-shadow: var(--shadow-md);
+	}
+
+	.calendar-cell.today {
+		border: 2px solid var(--color-primary);
+		box-shadow: 0 0 0 1px var(--color-primary);
 	}
 
 	.event-stack {
@@ -175,6 +193,20 @@
 		font-size: 1.1em;
 		font-weight: 700;
 		color: var(--color-primary);
+	}
+
+	.date-badge.today-badge {
+		background: var(--color-primary);
+		color: white;
+		border-color: var(--color-primary);
+	}
+
+	.date-badge.today-badge .day-number {
+		color: white;
+	}
+
+	.date-badge.today-badge .month {
+		color: rgba(255, 255, 255, 0.85);
 	}
 
 	.date-badge .month {

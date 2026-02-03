@@ -55,14 +55,14 @@ describe("Header", () => {
 	});
 
 	it("renders logout button when user is logged in", () => {
-		render(Header, { user: { name: "Test User" } });
+		render(Header, { userData: { first_name: "Test", last_name: "User" } });
 		const logoutBtn = screen.getByText("Se déconnecter");
 		expect(logoutBtn).toBeInTheDocument();
 	});
 
 	it("calls signIn when login button is clicked", async () => {
 		const { signIn } = await import("@auth/sveltekit/client");
-		render(Header, { user: null });
+		render(Header, { userData: null });
 		const loginBtn = screen.getByText("Se connecter");
 		await fireEvent.click(loginBtn);
 		expect(signIn).toHaveBeenCalledWith("cas-emse");
@@ -70,7 +70,7 @@ describe("Header", () => {
 
 	it("calls signOut when logout button is clicked", async () => {
 		const { signOut } = await import("@auth/sveltekit/client");
-		render(Header, { user: { name: "Test User" } });
+		render(Header, { userData: { first_name: "Test", last_name: "User" } });
 		const logoutBtn = screen.getByText("Se déconnecter");
 		await fireEvent.click(logoutBtn);
 		expect(signOut).toHaveBeenCalled();

@@ -8,14 +8,28 @@
 	// Load the associations and lists from the api
 
 	const data = $props();
-	const user = data.user;
+	const user = data.userData;
 
 	// Animated underline indicator
 	let navUl: HTMLUListElement;
 	let underlineStyle = $state("");
 
-	// Theme state
-	let isMenuOpen = $state(false);
+	// Avatar state
+	let imageLoaded = $state(false);
+	let imageError = $state(false);
+
+	function handleImageLoad() {
+		imageLoaded = true;
+	}
+
+	function handleImageError() {
+		imageError = true;
+	}
+
+	// Générer les initiales pour le placeholder
+	const initials = $derived(
+		user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`.toUpperCase() : ""
+	);
 
 	function updateUnderline() {
 		if (typeof window === "undefined" || !navUl) return;
@@ -56,7 +70,7 @@
 			<span class="site-title">Portail Étudiant</span>
 		</a>
 	</div>
-	<nav class="header-nav" class:open={isMenuOpen}>
+	<nav class="header-nav">
 		<ul bind:this={navUl}>
 			<li aria-current={page.url.pathname === resolve("/") ? "page" : undefined}>
 				<a href={resolve("/")}>Accueil</a>
@@ -84,6 +98,28 @@
 	</nav>
 	<div class="header-right">
 		{#if user}
+			<div class="user-avatar-container">
+				{#if !imageLoaded && !imageError}
+					<div class="user-avatar-placeholder">
+						{initials}
+					</div>
+				{/if}
+				<img
+					src="/api/users/login/{user.login}/avatar"
+					alt="{user.first_name} {user.last_name}"
+					class="user-avatar"
+					class:loaded={imageLoaded}
+					class:hidden={imageError}
+					loading="lazy"
+					onload={handleImageLoad}
+					onerror={handleImageError}
+				/>
+				{#if imageError}
+					<div class="user-avatar-placeholder">
+						{initials}
+					</div>
+				{/if}
+			</div>
 			<button onclick={() => signOut()} class="login-btn">Se déconnecter</button>
 		{:else}
 			<button class="login-btn" onclick={() => signIn("cas-emse")}>Se connecter</button>
@@ -222,6 +258,48 @@
 		gap: 1rem;
 	}
 
+	.user-avatar-container {
+		position: relative;
+		width: 40px;
+		height: 40px;
+	}
+
+	.user-avatar-placeholder {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+		border: 2px solid rgba(255, 255, 255, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: white;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	}
+
+	.user-avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		object-fit: cover;
+		border: 2px solid rgba(255, 255, 255, 0.5);
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.user-avatar.loaded {
+		opacity: 1;
+	}
+
+	.user-avatar.hidden {
+		display: none;
+	}
+
 	.login-btn {
 		background: rgba(255, 255, 255, 0.15);
 		color: #ffffff;
@@ -245,7 +323,7 @@
 	}
 
 	/* Mobile styles */
-	@media (max-width: 768px) {
+	@media (max-width: 1200px) {
 		header {
 			padding: 0.75rem 1rem;
 		}
@@ -260,11 +338,6 @@
 			padding: 1rem;
 			box-shadow: var(--shadow-lg);
 			border-top: 1px solid rgba(255, 255, 255, 0.1);
-		}
-
-		.header-nav.open {
-			display: block;
-			animation: slideDown 0.3s ease-out;
 		}
 
 		.header-nav ul {

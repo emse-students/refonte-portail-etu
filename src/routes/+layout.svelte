@@ -43,7 +43,7 @@
 		overflow-x: hidden;
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 1200px) {
 		.app {
 			padding-bottom: 4rem; /* Height of BottomNav + spacing */
 		}

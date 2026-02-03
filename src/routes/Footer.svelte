@@ -1,5 +1,4 @@
 <footer>
-	<p>&copy; {new Date().getFullYear()} - BDE de l'EMSE</p>
 	<p>
 		Site développé en 2025 par
 		<a href="mailto:leon.muselli@etu.emse.fr">Léon Muselli</a> &amp; Mathieu Daussin - ICM 2024

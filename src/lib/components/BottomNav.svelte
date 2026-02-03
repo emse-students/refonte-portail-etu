@@ -110,7 +110,7 @@
 		height: 24px;
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 1200px) {
 		.bottom-nav {
 			display: flex;
 		}
