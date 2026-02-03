@@ -68,6 +68,7 @@ export const POST = async (event: RequestEvent) => {
 			type: "image/jpeg",
 		});
 
+		
 		logger.info(`Sending to gallery API at: ${env.GALLERY_API_URL} as ${newFileName}`);
 
 		// Re-create the file to ensure it's detached from the request stream
