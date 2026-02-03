@@ -20,6 +20,7 @@
 	$effect(() => {
 		association = data.association;
 	});
+	const members = $derived(association.members || []);
 	const events = $derived(data.events || []);
 	const userData = $derived(data.userData);
 	const isAdmin = $derived(hasPermission(userData?.permissions || 0, Permission.ADMIN));
@@ -176,7 +177,7 @@
 		});
 		if (res.ok) {
 			showEditMemberModal = false;
-			const member = association.members.find((m) => m.id === selectedMember!.id);
+			const member = members.find((m) => m.id === selectedMember!.id);
 			if (member) {
 				member.role_name = memberRoleName;
 				member.hierarchy = memberHierarchy;
@@ -235,13 +236,10 @@
 
 	// Séparer le bureau (hierarchy >= 6) des autres membres
 	const bureauMembers = $derived(
-		association.members
-			?.filter((m) => m.hierarchy >= 6)
-			.sort((a, b) => b.hierarchy - a.hierarchy) || []
+		members?.filter((m) => m.hierarchy >= 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 	const otherMembers = $derived(
-		association.members?.filter((m) => m.hierarchy < 6).sort((a, b) => b.hierarchy - a.hierarchy) ||
-			[]
+		members?.filter((m) => m.hierarchy < 6).sort((a, b) => b.hierarchy - a.hierarchy) || []
 	);
 </script>
 
