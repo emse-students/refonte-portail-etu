@@ -5,6 +5,7 @@ import {
 	requireAuth,
 	getAuthorizedAssociationIds,
 	checkAssociationPermission,
+	checkListPermission,
 } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
@@ -63,46 +64,81 @@ export const POST = async (event: RequestEvent) => {
 	const body = await event.request.json();
 	const { user_id, association_id, role_name, permissions, hierarchy, list_id, visible } = body;
 
-	if (!association_id) {
-		return json({ error: "association_id is required" }, { status: 400 });
-	}
-
-	// Vérifier que l'utilisateur a la permission MANAGE pour cette association spécifique
-	const { checkAssociationPermission } = await import("$lib/server/auth-middleware");
-	const authCheck = await checkAssociationPermission(event, association_id, Permission.MANAGE);
-	if (!authCheck.authorized) {
-		return authCheck.response;
-	}
-
-	let maxPermissions = 0;
-	if (authCheck.user.admin) {
-		maxPermissions = Permission.ADMIN;
-	} else {
-		const membership = authCheck.user.memberships.find((m) => m.association_id === association_id);
-		if (membership) {
-			maxPermissions = membership.permissions;
+	if (association_id) {
+		// Vérifier que l'utilisateur a la permission MANAGE pour cette association spécifique
+		const authCheck = await checkAssociationPermission(event, association_id, Permission.MANAGE);
+		if (!authCheck.authorized) {
+			return authCheck.response;
 		}
-	}
 
-	if (permissions > maxPermissions) {
-		return json(
-			{
-				error: "Forbidden",
-				message: "Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
-			},
-			{ status: 403 }
-		);
-	}
+		let maxPermissions = 0;
+		if (authCheck.user.admin) {
+			maxPermissions = Permission.ADMIN;
+		} else {
+			const membership = authCheck.user.memberships.find(
+				(m) => m.association_id === association_id
+			);
+			if (membership) {
+				maxPermissions = membership.permissions;
+			}
+		}
 
-	await db`
-        INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, list_id, visible)
-        VALUES (${user_id}, ${association_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${list_id || null}, ${visible !== false})
+		if (permissions > maxPermissions) {
+			return json(
+				{
+					error: "Forbidden",
+					message:
+						"Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
+				},
+				{ status: 403 }
+			);
+		}
+
+		await db`
+        INSERT INTO member (user_id, association_id, role_name, permissions, hierarchy, visible)
+        VALUES (${user_id}, ${association_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
     `;
+	} else if (list_id) {
+		const authCheck = await checkListPermission(event, list_id, Permission.MANAGE);
+		if (!authCheck.authorized) {
+			return authCheck.response;
+		}
 
-	return new Response(JSON.stringify({ success: true }), {
-		status: 201,
-		headers: { "Content-Type": "application/json" },
-	});
+		let maxPermissions = 0;
+		if (authCheck.user.admin) {
+			maxPermissions = Permission.ADMIN;
+		} else {
+			const membership = authCheck.user.memberships.find((m) => m.list_id === list_id);
+			if (membership) {
+				maxPermissions = membership.permissions;
+			}
+		}
+
+		if (permissions > maxPermissions) {
+			return json(
+				{
+					error: "Forbidden",
+					message:
+						"Vous ne pouvez pas assigner un rôle avec plus de permissions que vous n'en avez",
+				},
+				{ status: 403 }
+			);
+		}
+
+		await db`
+        INSERT INTO member (user_id, list_id, role_name, permissions, hierarchy, visible)
+        VALUES (${user_id}, ${list_id || null}, ${role_name}, ${permissions}, ${hierarchy}, ${visible !== false})
+    `;
+	} else {
+		return json({ error: "association_id or list_id is required" }, { status: 400 });
+	}
+
+	return json(
+		{ success: true },
+		{
+			status: 201,
+		}
+	);
 };
 
 export const PUT = async (event: RequestEvent) => {
