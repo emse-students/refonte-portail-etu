@@ -3,6 +3,8 @@ import { resolve } from "$app/paths";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async (event) => {
+	event.depends("app:association");
+
 	const association: Association = await event
 		.fetch(resolve(`/api/associations/handle/${event.params.handle}`))
 		.then((res) => res.json());

@@ -14,7 +14,11 @@
 	import ColorPicker from "$lib/components/ColorPicker.svelte";
 
 	let { data } = $props();
-	const list = $derived(data.list);
+	// svelte-ignore state_referenced_locally
+	let list = $state(data.list);
+	$effect(() => {
+		list = data.list;
+	});
 	const members = $derived(list.members || []);
 	const events = $derived(data.events || []);
 	const userData = $derived(data.userData);
