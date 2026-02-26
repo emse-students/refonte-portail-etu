@@ -35,7 +35,7 @@ export const GET = async (event: RequestEvent) => {
 export const DELETE = async (event: RequestEvent) => {
 	const id = Number(event.params.id);
 
-	const authCheck = await checkAssociationPermission(event, id, Permission.ADMIN);
+	const authCheck = await checkAssociationPermission(event, id, Permission.MANAGE);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}

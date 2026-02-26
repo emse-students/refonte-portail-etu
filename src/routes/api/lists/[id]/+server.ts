@@ -47,7 +47,7 @@ export const DELETE = async (event: RequestEvent) => {
 export const PUT = async (event: RequestEvent) => {
 	const id = Number(event.params.id);
 
-	const authCheck = await checkListPermission(event, id, Permission.ADMIN);
+	const authCheck = await checkListPermission(event, id, Permission.MANAGE);
 	if (!authCheck.authorized) {
 		return authCheck.response;
 	}
