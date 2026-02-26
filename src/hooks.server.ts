@@ -56,6 +56,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 						id as member_id, 
 						visible, 
 						association_id,
+						list_id,
 						role_name, 
 						permissions as role_permissions, 
 						hierarchy
@@ -64,7 +65,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				`) as {
 					member_id: number;
 					visible: boolean;
-					association_id: number;
+					association_id: number | null;
+					list_id: number | null;
 					role_name: string;
 					role_permissions: number;
 					hierarchy: number;
@@ -74,7 +76,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 					id: m.member_id,
 					visible: m.visible,
 					association_id: m.association_id,
-					list_id: null,
+					list_id: m.list_id,
 					user,
 					role_name: m.role_name,
 					permissions: m.role_permissions,
