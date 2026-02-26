@@ -8,6 +8,7 @@ import {
 	checkListPermission,
 	hasAssociationPermission,
 	hasListPermission,
+	getAuthorizedListIds,
 } from "$lib/server/auth-middleware";
 
 export const GET = async (event: RequestEvent) => {
@@ -18,7 +19,7 @@ export const GET = async (event: RequestEvent) => {
 	}
 
 	const authorizedAssociations = getAuthorizedAssociationIds(user, Permission.MANAGE);
-
+	const authorizedLists = getAuthorizedListIds(user, Permission.MANAGE);
 	// Si null, l'utilisateur est admin et peut tout voir
 	if (authorizedAssociations === null) {
 		const members = await db`
@@ -55,7 +56,7 @@ export const GET = async (event: RequestEvent) => {
         LEFT JOIN user u ON m.user_id = u.id
         LEFT JOIN association a ON m.association_id = a.id
         LEFT JOIN list l ON m.list_id = l.id
-        WHERE m.association_id IN (${authorizedAssociations})
+        WHERE m.association_id IN (${authorizedAssociations}) OR m.list_id IN (${authorizedLists})
         ORDER BY m.id DESC
     `;
 

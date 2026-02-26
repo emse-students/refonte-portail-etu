@@ -60,6 +60,8 @@
 		if (!userData) return false;
 		if (hasPermission(userData.permissions, Permission.ADMIN)) return true;
 
+		console.log("User memberships:", userData.memberships);
+
 		// Check if user is a member of this list with MANAGE permission
 		const listMembership = userData.memberships.find((m) => m.list_id === list.id);
 		if (listMembership && hasPermission(listMembership.permissions, Permission.MANAGE)) return true;
