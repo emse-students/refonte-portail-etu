@@ -658,7 +658,7 @@ describe("Associations Handle Page Component", () => {
 		await fireEvent.click(editButtons[0]);
 
 		// Modal should be open with member's name
-		expect(screen.getByText(/Modifier 'John/)).toBeInTheDocument();
+		expect(screen.getByText(/Modifier le rôle 'John/)).toBeInTheDocument();
 	});
 
 	it("updates member role", async () => {

@@ -702,7 +702,7 @@ describe("Lists Handle Page Component", () => {
 		await fireEvent.click(editButtons[editButtons.length - 1]);
 
 		// Modal should be open with member's name (Jane Smith)
-		expect(screen.getByText(/Modifier 'Jane/)).toBeInTheDocument();
+		expect(screen.getByText(/Modifier le rôle 'Jane/)).toBeInTheDocument();
 	});
 
 	it("updates member role", async () => {

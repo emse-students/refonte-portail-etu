@@ -532,7 +532,7 @@
 	<Modal
 		bind:open={showEditMemberModal}
 		title={selectedMember
-			? `Modifier ${of(selectedMember.user.first_name)}${selectedMember.user.first_name}`
+			? `Modifier le rôle ${of(selectedMember.user.first_name)}${selectedMember.user.first_name}`
 			: "Modifier le membre"}
 	>
 		{#if selectedMember}

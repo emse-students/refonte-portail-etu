@@ -1,5 +1,5 @@
 import { env } from "$env/dynamic/private";
-import type { FullUser } from "$lib/databasetypes";
+import type { FullUser, Member } from "$lib/databasetypes";
 import type { RequestEvent } from "@sveltejs/kit";
 import { createHmac, randomBytes, createCipheriv, createDecipheriv } from "crypto";
 
@@ -115,6 +115,7 @@ function decryptData(encryptedData: string): SessionData | null {
  * Reconstitue un FullUser depuis SessionData
  */
 function expandSessionData(sessionData: SessionData): FullUser {
+	console.log(sessionData); // Debug: vérifier les données de session avant expansion
 	return {
 		id: sessionData.id,
 		first_name: sessionData.first_name,
@@ -125,42 +126,51 @@ function expandSessionData(sessionData: SessionData): FullUser {
 		promo: sessionData.promo,
 		admin: sessionData.admin,
 		memberships: [
-			...sessionData.lists.map((m) => ({
-				id: 0, // ID de membre inconnu
-				user: {
-					id: sessionData.id,
-					first_name: sessionData.first_name,
-					last_name: sessionData.last_name,
-					email: sessionData.email,
-					login: sessionData.login,
-					promo: sessionData.promo,
-					admin: sessionData.admin,
-				},
-				role_name: "",
-				permissions: m.permissions,
-				hierarchy: 0,
-				list_id: m.id,
-				association_id: null,
-				visible: true,
-			})),
-			...sessionData.associations.map((m) => ({
-				id: 0, // ID de membre inconnu
-				user: {
-					id: sessionData.id,
-					first_name: sessionData.first_name,
-					last_name: sessionData.last_name,
-					email: sessionData.email,
-					login: sessionData.login,
-					promo: sessionData.promo,
-					admin: sessionData.admin,
-				},
-				role_name: "",
-				permissions: m.permissions,
-				hierarchy: 0,
-				association_id: m.id,
-				list_id: null,
-				visible: true,
-			})),
+			...sessionData.lists
+				.map(
+					(m) =>
+						({
+							id: 0, // ID de membre inconnu
+							user: {
+								id: sessionData.id,
+								first_name: sessionData.first_name,
+								last_name: sessionData.last_name,
+								email: sessionData.email,
+								login: sessionData.login,
+								promo: sessionData.promo,
+								admin: sessionData.admin,
+							},
+							role_name: "",
+							permissions: m.permissions,
+							hierarchy: 0,
+							list_id: m.id,
+							association_id: null,
+							visible: true,
+						}) as Member
+				)
+				.concat(
+					...sessionData.associations.map(
+						(m) =>
+							({
+								id: 0, // ID de membre inconnu
+								user: {
+									id: sessionData.id,
+									first_name: sessionData.first_name,
+									last_name: sessionData.last_name,
+									email: sessionData.email,
+									login: sessionData.login,
+									promo: sessionData.promo,
+									admin: sessionData.admin,
+								},
+								role_name: "",
+								permissions: m.permissions,
+								hierarchy: 0,
+								association_id: m.id,
+								list_id: null,
+								visible: true,
+							}) as Member
+					)
+				),
 		],
 	};
 }
