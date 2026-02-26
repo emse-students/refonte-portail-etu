@@ -121,7 +121,13 @@
 
 		if (res.ok) {
 			showEditListModal = false;
-			await invalidateAll();
+			// Edit the list client side
+			list.name = editListName;
+			list.description = editListDescription;
+			list.handle = editListHandle;
+			list.color = editListColor;
+			list.icon = editListIcon;
+			list.promo = editListPromo;
 		} else {
 			alert("Erreur lors de la modification de la liste");
 		}

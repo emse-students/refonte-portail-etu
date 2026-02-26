@@ -131,7 +131,12 @@
 
 		if (res.ok) {
 			showEditAssociationModal = false;
-			await invalidateAll();
+			// Update the association client side
+			association.name = editAssociationName;
+			association.description = editAssociationDescription;
+			association.handle = editAssociationHandle;
+			association.color = editAssociationColor;
+			association.icon = editAssociationIcon;
 		} else {
 			alert("Erreur lors de la modification de l'association");
 		}
