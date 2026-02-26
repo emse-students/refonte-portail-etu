@@ -132,6 +132,22 @@ describe("Session System", () => {
 			// We can test empty/null input cases.
 			expect(readUserSession(null as unknown as string)).toBeNull();
 		});
+
+		it("should return null if session is older than refresh interval", () => {
+			vi.useFakeTimers();
+			const now = new Date();
+			vi.setSystemTime(now);
+
+			const sessionString = createUserSession(mockUser);
+
+			// Advance time by 6 minutes (refresh interval is 5 min)
+			vi.advanceTimersByTime(1000 * 60 * 6);
+
+			const restoredUser = readUserSession(sessionString);
+			expect(restoredUser).toBeNull();
+
+			vi.useRealTimers();
+		});
 	});
 
 	describe("Cookie Management", () => {

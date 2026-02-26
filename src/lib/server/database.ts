@@ -174,8 +174,6 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 			}) as Member
 	);
 
-	console.log(`Fetched ${members.length} members for list ${raw.handle}`);
-
 	return {
 		id: raw.id,
 		handle: raw.handle,

@@ -15,7 +15,6 @@
 	const associations: Association[] = data.associations || [];
 	// svelte-ignore state_referenced_locally
 	const userData = data.userData;
-	console.log("Associations loaded:", associations);
 
 	let searchQuery = $state("");
 	let showCreateModal = $state(false);

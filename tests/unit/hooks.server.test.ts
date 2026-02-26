@@ -30,6 +30,7 @@ vi.mock("$lib/server/session", () => ({
 	getSessionData: vi.fn(),
 	setSessionCookie: vi.fn(),
 	clearSessionCookie: vi.fn(),
+	refreshSessionCookie: vi.fn(),
 }));
 
 // Mock sequence to execute handlers in order

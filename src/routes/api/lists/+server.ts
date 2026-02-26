@@ -31,8 +31,6 @@ export const POST = async (event: RequestEvent) => {
 	// Vérifier l'authentification et les permissions avec cache
 	const authCheck = await checkPermission(event, Permission.ADMIN);
 	if (!authCheck.authorized) {
-		console.log("Unauthorized attempt to create list");
-		console.log(authCheck.response);
 		return authCheck.response;
 	}
 

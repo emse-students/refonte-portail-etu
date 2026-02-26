@@ -6,7 +6,8 @@ import { createHmac, randomBytes, createCipheriv, createDecipheriv } from "crypt
 const SESSION_COOKIE_NAME = "user_session";
 const SESSION_SECRET = env.AUTH_SECRET || "default-secret-change-me";
 const ENCRYPTION_KEY = Buffer.from(SESSION_SECRET.padEnd(32, "0").slice(0, 32)); // 256-bit key
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 jours en secondes
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 jours
+const SESSION_REFRESH_INTERVAL = 60 * 1000 * 5; // 5 minutes
 
 /**
  * Structure compacte pour stocker les permissions d'association/liste dans le cookie
@@ -30,6 +31,7 @@ type SessionData = {
 	admin: boolean;
 	lists: CompactMembership[];
 	associations: CompactMembership[];
+	last_updated?: number;
 };
 
 /**
@@ -57,6 +59,7 @@ function compactUserData(userData: FullUser): SessionData {
 				id: m.association_id as number,
 				permissions: m.permissions,
 			})),
+		last_updated: Date.now(),
 	};
 }
 
@@ -115,7 +118,6 @@ function decryptData(encryptedData: string): SessionData | null {
  * Reconstitue un FullUser depuis SessionData
  */
 function expandSessionData(sessionData: SessionData): FullUser {
-	console.log(sessionData); // Debug: vérifier les données de session avant expansion
 	return {
 		id: sessionData.id,
 		first_name: sessionData.first_name,
@@ -225,6 +227,15 @@ export function readUserSession(cookieValue: string): FullUser | null {
 	const sessionData = decryptData(encrypted);
 	if (!sessionData) return null;
 
+	// Vérifier si les données doivent être rafraîchies
+	// Si last_updated est absent ou trop vieux, on retourne null pour forcer un rechargement DB
+	if (
+		!sessionData.last_updated ||
+		Date.now() - sessionData.last_updated > SESSION_REFRESH_INTERVAL
+	) {
+		return null;
+	}
+
 	return expandSessionData(sessionData);
 }
 
@@ -265,4 +276,20 @@ export function clearSessionCookie(event: RequestEvent): void {
  */
 export function updateSessionData(event: RequestEvent, userData: FullUser): void {
 	setSessionCookie(event, userData);
+}
+
+/**
+ * Rafraîchit l'expiration du cookie de session
+ */
+export function refreshSessionCookie(event: RequestEvent): void {
+	const cookieValue = event.cookies.get(SESSION_COOKIE_NAME);
+	if (cookieValue) {
+		event.cookies.set(SESSION_COOKIE_NAME, cookieValue, {
+			path: "/",
+			httpOnly: true,
+			secure: env.PROD === "true",
+			sameSite: "lax",
+			maxAge: SESSION_MAX_AGE,
+		});
+	}
 }

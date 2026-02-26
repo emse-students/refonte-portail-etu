@@ -3,7 +3,12 @@ import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
 import type { Member, RawUser } from "$lib/databasetypes";
 import db from "$lib/server/database";
-import { getSessionData, setSessionCookie, clearSessionCookie } from "$lib/server/session";
+import {
+	getSessionData,
+	setSessionCookie,
+	clearSessionCookie,
+	refreshSessionCookie,
+} from "$lib/server/session";
 import logger from "$lib/server/logger";
 import Permission from "$lib/permissions";
 
@@ -50,7 +55,7 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 				)) || null;
 
 			if (user) {
-				// Récupérer les memberships avec un JOIN
+				// Récupérer les memberships
 				const membershipsData = (await db`
 					SELECT 
 						id as member_id, 
@@ -109,6 +114,8 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	// Mettre les données complètes en cache dans locals
 	if (userData) {
 		event.locals.userData = userData;
+		// Rafraîchir le cookie de session pour prolonger sa durée de vie
+		refreshSessionCookie(event);
 	}
 
 	// Continuer avec la résolution de la requête
