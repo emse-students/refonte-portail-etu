@@ -8,6 +8,7 @@ import {
 	checkListPermission,
 	hasAssociationPermission,
 	hasListPermission,
+	getAuthorizedListIds,
 } from "$lib/server/auth-middleware";
 import Permission from "$lib/permissions";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -23,6 +24,7 @@ vi.mock("$lib/server/database", () => ({
 vi.mock("$lib/server/auth-middleware", () => ({
 	requireAuth: vi.fn(),
 	getAuthorizedAssociationIds: vi.fn(),
+	getAuthorizedListIds: vi.fn(),
 	checkAssociationPermission: vi.fn(),
 	checkListPermission: vi.fn(),
 	hasAssociationPermission: vi.fn(),
@@ -38,6 +40,7 @@ describe("Members API", () => {
 		it("should return all members for admin", async () => {
 			(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 1 });
 			(getAuthorizedAssociationIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue(null); // Admin
+			(getAuthorizedListIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue(null); // Admin
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1, user_id: 1 }]);
 
 			const request = new Request("http://localhost/api/members");
@@ -53,6 +56,7 @@ describe("Members API", () => {
 		it("should return filtered members for authorized user", async () => {
 			(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 1 });
 			(getAuthorizedAssociationIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue([1, 2]);
+			(getAuthorizedListIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue([3, 4]);
 			(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: 1, association_id: 1 }]);
 
 			const request = new Request("http://localhost/api/members");
@@ -62,12 +66,13 @@ describe("Members API", () => {
 			const data = await response.json();
 
 			expect(data).toHaveLength(1);
-			expect(db).toHaveBeenCalledWith(expect.anything(), [1, 2]); // Check if query used the IDs
+			expect(db).toHaveBeenCalledWith(expect.anything(), [1, 2], [3, 4]); // Check if query used the IDs
 		});
 
 		it("should return empty list if no authorized associations", async () => {
 			(requireAuth as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 1 });
 			(getAuthorizedAssociationIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue([]);
+			(getAuthorizedListIds as unknown as ReturnType<typeof vi.fn>).mockReturnValue([]);
 
 			const request = new Request("http://localhost/api/members");
 			const event = { request } as RequestEvent;
