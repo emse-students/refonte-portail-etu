@@ -84,7 +84,7 @@
 	}
 
 	async function loadWeeks(start: Date) {
-		const end = addDays(start, 27);
+		const end = addDays(start, 28);
 		const data = await fetchEventsRange(start, end);
 		events = data;
 		weekStart = new Date(start);
