@@ -22,6 +22,10 @@ export const { handle } = SvelteKitAuth({
 		async jwt({ token, user, profile }) {
 			// Initial sign in
 
+			logger.info("USER : " + user.toString());
+			logger.info("TOKEN : " + token.toString());
+			logger.info("PROFILE : " + profile.toString());
+
 			if (user) {
 				logger.info(`User logged in via CAS: ${profile?.sub}`);
 				token.id = profile?.sub;
