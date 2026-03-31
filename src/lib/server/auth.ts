@@ -24,7 +24,7 @@ export const { handle } = SvelteKitAuth({
 
 			logger.info("USER : " + user.toString());
 			logger.info("TOKEN : " + token.toString());
-			logger.info("PROFILE : " + profile.toString());
+			logger.info("PROFILE : " + profile?.toString());
 
 			if (user) {
 				logger.info(`User logged in via CAS: ${profile?.sub}`);
