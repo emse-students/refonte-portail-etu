@@ -136,6 +136,10 @@ describe("Missing Endpoints API", () => {
 
 		describe("GET /api/users/login/[login]/avatar", () => {
 			it("should return avatar if authenticated and found", async () => {
+				(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+					{ id: 1, login: "jdoe", uid: "uid-jdoe" },
+				]);
+
 				const event = {
 					params: { login: "jdoe" },
 					locals: { session: { user: { id: 1 } } },
@@ -149,6 +153,10 @@ describe("Missing Endpoints API", () => {
 
 				expect(response.status).toBe(200);
 				expect(response.headers.get("Content-Type")).toBe("image/jpeg");
+				expect(event.fetch).toHaveBeenCalledWith(
+					expect.stringContaining("/users/uid-jdoe/avatar"),
+					expect.any(Object)
+				);
 			});
 
 			it("should return 401 if not authenticated", async () => {
@@ -163,6 +171,10 @@ describe("Missing Endpoints API", () => {
 			});
 
 			it("should return 404 if avatar not found", async () => {
+				(db as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
+					{ id: 1, login: "jdoe", uid: "uid-jdoe" },
+				]);
+
 				const event = {
 					params: { login: "jdoe" },
 					locals: { session: { user: { id: 1 } } },

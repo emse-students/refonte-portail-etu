@@ -27,6 +27,7 @@ type SessionData = {
 	permissions: number;
 	email: string;
 	login: string;
+	uid?: string | null;
 	promo: number;
 	admin: boolean;
 	lists: CompactMembership[];
@@ -44,6 +45,7 @@ function compactUserData(userData: FullUser): SessionData {
 		last_name: userData.last_name,
 		email: userData.email,
 		login: userData.login,
+		uid: userData.uid,
 		permissions: userData.permissions,
 		promo: userData.promo,
 		admin: userData.admin,
@@ -124,6 +126,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 		last_name: sessionData.last_name,
 		email: sessionData.email,
 		login: sessionData.login,
+		uid: sessionData.uid,
 		permissions: sessionData.permissions,
 		promo: sessionData.promo,
 		admin: sessionData.admin,
@@ -139,6 +142,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 								last_name: sessionData.last_name,
 								email: sessionData.email,
 								login: sessionData.login,
+								uid: sessionData.uid,
 								promo: sessionData.promo,
 								admin: sessionData.admin,
 							},
@@ -161,6 +165,7 @@ function expandSessionData(sessionData: SessionData): FullUser {
 									last_name: sessionData.last_name,
 									email: sessionData.email,
 									login: sessionData.login,
+									uid: sessionData.uid,
 									promo: sessionData.promo,
 									admin: sessionData.admin,
 								},

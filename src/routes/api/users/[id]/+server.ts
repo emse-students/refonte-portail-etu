@@ -22,6 +22,7 @@ export const GET = async (event: RequestEvent) => {
                 u.last_name, 
                 u.email as user_email, 
                 u.login as user_login,
+				u.uid as user_uid,
                 m.role_name, 
                 m.permissions as role_permissions, 
                 m.hierarchy,
@@ -40,6 +41,7 @@ export const GET = async (event: RequestEvent) => {
 			last_name: string;
 			user_email: string;
 			user_login: string;
+			user_uid: string | null;
 			role_name: string;
 			role_permissions: number;
 			hierarchy: number;

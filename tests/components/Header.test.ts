@@ -22,25 +22,19 @@ vi.mock("$app/state", () => ({
 	},
 }));
 
-// Mock @auth/sveltekit/client
-vi.mock("@auth/sveltekit/client", () => ({
-	signIn: vi.fn(),
-	signOut: vi.fn(),
-}));
-
 describe("Header", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	it("renders logo and title", () => {
-		render(Header, { user: null });
+		render(Header, { userData: null });
 		expect(screen.getByAltText("Logo BDE EMSE")).toBeInTheDocument();
 		expect(screen.getByText("Portail Étudiant")).toBeInTheDocument();
 	});
 
 	it("renders navigation links", () => {
-		render(Header, { user: null });
+		render(Header, { userData: null });
 		expect(screen.getByText("Accueil")).toBeInTheDocument();
 		expect(screen.getByText("Associations")).toBeInTheDocument();
 		expect(screen.getByText("Listes")).toBeInTheDocument();
@@ -49,9 +43,12 @@ describe("Header", () => {
 	});
 
 	it("renders login button when user is not logged in", () => {
-		render(Header, { user: null });
+		render(Header, { userData: null });
 		const loginBtn = screen.getByText("Se connecter");
 		expect(loginBtn).toBeInTheDocument();
+		expect(loginBtn.closest("a")?.getAttribute("href") || loginBtn.getAttribute("href")).toBe(
+			"/auth/signin"
+		);
 	});
 
 	it("renders logout button when user is logged in", () => {
@@ -60,19 +57,20 @@ describe("Header", () => {
 		expect(logoutBtn).toBeInTheDocument();
 	});
 
-	it("calls signIn when login button is clicked", async () => {
-		const { signIn } = await import("@auth/sveltekit/client");
+	it("uses native signin route", async () => {
 		render(Header, { userData: null });
 		const loginBtn = screen.getByText("Se connecter");
 		await fireEvent.click(loginBtn);
-		expect(signIn).toHaveBeenCalledWith("cas-emse");
+		expect(loginBtn.closest("a")?.getAttribute("href") || loginBtn.getAttribute("href")).toBe(
+			"/auth/signin"
+		);
 	});
 
-	it("calls signOut when logout button is clicked", async () => {
-		const { signOut } = await import("@auth/sveltekit/client");
+	it("uses native signout form", async () => {
 		render(Header, { userData: { first_name: "Test", last_name: "User" } });
 		const logoutBtn = screen.getByText("Se déconnecter");
 		await fireEvent.click(logoutBtn);
-		expect(signOut).toHaveBeenCalled();
+		expect(logoutBtn.closest("form")?.getAttribute("action")).toBe("/auth/signout");
+		expect(logoutBtn.closest("form")?.getAttribute("method")?.toLowerCase()).toBe("post");
 	});
 });

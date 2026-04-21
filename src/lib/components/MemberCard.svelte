@@ -51,7 +51,7 @@
 				</div>
 			{/if}
 			<img
-				src="/api/users/login/{member.user.login}/avatar"
+				src="/api/users/login/{member.user.uid ?? member.user.login}/avatar"
 				alt="{member.user.first_name} {member.user.last_name}"
 				class="member-avatar"
 				class:loaded={imageLoaded}

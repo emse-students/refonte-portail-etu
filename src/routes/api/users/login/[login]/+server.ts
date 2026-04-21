@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { Member, RawUser } from "$lib/databasetypes";
+import { findUserByAuthIdentifier } from "$lib/server/auth";
 import db from "$lib/server/database";
 import { json, type RequestEvent } from "@sveltejs/kit";
 
@@ -8,9 +9,11 @@ export const GET = async (event: RequestEvent) => {
 	const login = event.params.login;
 	const fullUser = event.url.searchParams.get("fullUser");
 
-	const user =
-		(await db<RawUser>`SELECT * FROM user WHERE login = ${login}`.then((rows) => rows?.[0])) ||
-		null;
+	if (!login) {
+		return json({ error: "Missing user identifier" }, { status: 400 });
+	}
+
+	const user = await findUserByAuthIdentifier(login);
 
 	if (fullUser === "true" && user) {
 		// Fetch memberships (type Member[]) for the user with a JOIN to get association and role details
@@ -25,9 +28,14 @@ export const GET = async (event: RequestEvent) => {
                 u.last_name, 
                 u.email as user_email, 
                 u.login as user_login,
+					u.uid as user_uid,
                 u.permissions as user_permissions,
 				u.admin as admin,
                 m.role_name as role_name, 
+	
+				if (!login) {
+					return json({ error: "User not found" }, { status: 404 });
+				}
                 m.permissions as role_permissions, 
                 m.hierarchy as hierarchy,
                 u.promo as user_promo
@@ -44,6 +52,7 @@ export const GET = async (event: RequestEvent) => {
 			last_name: string;
 			user_email: string;
 			user_login: string;
+			user_uid: string | null;
 			user_permissions: number;
 			admin: boolean;
 			role_name: string;
@@ -63,6 +72,7 @@ export const GET = async (event: RequestEvent) => {
 				last_name: m.last_name,
 				email: m.user_email,
 				login: m.user_login,
+				uid: m.user_uid,
 				permissions: m.user_permissions,
 				promo: m.user_promo,
 				admin: m.admin,

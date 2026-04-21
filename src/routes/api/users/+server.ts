@@ -7,7 +7,7 @@ import type { RawUser } from "$lib/databasetypes";
 export const GET = async () => {
 	const users = await db<RawUser & { max_role_permissions: number | null }>`
         SELECT
-            u.id, u.first_name, u.last_name, u.email, u.login, u.promo, u.admin,
+			u.id, u.first_name, u.last_name, u.email, u.login, u.uid, u.promo, u.admin,
             MAX(m.permissions) as max_role_permissions
         FROM
             user u
@@ -38,11 +38,11 @@ export const POST = async (event: RequestEvent) => {
 	}
 
 	const body = await event.request.json();
-	const { first_name, last_name, email, login, promo } = body;
+	const { first_name, last_name, email, login, uid, promo } = body;
 
 	await db`
-        INSERT INTO user (first_name, last_name, email, login, promo)
-        VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${promo || null})
+	INSERT INTO user (first_name, last_name, email, login, uid, promo)
+	VALUES (${first_name}, ${last_name}, ${email}, ${login}, ${uid || null}, ${promo || null})
     `;
 
 	return new Response(JSON.stringify({ success: true }), {
@@ -57,12 +57,12 @@ export const PUT = async (event: RequestEvent) => {
 	}
 
 	const body = await event.request.json();
-	const { id, first_name, last_name, email, login, promo } = body;
+	const { id, first_name, last_name, email, login, uid, promo } = body;
 
 	await db`
         UPDATE user 
         SET first_name = ${first_name}, last_name = ${last_name}, email = ${email}, 
-            login = ${login}, promo = ${promo}
+			login = ${login}, uid = ${uid || null}, promo = ${promo}
         WHERE id = ${id}
     `;
 

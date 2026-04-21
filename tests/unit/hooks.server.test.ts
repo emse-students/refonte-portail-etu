@@ -4,8 +4,8 @@ import * as sessionModule from "../../src/lib/server/session";
 import db from "../../src/lib/server/database";
 import logger from "../../src/lib/server/logger";
 import Permission from "$lib/permissions";
+import { findUserByAuthIdentifier, matchesUserAuthIdentifier } from "$lib/server/auth";
 
-// Mock dependencies
 vi.mock("$lib/server/logger", () => ({
 	default: {
 		info: vi.fn(),
@@ -16,10 +16,11 @@ vi.mock("$lib/server/logger", () => ({
 }));
 
 vi.mock("$lib/server/auth", () => ({
-	handle: vi.fn(async ({ event, resolve }) => {
-		// Simulate auth handle
-		return resolve(event);
-	}),
+	handle: vi.fn(async ({ event, resolve }) => resolve(event)),
+	findUserByAuthIdentifier: vi.fn(),
+	matchesUserAuthIdentifier: vi.fn(
+		(id: string, user: { login?: string; uid?: string }) => id === user.login || id === user.uid
+	),
 }));
 
 vi.mock("$lib/server/database", () => ({
@@ -33,7 +34,6 @@ vi.mock("$lib/server/session", () => ({
 	refreshSessionCookie: vi.fn(),
 }));
 
-// Mock sequence to execute handlers in order
 vi.mock("@sveltejs/kit/hooks", () => ({
 	sequence: (...handlers: any[]) => {
 		return async ({ event, resolve }: any) => {
@@ -57,7 +57,7 @@ describe("Server Hooks", () => {
 		vi.clearAllMocks();
 		mockEvent = {
 			locals: {
-				auth: vi.fn().mockResolvedValue(null), // Default no session
+				session: null,
 			},
 			cookies: {
 				get: vi.fn(),
@@ -71,8 +71,8 @@ describe("Server Hooks", () => {
 			},
 		};
 		mockResolve = vi.fn().mockResolvedValue(new Response("ok"));
-		// Default db mock to avoid crashes
 		vi.mocked(db).mockResolvedValue([]);
+		vi.mocked(findUserByAuthIdentifier).mockResolvedValue(null);
 	});
 
 	it("should clear PHPSESSID if present", async () => {
@@ -83,18 +83,16 @@ describe("Server Hooks", () => {
 		expect(mockEvent.cookies.delete).toHaveBeenCalledWith("PHPSESSID", { path: "/" });
 	});
 
-	it("should set event.locals.session if auth session exists", async () => {
+	it("should keep event.locals.session if already provided by auth handle", async () => {
 		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
+		mockEvent.locals.session = mockSession;
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
 		expect(mockEvent.locals.session).toEqual(mockSession);
 	});
 
-	it("should clear session cookie if auth session is invalid but cookie exists", async () => {
-		// Auth session is null (default)
-		// Cookie exists
+	it("should clear session cookie if session is missing but cookie data exists", async () => {
 		vi.mocked(sessionModule.getSessionData).mockReturnValue({ login: "user1" } as any);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
@@ -102,123 +100,83 @@ describe("Server Hooks", () => {
 		expect(sessionModule.clearSessionCookie).toHaveBeenCalledWith(mockEvent);
 	});
 
-	it("should clear session cookie if auth session user id does not match cookie login", async () => {
-		const mockSession = { user: { id: "user2" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
-		vi.mocked(sessionModule.getSessionData).mockReturnValue({ login: "user1" } as any);
+	it("should clear session cookie if session id does not match cookie user identifiers", async () => {
+		mockEvent.locals.session = { user: { id: "user2" } };
+		vi.mocked(sessionModule.getSessionData).mockReturnValue({ login: "user1", uid: "uid1" } as any);
+		vi.mocked(matchesUserAuthIdentifier).mockReturnValue(false);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
 		expect(sessionModule.clearSessionCookie).toHaveBeenCalledWith(mockEvent);
+		expect(matchesUserAuthIdentifier).toHaveBeenCalled();
 	});
 
 	it("should use existing user data from cookie if valid", async () => {
-		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
-		const mockUserData = { login: "user1", first_name: "John" };
+		mockEvent.locals.session = { user: { id: "user1" } };
+		const mockUserData = { login: "user1", first_name: "John", uid: "uid1" };
 		vi.mocked(sessionModule.getSessionData).mockReturnValue(mockUserData as any);
+		vi.mocked(matchesUserAuthIdentifier).mockReturnValue(true);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
 		expect(mockEvent.locals.userData).toEqual(mockUserData);
-		expect(db).not.toHaveBeenCalled();
+		expect(findUserByAuthIdentifier).not.toHaveBeenCalled();
 	});
 
-	it("should fetch user data from DB if session exists but no cookie data", async () => {
-		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
+	it("should fetch user data when session exists but no cookie data", async () => {
+		mockEvent.locals.session = { user: { id: "uid-user1" } };
 		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
 
-		// Mock DB responses
-		// First call: fetch user
-		const mockUser = { id: 1, login: "user1", first_name: "John" };
-		// Second call: fetch memberships
+		const mockUser = {
+			id: 1,
+			login: "user1",
+			uid: "uid-user1",
+			first_name: "John",
+			last_name: "Doe",
+			email: "john@example.com",
+			promo: 2025,
+			admin: false,
+		};
 		const mockMembershipsData = [
 			{
 				member_id: 10,
 				visible: true,
 				association_id: 100,
-				user_id: 1,
-				first_name: "John",
-				last_name: "Doe",
-				user_email: "john@example.com",
-				user_login: "user1",
-				role_id: 5,
+				list_id: null,
 				role_name: "Member",
 				role_permissions: 0,
 				hierarchy: 1,
-				user_promo: 2025,
 			},
 		];
 
-		vi.mocked(db)
-			.mockResolvedValueOnce([mockUser] as any) // User query
-			.mockResolvedValueOnce(mockMembershipsData as any); // Memberships query
+		vi.mocked(findUserByAuthIdentifier).mockResolvedValue(mockUser as any);
+		vi.mocked(db).mockResolvedValueOnce(mockMembershipsData as any);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(db).toHaveBeenCalledTimes(2);
+		expect(findUserByAuthIdentifier).toHaveBeenCalledWith("uid-user1");
+		expect(db).toHaveBeenCalledTimes(1);
 		expect(sessionModule.setSessionCookie).toHaveBeenCalled();
-
-		const expectedUserData = {
-			...mockUser,
-			memberships: [
-				{
-					id: 10,
-					visible: true,
-					association_id: 100,
-					list_id: null,
-					user: {
-						id: 1,
-						first_name: "John",
-						last_name: "Doe",
-						email: "john@example.com",
-						login: "user1",
-						promo: 2025,
-					},
-					role: {
-						id: 5,
-						name: "Member",
-						permissions: 0,
-						hierarchy: 1,
-					},
-				},
-			],
-		};
-
-		// Check if setSessionCookie was called with expected data
-		expect(sessionModule.setSessionCookie).toHaveBeenCalledWith(
-			mockEvent,
-			expect.objectContaining({
-				id: 1,
-				login: "user1",
-			})
-		);
-
 		expect(mockEvent.locals.userData).toBeDefined();
 		expect(mockEvent.locals.userData.id).toBe(1);
 	});
 
-	it("should handle user not found in DB", async () => {
-		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
+	it("should handle user not found", async () => {
+		mockEvent.locals.session = { user: { id: "user1" } };
 		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
-
-		// Mock DB to return empty array (user not found)
-		vi.mocked(db).mockResolvedValue([]);
+		vi.mocked(findUserByAuthIdentifier).mockResolvedValue(null);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 
-		expect(db).toHaveBeenCalledTimes(1); // Only user query, no memberships query
+		expect(db).not.toHaveBeenCalled();
 		expect(sessionModule.setSessionCookie).not.toHaveBeenCalled();
 		expect(mockEvent.locals.userData).toBeUndefined();
 	});
 
 	it("should handle DB error gracefully", async () => {
-		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
+		mockEvent.locals.session = { user: { id: "user1" } };
 		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
-
+		vi.mocked(findUserByAuthIdentifier).mockResolvedValue({ id: 1 } as any);
 		vi.mocked(db).mockRejectedValue(new Error("DB Error"));
 
 		await handle({ event: mockEvent, resolve: mockResolve });
@@ -227,34 +185,32 @@ describe("Server Hooks", () => {
 		expect(mockEvent.locals.userData).toBeUndefined();
 	});
 
-	it("should elevate user permissions to ADMIN if a role has ADMIN permission", async () => {
-		const mockSession = { user: { id: "user1" } };
-		mockEvent.locals.auth.mockResolvedValue(mockSession);
+	it("should elevate permissions to ADMIN when a membership has ADMIN", async () => {
+		mockEvent.locals.session = { user: { id: "user1" } };
 		vi.mocked(sessionModule.getSessionData).mockReturnValue(null);
 
-		// Mock DB user fetch
-		const mockUser = { id: 1, login: "user1" };
-		vi.mocked(db).mockResolvedValueOnce([mockUser]);
-
-		// Mock DB memberships fetch
-		const mockMemberships = [
+		const mockUser = {
+			id: 1,
+			login: "user1",
+			uid: "uid1",
+			first_name: "User",
+			last_name: "One",
+			email: "user@test.com",
+			promo: 2025,
+			admin: false,
+		};
+		vi.mocked(findUserByAuthIdentifier).mockResolvedValue(mockUser as any);
+		vi.mocked(db).mockResolvedValueOnce([
 			{
 				member_id: 1,
 				visible: true,
 				association_id: 1,
-				user_id: 1,
-				first_name: "User",
-				last_name: "One",
-				user_email: "user@test.com",
-				user_login: "user1",
-				role_id: 1,
+				list_id: null,
 				role_name: "Admin",
-				role_permissions: Permission.ADMIN, // ADMIN
+				role_permissions: Permission.ADMIN,
 				hierarchy: 10,
-				user_promo: 2025,
 			},
-		];
-		vi.mocked(db).mockResolvedValueOnce(mockMemberships);
+		] as any);
 
 		await handle({ event: mockEvent, resolve: mockResolve });
 

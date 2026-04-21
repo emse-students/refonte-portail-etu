@@ -21,7 +21,7 @@ function createMockEvent(userData: FullUser | null = null): RequestEvent {
 	return {
 		locals: {
 			userData,
-			session: userData ? { user: { id: String(userData.id) } } : null,
+			session: userData ? { user: { id: userData.uid || userData.login } } : null,
 		},
 	} as unknown as RequestEvent;
 }

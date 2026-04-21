@@ -1,70 +1,68 @@
 import { describe, it, expect, vi } from "vitest";
-import { handle } from "$lib/server/auth";
-import { SvelteKitAuth } from "@auth/sveltekit";
+import {
+	generateAuthorizationUrl,
+	toSessionUser,
+	getUserAuthIdentifiers,
+	matchesUserAuthIdentifier,
+} from "$lib/server/auth";
+import type { RawUser } from "$lib/databasetypes";
 
-// Mock environment variables
 vi.mock("$env/dynamic/private", () => ({
 	env: {
-		AUTH_CLIENT_ID: "mock-client-id",
-		AUTH_CLIENT_SECRET: "mock-client-secret",
-		AUTH_SECRET: "mock-secret",
+		MICONNECT_ISSUER: "https://auth.example.test/oidc/",
+		MICONNECT_CLIENT_ID: "client-id",
+		MICONNECT_CLIENT_SECRET: "client-secret",
+		AUTH_SECRET: "test-secret",
+		PROD: "false",
 	},
 }));
 
-// Mock @auth/sveltekit
-vi.mock("@auth/sveltekit", () => ({
-	SvelteKitAuth: vi.fn(() => ({
-		handle: vi.fn(),
-	})),
-}));
-
-describe("Auth Configuration", () => {
-	it("should initialize SvelteKitAuth with correct configuration", async () => {
-		// Re-import to trigger the SvelteKitAuth call
-		await import("$lib/server/auth");
-
-		expect(SvelteKitAuth).toHaveBeenCalledWith(
-			expect.objectContaining({
-				providers: expect.arrayContaining([
-					expect.objectContaining({
-						id: "cas-emse",
-						type: "oidc",
-						issuer: "https://cas.emse.fr/cas/oidc",
-						clientId: "mock-client-id",
-						clientSecret: "mock-client-secret",
-					}),
-				]),
-				secret: "mock-secret",
-				trustHost: true,
-			})
+describe("Native Auth Helpers", () => {
+	it("builds authorization URL with expected OIDC parameters", () => {
+		const url = generateAuthorizationUrl(
+			"http://localhost:5173/auth/callback",
+			"state-1",
+			"nonce-1"
 		);
+		const parsed = new URL(url);
+
+		expect(parsed.origin + parsed.pathname).toBe("https://auth.example.test/oidc/authorize/");
+		expect(parsed.searchParams.get("client_id")).toBe("client-id");
+		expect(parsed.searchParams.get("redirect_uri")).toBe("http://localhost:5173/auth/callback");
+		expect(parsed.searchParams.get("state")).toBe("state-1");
+		expect(parsed.searchParams.get("nonce")).toBe("nonce-1");
+		expect(parsed.searchParams.get("scope")).toContain("openid");
 	});
 
-	it("should have jwt callback that processes user profile", async () => {
-		// Get the config passed to SvelteKitAuth
-		const config = (SvelteKitAuth as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
-		const jwtCallback = config.callbacks.jwt;
+	it("maps DB user to session user with uid priority", () => {
+		const dbUser = {
+			id: 1,
+			first_name: "John",
+			last_name: "Doe",
+			email: "john@example.com",
+			login: "jdoe",
+			uid: "authentik-uid-123",
+			promo: 2025,
+			admin: false,
+			created_at: new Date(),
+			edited_at: new Date(),
+		} as RawUser;
 
-		const token = {};
-		const user = { id: "user1" };
-		const profile = { sub: "sub1" };
-
-		const result = await jwtCallback({ token, user, profile });
-
-		expect(result.id).toBe("sub1");
+		const sessionUser = toSessionUser(dbUser);
+		expect(sessionUser.id).toBe("authentik-uid-123");
+		expect(sessionUser.name).toBe("John Doe");
+		expect(sessionUser.role).toBe("user");
 	});
 
-	it("should have session callback that populates user session", async () => {
-		const config = (SvelteKitAuth as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
-		const sessionCallback = config.callbacks.session;
+	it("returns uid then login as accepted auth identifiers", () => {
+		const ids = getUserAuthIdentifiers({ uid: "uid-1", login: "legacy-login" });
+		expect(ids).toEqual(["uid-1", "legacy-login"]);
+	});
 
-		const session = { user: {} };
-		const token = { id: "sub1", email: "test@test.com", name: "Test User" };
-
-		const result = await sessionCallback({ session, token });
-
-		expect(result.user.id).toBe("sub1");
-		expect(result.user.email).toBe("test@test.com");
-		expect(result.user.name).toBe("Test User");
+	it("accepts both uid and legacy login for session consistency", () => {
+		const user = { uid: "uid-1", login: "legacy-login" };
+		expect(matchesUserAuthIdentifier("uid-1", user)).toBe(true);
+		expect(matchesUserAuthIdentifier("legacy-login", user)).toBe(true);
+		expect(matchesUserAuthIdentifier("other", user)).toBe(false);
 	});
 });

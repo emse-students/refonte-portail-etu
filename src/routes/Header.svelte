@@ -2,7 +2,6 @@
 	import { resolve } from "$app/paths";
 	import logoBde from "$lib/assets/logo.png";
 	import { page } from "$app/state";
-	import { signIn, signOut } from "@auth/sveltekit/client";
 	import { onMount, tick } from "svelte";
 
 	// Load the associations and lists from the api
@@ -105,7 +104,7 @@
 					</div>
 				{/if}
 				<img
-					src="/api/users/login/{user.login}/avatar"
+					src="/api/users/login/{user.uid ?? user.login}/avatar"
 					alt="{user.first_name} {user.last_name}"
 					class="user-avatar"
 					class:loaded={imageLoaded}
@@ -120,9 +119,11 @@
 					</div>
 				{/if}
 			</div>
-			<button onclick={() => signOut()} class="login-btn">Se déconnecter</button>
+			<form method="POST" action="/auth/signout">
+				<button type="submit" class="login-btn">Se déconnecter</button>
+			</form>
 		{:else}
-			<button class="login-btn" onclick={() => signIn("cas-emse")}>Se connecter</button>
+			<a class="login-btn" href="/auth/signin">Se connecter</a>
 		{/if}
 	</div>
 </header>

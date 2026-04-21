@@ -67,7 +67,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 		return mockDbModule.getAssociationWithMembers(raw);
 	}
 	const membersData = (await db`
-        SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
+	SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, u.uid as user_uid,
                m.role_name as role_name, m.permissions as role_permissions, m.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
@@ -80,6 +80,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 		last_name: string;
 		user_email: string;
 		user_login: string;
+		user_uid: string | null;
 		role_name: string;
 		role_permissions: number;
 		hierarchy: number;
@@ -94,6 +95,7 @@ export async function getAssociationWithMembers(raw: RawAssociation): Promise<As
 					last_name: m.last_name,
 					email: m.user_email,
 					login: m.user_login,
+					uid: m.user_uid,
 					promo: m.user_promo,
 				},
 				role_name: m.role_name,
@@ -134,7 +136,7 @@ export async function getBasicList(raw: RawList): Promise<List> {
 
 export async function getListWithMembers(raw: RawList): Promise<List> {
 	const membersData = (await db`
-        SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, 
+	SELECT m.id as member_id, m.visible, u.id as user_id, u.first_name as first_name, u.last_name as last_name, u.email as user_email, u.login as user_login, u.uid as user_uid,
                m.role_name as role_name, m.permissions as role_permissions, m.hierarchy as hierarchy, u.promo as user_promo
         FROM member m
         JOIN user u ON m.user_id = u.id
@@ -147,6 +149,7 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 		last_name: string;
 		user_email: string;
 		user_login: string;
+		user_uid: string | null;
 		role_id: number;
 		role_name: string;
 		role_permissions: number;
@@ -162,6 +165,7 @@ export async function getListWithMembers(raw: RawList): Promise<List> {
 					last_name: m.last_name,
 					email: m.user_email,
 					login: m.user_login,
+					uid: m.user_uid,
 					promo: m.user_promo,
 				},
 				role_name: m.role_name,

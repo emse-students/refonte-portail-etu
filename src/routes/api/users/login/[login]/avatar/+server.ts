@@ -1,8 +1,9 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
+import { findUserByAuthIdentifier } from "$lib/server/auth";
 
 export const GET = async (event: RequestEvent) => {
-	const login = event.params.login;
+	const identifier = event.params.login;
 
 	// Authentication check
 
@@ -10,10 +11,21 @@ export const GET = async (event: RequestEvent) => {
 		return new Response(null, { status: 401 });
 	}
 
-	// Fetch user by login from migallery (with api key if needed)
+	if (!identifier) {
+		return new Response(null, { status: 400 });
+	}
+
+	const user = await findUserByAuthIdentifier(identifier);
+	if (!user) {
+		return new Response(null, { status: 404 });
+	}
+
+	const galleryIdentifier = user.uid || user.login;
+
+	// Fetch user avatar from gallery, preferring the new authentik uid during transition.
 
 	const avatar = await event
-		.fetch(`${env.GALLERY_API_URL}/users/${login}/avatar`, {
+		.fetch(`${env.GALLERY_API_URL}/users/${galleryIdentifier}/avatar`, {
 			method: "GET",
 			headers: {
 				Accept: "image/jpeg",
@@ -25,7 +37,7 @@ export const GET = async (event: RequestEvent) => {
 			if (res.ok) {
 				return res.arrayBuffer();
 			} else {
-				console.error(`Failed to fetch avatar for login ${login}: ${res.status}`);
+				console.error(`Failed to fetch avatar for identifier ${galleryIdentifier}: ${res.status}`);
 				return null;
 			}
 		});

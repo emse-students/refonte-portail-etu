@@ -1,20 +1,19 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
 import type { FullUser } from "$lib/databasetypes";
-import type { Session } from "@auth/core/types";
+import type { AppSession } from "$lib/server/auth";
 
 // for information about these interfaces
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			auth: () => Promise<Session | null>;
 			userData?: FullUser;
-			session?: Session;
+			session?: AppSession;
 		}
 		interface PageData {
 			userData?: FullUser;
-			session?: Session;
+			session?: AppSession;
 		}
 		interface PageState {
 			navMenu?: boolean;

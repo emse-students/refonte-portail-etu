@@ -22,6 +22,7 @@
 		last_name: string;
 		email: string;
 		login: string;
+		uid?: string | null;
 		promo: number;
 		permissions: number; // Computed
 	};

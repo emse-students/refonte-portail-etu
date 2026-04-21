@@ -1,6 +1,7 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import Permission, { hasPermission } from "$lib/permissions";
 import type { FullUser } from "$lib/databasetypes";
+import { matchesUserAuthIdentifier } from "$lib/server/auth";
 
 export type AuthenticatedUser = FullUser;
 
@@ -138,7 +139,7 @@ export async function checkAdmin(
 }
 
 /**
- * Vérifie la cohérence entre session Auth.js et userData
+ * Vérifie la cohérence entre session authentifiée et userData
  * Retourne true si les données sont cohérentes
  */
 export function verifySessionConsistency(event: RequestEvent): boolean {
@@ -155,7 +156,7 @@ export function verifySessionConsistency(event: RequestEvent): boolean {
 		return false;
 	}
 
-	return String(session.user?.id) === String(userData.id);
+	return matchesUserAuthIdentifier(session.user?.id, userData);
 }
 
 /**

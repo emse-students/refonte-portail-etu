@@ -1,7 +1,11 @@
-import { handle as authHandle } from "$lib/server/auth";
+import {
+	handle as authHandle,
+	findUserByAuthIdentifier,
+	matchesUserAuthIdentifier,
+} from "$lib/server/auth";
 import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
-import type { Member, RawUser } from "$lib/databasetypes";
+import type { Member } from "$lib/databasetypes";
 import db from "$lib/server/database";
 import {
 	getSessionData,
@@ -25,8 +29,8 @@ const logHandle: Handle = async ({ event, resolve }) => {
 
 // Notre propre handler pour gérer les données utilisateur
 const userDataHandle: Handle = async ({ event, resolve }) => {
-	// À ce stade, authHandle a déjà été exécuté et event.locals.auth() est disponible
-	const session = await event.locals.auth();
+	// À ce stade, authHandle a déjà chargé event.locals.session depuis le cookie auth_session
+	const session = event.locals.session;
 
 	// Toujours définir la session dans locals
 	if (session) {
@@ -36,23 +40,21 @@ const userDataHandle: Handle = async ({ event, resolve }) => {
 	// Essayer d'abord de récupérer les données depuis le cookie de session
 	let userData = getSessionData(event);
 
-	// Si pas de session Auth.js mais qu'il y a un cookie user_session, l'invalider
-	if ((!session?.user?.id && userData) || session?.user?.id !== userData?.login) {
-		logger.info(
-			"Session Auth.js invalide mais cookie user_session présent → suppression du cookie"
-		);
+	// Si pas de session mais qu'il y a un cookie user_session, l'invalider
+	if (
+		(!session?.user?.id && userData) ||
+		(session?.user?.id && userData && !matchesUserAuthIdentifier(session.user.id, userData))
+	) {
+		logger.info("Session invalide mais cookie user_session présent → suppression du cookie");
 		clearSessionCookie(event);
 		userData = null;
 	}
 
-	// Si pas de données en session ou si la session Auth.js ne correspond pas
+	// Si pas de données en session ou si la session ne correspond pas
 	if (session?.user?.id && !userData) {
 		try {
 			// Charger les données utilisateur directement depuis la DB
-			const user =
-				(await db<RawUser>`SELECT * FROM user WHERE login = ${session.user.id}`.then(
-					(rows) => rows?.[0]
-				)) || null;
+			const user = await findUserByAuthIdentifier(session.user.id);
 
 			if (user) {
 				// Récupérer les memberships
@@ -131,5 +133,5 @@ const clearOldCookiesHandle: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-// Enchaîner les handlers : d'abord authHandle (qui configure event.locals.auth), puis userDataHandle
+// Enchaîner les handlers : d'abord authHandle (qui configure event.locals.session), puis userDataHandle
 export const handle = sequence(logHandle, clearOldCookiesHandle, authHandle, userDataHandle);
