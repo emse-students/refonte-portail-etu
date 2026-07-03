@@ -1,27 +1,17 @@
 <script lang="ts">
 	import Header from "./Header.svelte";
-	import BottomNav from "$lib/components/BottomNav.svelte";
-	import "../app.css";
 	import Footer from "./Footer.svelte";
-	import Toast from "$lib/components/Toast.svelte";
-
-	import { page } from "$app/state";
+	import "../app.css";
 
 	let { children } = $props();
-	const session = page.data.session;
-	const userData = page.data.userData;
 </script>
 
 <div class="app">
-	<Header user={session?.user} {userData} />
-
+	<Header />
 	<main>
 		{@render children()}
 	</main>
-
 	<Footer />
-	<BottomNav />
-	<Toast />
 </div>
 
 <style>
@@ -37,15 +27,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		max-width: 100%;
-		margin: 0;
 		box-sizing: border-box;
 		overflow-x: hidden;
-	}
-
-	@media (max-width: 1200px) {
-		.app {
-			padding-bottom: 4rem; /* Height of BottomNav + spacing */
-		}
 	}
 </style>

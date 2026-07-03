@@ -1,21 +1,13 @@
-import type { Association, RawEvent } from "$lib/databasetypes";
-import { resolve } from "$app/paths";
 import type { PageLoad } from "./$types";
+import { getAssociationBySlug } from "$lib/canari";
+import { error } from "@sveltejs/kit";
 
-export const load: PageLoad = async (event) => {
-	event.depends("app:association");
-
-	const association: Association = await event
-		.fetch(resolve(`/api/associations/handle/${event.params.handle}`))
-		.then((res) => res.json());
-
-	// Fetch events for the association
-	const events: RawEvent[] = await event
-		.fetch(`${resolve("/api/calendar")}?asso=${association.id}`)
-		.then((res) => res.json());
-
-	return {
-		association,
-		events,
-	};
+/** One association with its public members, resolved by slug. */
+export const load: PageLoad = async ({ fetch, params }) => {
+	try {
+		const association = await getAssociationBySlug(fetch, params.handle);
+		return { association };
+	} catch {
+		throw error(404, "Association introuvable");
+	}
 };

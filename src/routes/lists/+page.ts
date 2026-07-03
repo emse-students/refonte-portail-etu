@@ -1,15 +1,8 @@
-import { resolve } from "$app/paths";
-import type { Association, List } from "$lib/databasetypes";
 import type { PageLoad } from "./$types";
+import { getAssociations } from "$lib/canari";
 
-export const load: PageLoad = async (event) => {
-	const lists: List[] = await event.fetch(resolve("/api/lists")).then((res) => res.json());
-	const assos: Association[] = await event
-		.fetch(resolve("/api/associations"))
-		.then((res) => res.json());
-
-	return {
-		lists: lists,
-		associations: assos,
-	};
+/** All promo lists for the lists directory (grouped by promo in the page). */
+export const load: PageLoad = async ({ fetch }) => {
+	const lists = await getAssociations(fetch, "list");
+	return { lists };
 };

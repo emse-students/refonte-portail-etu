@@ -1,21 +1,13 @@
-import type { List, RawEvent } from "$lib/databasetypes";
-import { resolve } from "$app/paths";
 import type { PageLoad } from "./$types";
+import { getAssociationBySlug } from "$lib/canari";
+import { error } from "@sveltejs/kit";
 
-export const load: PageLoad = async (event) => {
-	event.depends("app:list");
-
-	const list: List = await event
-		.fetch(resolve(`/api/lists/handle/${event.params.handle}`))
-		.then((res) => res.json());
-
-	// Fetch events for the list
-	const events: RawEvent[] = await event
-		.fetch(`${resolve("/api/calendar")}?list=${list.id}`)
-		.then((res) => res.json());
-
-	return {
-		list,
-		events,
-	};
+/** One promo list with its public members, resolved by slug. */
+export const load: PageLoad = async ({ fetch, params }) => {
+	try {
+		const list = await getAssociationBySlug(fetch, params.handle);
+		return { list };
+	} catch {
+		throw error(404, "Liste introuvable");
+	}
 };

@@ -47,3 +47,6 @@ playwright-report
 
 # Logs
 *.log
+
+# Local data trace (contains student PII - never commit)
+data-export/

@@ -1,13 +1,8 @@
-import { resolve } from "$app/paths";
-import type { Association } from "$lib/databasetypes";
 import type { PageLoad } from "./$types";
+import { getAssociations } from "$lib/canari";
 
-export const load: PageLoad = async (event) => {
-	const associations: Association[] = await event
-		.fetch(resolve("/api/associations"))
-		.then((res) => res.json());
-
-	return {
-		associations: associations,
-	};
+/** All associations (active + archived) for the directory page. */
+export const load: PageLoad = async ({ fetch }) => {
+	const associations = await getAssociations(fetch, "association");
+	return { associations };
 };

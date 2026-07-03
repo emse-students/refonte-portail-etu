@@ -15,7 +15,7 @@ export default defineConfig({
 			provider: "v8",
 			reporter: ["text", "json", "html"],
 			include: ["src/**/*.{js,ts,svelte}"],
-			exclude: ["src/app.d.ts", "src/lib/databasetypes.d.ts"],
+			exclude: ["src/app.d.ts"],
 		},
 		server: {
 			deps: {

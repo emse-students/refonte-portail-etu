@@ -1,327 +1,155 @@
 <script lang="ts">
-	import Calendar from "$lib/components/calendar/Calendar.svelte";
-	import Modal from "$lib/components/Modal.svelte";
-	import Permission, { hasPermission } from "$lib/permissions";
+	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
+	import AssociationCard from "$lib/components/AssociationCard.svelte";
 
-	// load session
-	import { page } from "$app/state";
-	import type { RawEvent } from "$lib/databasetypes";
-	let session = $derived(page.data.session);
-	let user = $derived(page.data.userData);
-	let initialEvents = $derived(
-		page.data.initialEvents?.map((e: RawEvent) => ({
-			...e,
-			start_date: new Date(e.start_date),
-			end_date: new Date(e.end_date),
-		})) ?? []
-	);
-	let initialDate = $derived(page.data.start ? new Date(page.data.start) : undefined);
+	let { data } = $props();
 
-	const canProposeEvent = $derived.by(() => {
-		if (!user) return false;
-		// Global permission
-		if (hasPermission(user.permissions, Permission.MANAGE)) return true;
-
-		// Association permission
-		if (user.memberships) {
-			return user.memberships.some((m) => hasPermission(m.permissions, Permission.MANAGE));
-		}
-		return false;
-	});
-
-	let showCalendarModal = $state(false);
-	let isCopied = $state(false);
-
-	const calendarUrl = $derived(`${page.url.origin}/api/calendar/calendar.ics`);
-	const googleCalendarUrl = $derived(
-		`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarUrl.replace("https://", "http://"))}`
-	);
-	const webcalUrl = $derived(calendarUrl.replace(/^https?:/, "webcal:"));
-
-	function copyLink() {
-		navigator.clipboard.writeText(calendarUrl);
-		isCopied = true;
-		setTimeout(() => {
-			isCopied = false;
-		}, 2000);
-	}
+	// A small, stable preview of associative life on the landing page.
+	const preview = $derived(data.associations.slice(0, 8));
 </script>
 
 <svelte:head>
-	<title>Portail Étudiant</title>
+	<title>Vie associative EMSE</title>
 	<meta
 		name="description"
-		content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école."
+		content="La vitrine de la vie associative de l'Ecole des Mines de Saint-Etienne : associations, listes de campagne et l'ecosysteme Canari."
 	/>
-	<meta
-		name="keywords"
-		content="emse, portail étudiant, vie associative, calendrier étudiant, gestion étudiante, ressources étudiantes"
-	/>
-	<meta name="og:title" content="Portail Étudiant - Votre Espace Personnel" />
-	<meta
-		name="og:description"
-		content="Bienvenue sur le portail étudiant, votre espace personnalisé pour gérer la vie associative de l'école."
-	/>
-	<meta name="og:type" content="website" />
-	<meta name="og:url" content="https://portail-etu.emse.fr/" />
-	<meta name="og:image" content="https://portail-etu.emse.fr/logo.png" />
 </svelte:head>
 
-<section>
-	<div class="header-container">
-		<h1>
-			Bienvenue {session?.user?.name ?? "dans le portail étudiant"} !
-		</h1>
-		<div class="actions">
-			<button class="btn-secondary" onclick={() => (showCalendarModal = true)}>
-				📅 S'abonner au calendrier
-			</button>
-			{#if canProposeEvent}
-				<a href="/events/propose" class="btn-primary">Gestion d'événements</a>
-			{/if}
+<section class="hero">
+	<div class="hero-inner">
+		<p class="eyebrow">Ecole des Mines de Saint-Etienne</p>
+		<h1>La vie associative de la Maison des Eleves</h1>
+		<p class="lead">
+			Decouvrez les associations, les listes de campagne et l'ecosysteme numerique etudiant. Cette
+			vitrine est la face ouverte de <strong>Canari</strong>.
+		</p>
+		<div class="cta-row">
+			<a class="btn-primary" href="/associations">Explorer les associations</a>
+			<a class="btn-ghost" href="https://canari-emse.fr" target="_blank" rel="noopener noreferrer">
+				Ouvrir Canari
+			</a>
 		</div>
 	</div>
-
-	<div class="calendar-fixed-container">
-		<Calendar showUnvalidated={true} {initialEvents} {initialDate} {user} />
-	</div>
-
-	<Modal bind:open={showCalendarModal} title="Ajouter au calendrier">
-		<div style="padding: 1rem;">
-			<p>Pour ajouter les événements du portail à votre calendrier personnel :</p>
-
-			<div style="margin-bottom: 2rem;">
-				<h3
-					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
-				>
-					Google Agenda / Android
-				</h3>
-				<a
-					href={googleCalendarUrl}
-					target="_blank"
-					class="btn-primary"
-					style="display: block; text-align: center; text-decoration: none; margin-bottom: 1rem;"
-				>
-					Ajouter à Google Agenda
-				</a>
-
-				<details>
-					<summary style="cursor: pointer; color: var(--color-text-light);"
-						>Ou ajouter manuellement</summary
-					>
-					<ol style="margin-left: 1.5rem; margin-top: 1rem; margin-bottom: 1rem; line-height: 1.6;">
-						<li>Copiez le lien ci-dessous</li>
-						<li>
-							Ouvrez <a
-								href="https://calendar.google.com"
-								target="_blank"
-								rel="noopener noreferrer"
-								style="color: var(--color-primary); text-decoration-line: underline;"
-								>Google Agenda</a
-							>
-						</li>
-						<li>
-							Dans le menu de gauche, cliquez sur le <strong>+</strong> à côté de "Autres agendas"
-						</li>
-						<li>Sélectionnez <strong>À partir de l'URL</strong></li>
-						<li>Collez le lien et validez</li>
-					</ol>
-
-					<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-						<input
-							type="text"
-							readonly
-							value={calendarUrl}
-							style="flex: 1; padding: 0.5rem; border: 1px solid var(--color-bg-1); border-radius: 4px; background: var(--bg-primary); color: var(--color-text);"
-							onclick={(e) => e.currentTarget.select()}
-						/>
-						<button
-							class="btn-secondary"
-							style="padding: 0.5rem 1rem; min-width: 80px;"
-							onclick={copyLink}
-						>
-							{isCopied ? "Copié !" : "Copier"}
-						</button>
-					</div>
-				</details>
-			</div>
-
-			<div>
-				<h3
-					style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--color-primary);"
-				>
-					iOS (Apple Calendar) / Autres
-				</h3>
-				<p style="margin-bottom: 1rem;">
-					Cliquez sur le bouton ci-dessous pour vous abonner automatiquement :
-				</p>
-				<a
-					href={webcalUrl}
-					class="btn-primary"
-					style="display: block; text-align: center; text-decoration: none;"
-				>
-					S'abonner automatiquement
-				</a>
-			</div>
-
-			<div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
-				<button class="btn-secondary" onclick={() => (showCalendarModal = false)}>Fermer</button>
-			</div>
-		</div>
-	</Modal>
 </section>
 
+<section class="block">
+	<div class="block-head">
+		<h2>L'ecosysteme etudiant</h2>
+		<p>Les outils et espaces qui font vivre le campus.</p>
+	</div>
+	<FeaturedLinks />
+</section>
+
+{#if preview.length > 0}
+	<section class="block">
+		<div class="block-head">
+			<h2>Les associations</h2>
+			<a class="see-all" href="/associations">Tout voir &rarr;</a>
+		</div>
+		<div class="grid">
+			{#each preview as association (association.id)}
+				<AssociationCard {association} />
+			{/each}
+		</div>
+	</section>
+{/if}
+
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-		flex: 1;
-		padding: 3rem 2rem;
-		max-width: 1400px;
-		margin: 0 auto;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		color: var(--color-primary);
-		letter-spacing: -0.02em;
+	.hero {
+		position: relative;
+		padding: 4.5rem 1.5rem 3.5rem;
 		text-align: center;
-		margin: 0;
-		/* Removed animation to improve LCP */
-	}
-
-	.header-container {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin-bottom: 2rem;
-		gap: 1.5rem;
-	}
-
-	.actions {
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.btn-primary {
-		background-color: var(--color-primary);
-		color: white;
-		padding: 0.75rem 1.5rem;
-		border-radius: 8px;
-		text-decoration: none;
-		font-weight: 600;
-		transition: background-color 0.2s;
-		white-space: nowrap;
-	}
-
-	.btn-primary:hover {
-		background-color: var(--color-primary-dark);
-	}
-
-	@keyframes fadeInDown {
-		from {
-			opacity: 0;
-			transform: translateY(-20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.calendar-fixed-container {
-		width: 100%;
-		max-width: 1200px;
-		min-height: 450px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin: 0 auto;
-		box-shadow: var(--shadow-md);
-		background: var(--bg-secondary);
-		border-radius: 16px;
-		padding: 2rem;
-		/* Removed animation to improve LCP */
 		overflow: hidden;
-		box-sizing: border-box;
 	}
 
-	.calendar-fixed-container :global(.calendar-responsive) {
-		width: 100%;
-		max-width: 100%;
+	.hero-inner {
+		max-width: 760px;
+		margin: 0 auto;
 	}
 
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
+	.eyebrow {
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--color-secondary);
+		margin: 0 0 0.75rem;
 	}
 
-	@media (max-width: 1024px) {
-		.calendar-fixed-container {
-			padding: 1.5rem;
-		}
+	.hero h1 {
+		font-size: clamp(2rem, 5vw, 3rem);
+		line-height: 1.1;
+		color: var(--color-primary);
+		margin-bottom: 1rem;
 	}
 
-	.btn-secondary {
+	.lead {
+		font-size: 1.1rem;
+		max-width: 42rem;
+		margin: 0 auto 2rem;
+	}
+
+	.cta-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		justify-content: center;
+	}
+
+	.btn-ghost {
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		background-color: var(--color-bg-1);
-		color: var(--color-text);
 		padding: 0.75rem 1.5rem;
 		border-radius: var(--radius-md);
 		font-weight: 600;
-		transition: all 0.2s ease;
-		border: 1px solid transparent;
-		cursor: pointer;
+		color: var(--color-primary);
+		background: #fff;
+		border: 1px solid var(--color-bg-2);
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
 	}
 
-	.btn-secondary:hover {
-		filter: brightness(0.95);
+	.btn-ghost:hover {
 		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
 	}
 
-	.btn-secondary:active {
-		transform: translateY(0);
+	.block {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 2rem 1.5rem;
+		width: 100%;
+		box-sizing: border-box;
 	}
 
-	@media (max-width: 768px) {
-		section {
-			padding: 2rem 1rem;
-		}
-
-		h1 {
-			font-size: 2rem;
-			margin-bottom: 1.5rem;
-		}
-
-		.calendar-fixed-container {
-			padding: 1rem;
-			min-height: 400px;
-		}
+	.block-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
 	}
 
-	@media (max-width: 480px) {
-		section {
-			padding: 1.5rem 0.5rem;
-		}
+	.block-head h2 {
+		font-size: 1.5rem;
+		color: var(--color-primary);
+	}
 
-		.calendar-fixed-container {
-			padding: 0.75rem;
-			border-radius: 12px;
-		}
+	.block-head p {
+		margin: 0;
+	}
+
+	.see-all {
+		color: var(--color-primary-light);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1rem;
 	}
 </style>
