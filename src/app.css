@@ -11,14 +11,23 @@
 	}
 
 	body {
-		@apply bg-mines-navy text-mines-platinum font-sans min-h-screen m-0 p-0;
-		/* Dynamic glassmorphism background */
+		@apply bg-mines-light text-mines-navy font-sans min-h-screen m-0 p-0 transition-colors duration-300;
+		/* Dynamic glassmorphism background for LIGHT mode */
+		background-image:
+			radial-gradient(circle at 15% 85%, rgba(224, 159, 62, 0.08) 0%, transparent 50%),
+			radial-gradient(circle at 85% 15%, rgba(65, 90, 119, 0.08) 0%, transparent 50%),
+			linear-gradient(180deg, #fdfcf5 0%, #f4f1de 50%, #e3d5ca 100%);
+		background-attachment: fixed;
+		background-size: 100vw 100vh;
+	}
+
+	.dark body {
+		@apply bg-mines-navy text-mines-platinum;
+		/* Dynamic glassmorphism background for DARK mode */
 		background-image:
 			radial-gradient(circle at 15% 85%, rgba(224, 159, 62, 0.15) 0%, transparent 50%),
 			radial-gradient(circle at 85% 15%, rgba(65, 90, 119, 0.2) 0%, transparent 50%),
 			linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
-		background-attachment: fixed;
-		background-size: 100vw 100vh;
 	}
 
 	h1,
@@ -27,11 +36,11 @@
 	h4,
 	h5,
 	h6 {
-		@apply font-heading text-mines-platinum font-bold m-0;
+		@apply font-heading text-mines-navy dark:text-mines-platinum font-bold m-0;
 	}
 
 	p {
-		@apply text-mines-platinum/80 leading-relaxed;
+		@apply text-mines-navy/80 dark:text-mines-platinum/80 leading-relaxed;
 	}
 
 	a {
@@ -41,11 +50,11 @@
 
 @layer components {
 	.glass-card {
-		@apply bg-glass-100 backdrop-blur-md border border-white/20 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+		@apply bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
 	}
 
 	.glass-panel {
-		@apply bg-mines-navy/60 backdrop-blur-lg border-b border-white/10;
+		@apply bg-white/70 dark:bg-mines-navy/60 backdrop-blur-lg border-b border-white/40 dark:border-white/10;
 	}
 
 	.btn-primary {
@@ -53,7 +62,7 @@
 	}
 
 	.btn-ghost {
-		@apply inline-flex items-center justify-center bg-white/10 text-mines-platinum px-6 py-3 rounded-lg font-semibold transition-all duration-200 border border-white/20 hover:bg-white/20 hover:border-white/30 backdrop-blur-sm cursor-pointer;
+		@apply inline-flex items-center justify-center bg-black/5 dark:bg-white/10 text-mines-navy dark:text-mines-platinum px-6 py-3 rounded-lg font-semibold transition-all duration-200 border border-black/10 dark:border-white/20 hover:bg-black/10 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/30 backdrop-blur-sm cursor-pointer;
 	}
 }
 

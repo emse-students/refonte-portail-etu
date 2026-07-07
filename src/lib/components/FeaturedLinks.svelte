@@ -6,7 +6,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 	{#each featuredLinks as link (link.name)}
 		<a
-			class="relative flex items-center gap-4 p-5 bg-glass-100 backdrop-blur-md border border-white/10 rounded-xl shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent)] transition-all duration-300 overflow-hidden group"
+			class="relative flex items-center gap-4 p-5 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-xl shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent)] dark:hover:border-[var(--accent)] transition-all duration-300 overflow-hidden group"
 			href={link.url}
 			target="_blank"
 			rel="noopener noreferrer"
@@ -15,7 +15,7 @@
 			<div class="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent)]"></div>
 
 			<div
-				class="relative flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold overflow-hidden"
+				class="relative flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold overflow-hidden shadow-sm"
 				style="background:{link.accent}"
 			>
 				{#if link.icon}
@@ -31,8 +31,12 @@
 			</div>
 
 			<div class="min-w-0 flex-1">
-				<h3 class="m-0 mb-1 text-lg font-semibold text-mines-platinum">{link.name}</h3>
-				<p class="m-0 text-sm text-mines-platinum/70 leading-snug">{link.tagline}</p>
+				<h3 class="m-0 mb-1 text-lg font-semibold text-mines-navy dark:text-mines-platinum">
+					{link.name}
+				</h3>
+				<p class="m-0 text-sm text-mines-navy/70 dark:text-mines-platinum/70 leading-snug">
+					{link.tagline}
+				</p>
 			</div>
 
 			<span

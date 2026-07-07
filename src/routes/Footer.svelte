@@ -5,25 +5,27 @@
 </script>
 
 <footer
-	class="mt-auto bg-mines-navy-dark text-mines-platinum border-t border-white/10 relative overflow-hidden"
+	class="mt-auto bg-mines-light-alt dark:bg-mines-navy-dark text-mines-navy dark:text-mines-platinum border-t border-black/5 dark:border-white/10 relative overflow-hidden"
 >
 	<!-- Subtle glass glow background effect -->
-	<div class="absolute inset-0 bg-glass-gradient pointer-events-none opacity-20"></div>
+	<div
+		class="absolute inset-0 bg-glass-gradient-dark dark:bg-glass-gradient pointer-events-none opacity-20"
+	></div>
 
 	<div class="max-w-6xl mx-auto px-6 py-16 flex flex-col gap-12 relative z-10">
 		<div class="flex flex-col md:flex-row justify-between gap-12">
 			<div class="max-w-lg">
-				<p class="text-mines-platinum/70 leading-relaxed text-lg m-0">
+				<p class="text-mines-navy/70 dark:text-mines-platinum/70 leading-relaxed text-lg m-0">
 					La vitrine ouverte de
 					<a
 						href="https://canari-emse.fr"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-mines-gold font-semibold relative whitespace-nowrap transition-colors hover:text-white group"
+						class="text-mines-gold font-semibold relative whitespace-nowrap transition-colors hover:text-black dark:hover:text-white group"
 					>
 						Canari
 						<span
-							class="absolute bottom-0 left-0 w-full h-0.5 bg-mines-gold scale-x-30 origin-left transition-transform duration-300 group-hover:scale-x-100 group-hover:bg-white"
+							class="absolute bottom-0 left-0 w-full h-0.5 bg-mines-gold scale-x-30 origin-left transition-transform duration-300 group-hover:scale-x-100 group-hover:bg-black dark:group-hover:bg-white"
 						></span>
 					</a>, le réseau de la vie associative de l'École des Mines de Saint-Étienne.
 				</p>
@@ -31,34 +33,36 @@
 
 			<nav class="flex flex-wrap gap-16" aria-label="Liens du pied de page">
 				<div class="flex flex-col gap-4">
-					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
+					<span
+						class="text-sm font-semibold uppercase tracking-wider text-mines-navy/90 dark:text-white/90 mb-1"
 						>Navigation</span
 					>
 					<a
 						href="/associations"
-						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Associations</a
 					>
 					<a
 						href="/lists"
-						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Listes</a
 					>
 					<a
 						href="/liens"
-						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Liens</a
 					>
 				</div>
 				<div class="flex flex-col gap-4">
-					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
+					<span
+						class="text-sm font-semibold uppercase tracking-wider text-mines-navy/90 dark:text-white/90 mb-1"
 						>Écosystème</span
 					>
 					<a
 						href="https://canari-emse.fr"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit group"
+						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit group"
 					>
 						Canari
 						<svg
@@ -81,8 +85,10 @@
 			</nav>
 		</div>
 
-		<div class="pt-8 border-t border-white/10 flex justify-between items-center flex-wrap gap-4">
-			<p class="text-sm text-white/40 m-0">
+		<div
+			class="pt-8 border-t border-black/5 dark:border-white/10 flex justify-between items-center flex-wrap gap-4"
+		>
+			<p class="text-sm text-mines-navy/40 dark:text-white/40 m-0">
 				&copy; {currentYear}
 				{SITE_NAME}. Tous droits réservés.
 			</p>

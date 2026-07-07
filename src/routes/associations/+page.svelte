@@ -30,14 +30,16 @@
 
 <div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
 	<header class="text-center mb-12">
-		<h1 class="text-3xl md:text-4xl font-heading text-mines-platinum mb-3">Vie associative</h1>
-		<p class="max-w-2xl mx-auto mb-8 text-mines-platinum/70 text-lg">
+		<h1 class="text-3xl md:text-4xl font-heading text-mines-navy dark:text-mines-platinum mb-3">
+			Vie associative
+		</h1>
+		<p class="max-w-2xl mx-auto mb-8 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
 			Les associations qui font vivre Mines Saint-Étienne.
 		</p>
 
 		<div class="relative max-w-xl mx-auto">
 			<Search
-				class="absolute left-4 top-1/2 -translate-y-1/2 text-mines-platinum/50 pointer-events-none"
+				class="absolute left-4 top-1/2 -translate-y-1/2 text-mines-navy/50 dark:text-mines-platinum/50 pointer-events-none"
 				width="20"
 				height="20"
 			/>
@@ -45,13 +47,13 @@
 				type="text"
 				placeholder="Rechercher une association..."
 				bind:value={query}
-				class="w-full py-3.5 pl-12 pr-12 bg-glass-100 backdrop-blur-md border border-white/20 rounded-full text-mines-platinum placeholder:text-mines-platinum/50 outline-none transition-all duration-300 focus:border-mines-gold focus:bg-glass-200 shadow-lg"
+				class="w-full py-3.5 pl-12 pr-12 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-full text-mines-navy dark:text-mines-platinum placeholder:text-mines-navy/50 dark:placeholder:text-mines-platinum/50 outline-none transition-all duration-300 focus:border-mines-gold focus:bg-white/60 dark:focus:bg-glass-200 shadow-lg"
 			/>
 			{#if query}
 				<button
 					aria-label="Effacer"
 					onclick={() => (query = "")}
-					class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-mines-platinum hover:bg-white/20 transition-colors"
+					class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-mines-navy dark:text-mines-platinum hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
 				>
 					<X width="16" height="16" class="" />
 				</button>
@@ -61,7 +63,7 @@
 
 	{#if data.failed}
 		<div
-			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-200 text-center backdrop-blur-sm"
+			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-sm"
 		>
 			Le service est momentanement indisponible. Reessayez dans quelques instants.
 		</div>
@@ -76,7 +78,9 @@
 	{/if}
 
 	{#if archived.length > 0}
-		<h2 class="mt-16 mb-6 pt-8 border-t border-white/10 text-2xl font-bold text-mines-platinum">
+		<h2
+			class="mt-16 mb-6 pt-8 border-t border-black/10 dark:border-white/10 text-2xl font-bold text-mines-navy dark:text-mines-platinum"
+		>
 			Anciennes associations
 		</h2>
 		<div
@@ -90,7 +94,7 @@
 
 	{#if active.length === 0 && archived.length === 0}
 		<div
-			class="py-16 text-center text-mines-platinum/50 flex flex-col items-center justify-center bg-glass-100 rounded-3xl border border-white/5 backdrop-blur-sm"
+			class="py-16 text-center text-mines-navy/50 dark:text-mines-platinum/50 flex flex-col items-center justify-center bg-white/40 dark:bg-glass-100 rounded-3xl border border-white/60 dark:border-white/5 backdrop-blur-sm"
 		>
 			<NoResults width="56" height="56" stroke-width="1.5" class="mb-4 opacity-50" />
 			<p class="text-lg">Aucune association ne correspond a votre recherche.</p>

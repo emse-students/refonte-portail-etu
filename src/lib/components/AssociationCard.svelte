@@ -23,11 +23,13 @@
 			>
 		{/if}
 		<h3
-			class="m-0 mb-1 text-lg font-semibold text-mines-platinum truncate transition-colors group-hover:text-white"
+			class="m-0 mb-1 text-lg font-semibold text-mines-navy dark:text-mines-platinum truncate transition-colors group-hover:text-mines-navy/80 dark:group-hover:text-white"
 		>
 			{association.name}
 		</h3>
-		<div class="flex flex-wrap items-center gap-2 text-sm text-mines-platinum/70">
+		<div
+			class="flex flex-wrap items-center gap-2 text-sm text-mines-navy/70 dark:text-mines-platinum/70"
+		>
 			{#if isList}
 				{#if association.promo}
 					<span class="font-semibold text-mines-gold">Campagnes {association.promo}</span>

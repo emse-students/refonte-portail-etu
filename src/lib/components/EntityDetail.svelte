@@ -20,12 +20,23 @@
 	const others = $derived(entity.members.filter((m) => !m.isAdmin));
 </script>
 
-<article class="max-w-5xl mx-auto px-6 py-8 md:py-12 w-full box-border">
+<article class="max-w-4xl mx-auto px-6 py-12 w-full box-border animate-fade-in">
 	<a
-		class="inline-block mb-6 text-mines-platinum/70 font-medium hover:text-mines-gold transition-colors"
 		href={backHref}
+		class="inline-flex items-center gap-2 text-mines-navy/60 dark:text-mines-platinum/60 hover:text-mines-navy dark:hover:text-mines-platinum mb-8 transition-colors font-medium"
 	>
-		&larr; {backLabel}
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="20"
+			height="20"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2.5"
+			stroke-linecap="round"
+			stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg
+		>
+		{backLabel}
 	</a>
 
 	<GlassCard
@@ -49,39 +60,47 @@
 		</div>
 		<div class="text-center sm:text-left flex-1 min-w-0">
 			{#if entity.type === "list" && entity.parentName}
-				<span class="block text-sm font-bold uppercase tracking-widest text-mines-gold mb-2"
+				<span
+					class="block text-sm font-bold uppercase tracking-widest text-mines-gold dark:text-mines-gold mb-2"
 					>{entity.parentName}</span
 				>
 			{/if}
-			<h1 class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-platinum">
-				{entity.name}{#if entity.name2}<span class="text-mines-platinum/60 font-semibold">
+			<h1
+				class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-platinum dark:text-mines-platinum"
+			>
+				{entity.name}{#if entity.name2}<span
+						class="text-mines-platinum/60 dark:text-mines-platinum/60 font-semibold"
+					>
 						&amp; {entity.name2}</span
 					>{/if}
 			</h1>
 			<div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-3">
 				{#if entity.type === "list" && entity.promo}
 					<span
-						class="px-3 py-1 rounded-full text-xs font-semibold bg-mines-gold text-mines-navy-dark"
+						class="px-3 py-1 rounded-full text-xs font-semibold bg-mines-gold text-mines-navy-dark dark:bg-mines-gold dark:text-mines-navy-dark"
 						>Campagnes {entity.promo}</span
 					>
 				{/if}
 				{#if entity.isBDE}
-					<span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-mines-platinum"
+					<span
+						class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 dark:bg-white/10 text-mines-platinum dark:text-mines-platinum"
 						>BDE</span
 					>
 				{/if}
 				{#if entity.archived}
-					<span class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-mines-platinum/60"
-						>Archivee</span
+					<span
+						class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 dark:bg-white/5 text-mines-platinum/60 dark:text-mines-platinum/60"
+						>Archivée</span
 					>
 				{/if}
-				<span class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-mines-platinum/60"
+				<span
+					class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 dark:bg-white/5 text-mines-platinum/60 dark:text-mines-platinum/60"
 					>{entity.members.length} membres</span
 				>
 			</div>
 			{#if entity.contactEmail}
 				<a
-					class="inline-block text-mines-gold hover:text-white hover:underline transition-colors mt-2"
+					class="inline-block text-mines-gold dark:text-mines-gold hover:text-white hover:underline transition-colors mt-2"
 					href="mailto:{entity.contactEmail}">{entity.contactEmail}</a
 				>
 			{/if}
@@ -90,7 +109,7 @@
 
 	{#if description}
 		<section
-			class="my-8 p-6 md:p-8 bg-glass-100 backdrop-blur-md border border-white/10 rounded-2xl text-mines-platinum/90 leading-relaxed prose prose-invert max-w-none"
+			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed prose prose-slate dark:prose-invert max-w-none shadow-sm"
 		>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html description}

@@ -19,7 +19,7 @@
 <section class="relative pt-24 pb-32 px-6 text-center overflow-hidden flex flex-col items-center">
 	<!-- Subtle Hero Grid Background -->
 	<div
-		class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_80%)] -z-10"
+		class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_80%)] -z-10 opacity-30 dark:opacity-100"
 		aria-hidden="true"
 	></div>
 
@@ -31,7 +31,7 @@
 
 	<div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center" use:reveal>
 		<span
-			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/10 text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/20 backdrop-blur-sm shadow-sm"
+			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/20 dark:bg-mines-gold/10 text-mines-gold-dark dark:text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/30 dark:border-mines-gold/20 backdrop-blur-sm shadow-sm"
 		>
 			<span
 				class="w-2 h-2 bg-mines-gold rounded-full shadow-[0_0_8px_rgba(224,159,62,0.8)] animate-pulse"
@@ -40,15 +40,17 @@
 		</span>
 
 		<h1
-			class="text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-mines-platinum mb-5 font-extrabold"
+			class="text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-mines-navy dark:text-mines-platinum mb-5 font-extrabold"
 		>
-			Le <span class="bg-gradient-to-br from-mines-gold to-yellow-400 bg-clip-text text-transparent"
+			Le <span class="bg-gradient-to-br from-mines-gold to-yellow-500 bg-clip-text text-transparent"
 				>Portail Étudiant</span
 			><br />
 			des Ingénieurs Civils des Mines
 		</h1>
 
-		<p class="text-lg md:text-xl text-mines-platinum/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+		<p
+			class="text-lg md:text-xl text-mines-navy/80 dark:text-mines-platinum/80 max-w-2xl mx-auto mb-10 leading-relaxed"
+		>
 			L'écosystème centralisé pour découvrir les associations, suivre les listes de campagne et
 			accéder à tous vos outils.
 		</p>
@@ -83,11 +85,16 @@
 
 	<div class="relative z-20 mt-12 md:-mb-16 w-full max-w-4xl px-4" use:reveal={{ delay: 200 }}>
 		<dl
-			class="flex flex-col md:flex-row flex-wrap justify-around items-center bg-glass-100 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-xl gap-8 md:gap-4 relative overflow-hidden"
+			class="flex flex-col md:flex-row flex-wrap justify-around items-center bg-white/60 dark:bg-glass-100 backdrop-blur-xl border border-white/60 dark:border-white/20 rounded-2xl p-8 shadow-xl gap-8 md:gap-4 relative overflow-hidden"
 		>
-			<div class="absolute inset-0 bg-glass-gradient pointer-events-none opacity-50"></div>
+			<div
+				class="absolute inset-0 bg-glass-gradient pointer-events-none opacity-50 hidden dark:block"
+			></div>
+			<div
+				class="absolute inset-0 bg-glass-gradient-dark pointer-events-none opacity-50 block dark:hidden"
+			></div>
 			<div class="flex flex-col items-center text-center flex-1 z-10">
-				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">
+				<dt class="text-4xl md:text-5xl font-extrabold text-mines-navy dark:text-white mb-2">
 					{data.associations.length}
 				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
@@ -95,19 +102,23 @@
 				</dd>
 			</div>
 			<div
-				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent z-10"
+				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-black/10 dark:via-white/20 to-transparent z-10"
 			></div>
 			<div class="flex flex-col items-center text-center flex-1 z-10">
-				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">{data.listCount}</dt>
+				<dt class="text-4xl md:text-5xl font-extrabold text-mines-navy dark:text-white mb-2">
+					{data.listCount}
+				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
 					listes de campagne
 				</dd>
 			</div>
 			<div
-				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent z-10"
+				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-black/10 dark:via-white/20 to-transparent z-10"
 			></div>
 			<div class="flex flex-col items-center text-center flex-1 z-10">
-				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">{featuredLinks.length}</dt>
+				<dt class="text-4xl md:text-5xl font-extrabold text-mines-navy dark:text-white mb-2">
+					{featuredLinks.length}
+				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
 					outils étudiants
 				</dd>
@@ -117,10 +128,14 @@
 </section>
 
 <section class="max-w-6xl mx-auto px-6 py-20 w-full box-border" use:reveal>
-	<div class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-white/10 flex-wrap">
+	<div
+		class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-black/10 dark:border-white/10 flex-wrap"
+	>
 		<div>
-			<h2 class="text-3xl font-bold text-mines-platinum mb-2">L'écosystème étudiant</h2>
-			<p class="m-0 text-mines-platinum/70 text-lg">
+			<h2 class="text-3xl font-bold text-mines-navy dark:text-mines-platinum mb-2">
+				L'écosystème étudiant
+			</h2>
+			<p class="m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
 				Les outils et espaces qui font vivre le campus.
 			</p>
 		</div>
@@ -130,10 +145,14 @@
 
 {#if preview.length > 0}
 	<section class="max-w-6xl mx-auto px-6 py-20 w-full box-border" use:reveal>
-		<div class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-white/10 flex-wrap">
+		<div
+			class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-black/10 dark:border-white/10 flex-wrap"
+		>
 			<div>
-				<h2 class="text-3xl font-bold text-mines-platinum mb-2">Les associations</h2>
-				<p class="m-0 text-mines-platinum/70 text-lg">
+				<h2 class="text-3xl font-bold text-mines-navy dark:text-mines-platinum mb-2">
+					Les associations
+				</h2>
+				<p class="m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
 					Découvrez la richesse de la vie associative de l'école.
 				</p>
 			</div>
