@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { SITE_NAME } from "$lib/site";
-
 	const currentYear = new Date().getFullYear();
 </script>
 
 <footer
-	class="mt-auto bg-mines-light-alt dark:bg-mines-navy-dark text-mines-navy dark:text-mines-platinum border-t border-black/5 dark:border-white/10 relative overflow-hidden"
+	class="mt-auto bg-mines-navy-dark text-mines-platinum border-t border-white/10 relative overflow-hidden"
 >
 	<!-- Subtle glass glow background effect -->
 	<div
@@ -15,43 +13,41 @@
 	<div class="max-w-6xl mx-auto px-6 py-16 flex flex-col gap-12 relative z-10">
 		<div class="flex flex-col md:flex-row justify-between gap-12">
 			<div class="max-w-lg">
-				<p class="text-mines-navy/70 dark:text-mines-platinum/70 leading-relaxed text-lg m-0">
+				<p class="text-mines-platinum/70 leading-relaxed text-lg m-0">
 					La vitrine de la vie associative de l'École des Mines de Saint-Étienne.
 				</p>
 			</div>
 
 			<nav class="flex flex-wrap gap-16" aria-label="Liens du pied de page">
 				<div class="flex flex-col gap-4">
-					<span
-						class="text-sm font-semibold uppercase tracking-wider text-mines-navy/90 dark:text-white/90 mb-1"
+					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
 						>Navigation</span
 					>
 					<a
 						href="/associations"
-						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Associations</a
 					>
 					<a
 						href="/lists"
-						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Listes</a
 					>
 					<a
 						href="/liens"
-						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
 						>Liens</a
 					>
 				</div>
 				<div class="flex flex-col gap-4">
-					<span
-						class="text-sm font-semibold uppercase tracking-wider text-mines-navy/90 dark:text-white/90 mb-1"
+					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
 						>Écosystème</span
 					>
 					<a
 						href="https://canari-emse.fr"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-mines-navy/70 dark:text-mines-platinum/70 hover:text-black dark:hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit group"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit group"
 					>
 						Canari
 						<svg
@@ -74,10 +70,8 @@
 			</nav>
 		</div>
 
-		<div
-			class="pt-8 border-t border-black/5 dark:border-white/10 flex justify-between items-center flex-wrap gap-4"
-		>
-			<p class="text-sm text-mines-navy/50 dark:text-white/50 m-0">
+		<div class="pt-8 border-t border-white/10 flex justify-between items-center flex-wrap gap-4">
+			<p class="text-sm text-white/50 m-0">
 				Les Rootz - {currentYear} - Léon Muselli / Jolan Boudin / Mathieu Daussin
 			</p>
 		</div>

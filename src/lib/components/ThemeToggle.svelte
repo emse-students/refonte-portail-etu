@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { browser } from "$app/environment";
 	import { toggleTheme } from "$lib/theme";
 	import Sun from "./icons/Sun.svelte";
 	import Moon from "./icons/Moon.svelte";

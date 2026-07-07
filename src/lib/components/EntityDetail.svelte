@@ -1,3 +1,4 @@
+<!-- eslint-disable svelte/no-at-html-tags -->
 <script lang="ts">
 	import type { CanariAssociationDetail } from "$lib/types";
 	import AssociationLogo from "./AssociationLogo.svelte";

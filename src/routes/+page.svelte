@@ -2,7 +2,6 @@
 	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import Button from "$lib/components/Button.svelte";
-	import { featuredLinks } from "$lib/links";
 	import { reveal } from "$lib/actions/reveal";
 	import { pageTitle, SITE_TAGLINE } from "$lib/site";
 

@@ -17,8 +17,6 @@ export function initTheme() {
 	if (!browser) return;
 
 	// On mount, ensure the Svelte state matches what the anti-FOUC script set
-	const html = document.documentElement;
-	const isDark = html.classList.contains("dark");
 	// Nothing strictly needs to be stored if we just rely on the DOM class,
 	// but if we used a store we would sync it here.
 }
