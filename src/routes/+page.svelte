@@ -32,9 +32,6 @@
 		<span
 			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/20 dark:bg-mines-gold/10 text-mines-gold-dark dark:text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/30 dark:border-mines-gold/20 backdrop-blur-sm shadow-sm"
 		>
-			<span
-				class="w-2 h-2 bg-mines-gold rounded-full shadow-[0_0_8px_rgba(224,159,62,0.8)] animate-pulse"
-			></span>
 			École des Mines de Saint-Étienne
 		</span>
 

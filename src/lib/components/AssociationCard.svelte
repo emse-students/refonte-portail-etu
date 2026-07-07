@@ -23,7 +23,8 @@
 			>
 		{/if}
 		<h3
-			class="m-0 mb-1 text-lg font-semibold text-mines-navy dark:text-mines-platinum truncate transition-colors group-hover:text-mines-navy/80 dark:group-hover:text-white"
+			class="m-0 mb-1 text-lg font-semibold text-mines-navy dark:text-mines-platinum line-clamp-2 leading-tight transition-colors group-hover:text-mines-navy/80 dark:group-hover:text-white"
+			title={association.name}
 		>
 			{association.name}
 		</h3>
