@@ -21,7 +21,7 @@
 </script>
 
 <div
-	class="logo"
+	class="flex-none flex items-center justify-center overflow-hidden bg-mines-navy/10 dark:bg-white/10"
 	style="width:{size}px;height:{size}px;border-radius:{rounded};{showImage
 		? ''
 		: `background:${bg}`}"
@@ -32,33 +32,12 @@
 			alt={association.name}
 			loading="lazy"
 			decoding="async"
+			class="w-full h-full object-cover"
 			onerror={() => (failed = true)}
 		/>
 	{:else}
-		<span style="font-size:{size * 0.36}px">{initials(association.name)}</span>
+		<span class="font-bold text-white leading-none select-none" style="font-size:{size * 0.36}px"
+			>{initials(association.name)}</span
+		>
 	{/if}
 </div>
-
-<style>
-	.logo {
-		flex: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-		background: var(--color-bg-2);
-	}
-
-	.logo img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.logo span {
-		font-weight: 700;
-		color: #fff;
-		user-select: none;
-		line-height: 1;
-	}
-</style>
