@@ -98,7 +98,7 @@
 					{data.associations.length}
 				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
-					associations actives
+					associations et clubs actifs
 				</dd>
 			</div>
 			<div
@@ -110,17 +110,6 @@
 				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
 					listes de campagne
-				</dd>
-			</div>
-			<div
-				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-black/10 dark:via-white/20 to-transparent z-10"
-			></div>
-			<div class="flex flex-col items-center text-center flex-1 z-10">
-				<dt class="text-4xl md:text-5xl font-extrabold text-mines-navy dark:text-white mb-2">
-					{featuredLinks.length}
-				</dt>
-				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
-					outils étudiants
 				</dd>
 			</div>
 		</dl>

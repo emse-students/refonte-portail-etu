@@ -38,7 +38,7 @@
 				<span>{association.memberCount} membres</span>
 			{/if}
 			{#if association.archived}
-				<span class="px-2 py-0.5 rounded-full bg-white/10 text-xs">Archivee</span>
+				<span class="px-2 py-0.5 rounded-full bg-white/10 text-xs">Archivée</span>
 			{/if}
 		</div>
 	</div>

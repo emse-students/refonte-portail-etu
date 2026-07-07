@@ -16,18 +16,7 @@
 		<div class="flex flex-col md:flex-row justify-between gap-12">
 			<div class="max-w-lg">
 				<p class="text-mines-navy/70 dark:text-mines-platinum/70 leading-relaxed text-lg m-0">
-					La vitrine ouverte de
-					<a
-						href="https://canari-emse.fr"
-						target="_blank"
-						rel="noopener noreferrer"
-						class="text-mines-gold font-semibold relative whitespace-nowrap transition-colors hover:text-black dark:hover:text-white group"
-					>
-						Canari
-						<span
-							class="absolute bottom-0 left-0 w-full h-0.5 bg-mines-gold scale-x-30 origin-left transition-transform duration-300 group-hover:scale-x-100 group-hover:bg-black dark:group-hover:bg-white"
-						></span>
-					</a>, le réseau de la vie associative de l'École des Mines de Saint-Étienne.
+					La vitrine de la vie associative de l'École des Mines de Saint-Étienne.
 				</p>
 			</div>
 
