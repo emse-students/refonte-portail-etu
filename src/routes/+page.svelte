@@ -164,7 +164,7 @@
 			</a>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+		<div class="flex-grid-4">
 			{#each preview as association (association.id)}
 				<AssociationCard {association} />
 			{/each}

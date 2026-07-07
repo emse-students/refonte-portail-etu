@@ -53,7 +53,7 @@
 				>
 					{section.promo === 0 ? "Divers" : `Campagnes ${section.promo}`}
 				</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				<div class="flex-grid-4">
 					{#each section.lists as list (list.id)}
 						<AssociationCard association={list} base="/lists" />
 					{/each}

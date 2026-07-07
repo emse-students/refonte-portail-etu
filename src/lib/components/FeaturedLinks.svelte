@@ -3,7 +3,7 @@
 	import { initials } from "$lib/media";
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="flex-grid-3">
 	{#each featuredLinks as link (link.name)}
 		<a
 			class="relative flex items-center gap-4 p-5 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-xl shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent)] dark:hover:border-[var(--accent)] transition-all duration-300 overflow-hidden group"
@@ -16,18 +16,19 @@
 
 			<div
 				class="relative flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold overflow-hidden shadow-sm"
-				style="background:{link.accent}"
+				style={link.icon ? "" : `background:${link.accent}`}
 			>
 				{#if link.icon}
 					<img
 						src={link.icon}
 						alt=""
 						loading="lazy"
-						class="absolute inset-0 w-full h-full object-cover"
+						class="absolute inset-0 w-full h-full object-contain p-1"
 						onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
 					/>
+				{:else}
+					<span>{initials(link.name)}</span>
 				{/if}
-				<span>{initials(link.name)}</span>
 			</div>
 
 			<div class="min-w-0 flex-1">

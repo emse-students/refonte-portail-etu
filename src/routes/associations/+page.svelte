@@ -70,7 +70,7 @@
 	{/if}
 
 	{#if active.length > 0}
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+		<div class="flex-grid-4">
 			{#each active as association (association.id)}
 				<AssociationCard {association} />
 			{/each}
@@ -83,9 +83,7 @@
 		>
 			Anciennes associations
 		</h2>
-		<div
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 opacity-60 hover:opacity-100 transition-opacity duration-300"
-		>
+		<div class="flex-grid-4 opacity-60 hover:opacity-100 transition-opacity duration-300">
 			{#each archived as association (association.id)}
 				<AssociationCard {association} />
 			{/each}

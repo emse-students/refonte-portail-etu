@@ -77,9 +77,8 @@
 		<div
 			class="pt-8 border-t border-black/5 dark:border-white/10 flex justify-between items-center flex-wrap gap-4"
 		>
-			<p class="text-sm text-mines-navy/40 dark:text-white/40 m-0">
-				&copy; {currentYear}
-				{SITE_NAME}. Tous droits réservés.
+			<p class="text-sm text-mines-navy/50 dark:text-white/50 m-0">
+				Les Rootz - {currentYear} - Léon Muselli / Jolan Boudin / Mathieu Daussin
 			</p>
 		</div>
 	</div>
