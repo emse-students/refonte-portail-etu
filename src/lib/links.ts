@@ -17,28 +17,28 @@ export interface FeaturedLink {
 export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Canari",
-		tagline: "La messagerie chiffree et le reseau de la vie associative EMSE",
+		tagline: "Le réseau social de la vie étudiante",
 		url: "https://canari-emse.fr",
 		icon: "/links/canari.png",
 		accent: "#1b263b",
 	},
 	{
 		name: "MiGallery",
-		tagline: "Photos et videos des evenements etudiants",
+		tagline: "Toutes vos photos et vidéos !",
 		url: "https://gallery.mitv.fr",
 		icon: "/links/migallery.png",
 		accent: "#415a77",
 	},
 	{
 		name: "Sky",
-		tagline: "L'arbre genealogique des promotions de l'ecole",
+		tagline: "L'arbre généalogique des parrainages",
 		url: "https://sky.canari-emse.fr",
 		icon: "/links/sky.png",
 		accent: "#778da9",
 	},
 	{
 		name: "Le Cercle",
-		tagline: "Le bar associatif de la Maison des Eleves",
+		tagline: "Le bar associatif de la Maison des Éleves",
 		url: "https://portail-etu.emse.fr/cercle",
 		icon: "/links/cercle.png",
 		accent: "#e09f3e",
