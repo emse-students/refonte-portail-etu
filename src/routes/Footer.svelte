@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { SITE_NAME } from "$lib/site";
+</script>
+
 <footer>
 	<div class="inner">
 		<p class="tag">
@@ -5,7 +9,7 @@
 				href="https://canari-emse.fr"
 				target="_blank"
 				rel="noopener noreferrer">Canari</a
-			>, le reseau de la vie associative de l'Ecole des Mines de Saint-Etienne.
+			>, le réseau de la vie associative de l'École des Mines de Saint-Étienne.
 		</p>
 		<nav class="links" aria-label="Liens du pied de page">
 			<a href="/associations">Associations</a>
@@ -13,7 +17,7 @@
 			<a href="/liens">Liens</a>
 			<a href="https://canari-emse.fr" target="_blank" rel="noopener noreferrer">Canari</a>
 		</nav>
-		<p class="fine">Portail etudiant EMSE</p>
+		<p class="fine">{SITE_NAME}</p>
 	</div>
 </footer>
 

@@ -1,16 +1,30 @@
 <script lang="ts">
 	import type { CanariMember } from "$lib/types";
-	import { initials, generateColor } from "$lib/media";
+	import { initials, generateColor, avatarUrl } from "$lib/media";
 
 	let { member, bureau = false }: { member: CanariMember; bureau?: boolean } = $props();
 
 	const name = $derived(
 		member.displayName || [member.firstName, member.lastName].filter(Boolean).join(" ") || "Membre"
 	);
+
+	// Real avatar (MiGallery via Canari) layered over the initials fallback;
+	// hidden on load error so members without a photo keep the colored initials.
+	let showPhoto = $state(true);
 </script>
 
 <div class="member" class:bureau>
-	<div class="avatar" style="background:{generateColor(name)}">{initials(name)}</div>
+	<div class="avatar" style="background:{generateColor(name)}">
+		<span>{initials(name)}</span>
+		{#if showPhoto}
+			<img
+				src={avatarUrl(member.userId)}
+				alt=""
+				loading="lazy"
+				onerror={() => (showPhoto = false)}
+			/>
+		{/if}
+	</div>
 	<div class="info">
 		<div class="name">{name}</div>
 		<div class="meta">
@@ -47,6 +61,7 @@
 	}
 
 	.avatar {
+		position: relative;
 		flex: none;
 		width: 44px;
 		height: 44px;
@@ -58,6 +73,15 @@
 		font-weight: 700;
 		font-size: 0.9rem;
 		user-select: none;
+		overflow: hidden;
+	}
+
+	.avatar img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.info {

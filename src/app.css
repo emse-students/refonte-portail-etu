@@ -56,6 +56,12 @@
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
 
+	/* Motion: kept short and eased so animations feel light, never showy. */
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--motion-fast: 0.2s;
+	--motion-base: 0.4s;
+	--motion-slow: 0.6s;
+
 	/* Aliases for components */
 	--text-primary: var(--color-text);
 	--text-secondary: var(--color-text-light);
@@ -219,4 +225,26 @@ button:focus:not(:focus-visible) {
 	position: absolute;
 	width: 1px;
 	white-space: nowrap;
+}
+
+/*
+ * Scroll reveal, driven by the `reveal` action (src/lib/actions/reveal.ts).
+ * Elements start slightly lowered and transparent, then settle when they enter
+ * the viewport. Entirely disabled under prefers-reduced-motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+	.reveal {
+		opacity: 0;
+		transform: translateY(18px);
+		transition:
+			opacity var(--motion-slow) var(--ease-out),
+			transform var(--motion-slow) var(--ease-out);
+		transition-delay: var(--reveal-delay, 0ms);
+		will-change: opacity, transform;
+	}
+
+	.reveal.in-view {
+		opacity: 1;
+		transform: none;
+	}
 }

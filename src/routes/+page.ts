@@ -2,15 +2,21 @@ import type { PageLoad } from "./$types";
 import { getAssociations } from "$lib/canari";
 
 /**
- * Home data: active (non-archived) associations, used to preview the associative
- * life on the landing page. Failures degrade to an empty list so the static
- * hero and links still render.
+ * Home data: active (non-archived) associations previewed on the landing page,
+ * plus the total number of campaign lists for the hero stats. Failures degrade
+ * to empty values so the static hero and links still render.
  */
 export const load: PageLoad = async ({ fetch }) => {
 	try {
-		const associations = await getAssociations(fetch, "association");
-		return { associations: associations.filter((a) => !a.archived) };
+		const [associations, lists] = await Promise.all([
+			getAssociations(fetch, "association"),
+			getAssociations(fetch, "list"),
+		]);
+		return {
+			associations: associations.filter((a) => !a.archived),
+			listCount: lists.length,
+		};
 	} catch {
-		return { associations: [] };
+		return { associations: [], listCount: 0 };
 	}
 };

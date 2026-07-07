@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/state";
 	import logo from "$lib/assets/logo.png";
+	import { SITE_NAME } from "$lib/site";
 
 	/** Primary navigation entries of the showcase. */
 	const nav = [
@@ -23,7 +24,7 @@
 	<div class="bar">
 		<a class="brand" href="/" onclick={() => (menuOpen = false)}>
 			<img src={logo} alt="" width="40" height="40" />
-			<span>Vie associative EMSE</span>
+			<span>{SITE_NAME}</span>
 		</a>
 
 		<nav class:open={menuOpen} aria-label="Navigation principale">

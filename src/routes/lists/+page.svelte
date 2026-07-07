@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import type { CanariAssociation } from "$lib/types";
+	import { pageTitle } from "$lib/site";
 
 	let { data } = $props();
 
@@ -22,7 +23,7 @@
 </script>
 
 <svelte:head>
-	<title>Listes - Vie associative EMSE</title>
+	<title>{pageTitle("Listes")}</title>
 	<meta name="description" content="Les listes de campagne des promotions de l'EMSE." />
 </svelte:head>
 

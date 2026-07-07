@@ -3,6 +3,7 @@
 	import Search from "$lib/components/icons/Search.svelte";
 	import X from "$lib/components/icons/X.svelte";
 	import NoResults from "$lib/components/icons/NoResults.svelte";
+	import { pageTitle } from "$lib/site";
 
 	let { data } = $props();
 
@@ -20,10 +21,10 @@
 </script>
 
 <svelte:head>
-	<title>Associations - Vie associative EMSE</title>
+	<title>{pageTitle("Associations")}</title>
 	<meta
 		name="description"
-		content="Toutes les associations etudiantes de l'Ecole des Mines de Saint-Etienne."
+		content="Toutes les associations étudiantes de l'École des Mines de Saint-Étienne."
 	/>
 </svelte:head>
 

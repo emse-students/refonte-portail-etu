@@ -12,6 +12,15 @@ export function logoUrl(a: Pick<CanariAssociation, "logoMediaId" | "logoUrl">): 
 	return null;
 }
 
+/**
+ * Same-origin URL of a member's avatar, proxied by the portal from MiGallery
+ * (see src/routes/api/users/[userId]/avatar). Returns 404 when the user has no
+ * avatar, so consumers render an initials fallback on the image `onerror`.
+ */
+export function avatarUrl(userId: string): string {
+	return `/api/users/${encodeURIComponent(userId)}/avatar`;
+}
+
 /** Up to two uppercase initials from a name, for avatar/logo placeholders. */
 export function initials(name: string): string {
 	const parts = name.trim().split(/\s+/).filter(Boolean);

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
+	import { featuredLinks } from "$lib/links";
+	import { reveal } from "$lib/actions/reveal";
+	import { pageTitle, SITE_TAGLINE } from "$lib/site";
 
 	let { data } = $props();
 
@@ -9,20 +12,20 @@
 </script>
 
 <svelte:head>
-	<title>Vie associative EMSE</title>
-	<meta
-		name="description"
-		content="La vitrine de la vie associative de l'Ecole des Mines de Saint-Etienne : associations, listes de campagne et l'ecosysteme Canari."
-	/>
+	<title>{pageTitle()}</title>
+	<meta name="description" content={SITE_TAGLINE} />
 </svelte:head>
 
 <section class="hero">
-	<div class="hero-inner">
-		<p class="eyebrow">Ecole des Mines de Saint-Etienne</p>
-		<h1>La vie associative de la Maison des Eleves</h1>
+	<div class="hero-glow" aria-hidden="true"></div>
+	<div class="hero-inner" use:reveal>
+		<p class="eyebrow">École des Mines de Saint-Étienne</p>
+		<h1>
+			Le <span class="grad">Portail Étudiant</span><br />de la Maison des Élèves
+		</h1>
 		<p class="lead">
-			Decouvrez les associations, les listes de campagne et l'ecosysteme numerique etudiant. Cette
-			vitrine est la face ouverte de <strong>Canari</strong>.
+			Associations, listes de campagne et outils numériques : la face ouverte de
+			<strong>Canari</strong>, le réseau de la vie associative de l'ICM.
 		</p>
 		<div class="cta-row">
 			<a class="btn-primary" href="/associations">Explorer les associations</a>
@@ -30,19 +33,33 @@
 				Ouvrir Canari
 			</a>
 		</div>
+		<dl class="stats">
+			<div>
+				<dt>{data.associations.length}</dt>
+				<dd>associations actives</dd>
+			</div>
+			<div>
+				<dt>{data.listCount}</dt>
+				<dd>listes de campagne</dd>
+			</div>
+			<div>
+				<dt>{featuredLinks.length}</dt>
+				<dd>outils étudiants</dd>
+			</div>
+		</dl>
 	</div>
 </section>
 
-<section class="block">
+<section class="block" use:reveal>
 	<div class="block-head">
-		<h2>L'ecosysteme etudiant</h2>
+		<h2>L'écosystème étudiant</h2>
 		<p>Les outils et espaces qui font vivre le campus.</p>
 	</div>
 	<FeaturedLinks />
 </section>
 
 {#if preview.length > 0}
-	<section class="block">
+	<section class="block" use:reveal>
 		<div class="block-head">
 			<h2>Les associations</h2>
 			<a class="see-all" href="/associations">Tout voir &rarr;</a>
@@ -58,13 +75,34 @@
 <style>
 	.hero {
 		position: relative;
-		padding: 4.5rem 1.5rem 3.5rem;
+		padding: 5rem 1.5rem 3.5rem;
 		text-align: center;
 		overflow: hidden;
 	}
 
+	/* Soft off-center glow behind the hero copy; drifts slowly, disabled below. */
+	.hero-glow {
+		position: absolute;
+		top: -30%;
+		left: 50%;
+		width: min(760px, 90vw);
+		aspect-ratio: 1;
+		transform: translateX(-50%);
+		background: radial-gradient(
+			circle,
+			rgba(224, 159, 62, 0.18) 0%,
+			rgba(65, 90, 119, 0.1) 45%,
+			transparent 70%
+		);
+		filter: blur(8px);
+		pointer-events: none;
+		z-index: 0;
+	}
+
 	.hero-inner {
-		max-width: 760px;
+		position: relative;
+		z-index: 1;
+		max-width: 780px;
 		margin: 0 auto;
 	}
 
@@ -74,19 +112,27 @@
 		font-size: 0.8rem;
 		font-weight: 600;
 		color: var(--color-secondary);
-		margin: 0 0 0.75rem;
+		margin: 0 0 0.9rem;
 	}
 
 	.hero h1 {
-		font-size: clamp(2rem, 5vw, 3rem);
-		line-height: 1.1;
+		font-size: clamp(2.1rem, 5.5vw, 3.2rem);
+		line-height: 1.08;
+		letter-spacing: -0.02em;
 		color: var(--color-primary);
-		margin-bottom: 1rem;
+		margin-bottom: 1.1rem;
+	}
+
+	.grad {
+		background: linear-gradient(120deg, var(--color-secondary), var(--color-primary-light));
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
 	}
 
 	.lead {
-		font-size: 1.1rem;
-		max-width: 42rem;
+		font-size: 1.12rem;
+		max-width: 44rem;
 		margin: 0 auto 2rem;
 	}
 
@@ -107,13 +153,40 @@
 		background: #fff;
 		border: 1px solid var(--color-bg-2);
 		transition:
-			transform 0.2s ease,
-			box-shadow 0.2s ease;
+			transform var(--motion-fast) ease,
+			box-shadow var(--motion-fast) ease;
 	}
 
 	.btn-ghost:hover {
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
+	}
+
+	.stats {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 1.25rem 2.5rem;
+		margin: 2.75rem 0 0;
+	}
+
+	.stats div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.stats dt {
+		font-size: 1.9rem;
+		font-weight: 700;
+		line-height: 1;
+		color: var(--color-primary);
+	}
+
+	.stats dd {
+		margin: 0.35rem 0 0;
+		font-size: 0.85rem;
+		color: var(--color-text-light);
 	}
 
 	.block {
@@ -151,5 +224,20 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 		gap: 1rem;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.hero-glow {
+			animation: drift 14s ease-in-out infinite alternate;
+		}
+
+		@keyframes drift {
+			from {
+				transform: translateX(-50%) translateY(0) scale(1);
+			}
+			to {
+				transform: translateX(-50%) translateY(18px) scale(1.06);
+			}
+		}
 	}
 </style>
