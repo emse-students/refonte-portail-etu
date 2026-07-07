@@ -1,0 +1,20 @@
+#!/bin/sh
+# Pre-push: mirror the full CI + deploy pipeline (lint, format, types, tests,
+# build) so a red pipeline is caught locally before pushing rather than after.
+# A dirty index is rejected first: staged-but-uncommitted changes are not part
+# of the push and would make the checked tree differ from what lands on remote.
+
+if ! git diff --cached --quiet; then
+  echo "Push blocked: staged but uncommitted changes. Commit or stash them first."
+  exit 1
+fi
+
+echo "Pre-push: running lint, format:check, check, test, build..."
+
+bun run lint || { echo "Pre-push failed: lint."; exit 1; }
+bun run format:check || { echo "Pre-push failed: format:check (run 'bun run format')."; exit 1; }
+bun run check || { echo "Pre-push failed: type check (svelte-check)."; exit 1; }
+bun run test || { echo "Pre-push failed: tests."; exit 1; }
+bun run build || { echo "Pre-push failed: production build."; exit 1; }
+
+echo "Pre-push: all checks passed."

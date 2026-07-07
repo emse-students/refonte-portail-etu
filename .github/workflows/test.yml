@@ -12,22 +12,21 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        bun-version: [latest, "1.1.0"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Pin the Bun version so CI, the deploy runner and a fresh clone all
+      # resolve the same toolchain. Must be >= 1.2 to read the text bun.lock.
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: ${{ matrix.bun-version }}
+          bun-version: "1.3.14"
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Generate SvelteKit files
         run: bunx svelte-kit sync
@@ -43,3 +42,8 @@ jobs:
 
       - name: Run tests
         run: bun run test
+
+      # Build in CI too: the deploy workflow builds, so a broken production
+      # build must fail here (and in the pre-push hook) rather than only at deploy.
+      - name: Build
+        run: bun run build
