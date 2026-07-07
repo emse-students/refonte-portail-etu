@@ -67,10 +67,10 @@
 				>
 			{/if}
 			<h1
-				class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-platinum dark:text-mines-platinum"
+				class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-navy dark:text-mines-platinum"
 			>
 				{entity.name}{#if entity.name2}<span
-						class="text-mines-platinum/60 dark:text-mines-platinum/60 font-semibold"
+						class="text-mines-navy/60 dark:text-mines-platinum/60 font-semibold"
 					>
 						&amp; {entity.name2}</span
 					>{/if}
@@ -84,18 +84,18 @@
 				{/if}
 				{#if entity.isBDE}
 					<span
-						class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 dark:bg-white/10 text-mines-platinum dark:text-mines-platinum"
+						class="px-3 py-1 rounded-full text-xs font-semibold bg-black/10 dark:bg-white/10 text-mines-navy dark:text-mines-platinum"
 						>BDE</span
 					>
 				{/if}
 				{#if entity.archived}
 					<span
-						class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 dark:bg-white/5 text-mines-platinum/60 dark:text-mines-platinum/60"
+						class="px-3 py-1 rounded-full text-xs font-medium bg-black/5 dark:bg-white/5 text-mines-navy/60 dark:text-mines-platinum/60"
 						>Archivée</span
 					>
 				{/if}
 				<span
-					class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 dark:bg-white/5 text-mines-platinum/60 dark:text-mines-platinum/60"
+					class="px-3 py-1 rounded-full text-xs font-medium bg-black/5 dark:bg-white/5 text-mines-navy/60 dark:text-mines-platinum/60"
 					>{entity.members.length} membres</span
 				>
 			</div>
@@ -119,7 +119,7 @@
 
 	{#if entity.members.length > 0}
 		{#if bureau.length > 0}
-			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-platinum">Bureau</h2>
+			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">Bureau</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 				{#each bureau as m (m.id)}
 					<MemberCard member={m} bureau />
@@ -127,7 +127,9 @@
 			</div>
 		{/if}
 		{#if others.length > 0}
-			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-platinum">Membres</h2>
+			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">
+				Membres
+			</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 				{#each others as m (m.id)}
 					<MemberCard member={m} />
@@ -136,9 +138,9 @@
 		{/if}
 	{:else}
 		<p
-			class="mt-8 p-8 text-center bg-white/5 rounded-2xl text-mines-platinum/60 border border-white/5"
+			class="mt-8 p-8 text-center bg-black/5 dark:bg-white/5 rounded-2xl text-mines-navy/60 dark:text-mines-platinum/60 border border-black/5 dark:border-white/5"
 		>
-			Les membres de cette equipe seront bientot disponibles.
+			Bientôt disponible...
 		</p>
 	{/if}
 </article>
