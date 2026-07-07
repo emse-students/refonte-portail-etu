@@ -6,7 +6,7 @@
 	<title>Liens - Vie associative EMSE</title>
 	<meta
 		name="description"
-		content="Les sites et outils de la vie etudiante de l'EMSE : Canari, MiGallery, Sky, Le Cercle."
+		content="Les sites et outils de la vie étudiante de l'EMSE : Canari, MiGallery, Sky, Le Cercle."
 	/>
 </svelte:head>
 
@@ -16,7 +16,7 @@
 			Liens utiles
 		</h1>
 		<p class="max-w-2xl mx-auto m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
-			Les espaces numeriques et outils qui font vivre la communaute etudiante de l'EMSE.
+			Les espaces numériques et outils qui font vivre la communauté étudiante de l'EMSE.
 		</p>
 	</header>
 	<FeaturedLinks />

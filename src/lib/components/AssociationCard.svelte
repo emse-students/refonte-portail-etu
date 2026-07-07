@@ -35,7 +35,7 @@
 					<span class="font-semibold text-mines-gold">Campagnes {association.promo}</span>
 				{/if}
 			{:else if association.memberCount > 0}
-				<span>{association.memberCount} membres</span>
+				<span>{association.memberCount} membre{association.memberCount > 1 ? "s" : ""}</span>
 			{/if}
 			{#if association.archived}
 				<span class="px-2 py-0.5 rounded-full bg-white/10 text-xs">Archivée</span>

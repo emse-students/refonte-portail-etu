@@ -33,7 +33,7 @@
 			Listes de campagne
 		</h1>
 		<p class="max-w-2xl mx-auto m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
-			Les listes qui animent les campagnes BDE, BDS et BDA, promotion apres promotion.
+			Les listes qui animent les campagnes BDE, BDS et BDA, promotion après promotion.
 		</p>
 	</header>
 
@@ -41,7 +41,7 @@
 		<div
 			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-sm"
 		>
-			Le service est momentanement indisponible. Reessayez dans quelques instants.
+			Le service est momentanément indisponible. Réessayez dans quelques instants.
 		</div>
 	{/if}
 

@@ -96,7 +96,7 @@
 				{/if}
 				<span
 					class="px-3 py-1 rounded-full text-xs font-medium bg-black/5 dark:bg-white/5 text-mines-navy/60 dark:text-mines-platinum/60"
-					>{entity.members.length} membres</span
+					>{entity.members.length} membre{entity.members.length > 1 ? "s" : ""}</span
 				>
 			</div>
 			{#if entity.contactEmail}
@@ -120,7 +120,7 @@
 	{#if entity.members.length > 0}
 		{#if bureau.length > 0}
 			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">Bureau</h2>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{#each bureau as m (m.id)}
 					<MemberCard member={m} bureau />
 				{/each}
@@ -130,7 +130,7 @@
 			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">
 				Membres
 			</h2>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{#each others as m (m.id)}
 					<MemberCard member={m} />
 				{/each}

@@ -38,7 +38,7 @@ export const featuredLinks: FeaturedLink[] = [
 	},
 	{
 		name: "Le Cercle",
-		tagline: "Le bar associatif de la Maison des Éleves",
+		tagline: "Le bar associatif de la Maison des Élèves",
 		url: "https://portail-etu.emse.fr/cercle",
 		icon: "/links/cercle.png",
 		accent: "#e09f3e",

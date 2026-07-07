@@ -32,7 +32,12 @@
 		{/if}
 	</div>
 	<div class="min-w-0">
-		<div class="font-semibold text-mines-navy dark:text-mines-platinum truncate">{name}</div>
+		<div
+			class="font-semibold text-mines-navy dark:text-mines-platinum line-clamp-2 leading-tight"
+			title={name}
+		>
+			{name}
+		</div>
 		<div class="flex items-center gap-1.5 text-xs text-mines-navy/70 dark:text-mines-platinum/70">
 			<span class="font-medium text-mines-gold">{member.role}</span>
 			{#if member.promo}

@@ -65,7 +65,7 @@
 		<div
 			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-sm"
 		>
-			Le service est momentanement indisponible. Reessayez dans quelques instants.
+			Le service est momentanément indisponible. Réessayez dans quelques instants.
 		</div>
 	{/if}
 
@@ -95,7 +95,7 @@
 			class="py-16 text-center text-mines-navy/50 dark:text-mines-platinum/50 flex flex-col items-center justify-center bg-white/40 dark:bg-glass-100 rounded-3xl border border-white/60 dark:border-white/5 backdrop-blur-sm"
 		>
 			<NoResults width="56" height="56" stroke-width="1.5" class="mb-4 opacity-50" />
-			<p class="text-lg">Aucune association ne correspond a votre recherche.</p>
+			<p class="text-lg">Aucune association ne correspond à votre recherche.</p>
 		</div>
 	{/if}
 </div>
