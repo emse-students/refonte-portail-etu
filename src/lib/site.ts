@@ -11,8 +11,7 @@ export const SITE_NAME = "Portail Étudiant ICM";
 export const SITE_SHORT = "Portail-etu";
 
 /** One-line description of what the showcase is. */
-export const SITE_TAGLINE =
-	"La vitrine ouverte de la vie associative de l'École des Mines de Saint-Étienne.";
+export const SITE_TAGLINE = "La vie associative de l'École des Mines de Saint-Étienne.";
 
 /** Builds a page title of the form "Section - Portail Étudiant ICM". */
 export function pageTitle(section?: string): string {

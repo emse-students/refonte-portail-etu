@@ -6,28 +6,10 @@
 	let { children } = $props();
 </script>
 
-<div class="app">
+<div class="flex flex-col min-h-screen box-border">
 	<Header />
-	<main>
+	<main class="flex-1 flex flex-col w-full box-border overflow-x-hidden relative z-0">
 		{@render children()}
 	</main>
 	<Footer />
 </div>
-
-<style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-		box-sizing: border-box;
-	}
-
-	main {
-		flex: 1 0 auto;
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		box-sizing: border-box;
-		overflow-x: hidden;
-	}
-</style>

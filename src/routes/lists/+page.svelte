@@ -27,82 +27,36 @@
 	<meta name="description" content="Les listes de campagne des promotions de l'EMSE." />
 </svelte:head>
 
-<div class="page">
-	<header class="intro">
-		<h1>Listes de campagne</h1>
-		<p>Les listes qui animent les campagnes BDE, BDS et BDA, promotion apres promotion.</p>
+<div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
+	<header class="text-center mb-12">
+		<h1 class="text-3xl md:text-4xl font-heading text-mines-platinum mb-3">Listes de campagne</h1>
+		<p class="max-w-2xl mx-auto m-0 text-mines-platinum/70 text-lg">
+			Les listes qui animent les campagnes BDE, BDS et BDA, promotion apres promotion.
+		</p>
 	</header>
 
 	{#if data.failed}
-		<div class="notice">
+		<div
+			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-200 text-center backdrop-blur-sm"
+		>
 			Le service est momentanement indisponible. Reessayez dans quelques instants.
 		</div>
 	{/if}
 
-	{#each sections as section (section.promo)}
-		<section>
-			<h2>{section.promo === 0 ? "Promotion non precisee" : `Campagnes ${section.promo}`}</h2>
-			<div class="grid">
-				{#each section.lists as list (list.id)}
-					<AssociationCard association={list} base="/lists" />
-				{/each}
-			</div>
-		</section>
-	{/each}
+	<div class="flex flex-col gap-12">
+		{#each sections as section (section.promo)}
+			<section>
+				<h2
+					class="inline-block m-0 mb-6 px-4 py-2 text-lg font-semibold text-mines-navy-dark bg-mines-gold rounded-full shadow-md"
+				>
+					{section.promo === 0 ? "Divers" : `Campagnes ${section.promo}`}
+				</h2>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+					{#each section.lists as list (list.id)}
+						<AssociationCard association={list} base="/lists" />
+					{/each}
+				</div>
+			</section>
+		{/each}
+	</div>
 </div>
-
-<style>
-	.page {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2.5rem 1.5rem 4rem;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.intro {
-		text-align: center;
-		margin-bottom: 2.5rem;
-	}
-
-	.intro h1 {
-		font-size: 2.4rem;
-		color: var(--color-primary);
-		margin-bottom: 0.5rem;
-	}
-
-	.intro p {
-		max-width: 42rem;
-		margin: 0 auto;
-	}
-
-	section {
-		margin-bottom: 2.5rem;
-	}
-
-	h2 {
-		display: inline-block;
-		margin: 0 0 1.25rem;
-		padding: 0.4rem 1rem;
-		font-size: 1.15rem;
-		color: var(--color-text-on-primary);
-		background: var(--color-primary);
-		border-radius: 999px;
-	}
-
-	.notice {
-		margin-bottom: 1.5rem;
-		padding: 1rem 1.25rem;
-		border-radius: var(--radius-lg);
-		background: #fff7e6;
-		border: 1px solid var(--color-secondary);
-		color: var(--color-primary-dark);
-		text-align: center;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-		gap: 1rem;
-	}
-</style>

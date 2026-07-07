@@ -28,29 +28,47 @@
 	/>
 </svelte:head>
 
-<div class="page">
-	<header class="intro">
-		<h1>Vie associative</h1>
-		<p>Les associations qui font vivre la Maison des Eleves de l'EMSE.</p>
-		<div class="search">
-			<Search class="search-icon" width="20" height="20" />
-			<input type="text" placeholder="Rechercher une association..." bind:value={query} />
+<div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
+	<header class="text-center mb-12">
+		<h1 class="text-3xl md:text-4xl font-heading text-mines-platinum mb-3">Vie associative</h1>
+		<p class="max-w-2xl mx-auto mb-8 text-mines-platinum/70 text-lg">
+			Les associations qui font vivre Mines Saint-Étienne.
+		</p>
+
+		<div class="relative max-w-xl mx-auto">
+			<Search
+				class="absolute left-4 top-1/2 -translate-y-1/2 text-mines-platinum/50 pointer-events-none"
+				width="20"
+				height="20"
+			/>
+			<input
+				type="text"
+				placeholder="Rechercher une association..."
+				bind:value={query}
+				class="w-full py-3.5 pl-12 pr-12 bg-glass-100 backdrop-blur-md border border-white/20 rounded-full text-mines-platinum placeholder:text-mines-platinum/50 outline-none transition-all duration-300 focus:border-mines-gold focus:bg-glass-200 shadow-lg"
+			/>
 			{#if query}
-				<button aria-label="Effacer" onclick={() => (query = "")}>
-					<X width="16" height="16" class="" />
+				<button
+					aria-label="Effacer"
+					onclick={() => (query = "")}
+					class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-mines-platinum hover:bg-white/20 transition-colors"
+				>
+					<X width="16" height="16" />
 				</button>
 			{/if}
 		</div>
 	</header>
 
 	{#if data.failed}
-		<div class="notice">
+		<div
+			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-200 text-center backdrop-blur-sm"
+		>
 			Le service est momentanement indisponible. Reessayez dans quelques instants.
 		</div>
 	{/if}
 
 	{#if active.length > 0}
-		<div class="grid">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 			{#each active as association (association.id)}
 				<AssociationCard {association} />
 			{/each}
@@ -58,8 +76,12 @@
 	{/if}
 
 	{#if archived.length > 0}
-		<h2 class="section">Anciennes associations</h2>
-		<div class="grid faded">
+		<h2 class="mt-16 mb-6 pt-8 border-t border-white/10 text-2xl font-bold text-mines-platinum">
+			Anciennes associations
+		</h2>
+		<div
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 opacity-60 hover:opacity-100 transition-opacity duration-300"
+		>
 			{#each archived as association (association.id)}
 				<AssociationCard {association} />
 			{/each}
@@ -67,115 +89,11 @@
 	{/if}
 
 	{#if active.length === 0 && archived.length === 0}
-		<div class="empty">
-			<NoResults width="56" height="56" stroke-width="1.5" class="" />
-			<p>Aucune association ne correspond a votre recherche.</p>
+		<div
+			class="py-16 text-center text-mines-platinum/50 flex flex-col items-center justify-center bg-glass-100 rounded-3xl border border-white/5 backdrop-blur-sm"
+		>
+			<NoResults width="56" height="56" stroke-width="1.5" class="mb-4 opacity-50" />
+			<p class="text-lg">Aucune association ne correspond a votre recherche.</p>
 		</div>
 	{/if}
 </div>
-
-<style>
-	.page {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2.5rem 1.5rem 4rem;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.intro {
-		text-align: center;
-		margin-bottom: 2.5rem;
-	}
-
-	.intro h1 {
-		font-size: 2.4rem;
-		color: var(--color-primary);
-		margin-bottom: 0.5rem;
-	}
-
-	.intro p {
-		max-width: 40rem;
-		margin: 0 auto 1.75rem;
-	}
-
-	.search {
-		position: relative;
-		max-width: 520px;
-		margin: 0 auto;
-	}
-
-	:global(.search .search-icon) {
-		position: absolute;
-		left: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		color: var(--color-text-light);
-		pointer-events: none;
-	}
-
-	.search input {
-		width: 100%;
-		padding: 0.8rem 3rem;
-		border: 1px solid var(--color-bg-2);
-		border-radius: 999px;
-		background: #fff;
-		box-shadow: var(--shadow-sm);
-		outline: none;
-		transition: border-color 0.2s ease;
-	}
-
-	.search input:focus {
-		border-color: var(--color-secondary);
-	}
-
-	.search button {
-		position: absolute;
-		right: 0.6rem;
-		top: 50%;
-		transform: translateY(-50%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 28px;
-		height: 28px;
-		border: none;
-		border-radius: 50%;
-		background: var(--color-bg-2);
-		color: var(--color-text-light);
-	}
-
-	.notice {
-		margin-bottom: 1.5rem;
-		padding: 1rem 1.25rem;
-		border-radius: var(--radius-lg);
-		background: #fff7e6;
-		border: 1px solid var(--color-secondary);
-		color: var(--color-primary-dark);
-		text-align: center;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-		gap: 1rem;
-	}
-
-	.grid.faded {
-		opacity: 0.75;
-	}
-
-	.section {
-		margin: 2.75rem 0 1.25rem;
-		font-size: 1.3rem;
-		color: var(--color-primary);
-		padding-top: 1.5rem;
-		border-top: 1px solid var(--color-bg-2);
-	}
-
-	.empty {
-		text-align: center;
-		padding: 4rem 1rem;
-		color: var(--color-text-light);
-	}
-</style>

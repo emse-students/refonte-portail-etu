@@ -2,6 +2,7 @@
 	import type { CanariAssociationDetail } from "$lib/types";
 	import AssociationLogo from "./AssociationLogo.svelte";
 	import MemberCard from "./MemberCard.svelte";
+	import GlassCard from "./GlassCard.svelte";
 	import { sanitizeDescription } from "$lib/html";
 
 	let {
@@ -10,22 +11,28 @@
 		backLabel,
 	}: {
 		entity: CanariAssociationDetail;
-		/** Directory link to return to. */
 		backHref: string;
 		backLabel: string;
 	} = $props();
 
 	const description = $derived(sanitizeDescription(entity.description));
-	// Admins (bureau) first, then regular members; both already ordered by the API.
 	const bureau = $derived(entity.members.filter((m) => m.isAdmin));
 	const others = $derived(entity.members.filter((m) => !m.isAdmin));
 </script>
 
-<article>
-	<a class="back" href={backHref}>&larr; {backLabel}</a>
+<article class="max-w-5xl mx-auto px-6 py-8 md:py-12 w-full box-border">
+	<a
+		class="inline-block mb-6 text-mines-platinum/70 font-medium hover:text-mines-gold transition-colors"
+		href={backHref}
+	>
+		&larr; {backLabel}
+	</a>
 
-	<header class="hero" style="--accent:{entity.color || 'var(--color-primary)'}">
-		<div class="logos">
+	<GlassCard
+		class="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 md:p-8"
+		style="border-top-color: {entity.color || 'var(--color-primary)'}; border-top-width: 4px;"
+	>
+		<div class="flex gap-3 flex-none">
 			<AssociationLogo association={entity} size={104} rounded="24%" />
 			{#if entity.type === "list" && entity.name2 && entity.logoMediaId2}
 				<AssociationLogo
@@ -40,203 +47,78 @@
 				/>
 			{/if}
 		</div>
-		<div>
+		<div class="text-center sm:text-left flex-1 min-w-0">
 			{#if entity.type === "list" && entity.parentName}
-				<span class="parent">{entity.parentName}</span>
+				<span class="block text-sm font-bold uppercase tracking-widest text-mines-gold mb-2"
+					>{entity.parentName}</span
+				>
 			{/if}
-			<h1>
-				{entity.name}{#if entity.name2}<span class="alt"> &amp; {entity.name2}</span>{/if}
+			<h1 class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-platinum">
+				{entity.name}{#if entity.name2}<span class="text-mines-platinum/60 font-semibold">
+						&amp; {entity.name2}</span
+					>{/if}
 			</h1>
-			<div class="tags">
+			<div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-3">
 				{#if entity.type === "list" && entity.promo}
-					<span class="tag promo">Campagnes {entity.promo}</span>
+					<span
+						class="px-3 py-1 rounded-full text-xs font-semibold bg-mines-gold text-mines-navy-dark"
+						>Campagnes {entity.promo}</span
+					>
 				{/if}
 				{#if entity.isBDE}
-					<span class="tag">BDE</span>
+					<span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-mines-platinum"
+						>BDE</span
+					>
 				{/if}
 				{#if entity.archived}
-					<span class="tag muted">Archivee</span>
+					<span class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-mines-platinum/60"
+						>Archivee</span
+					>
 				{/if}
-				<span class="tag muted">{entity.members.length} membres</span>
+				<span class="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-mines-platinum/60"
+					>{entity.members.length} membres</span
+				>
 			</div>
 			{#if entity.contactEmail}
-				<a class="contact" href="mailto:{entity.contactEmail}">{entity.contactEmail}</a>
+				<a
+					class="inline-block text-mines-gold hover:text-white hover:underline transition-colors mt-2"
+					href="mailto:{entity.contactEmail}">{entity.contactEmail}</a
+				>
 			{/if}
 		</div>
-	</header>
+	</GlassCard>
 
 	{#if description}
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-		<section class="description">{@html description}</section>
+		<section
+			class="my-8 p-6 md:p-8 bg-glass-100 backdrop-blur-md border border-white/10 rounded-2xl text-mines-platinum/90 leading-relaxed prose prose-invert max-w-none"
+		>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+			{@html description}
+		</section>
 	{/if}
 
 	{#if entity.members.length > 0}
 		{#if bureau.length > 0}
-			<h2>Bureau</h2>
-			<div class="grid">
+			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-platinum">Bureau</h2>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 				{#each bureau as m (m.id)}
 					<MemberCard member={m} bureau />
 				{/each}
 			</div>
 		{/if}
 		{#if others.length > 0}
-			<h2>Membres</h2>
-			<div class="grid">
+			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-platinum">Membres</h2>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 				{#each others as m (m.id)}
 					<MemberCard member={m} />
 				{/each}
 			</div>
 		{/if}
 	{:else}
-		<p class="empty">Les membres de cette equipe seront bientot disponibles.</p>
+		<p
+			class="mt-8 p-8 text-center bg-white/5 rounded-2xl text-mines-platinum/60 border border-white/5"
+		>
+			Les membres de cette equipe seront bientot disponibles.
+		</p>
 	{/if}
 </article>
-
-<style>
-	article {
-		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2rem 1.5rem 4rem;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.back {
-		display: inline-block;
-		margin-bottom: 1.5rem;
-		color: var(--color-text-light);
-		font-weight: 500;
-	}
-
-	.back:hover {
-		color: var(--color-primary);
-	}
-
-	.hero {
-		display: flex;
-		align-items: center;
-		gap: 1.5rem;
-		padding: 1.75rem;
-		background: #fff;
-		border: 1px solid var(--color-bg-2);
-		border-radius: var(--radius-xl);
-		box-shadow: var(--shadow-sm);
-		border-top: 4px solid var(--accent);
-	}
-
-	.logos {
-		display: flex;
-		gap: 0.75rem;
-		flex: none;
-	}
-
-	.parent {
-		display: block;
-		font-size: 0.78rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: var(--color-secondary);
-		margin-bottom: 0.3rem;
-	}
-
-	.hero h1 {
-		margin: 0 0 0.6rem;
-		font-size: 2rem;
-		text-align: left;
-		color: var(--color-primary);
-	}
-
-	.hero h1 .alt {
-		color: var(--color-text-light);
-		font-weight: 600;
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-	}
-
-	.tag {
-		padding: 0.15rem 0.6rem;
-		border-radius: 999px;
-		font-size: 0.8rem;
-		font-weight: 600;
-		background: var(--color-bg-1);
-		color: var(--color-primary);
-	}
-
-	.tag.promo {
-		background: var(--color-secondary);
-		color: var(--color-primary-dark);
-	}
-
-	.tag.muted {
-		background: var(--color-bg-2);
-		color: var(--color-text-light);
-		font-weight: 500;
-	}
-
-	.contact {
-		display: inline-block;
-		margin-top: 0.6rem;
-		color: var(--color-primary-light);
-		font-size: 0.9rem;
-	}
-
-	.contact:hover {
-		text-decoration: underline;
-	}
-
-	.description {
-		margin: 2rem 0;
-		padding: 1.5rem 1.75rem;
-		background: #fff;
-		border: 1px solid var(--color-bg-2);
-		border-radius: var(--radius-lg);
-		line-height: 1.7;
-		color: var(--color-text);
-	}
-
-	.description :global(a) {
-		color: var(--color-primary-light);
-		text-decoration: underline;
-	}
-
-	h2 {
-		margin: 2rem 0 1rem;
-		font-size: 1.3rem;
-		color: var(--color-primary);
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-		gap: 0.75rem;
-	}
-
-	.empty {
-		margin-top: 2rem;
-		padding: 2rem;
-		text-align: center;
-		background: var(--color-bg-1);
-		border-radius: var(--radius-lg);
-		color: var(--color-text-light);
-	}
-
-	@media (max-width: 640px) {
-		.hero {
-			flex-direction: column;
-			text-align: center;
-		}
-
-		.hero h1 {
-			text-align: center;
-		}
-
-		.tags {
-			justify-content: center;
-		}
-	}
-</style>

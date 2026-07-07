@@ -8,108 +8,36 @@
 		member.displayName || [member.firstName, member.lastName].filter(Boolean).join(" ") || "Membre"
 	);
 
-	// Real avatar (MiGallery via Canari) layered over the initials fallback;
-	// hidden on load error so members without a photo keep the colored initials.
 	let showPhoto = $state(true);
 </script>
 
-<div class="member" class:bureau>
-	<div class="avatar" style="background:{generateColor(name)}">
+<div
+	class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg {bureau
+		? 'bg-glass-200 border-mines-gold shadow-md'
+		: 'bg-glass-100 border-white/10 hover:border-white/20'}"
+>
+	<div
+		class="relative flex-none w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm select-none overflow-hidden"
+		style="background:{generateColor(name)}"
+	>
 		<span>{initials(name)}</span>
 		{#if showPhoto}
 			<img
 				src={avatarUrl(member.userId)}
 				alt=""
 				loading="lazy"
+				class="absolute inset-0 w-full h-full object-cover"
 				onerror={() => (showPhoto = false)}
 			/>
 		{/if}
 	</div>
-	<div class="info">
-		<div class="name">{name}</div>
-		<div class="meta">
-			<span class="role">{member.role}</span>
+	<div class="min-w-0">
+		<div class="font-semibold text-mines-platinum truncate">{name}</div>
+		<div class="flex items-center gap-1.5 text-xs text-mines-platinum/70">
+			<span class="font-medium text-mines-gold">{member.role}</span>
 			{#if member.promo}
-				<span class="promo">{member.promo}</span>
+				<span class="before:content-['·'] before:mr-1.5">{member.promo}</span>
 			{/if}
 		</div>
 	</div>
 </div>
-
-<style>
-	.member {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.75rem;
-		background: #fff;
-		border: 1px solid var(--color-bg-2);
-		border-radius: var(--radius-md);
-		transition:
-			transform 0.2s ease,
-			box-shadow 0.2s ease;
-	}
-
-	.member:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-sm);
-	}
-
-	.member.bureau {
-		border-color: var(--color-secondary);
-		background: linear-gradient(180deg, #fffdf6, #fff);
-	}
-
-	.avatar {
-		position: relative;
-		flex: none;
-		width: 44px;
-		height: 44px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #fff;
-		font-weight: 700;
-		font-size: 0.9rem;
-		user-select: none;
-		overflow: hidden;
-	}
-
-	.avatar img {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.info {
-		min-width: 0;
-	}
-
-	.name {
-		font-weight: 600;
-		color: var(--color-text);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.meta {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		font-size: 0.82rem;
-		color: var(--color-text-light);
-	}
-
-	.role {
-		color: var(--color-primary-light);
-		font-weight: 500;
-	}
-
-	.promo::before {
-		content: "· ";
-	}
-</style>

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
+	import Button from "$lib/components/Button.svelte";
 	import { featuredLinks } from "$lib/links";
 	import { reveal } from "$lib/actions/reveal";
 	import { pageTitle, SITE_TAGLINE } from "$lib/site";
 
 	let { data } = $props();
 
-	// A small, stable preview of associative life on the landing page.
 	const preview = $derived(data.associations.slice(0, 8));
 </script>
 
@@ -16,228 +16,150 @@
 	<meta name="description" content={SITE_TAGLINE} />
 </svelte:head>
 
-<section class="hero">
-	<div class="hero-glow" aria-hidden="true"></div>
-	<div class="hero-inner" use:reveal>
-		<p class="eyebrow">École des Mines de Saint-Étienne</p>
-		<h1>
-			Le <span class="grad">Portail Étudiant</span><br />de la Maison des Élèves
+<section class="relative pt-24 pb-32 px-6 text-center overflow-hidden flex flex-col items-center">
+	<!-- Subtle Hero Grid Background -->
+	<div
+		class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_80%)] -z-10"
+		aria-hidden="true"
+	></div>
+
+	<!-- Glow -->
+	<div
+		class="absolute -top-1/4 left-1/2 w-[min(800px,100vw)] aspect-square -translate-x-1/2 bg-[radial-gradient(circle,rgba(224,159,62,0.15)_0%,rgba(65,90,119,0.1)_40%,transparent_70%)] blur-[40px] pointer-events-none -z-10"
+		aria-hidden="true"
+	></div>
+
+	<div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center" use:reveal>
+		<span
+			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/10 text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/20 backdrop-blur-sm shadow-sm"
+		>
+			<span
+				class="w-2 h-2 bg-mines-gold rounded-full shadow-[0_0_8px_rgba(224,159,62,0.8)] animate-pulse"
+			></span>
+			École des Mines de Saint-Étienne
+		</span>
+
+		<h1
+			class="text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-mines-platinum mb-5 font-extrabold"
+		>
+			Le <span class="bg-gradient-to-br from-mines-gold to-yellow-400 bg-clip-text text-transparent"
+				>Portail Étudiant</span
+			><br />
+			des Ingénieurs Civils des Mines
 		</h1>
-		<p class="lead">
-			Associations, listes de campagne et outils numériques : la face ouverte de
-			<strong>Canari</strong>, le réseau de la vie associative de l'ICM.
+
+		<p class="text-lg md:text-xl text-mines-platinum/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+			L'écosystème centralisé pour découvrir les associations, suivre les listes de campagne et
+			accéder à tous vos outils.
 		</p>
-		<div class="cta-row">
-			<a class="btn-primary" href="/associations">Explorer les associations</a>
-			<a class="btn-ghost" href="https://canari-emse.fr" target="_blank" rel="noopener noreferrer">
+
+		<div class="flex flex-wrap gap-4 justify-center">
+			<Button href="/associations" variant="primary">Explorer les associations</Button>
+			<Button
+				href="https://canari-emse.fr"
+				variant="ghost"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
 				Ouvrir Canari
-			</a>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="ml-2 opacity-70"
+					><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline
+						points="15 3 21 3 21 9"
+					></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg
+				>
+			</Button>
 		</div>
-		<dl class="stats">
-			<div>
-				<dt>{data.associations.length}</dt>
-				<dd>associations actives</dd>
+	</div>
+
+	<div class="relative z-20 mt-12 md:-mb-16 w-full max-w-4xl px-4" use:reveal={{ delay: 200 }}>
+		<dl
+			class="flex flex-col md:flex-row flex-wrap justify-around items-center bg-glass-100 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-xl gap-8 md:gap-4 relative overflow-hidden"
+		>
+			<div class="absolute inset-0 bg-glass-gradient pointer-events-none opacity-50"></div>
+			<div class="flex flex-col items-center text-center flex-1 z-10">
+				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">
+					{data.associations.length}
+				</dt>
+				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
+					associations actives
+				</dd>
 			</div>
-			<div>
-				<dt>{data.listCount}</dt>
-				<dd>listes de campagne</dd>
+			<div
+				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent z-10"
+			></div>
+			<div class="flex flex-col items-center text-center flex-1 z-10">
+				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">{data.listCount}</dt>
+				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
+					listes de campagne
+				</dd>
 			</div>
-			<div>
-				<dt>{featuredLinks.length}</dt>
-				<dd>outils étudiants</dd>
+			<div
+				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent z-10"
+			></div>
+			<div class="flex flex-col items-center text-center flex-1 z-10">
+				<dt class="text-4xl md:text-5xl font-extrabold text-white mb-2">{featuredLinks.length}</dt>
+				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
+					outils étudiants
+				</dd>
 			</div>
 		</dl>
 	</div>
 </section>
 
-<section class="block" use:reveal>
-	<div class="block-head">
-		<h2>L'écosystème étudiant</h2>
-		<p>Les outils et espaces qui font vivre le campus.</p>
+<section class="max-w-6xl mx-auto px-6 py-20 w-full box-border" use:reveal>
+	<div class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-white/10 flex-wrap">
+		<div>
+			<h2 class="text-3xl font-bold text-mines-platinum mb-2">L'écosystème étudiant</h2>
+			<p class="m-0 text-mines-platinum/70 text-lg">
+				Les outils et espaces qui font vivre le campus.
+			</p>
+		</div>
 	</div>
 	<FeaturedLinks />
 </section>
 
 {#if preview.length > 0}
-	<section class="block" use:reveal>
-		<div class="block-head">
-			<h2>Les associations</h2>
-			<a class="see-all" href="/associations">Tout voir &rarr;</a>
+	<section class="max-w-6xl mx-auto px-6 py-20 w-full box-border" use:reveal>
+		<div class="flex items-end justify-between gap-6 mb-10 pb-4 border-b border-white/10 flex-wrap">
+			<div>
+				<h2 class="text-3xl font-bold text-mines-platinum mb-2">Les associations</h2>
+				<p class="m-0 text-mines-platinum/70 text-lg">
+					Découvrez la richesse de la vie associative de l'école.
+				</p>
+			</div>
+			<a
+				class="inline-flex items-center gap-1.5 text-mines-gold font-semibold transition-all hover:gap-2.5"
+				href="/associations"
+			>
+				Tout voir
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+				>
+			</a>
 		</div>
-		<div class="grid">
+
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 			{#each preview as association (association.id)}
 				<AssociationCard {association} />
 			{/each}
 		</div>
 	</section>
 {/if}
-
-<style>
-	.hero {
-		position: relative;
-		padding: 5rem 1.5rem 3.5rem;
-		text-align: center;
-		overflow: hidden;
-	}
-
-	/* Soft off-center glow behind the hero copy; drifts slowly, disabled below. */
-	.hero-glow {
-		position: absolute;
-		top: -30%;
-		left: 50%;
-		width: min(760px, 90vw);
-		aspect-ratio: 1;
-		transform: translateX(-50%);
-		background: radial-gradient(
-			circle,
-			rgba(224, 159, 62, 0.18) 0%,
-			rgba(65, 90, 119, 0.1) 45%,
-			transparent 70%
-		);
-		filter: blur(8px);
-		pointer-events: none;
-		z-index: 0;
-	}
-
-	.hero-inner {
-		position: relative;
-		z-index: 1;
-		max-width: 780px;
-		margin: 0 auto;
-	}
-
-	.eyebrow {
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: var(--color-secondary);
-		margin: 0 0 0.9rem;
-	}
-
-	.hero h1 {
-		font-size: clamp(2.1rem, 5.5vw, 3.2rem);
-		line-height: 1.08;
-		letter-spacing: -0.02em;
-		color: var(--color-primary);
-		margin-bottom: 1.1rem;
-	}
-
-	.grad {
-		background: linear-gradient(120deg, var(--color-secondary), var(--color-primary-light));
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
-	}
-
-	.lead {
-		font-size: 1.12rem;
-		max-width: 44rem;
-		margin: 0 auto 2rem;
-	}
-
-	.cta-row {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-		justify-content: center;
-	}
-
-	.btn-ghost {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.75rem 1.5rem;
-		border-radius: var(--radius-md);
-		font-weight: 600;
-		color: var(--color-primary);
-		background: #fff;
-		border: 1px solid var(--color-bg-2);
-		transition:
-			transform var(--motion-fast) ease,
-			box-shadow var(--motion-fast) ease;
-	}
-
-	.btn-ghost:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-md);
-	}
-
-	.stats {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 1.25rem 2.5rem;
-		margin: 2.75rem 0 0;
-	}
-
-	.stats div {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	.stats dt {
-		font-size: 1.9rem;
-		font-weight: 700;
-		line-height: 1;
-		color: var(--color-primary);
-	}
-
-	.stats dd {
-		margin: 0.35rem 0 0;
-		font-size: 0.85rem;
-		color: var(--color-text-light);
-	}
-
-	.block {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem 1.5rem;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.block-head {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 1.25rem;
-	}
-
-	.block-head h2 {
-		font-size: 1.5rem;
-		color: var(--color-primary);
-	}
-
-	.block-head p {
-		margin: 0;
-	}
-
-	.see-all {
-		color: var(--color-primary-light);
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-		gap: 1rem;
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		.hero-glow {
-			animation: drift 14s ease-in-out infinite alternate;
-		}
-
-		@keyframes drift {
-			from {
-				transform: translateX(-50%) translateY(0) scale(1);
-			}
-			to {
-				transform: translateX(-50%) translateY(18px) scale(1.06);
-			}
-		}
-	}
-</style>
