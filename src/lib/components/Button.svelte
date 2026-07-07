@@ -19,7 +19,7 @@
 		...rest
 	}: Props = $props();
 
-	const baseClass = variant === "primary" ? "btn-primary" : "btn-ghost";
+	const baseClass = $derived(variant === "primary" ? "btn-primary" : "btn-ghost");
 </script>
 
 {#if href}

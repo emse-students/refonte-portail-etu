@@ -53,7 +53,7 @@
 					onclick={() => (query = "")}
 					class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/10 text-mines-platinum hover:bg-white/20 transition-colors"
 				>
-					<X width="16" height="16" />
+					<X width="16" height="16" class="" />
 				</button>
 			{/if}
 		</div>
