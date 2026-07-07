@@ -32,6 +32,12 @@
 		<p>Les listes qui animent les campagnes BDE, BDS et BDA, promotion apres promotion.</p>
 	</header>
 
+	{#if data.failed}
+		<div class="notice">
+			Le service est momentanement indisponible. Reessayez dans quelques instants.
+		</div>
+	{/if}
+
 	{#each sections as section (section.promo)}
 		<section>
 			<h2>{section.promo === 0 ? "Promotion non precisee" : `Campagnes ${section.promo}`}</h2>
@@ -81,6 +87,16 @@
 		color: var(--color-text-on-primary);
 		background: var(--color-primary);
 		border-radius: 999px;
+	}
+
+	.notice {
+		margin-bottom: 1.5rem;
+		padding: 1rem 1.25rem;
+		border-radius: var(--radius-lg);
+		background: #fff7e6;
+		border: 1px solid var(--color-secondary);
+		color: var(--color-primary-dark);
+		text-align: center;
 	}
 
 	.grid {

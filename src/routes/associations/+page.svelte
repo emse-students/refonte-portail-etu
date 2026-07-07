@@ -42,6 +42,12 @@
 		</div>
 	</header>
 
+	{#if data.failed}
+		<div class="notice">
+			Le service est momentanement indisponible. Reessayez dans quelques instants.
+		</div>
+	{/if}
+
 	{#if active.length > 0}
 		<div class="grid">
 			{#each active as association (association.id)}
@@ -136,6 +142,16 @@
 		border-radius: 50%;
 		background: var(--color-bg-2);
 		color: var(--color-text-light);
+	}
+
+	.notice {
+		margin-bottom: 1.5rem;
+		padding: 1rem 1.25rem;
+		border-radius: var(--radius-lg);
+		background: #fff7e6;
+		border: 1px solid var(--color-secondary);
+		color: var(--color-primary-dark);
+		text-align: center;
 	}
 
 	.grid {
