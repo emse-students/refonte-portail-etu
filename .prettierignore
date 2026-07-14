@@ -4,6 +4,11 @@ build/
 dist/
 node_modules/
 
+# Generated (inlang / paraglide)
+project.inlang/.meta.json
+project.inlang/README.md
+src/lib/paraglide/
+
 # Static files
 static/
 src/lib/assets/
