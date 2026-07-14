@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { m } from "$lib/paraglide/messages";
+
 	const currentYear = new Date().getFullYear();
 </script>
 
@@ -14,34 +16,34 @@
 		<div class="flex flex-col md:flex-row justify-between gap-12">
 			<div class="max-w-lg">
 				<p class="text-mines-platinum/70 leading-relaxed text-lg m-0">
-					La vitrine de la vie associative de l'École des Mines de Saint-Étienne.
+					{m.footer_tagline()}
 				</p>
 			</div>
 
-			<nav class="flex flex-wrap gap-16" aria-label="Liens du pied de page">
+			<nav class="flex flex-wrap gap-16" aria-label={m.footer_nav_aria()}>
 				<div class="flex flex-col gap-4">
 					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
-						>Navigation</span
+						>{m.footer_nav_heading()}</span
 					>
 					<a
 						href="/associations"
 						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
-						>Associations</a
+						>{m.nav_associations()}</a
 					>
 					<a
 						href="/lists"
 						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
-						>Listes</a
+						>{m.nav_lists()}</a
 					>
 					<a
 						href="/liens"
 						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
-						>Liens</a
+						>{m.nav_links()}</a
 					>
 				</div>
 				<div class="flex flex-col gap-4">
 					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
-						>Écosystème</span
+						>{m.footer_ecosystem_heading()}</span
 					>
 					<a
 						href="https://canari-emse.fr"
@@ -72,7 +74,7 @@
 
 		<div class="pt-8 border-t border-white/10 flex justify-between items-center flex-wrap gap-4">
 			<p class="text-sm text-white/50 m-0">
-				Les Rootz - {currentYear} - Léon Muselli / Jolan Boudin / Mathieu Daussin
+				{m.footer_credits({ year: currentYear })}
 			</p>
 		</div>
 	</div>

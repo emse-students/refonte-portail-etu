@@ -32,7 +32,7 @@ export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Sky",
 		tagline: "L'arbre généalogique des parrainages",
-		url: "https://sky.canari-emse.fr",
+		url: "https://sky.mitv.fr",
 		icon: "/links/sky.png",
 		accent: "#778da9",
 	},

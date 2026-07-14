@@ -4,12 +4,14 @@
 	import { SITE_NAME } from "$lib/site";
 	import Button from "$lib/components/Button.svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
+	import LocaleToggle from "$lib/components/LocaleToggle.svelte";
+	import { m } from "$lib/paraglide/messages";
 
 	const nav = [
-		{ href: "/", label: "Accueil" },
-		{ href: "/associations", label: "Associations" },
-		{ href: "/lists", label: "Listes" },
-		{ href: "/liens", label: "Liens" },
+		{ href: "/", label: m.nav_home() },
+		{ href: "/associations", label: m.nav_associations() },
+		{ href: "/lists", label: m.nav_lists() },
+		{ href: "/liens", label: m.nav_links() },
 	];
 
 	let menuOpen = $state(false);
@@ -61,6 +63,7 @@
 			</div>
 
 			<div class="pl-6 border-l border-white/20 flex items-center gap-4">
+				<LocaleToggle />
 				<ThemeToggle />
 				<Button
 					href="https://canari-emse.fr"
@@ -69,7 +72,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					Ouvrir Canari
+					{m.open_canari()}
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="14"
@@ -91,10 +94,11 @@
 
 		<!-- Mobile Burger & Theme -->
 		<div class="md:hidden flex items-center gap-3 z-50">
+			<LocaleToggle />
 			<ThemeToggle />
 			<button
 				class="p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-mines-gold"
-				aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+				aria-label={menuOpen ? m.menu_close() : m.menu_open()}
 				aria-expanded={menuOpen}
 				onclick={() => (menuOpen = !menuOpen)}
 			>
@@ -148,7 +152,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					Ouvrir Canari
+					{m.open_canari()}
 				</Button>
 			</div>
 		</div>
