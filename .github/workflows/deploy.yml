@@ -17,15 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      #      - name: Setup Bun
-      #        uses: oven-sh/setup-bun@v2.1.0
-      #        with:
-      #          bun-version: latest
-
       - name: Install dependencies
-        run: |
-          bun install
-          bun install --os=linux --cpu=x64 sharp
+        run: bun install
 
       - name: Generate SvelteKit files
         run: bunx svelte-kit sync
@@ -36,9 +29,31 @@ jobs:
       - name: Paste files to right location
         run: |
           cd ~/portail-etu
-          # Remove all files except .env
-          find . -mindepth 1 -maxdepth 1 -not -name ".env" -exec rm -rf {} +
+          # Wipe everything, including any stale hand-written .env: runtime
+          # config is rewritten from GitHub Secrets in the next step, so the
+          # server keeps no manual state and a fresh machine deploys identically.
+          find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
           cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/* . -r
+
+      - name: Write runtime environment from GitHub Secrets
+        # Secrets are passed via env (masked in logs) rather than interpolated
+        # into the script body. Bun auto-loads ~/portail-etu/.env at runtime, so
+        # the pm2-launched server reads these without a rebuild. Empty values are
+        # safe: the app code falls back to public defaults for the URLs and
+        # disables the avatar proxy when GALLERY_API_KEY is unset.
+        env:
+          PUBLIC_CANARI_URL: ${{ secrets.PUBLIC_CANARI_URL }}
+          GALLERY_API_URL: ${{ secrets.GALLERY_API_URL }}
+          GALLERY_API_KEY: ${{ secrets.GALLERY_API_KEY }}
+          PORTAL_URL: ${{ secrets.PORTAL_URL }}
+        run: |
+          cd ~/portail-etu
+          cat > .env <<EOF
+          PUBLIC_CANARI_URL=${PUBLIC_CANARI_URL}
+          GALLERY_API_URL=${GALLERY_API_URL}
+          GALLERY_API_KEY=${GALLERY_API_KEY}
+          PORTAL_URL=${PORTAL_URL}
+          EOF
 
       - name: Restart server
         run: |
