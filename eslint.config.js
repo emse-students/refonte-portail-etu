@@ -82,15 +82,5 @@ export default [
 			"svelte/no-at-html-tags": "warn",
 		},
 	},
-	{
-		// EntityDetail renders association bios as HTML, but only after passing the
-		// value through sanitizeDescription(), so its single {@html} is intentional
-		// and safe. Inline disable comments are not honored for this template rule,
-		// hence the scoped override.
-		files: ["src/lib/components/EntityDetail.svelte"],
-		rules: {
-			"svelte/no-at-html-tags": "off",
-		},
-	},
 	prettier,
 ];

@@ -3,7 +3,7 @@
 	import AssociationLogo from "./AssociationLogo.svelte";
 	import MemberCard from "./MemberCard.svelte";
 	import GlassCard from "./GlassCard.svelte";
-	import { sanitizeDescription } from "$lib/html";
+	import ProfileBioMarkdown from "./ProfileBioMarkdown.svelte";
 	import { m } from "$lib/paraglide/messages";
 
 	let {
@@ -16,7 +16,9 @@
 		backLabel: string;
 	} = $props();
 
-	const description = $derived(sanitizeDescription(entity.description));
+	const hasBio = $derived(
+		Boolean(entity.description?.trim()) || Boolean(entity.bioMarkdown?.trim())
+	);
 	const bureau = $derived(entity.members.filter((member) => member.isAdmin));
 	const others = $derived(entity.members.filter((member) => !member.isAdmin));
 </script>
@@ -110,12 +112,16 @@
 		</div>
 	</GlassCard>
 
-	{#if description}
+	{#if hasBio}
 		<section
-			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed prose prose-slate dark:prose-invert max-w-none shadow-sm"
+			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed shadow-sm"
 		>
-			<!-- Sanitized upstream by sanitizeDescription(); safe to render as HTML. -->
-			{@html description}
+			{#if entity.description?.trim()}
+				<ProfileBioMarkdown source={entity.description} class="text-sm" />
+			{/if}
+			{#if entity.bioMarkdown?.trim()}
+				<ProfileBioMarkdown source={entity.bioMarkdown} />
+			{/if}
 		</section>
 	{/if}
 

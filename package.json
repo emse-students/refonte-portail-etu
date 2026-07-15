@@ -23,6 +23,7 @@
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^5.2.7",
+		"@humanspeak/svelte-markdown": "^1.6.0",
 		"@inlang/paraglide-js": "^2.22.0",
 		"@playwright/test": "^1.61.1",
 		"@sveltejs/adapter-auto": "7.0.1",
