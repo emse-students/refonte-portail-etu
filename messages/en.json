@@ -32,6 +32,8 @@
 	"associations_empty": "No association matches your search.",
 	"search_clear": "Clear",
 	"service_unavailable": "The service is temporarily unavailable. Please try again in a moment.",
+	"error_association_not_found": "Association not found",
+	"error_list_not_found": "List not found",
 	"lists_meta_description": "The promotion campaign lists of EMSE.",
 	"lists_title": "Campaign lists",
 	"lists_subtitle": "The lists that drive the BDE, BDS and BDA campaigns, class after class.",

@@ -32,6 +32,8 @@
 	"associations_empty": "Aucune association ne correspond à votre recherche.",
 	"search_clear": "Effacer",
 	"service_unavailable": "Le service est momentanément indisponible. Réessayez dans quelques instants.",
+	"error_association_not_found": "Association introuvable",
+	"error_list_not_found": "Liste introuvable",
 	"lists_meta_description": "Les listes de campagne des promotions de l'EMSE.",
 	"lists_title": "Listes de campagne",
 	"lists_subtitle": "Les listes qui animent les campagnes BDE, BDS et BDA, promotion après promotion.",
