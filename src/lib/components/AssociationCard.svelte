@@ -2,6 +2,7 @@
 	import type { CanariAssociation } from "$lib/types";
 	import AssociationLogo from "./AssociationLogo.svelte";
 	import GlassCard from "./GlassCard.svelte";
+	import { m } from "$lib/paraglide/messages";
 
 	let {
 		association,
@@ -33,13 +34,19 @@
 		>
 			{#if isList}
 				{#if association.promo}
-					<span class="font-semibold text-mines-gold">Campagnes {association.promo}</span>
+					<span class="font-semibold text-mines-gold"
+						>{m.campaigns_year({ year: association.promo })}</span
+					>
 				{/if}
 			{:else if association.memberCount > 0}
-				<span>{association.memberCount} membre{association.memberCount > 1 ? "s" : ""}</span>
+				<span
+					>{association.memberCount > 1
+						? m.member_count_other({ count: association.memberCount })
+						: m.member_count_one({ count: association.memberCount })}</span
+				>
 			{/if}
 			{#if association.archived}
-				<span class="px-2 py-0.5 rounded-full bg-white/10 text-xs">Archivée</span>
+				<span class="px-2 py-0.5 rounded-full bg-white/10 text-xs">{m.badge_archived()}</span>
 			{/if}
 		</div>
 	</div>

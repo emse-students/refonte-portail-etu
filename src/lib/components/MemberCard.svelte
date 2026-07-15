@@ -1,11 +1,14 @@
 <script lang="ts">
 	import type { CanariMember } from "$lib/types";
 	import { initials, generateColor, avatarUrl } from "$lib/media";
+	import { m } from "$lib/paraglide/messages";
 
 	let { member, bureau = false }: { member: CanariMember; bureau?: boolean } = $props();
 
 	const name = $derived(
-		member.displayName || [member.firstName, member.lastName].filter(Boolean).join(" ") || "Membre"
+		member.displayName ||
+			[member.firstName, member.lastName].filter(Boolean).join(" ") ||
+			m.member_fallback()
 	);
 
 	let showPhoto = $state(true);

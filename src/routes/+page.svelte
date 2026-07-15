@@ -3,7 +3,8 @@
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import Button from "$lib/components/Button.svelte";
 	import { reveal } from "$lib/actions/reveal";
-	import { pageTitle, SITE_TAGLINE } from "$lib/site";
+	import { pageTitle } from "$lib/site";
+	import { m } from "$lib/paraglide/messages";
 
 	let { data } = $props();
 
@@ -12,7 +13,7 @@
 
 <svelte:head>
 	<title>{pageTitle()}</title>
-	<meta name="description" content={SITE_TAGLINE} />
+	<meta name="description" content={m.home_meta_description()} />
 </svelte:head>
 
 <section class="relative pt-24 pb-32 px-6 text-center overflow-hidden flex flex-col items-center">
@@ -32,34 +33,34 @@
 		<span
 			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/20 dark:bg-mines-gold/10 text-mines-gold-dark dark:text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/30 dark:border-mines-gold/20 backdrop-blur-sm shadow-sm"
 		>
-			École des Mines de Saint-Étienne
+			{m.home_eyebrow()}
 		</span>
 
 		<h1
 			class="text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-mines-navy dark:text-mines-platinum mb-5 font-extrabold"
 		>
-			Le <span class="bg-gradient-to-br from-mines-gold to-yellow-500 bg-clip-text text-transparent"
-				>Portail Étudiant</span
+			{m.home_title_lead()}
+			<span class="bg-gradient-to-br from-mines-gold to-yellow-500 bg-clip-text text-transparent"
+				>{m.home_title_highlight()}</span
 			><br />
-			des Ingénieurs Civils des Mines
+			{m.home_title_tail()}
 		</h1>
 
 		<p
 			class="text-lg md:text-xl text-mines-navy/80 dark:text-mines-platinum/80 max-w-2xl mx-auto mb-10 leading-relaxed"
 		>
-			L'écosystème centralisé pour découvrir les associations, suivre les listes de campagne et
-			accéder à tous vos outils.
+			{m.home_lead()}
 		</p>
 
 		<div class="flex flex-wrap gap-4 justify-center">
-			<Button href="/associations" variant="primary">Explorer les associations</Button>
+			<Button href="/associations" variant="primary">{m.home_cta_explore()}</Button>
 			<Button
 				href="https://canari-emse.fr"
 				variant="ghost"
 				target="_blank"
 				rel="noopener noreferrer"
 			>
-				Ouvrir Canari
+				{m.open_canari()}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="16"
@@ -94,7 +95,7 @@
 					{data.associations.length}
 				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
-					associations et clubs actifs
+					{m.home_stat_associations()}
 				</dd>
 			</div>
 			<div
@@ -105,7 +106,7 @@
 					{data.listCount}
 				</dt>
 				<dd class="m-0 text-sm font-semibold text-mines-gold uppercase tracking-wider">
-					listes de campagne
+					{m.home_stat_lists()}
 				</dd>
 			</div>
 		</dl>
@@ -118,10 +119,10 @@
 	>
 		<div>
 			<h2 class="text-3xl font-bold text-mines-navy dark:text-mines-platinum mb-2">
-				L'écosystème étudiant
+				{m.home_ecosystem_title()}
 			</h2>
 			<p class="m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
-				Les outils et espaces qui font vivre le campus.
+				{m.home_ecosystem_subtitle()}
 			</p>
 		</div>
 	</div>
@@ -135,17 +136,17 @@
 		>
 			<div>
 				<h2 class="text-3xl font-bold text-mines-navy dark:text-mines-platinum mb-2">
-					Les associations
+					{m.home_associations_title()}
 				</h2>
 				<p class="m-0 text-mines-navy/70 dark:text-mines-platinum/70 text-lg">
-					Découvrez la richesse de la vie associative de l'école.
+					{m.home_associations_subtitle()}
 				</p>
 			</div>
 			<a
 				class="inline-flex items-center gap-1.5 text-mines-gold font-semibold transition-all hover:gap-2.5"
 				href="/associations"
 			>
-				Tout voir
+				{m.home_see_all()}
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="16"

@@ -4,8 +4,8 @@
  */
 export interface FeaturedLink {
 	name: string;
-	/** One-line tagline (French; will be routed through i18n). */
-	tagline: string;
+	/** Stable identifier used to resolve the localized tagline in the view. */
+	id: "canari" | "migallery" | "sky" | "cercle";
 	url: string;
 	/** Static asset path under /static for the logo, or null for a text badge. */
 	icon: string | null;
@@ -17,28 +17,28 @@ export interface FeaturedLink {
 export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Canari",
-		tagline: "Le réseau social de la vie étudiante",
+		id: "canari",
 		url: "https://canari-emse.fr",
 		icon: "/links/canari.png",
 		accent: "#1b263b",
 	},
 	{
 		name: "MiGallery",
-		tagline: "Toutes vos photos et vidéos !",
+		id: "migallery",
 		url: "https://gallery.mitv.fr",
 		icon: "/links/migallery.png",
 		accent: "#415a77",
 	},
 	{
 		name: "Sky",
-		tagline: "L'arbre généalogique des parrainages",
+		id: "sky",
 		url: "https://sky.mitv.fr",
 		icon: "/links/sky.png",
 		accent: "#778da9",
 	},
 	{
 		name: "Le Cercle",
-		tagline: "Le bar associatif de la Maison des Élèves",
+		id: "cercle",
 		url: "https://portail-etu.emse.fr/cercle",
 		icon: "/links/cercle.png",
 		accent: "#e09f3e",

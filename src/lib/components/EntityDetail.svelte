@@ -4,6 +4,7 @@
 	import MemberCard from "./MemberCard.svelte";
 	import GlassCard from "./GlassCard.svelte";
 	import { sanitizeDescription } from "$lib/html";
+	import { m } from "$lib/paraglide/messages";
 
 	let {
 		entity,
@@ -16,8 +17,8 @@
 	} = $props();
 
 	const description = $derived(sanitizeDescription(entity.description));
-	const bureau = $derived(entity.members.filter((m) => m.isAdmin));
-	const others = $derived(entity.members.filter((m) => !m.isAdmin));
+	const bureau = $derived(entity.members.filter((member) => member.isAdmin));
+	const others = $derived(entity.members.filter((member) => !member.isAdmin));
 </script>
 
 <article class="max-w-4xl mx-auto px-6 py-12 w-full box-border animate-fade-in">
@@ -78,24 +79,26 @@
 				{#if entity.type === "list" && entity.promo}
 					<span
 						class="px-3 py-1 rounded-full text-xs font-semibold bg-mines-gold text-mines-navy-dark dark:bg-mines-gold dark:text-mines-navy-dark"
-						>Campagnes {entity.promo}</span
+						>{m.campaigns_year({ year: entity.promo })}</span
 					>
 				{/if}
 				{#if entity.isBDE}
 					<span
 						class="px-3 py-1 rounded-full text-xs font-semibold bg-black/10 dark:bg-white/10 text-mines-navy dark:text-mines-platinum"
-						>BDE</span
+						>{m.badge_bde()}</span
 					>
 				{/if}
 				{#if entity.archived}
 					<span
 						class="px-3 py-1 rounded-full text-xs font-medium bg-black/5 dark:bg-white/5 text-mines-navy/60 dark:text-mines-platinum/60"
-						>Archivée</span
+						>{m.badge_archived()}</span
 					>
 				{/if}
 				<span
 					class="px-3 py-1 rounded-full text-xs font-medium bg-black/5 dark:bg-white/5 text-mines-navy/60 dark:text-mines-platinum/60"
-					>{entity.members.length} membre{entity.members.length > 1 ? "s" : ""}</span
+					>{entity.members.length > 1
+						? m.member_count_other({ count: entity.members.length })
+						: m.member_count_one({ count: entity.members.length })}</span
 				>
 			</div>
 			{#if entity.contactEmail}
@@ -118,20 +121,22 @@
 
 	{#if entity.members.length > 0}
 		{#if bureau.length > 0}
-			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">Bureau</h2>
+			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">
+				{m.detail_board()}
+			</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				{#each bureau as m (m.id)}
-					<MemberCard member={m} bureau />
+				{#each bureau as member (member.id)}
+					<MemberCard {member} bureau />
 				{/each}
 			</div>
 		{/if}
 		{#if others.length > 0}
 			<h2 class="mt-10 mb-6 text-2xl font-bold text-mines-navy dark:text-mines-platinum">
-				Membres
+				{m.detail_members()}
 			</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				{#each others as m (m.id)}
-					<MemberCard member={m} />
+				{#each others as member (member.id)}
+					<MemberCard {member} />
 				{/each}
 			</div>
 		{/if}
@@ -139,7 +144,7 @@
 		<p
 			class="mt-8 p-8 text-center bg-black/5 dark:bg-white/5 rounded-2xl text-mines-navy/60 dark:text-mines-platinum/60 border border-black/5 dark:border-white/5"
 		>
-			Bientôt disponible...
+			{m.detail_coming_soon()}
 		</p>
 	{/if}
 </article>

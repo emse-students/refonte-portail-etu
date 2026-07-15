@@ -1,6 +1,15 @@
 <script lang="ts">
 	import { featuredLinks } from "$lib/links";
 	import { initials } from "$lib/media";
+	import { m } from "$lib/paraglide/messages";
+
+	// Maps each link's stable id to its localized tagline message function.
+	const taglines = {
+		canari: m.link_canari_tagline,
+		migallery: m.link_migallery_tagline,
+		sky: m.link_sky_tagline,
+		cercle: m.link_cercle_tagline,
+	};
 </script>
 
 <div class="flex-grid-3">
@@ -36,7 +45,7 @@
 					{link.name}
 				</h3>
 				<p class="m-0 text-sm text-mines-navy/70 dark:text-mines-platinum/70 leading-snug">
-					{link.tagline}
+					{taglines[link.id]()}
 				</p>
 			</div>
 

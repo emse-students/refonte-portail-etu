@@ -45,7 +45,7 @@
 		</a>
 
 		<!-- Desktop Nav -->
-		<nav class="hidden md:flex items-center gap-6" aria-label="Navigation principale">
+		<nav class="hidden md:flex items-center gap-6" aria-label={m.nav_primary_aria()}>
 			<div class="flex items-center gap-2">
 				{#each nav as item}
 					<a
