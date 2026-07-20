@@ -117,10 +117,16 @@
 			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed shadow-sm"
 		>
 			{#if entity.description?.trim()}
-				<ProfileBioMarkdown source={entity.description} class="text-sm" />
+				<ProfileBioMarkdown
+					source={entity.description}
+					class="text-lg md:text-xl font-medium text-mines-navy dark:text-mines-platinum"
+				/>
 			{/if}
 			{#if entity.bioMarkdown?.trim()}
-				<ProfileBioMarkdown source={entity.bioMarkdown} />
+				{#if entity.description?.trim()}
+					<hr class="my-6 border-t border-black/10 dark:border-white/10" />
+				{/if}
+				<ProfileBioMarkdown source={entity.bioMarkdown} class="text-sm md:text-base" />
 			{/if}
 		</section>
 	{/if}
