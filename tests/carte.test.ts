@@ -44,7 +44,20 @@ const CARTE: PublishedCarte = {
 			blob: { x: 95, y: 67, size: 210, radius: "50%" },
 			logo: { x: 154, y: 88, w: 92, h: 92, radius: "50%", initialsSize: 36, initials: "A1" },
 			name: { x: 123, y: 184, w: 154, size: 15, emailSize: 5.25 },
-			cards: [],
+			cards: [
+				{
+					userId: "u1",
+					name: "Claire Vanruymbeke",
+					role: "Presidente",
+					initials: "CV",
+					x: 163,
+					y: 246,
+					w: 73,
+					photo: 61,
+					nameSize: 6.8,
+					roleSize: 6,
+				},
+			],
 		},
 	],
 	texts: [],
@@ -98,6 +111,18 @@ describe("getPublishedCarte", () => {
 		const v1 = { version: 1, aspectRatio: 1.41421, bubbles: [{ assoId: "asso-1" }], texts: [] };
 		expect(await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: v1 } }))).toBeNull();
 		expect(warn).toHaveBeenCalledWith(expect.stringContaining("v1"));
+	});
+
+	// Published before Canari sized cards per name: every card in a slot was the same width, so the
+	// photo was the card minus its padding. Reading it that way is what lets the two repos deploy in
+	// any order - the alternative is a live map whose faces collapse until someone republishes.
+	it("reads a card published without a photo size instead of dropping the map", async () => {
+		const legacy = {
+			...CARTE,
+			units: [{ ...CARTE.units[0], cards: [{ ...CARTE.units[0].cards[0], photo: undefined }] }],
+		};
+		const carte = await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: legacy } }));
+		expect(carte?.units[0].cards[0].photo).toBe(61);
 	});
 
 	it("omits a v2 payload whose units did not survive the wire", async () => {

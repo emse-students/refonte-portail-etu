@@ -3,7 +3,7 @@
 	scene, reproduced here as an interactive map where every association links to its page.
 
 	It is a COPY, not an interpretation. Canari publishes the poster already resolved - every box,
-	every font size, the bureau crown, the length-based name shrinking, the author's own tuning - and
+	every font size, the bureau crown, the length-based name shrinking, the per-card widening - and
 	this component draws those numbers and decides nothing of its own. That is the whole design:
 
 	1. **One scale factor.** The payload's geometry is in POSTER pixels against `carte.stage`, so the
@@ -15,8 +15,10 @@
 	   reaches the map with no republish. Member names and roles travel in the payload instead,
 	   because WHICH member sits in WHICH crown slot is an authoring decision, not live data.
 	3. **The chrome below is mirrored, not published.** Card padding, corner radii and shadows are
-	   cosmetic constants copied from Canari's `PosterCanvas.svelte`; only geometry that the author
-	   can move (or tune) travels. If the poster's card is ever redesigned, these follow by hand.
+	   cosmetic constants copied from Canari's `PosterCanvas.svelte`; every dimension a name can
+	   change travels instead - including the photo, which is NOT the card width minus the padding:
+	   a card widened to fit an unbreakable surname keeps the same face size as its neighbours.
+	   If the poster's card is ever redesigned, the chrome follows by hand.
 
 	A v1 publication (fractions of the frame, `bubbles`, no members) carries no `units` and cannot be
 	rendered faithfully, so the map is simply omitted until the author republishes.
@@ -40,12 +42,12 @@
 	/** Display font: the poster's title, its free-text labels and the directory headings. */
 	const DISPLAY_FONT = "'Fredoka Variable', 'Fredoka', 'Segoe UI', sans-serif";
 
-	// Cosmetic card chrome, mirrored from Canari's PosterCanvas.svelte (poster px).
+	// Cosmetic card chrome, mirrored from Canari's PosterCanvas.svelte (poster px). The card's WIDTH
+	// and its photo size are published, not mirrored: a name with an unbreakable word widens the card
+	// while its photo stays put, so neither can be derived from the other here.
 	const CARD_RADIUS = 9;
 	const CARD_PAD = 6;
 	const CARD_PAD_BOTTOM = 7;
-	/** The photo is square and inset from the card by the padding on both sides. */
-	const CARD_PHOTO_INSET = 2 * CARD_PAD;
 	const CARD_PHOTO_RADIUS = 7;
 	const CARD_INITIALS_SIZE = 22;
 
@@ -242,13 +244,13 @@
 							{#each unit.cards as card (card.userId)}
 								<div class="absolute" style="left:{card.x}px;top:{card.y}px">
 									<div
+										class="box-border"
 										style="width:{card.w}px;background:{carte.style
 											.cardBg};border-radius:{CARD_RADIUS}px;padding:{CARD_PAD}px {CARD_PAD}px {CARD_PAD_BOTTOM}px;box-shadow:0 4px 11px rgba(0,0,0,0.22)"
 									>
 										<div
-											class="relative flex items-center justify-center overflow-hidden font-extrabold text-white"
-											style="width:{card.w - CARD_PHOTO_INSET}px;height:{card.w -
-												CARD_PHOTO_INSET}px;border-radius:{CARD_PHOTO_RADIUS}px;background:{color};font-size:{CARD_INITIALS_SIZE}px"
+											class="relative mx-auto flex items-center justify-center overflow-hidden font-extrabold text-white"
+											style="width:{card.photo}px;height:{card.photo}px;border-radius:{CARD_PHOTO_RADIUS}px;background:{color};font-size:{CARD_INITIALS_SIZE}px"
 										>
 											<span>{card.initials}</span>
 											<img

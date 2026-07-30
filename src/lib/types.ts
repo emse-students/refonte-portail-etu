@@ -119,7 +119,13 @@ export interface PublishedCarteCard {
 	/** Card box in poster px, relative to the unit's top-left (before the unit scale). */
 	x: number;
 	y: number;
+	/** Card width; wider than its peers' when the name holds a word that cannot be broken. */
 	w: number;
+	/**
+	 * Photo side, in poster px. Never derive it from `w`: a widened card keeps the same face size as
+	 * the cards around it, so deriving would enlarge exactly the one member whose name is long.
+	 */
+	photo: number;
 	nameSize: number;
 	roleSize: number;
 }

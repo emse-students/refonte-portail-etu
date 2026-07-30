@@ -36,6 +36,12 @@ export function getAssociations(
 const CARTE_VERSION = 2;
 
 /**
+ * Member-card padding (both sides) as it was when every card in a slot had the same width. Only used
+ * to read a v2 map published before Canari began sizing cards per name - see below.
+ */
+const LEGACY_CARD_PAD_X = 12;
+
+/**
  * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
@@ -46,6 +52,9 @@ const CARTE_VERSION = 2;
  * v1 carried fractions of the frame and no members, so the map it produces is not the poster. It is
  * logged, though - the poster is still in Canari, and one republish fixes it, so a silent empty spot
  * would be the wrong way to find out.
+ *
+ * Within v2, one field is read for compatibility rather than required, so that the map does not need
+ * the two repositories to be deployed in a particular order. See the loop below.
  */
 export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
 	const res = await fetch(`${API}/carte`);
@@ -60,6 +69,15 @@ export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | 
 				"omitting the map. Republish it from the Canari carte editor."
 		);
 		return null;
+	}
+	// A v2 map published before Canari sized member cards per name carries no `photo`. Back then every
+	// card in a slot had the same width, so the photo WAS the card minus its padding - this is a
+	// faithful read of that document, not a guess. It keeps the renderer free of the question, and it
+	// means the two repos can be deployed in either order.
+	for (const unit of carte.units) {
+		for (const card of unit.cards ?? []) {
+			if (typeof card.photo !== "number") card.photo = card.w - LEGACY_CARD_PAD_X;
+		}
 	}
 	return carte;
 }

@@ -46,8 +46,8 @@ Canari's own half is documented in its wiki under `docs/wiki/carte-vie-asso.md`.
 
 **The payload is a resolved poster, and this renderer decides nothing.** Canari
 computes every box and every font size the printed poster draws - the bureau
-crown ellipse, the length-based name shrinking, the author's own geometry
-tuning - and publishes them. Anything decided here would be an approximation of a
+crown ellipse, the length-based name shrinking, the widening of a card whose name
+holds an unbreakable word - and publishes them. Anything decided here would be an approximation of a
 hand-composed print, which is exactly what an earlier version of this component
 was. Four properties follow from that:
 
@@ -66,6 +66,11 @@ was. Four properties follow from that:
   decision in Canari, so member names, roles and initials travel in the payload. A
   roster change needs a republish. Only `userId` travels for the photo; the face
   itself comes from this repo's own `/api/users/:id/avatar` proxy.
+- **A member card is sized by its name, so BOTH its dimensions travel.** Canari
+  shrinks the name to fit the card and, past a readable floor, widens the card
+  instead - so `w` varies from card to card. Its `photo` is published separately
+  and must never be derived from `w`: a widened card keeps the same face size as
+  its neighbours, otherwise the one member with a long surname gets a bigger photo.
 - **Appearance is resolved.** Silhouettes arrive as CSS `border-radius` values and
   the palette as a `style` block, so this repo holds no copy of Canari's catalogs
   or theme. Canari validates both before serving: a radius outside `[0-9%./ ]`
@@ -73,8 +78,8 @@ was. Four properties follow from that:
   than being escaped, because these land in `style` attributes here.
 
 Two things are mirrored rather than published, and both are noted in the
-component: the member card's **chrome** (padding, corner radii, shadows, photo
-inset) which is cosmetic and static, and Canari's **two font families**, which
+component: the member card's **chrome** (padding, corner radii, shadows) which is
+cosmetic and static, and Canari's **two font families**, which
 are self-hosted here at the same versions (`@fontsource-variable/nunito` and
 `/fredoka`, imported in `app.css` and used by nothing else). Text set in another
 family measures differently, so the fonts are part of the fidelity, not decoration.
