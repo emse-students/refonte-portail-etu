@@ -199,7 +199,7 @@
 							href="/associations/{asso.slug}"
 							aria-label={asso.name}
 							title={asso.name}
-							class="absolute block origin-top-left transition-transform duration-300 ease-out focus-visible:outline-none motion-reduce:transition-none"
+							class="absolute block origin-center transition-transform duration-300 ease-out focus-visible:outline-none motion-reduce:transition-none"
 							style="left:{unit.x}px;top:{unit.y}px;width:{unit.w}px;height:{unit.h}px;transform:scale({raised ===
 							unit.assoId
 								? unit.scale * HOVER_SCALE
