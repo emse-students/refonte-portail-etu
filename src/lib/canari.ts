@@ -1,5 +1,5 @@
 import { env } from "$env/dynamic/public";
-import type { CanariAssociation, CanariAssociationDetail } from "$lib/types";
+import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "$lib/types";
 
 /**
  * Base URL of the public Canari instance. Overridable at runtime via the
@@ -30,6 +30,22 @@ export function getAssociations(
 ): Promise<CanariAssociation[]> {
 	const qs = type ? `?type=${type}` : "";
 	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
+}
+
+/**
+ * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
+ *
+ * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
+ * publishes a map, and the association directory has to render whether or not one exists. Any other
+ * status still throws, so a broken API is not silently indistinguishable from an empty one.
+ */
+export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
+	const res = await fetch(`${API}/carte`);
+	if (res.status === 404) return null;
+	if (!res.ok) {
+		throw new Error(`Canari public API ${res.status} for ${API}/carte`);
+	}
+	return (await res.json()) as PublishedCarte;
 }
 
 /** One association or list by slug, including its public members. */

@@ -20,6 +20,10 @@ read-only API; associations, lists and members are managed inside Canari.
   (associations, lists, members). Logos are public media blobs on the same host.
 - **Avatars**: member faces are proxied same-origin through
   `/api/users/:id/avatar`, which fetches MiGallery with a server-side key.
+- **Carte de la Vie Asso**: when Canari has a poster published, the association
+  directory renders it as an interactive map above the tiles, on wide screens.
+  The payload carries placement only - names, logos and colors are joined against
+  the association list, so a rename in Canari needs no republish.
 
 See [`docs/wiki/`](docs/wiki/index.md) for the full technical documentation.
 

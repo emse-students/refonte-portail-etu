@@ -12,6 +12,11 @@ vi.mock("svelte/transition", () => ({
 
 vi.mock("$env/static/private", () => import.meta.env);
 
+// SvelteKit's dynamic public env reads `process.env`, which does not exist under the browser
+// resolve conditions this suite runs with. An empty env is also what the tests want: `CANARI_URL`
+// then falls back to its production default instead of depending on the developer's shell.
+vi.mock("$env/dynamic/public", () => ({ env: {} }));
+
 afterEach(() => {
 	cleanup();
 });

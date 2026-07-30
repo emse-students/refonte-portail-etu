@@ -32,9 +32,51 @@ are in [`src/lib/types.ts`](../../src/lib/types.ts).
 | ------------------------------------- | ---------------------------------- |
 | `/api/public/associations?type=…`     | Associations or campaign lists     |
 | `/api/public/associations/slug/:slug` | One entity with its public members |
+| `/api/public/carte`                   | The published Carte de la Vie Asso |
 | `/api/media/public/:id`               | A public logo blob                 |
 
 `PUBLIC_CANARI_URL` overrides the base URL (defaults to `https://canari-emse.fr`).
+
+## The Carte de la Vie Asso
+
+Canari's poster editor can put one map **online**; the directory renders it above
+the association tiles, every blob a link to that association's page. Component:
+[`src/lib/components/CarteVieAsso.svelte`](../../src/lib/components/CarteVieAsso.svelte).
+Canari's own half is documented in its wiki under `docs/wiki/carte-vie-asso.md`.
+
+Three properties of the payload shape the renderer, and they are the whole
+reason this is a stable contract rather than a mirror of Canari's editor:
+
+- **It carries no content.** A bubble is a placement plus an `assoId`; the name,
+  logo and brand color are joined here against the association list the page
+  already loads. A rename or a new logo in Canari therefore reaches the live map
+  with no republish. A bubble whose association no longer resolves is dropped, so
+  a live map cannot produce a dead link.
+- **Its geometry is fractions of the frame, not pixels**, plus an `aspectRatio`
+  the frame must honour or the map skews. Percentages cover position and width,
+  but a font size cannot be a percentage of a width, so the frame's rendered
+  width is measured (`bind:clientWidth`) and pixel sizes derive from it. Note `w`
+  is a fraction of the frame **width** for both blob dimensions - the blob is
+  square.
+- **Its appearance is already resolved.** Silhouettes arrive as plain CSS
+  `border-radius` values, so this repo needs no copy of Canari's shape catalog.
+  Canari validates them before serving: anything outside `[0-9%./ ]` is replaced
+  by a circle rather than escaped, because these values land in a `style`
+  attribute here.
+
+What happens **inside** a blob - where the logo chip sits, how the name shrinks -
+is not in the contract and is deliberately this repo's own; the fractions in the
+component echo the printed poster without importing its constants.
+
+Two deliberate behaviours: the map is **wide screens only** (`hidden lg:block`),
+because it is a dense hand-made composition with no reflow and the tiles already
+serve narrow viewports; and it is hidden while a search is running, since it
+shows every association regardless of the query.
+
+A 404 from `/api/public/carte` means _nothing is published_ - the normal case,
+not a failure - so `getPublishedCarte` returns null for it and still throws on
+any other status. The load fetches the carte and the association list
+independently, so neither can take the other down.
 
 ## Avatars: same-origin MiGallery proxy
 
@@ -59,8 +101,9 @@ to the browser and avoids cross-site requests.
   ([`src/lib/actions/reveal.ts`](../../src/lib/actions/reveal.ts)) fades content
   in on scroll via IntersectionObserver, fully disabled under
   `prefers-reduced-motion`.
-- **Components**: `AssociationCard`, `AssociationLogo`, `EntityDetail`,
-  `MemberCard`, `FeaturedLinks`, `GlassCard`, `Button`, `ThemeToggle`.
+- **Components**: `AssociationCard`, `AssociationLogo`, `CarteVieAsso`,
+  `EntityDetail`, `MemberCard`, `FeaturedLinks`, `GlassCard`, `Button`,
+  `ThemeToggle`.
 - **Brand**: names centralised in [`src/lib/site.ts`](../../src/lib/site.ts).
 - **Helpers**: logo/avatar URLs, initials and deterministic colors in
   [`src/lib/media.ts`](../../src/lib/media.ts).

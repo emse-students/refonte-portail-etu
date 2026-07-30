@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
+	import CarteVieAsso from "$lib/components/CarteVieAsso.svelte";
 	import Search from "$lib/components/icons/Search.svelte";
 	import X from "$lib/components/icons/X.svelte";
 	import NoResults from "$lib/components/icons/NoResults.svelte";
@@ -65,6 +66,14 @@
 		>
 			{m.service_unavailable()}
 		</div>
+	{/if}
+
+	<!--
+		The live map, above the tiles. Hidden while a search is running: it shows every association
+		regardless of the query, and leaving it up next to filtered tiles would contradict them.
+	-->
+	{#if data.carte && !query}
+		<CarteVieAsso carte={data.carte} associations={data.associations} />
 	{/if}
 
 	{#if active.length > 0}
