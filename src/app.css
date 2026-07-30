@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap");
 @import "@fontsource/fira-mono";
+/*
+ * Canari's own two families, self-hosted at the same versions Canari uses. They style nothing here
+ * by default: the "Carte de la Vie Asso" (CarteVieAsso.svelte) is a pixel copy of a poster composed
+ * in Canari, so its text has to be set in the fonts it was composed in or every measured box is
+ * wrong. Nothing else on the showcase references them.
+ */
+@import "@fontsource-variable/nunito/wght.css";
+@import "@fontsource-variable/fredoka/wght.css";
 
 @tailwind base;
 @tailwind components;

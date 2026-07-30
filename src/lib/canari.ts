@@ -32,12 +32,20 @@ export function getAssociations(
 	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
 }
 
+/** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
+const CARTE_VERSION = 2;
+
 /**
  * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
  * publishes a map, and the association directory has to render whether or not one exists. Any other
  * status still throws, so a broken API is not silently indistinguishable from an empty one.
+ *
+ * A payload from an older schema is treated as "nothing published" rather than rendered partially:
+ * v1 carried fractions of the frame and no members, so the map it produces is not the poster. It is
+ * logged, though - the poster is still in Canari, and one republish fixes it, so a silent empty spot
+ * would be the wrong way to find out.
  */
 export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
 	const res = await fetch(`${API}/carte`);
@@ -45,7 +53,15 @@ export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | 
 	if (!res.ok) {
 		throw new Error(`Canari public API ${res.status} for ${API}/carte`);
 	}
-	return (await res.json()) as PublishedCarte;
+	const carte = (await res.json()) as PublishedCarte;
+	if (carte.version !== CARTE_VERSION || !Array.isArray(carte.units)) {
+		console.warn(
+			`Published carte is schema v${carte.version}, this showcase renders v${CARTE_VERSION} - ` +
+				"omitting the map. Republish it from the Canari carte editor."
+		);
+		return null;
+	}
+	return carte;
 }
 
 /** One association or list by slug, including its public members. */

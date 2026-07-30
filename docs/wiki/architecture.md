@@ -44,29 +44,40 @@ the association tiles, every blob a link to that association's page. Component:
 [`src/lib/components/CarteVieAsso.svelte`](../../src/lib/components/CarteVieAsso.svelte).
 Canari's own half is documented in its wiki under `docs/wiki/carte-vie-asso.md`.
 
-Three properties of the payload shape the renderer, and they are the whole
-reason this is a stable contract rather than a mirror of Canari's editor:
+**The payload is a resolved poster, and this renderer decides nothing.** Canari
+computes every box and every font size the printed poster draws - the bureau
+crown ellipse, the length-based name shrinking, the author's own geometry
+tuning - and publishes them. Anything decided here would be an approximation of a
+hand-composed print, which is exactly what an earlier version of this component
+was. Four properties follow from that:
 
-- **It carries no content.** A bubble is a placement plus an `assoId`; the name,
-  logo and brand color are joined here against the association list the page
-  already loads. A rename or a new logo in Canari therefore reaches the live map
-  with no republish. A bubble whose association no longer resolves is dropped, so
-  a live map cannot produce a dead link.
-- **Its geometry is fractions of the frame, not pixels**, plus an `aspectRatio`
-  the frame must honour or the map skews. Percentages cover position and width,
-  but a font size cannot be a percentage of a width, so the frame's rendered
-  width is measured (`bind:clientWidth`) and pixel sizes derive from it. Note `w`
-  is a fraction of the frame **width** for both blob dimensions - the blob is
-  square.
-- **Its appearance is already resolved.** Silhouettes arrive as plain CSS
-  `border-radius` values, so this repo needs no copy of Canari's shape catalog.
-  Canari validates them before serving: anything outside `[0-9%./ ]` is replaced
-  by a circle rather than escaped, because these values land in a `style`
-  attribute here.
+- **Every number is in POSTER pixels**, against `carte.stage`, plus an
+  `aspectRatio` the frame must honour or the map skews. The renderer draws a
+  `stage.w x stage.h` box and scales it **once** (`transform: scale(k)`,
+  `k = frameWidth / stage.w`), so published numbers are used verbatim. That also
+  makes the directory's shrink-to-fit agree with Canari's editor: a CSS transform
+  does not change `clientHeight`, so both loops measure the same pixels.
+- **Association content is joined live.** A unit carries `assoId`; the name, logo,
+  brand color and contact email come from the association list the page already
+  loads, so a rename or a new logo reaches the live map with no republish. A unit
+  whose association no longer resolves is dropped - a live map cannot produce a
+  dead link.
+- **People are a snapshot.** Which member sits in which crown slot is an authoring
+  decision in Canari, so member names, roles and initials travel in the payload. A
+  roster change needs a republish. Only `userId` travels for the photo; the face
+  itself comes from this repo's own `/api/users/:id/avatar` proxy.
+- **Appearance is resolved.** Silhouettes arrive as CSS `border-radius` values and
+  the palette as a `style` block, so this repo holds no copy of Canari's catalogs
+  or theme. Canari validates both before serving: a radius outside `[0-9%./ ]`
+  becomes a circle and a color outside hex/`rgb()`/`hsl()` a neutral grey, rather
+  than being escaped, because these land in `style` attributes here.
 
-What happens **inside** a blob - where the logo chip sits, how the name shrinks -
-is not in the contract and is deliberately this repo's own; the fractions in the
-component echo the printed poster without importing its constants.
+Two things are mirrored rather than published, and both are noted in the
+component: the member card's **chrome** (padding, corner radii, shadows, photo
+inset) which is cosmetic and static, and Canari's **two font families**, which
+are self-hosted here at the same versions (`@fontsource-variable/nunito` and
+`/fredoka`, imported in `app.css` and used by nothing else). Text set in another
+family measures differently, so the fonts are part of the fidelity, not decoration.
 
 Two deliberate behaviours: the map is **wide screens only** (`hidden lg:block`),
 because it is a dense hand-made composition with no reflow and the tiles already
@@ -75,8 +86,11 @@ shows every association regardless of the query.
 
 A 404 from `/api/public/carte` means _nothing is published_ - the normal case,
 not a failure - so `getPublishedCarte` returns null for it and still throws on
-any other status. The load fetches the carte and the association list
-independently, so neither can take the other down.
+any other status. It also **gates the schema version**: a v1 publication (frames
+fractions, a `bubbles` array, no members) is not renderable as the poster, so the
+map is omitted and the reason logged - the poster still exists in Canari, and one
+republish from its editor is the whole fix. The load fetches the carte and the
+association list independently, so neither can take the other down.
 
 ## Avatars: same-origin MiGallery proxy
 

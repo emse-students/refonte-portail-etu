@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { getPublishedCarte } from "$lib/canari";
 import { load } from "../src/routes/associations/+page";
 import type { PublishedCarte } from "$lib/types";
@@ -9,27 +9,46 @@ import type { PublishedCarte } from "$lib/types";
  * published" and "each fetch degrades on its own" the two rules worth pinning down - both are
  * invisible in the happy path and both would silently cost the visitor the whole directory if a
  * later refactor folded the carte into the same try/catch as the association list.
+ *
+ * The third rule is the schema gate: a map from an older publication is NOT rendered partially, and
+ * the reason is logged rather than left as an unexplained empty spot on the page.
  */
 
 /** A minimal but complete published map, shaped exactly as `GET /api/public/carte` returns it. */
 const CARTE: PublishedCarte = {
-	version: 1,
+	version: 2,
 	aspectRatio: 1.41421,
+	stage: { w: 1600, h: 1131 },
 	background: { dataUrl: null, scrimOpacity: 0 },
-	titleColor: null,
-	bubbles: [
+	style: {
+		pageBg: "#fdf3e3",
+		scrimColor: "#3a2a12",
+		cardBg: "#ffffff",
+		cardTextColor: "#374151",
+		directoryBg: "rgba(255,255,255,0.86)",
+		directoryTextColor: "#1f2937",
+		directoryMutedColor: "#6b7280",
+	},
+	title: null,
+	units: [
 		{
 			assoId: "asso-1",
-			x: 0.1,
-			y: 0.2,
-			w: 0.12,
+			x: 120,
+			y: 240,
+			w: 400,
+			h: 430,
+			scale: 0.6,
 			z: 1,
 			color: null,
-			radius: "50%",
-			logoRadius: "50%",
+			colorFallback: "#e09f3e",
+			blob: { x: 95, y: 67, size: 210, radius: "50%" },
+			logo: { x: 154, y: 88, w: 92, h: 92, radius: "50%", initialsSize: 36, initials: "A1" },
+			name: { x: 123, y: 184, w: 154, size: 15, emailSize: 5.25 },
+			cards: [],
 		},
 	],
 	texts: [],
+	directory: null,
 };
 
 /**
@@ -50,6 +69,10 @@ function stubFetch(routes: Record<string, { status: number; body?: unknown }>): 
 	}) as typeof fetch;
 }
 
+afterEach(() => {
+	vi.restoreAllMocks();
+});
+
 describe("getPublishedCarte", () => {
 	it("returns the map when one is live", async () => {
 		const carte = await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: CARTE } }));
@@ -66,6 +89,23 @@ describe("getPublishedCarte", () => {
 		await expect(getPublishedCarte(stubFetch({ "/carte": { status: 500 } }))).rejects.toThrow(
 			/500/
 		);
+	});
+
+	// A v1 document has no resolved geometry and no members: rendering it would draw an
+	// approximation of a hand-composed poster, which is exactly what v2 exists to stop.
+	it("omits an older publication instead of rendering it partially, and says so", async () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		const v1 = { version: 1, aspectRatio: 1.41421, bubbles: [{ assoId: "asso-1" }], texts: [] };
+		expect(await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: v1 } }))).toBeNull();
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining("v1"));
+	});
+
+	it("omits a v2 payload whose units did not survive the wire", async () => {
+		vi.spyOn(console, "warn").mockImplementation(() => {});
+		const broken = { ...CARTE, units: undefined };
+		expect(
+			await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: broken } }))
+		).toBeNull();
 	});
 });
 

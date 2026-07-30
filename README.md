@@ -21,9 +21,12 @@ read-only API; associations, lists and members are managed inside Canari.
 - **Avatars**: member faces are proxied same-origin through
   `/api/users/:id/avatar`, which fetches MiGallery with a server-side key.
 - **Carte de la Vie Asso**: when Canari has a poster published, the association
-  directory renders it as an interactive map above the tiles, on wide screens.
-  The payload carries placement only - names, logos and colors are joined against
-  the association list, so a rename in Canari needs no republish.
+  directory renders it as an interactive map above the tiles, on wide screens. The
+  payload is the poster already **resolved** (every box and font size in poster
+  pixels, bureau photos and member directory included), so this repo draws it and
+  decides nothing; Canari's fonts are self-hosted here for that reason. Names,
+  logos and colors are still joined against the association list, so a rename in
+  Canari needs no republish - a roster change does.
 
 See [`docs/wiki/`](docs/wiki/index.md) for the full technical documentation.
 
