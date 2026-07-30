@@ -199,11 +199,11 @@
 							href="/associations/{asso.slug}"
 							aria-label={asso.name}
 							title={asso.name}
-							class="absolute block origin-center transition-transform duration-300 ease-out focus-visible:outline-none motion-reduce:transition-none"
-							style="left:{unit.x}px;top:{unit.y}px;width:{unit.w}px;height:{unit.h}px;transform:scale({raised ===
+							class="absolute block origin-top-left transition-transform duration-300 ease-out focus-visible:outline-none motion-reduce:transition-none"
+							style="left:{unit.x}px;top:{unit.y}px;width:{unit.w}px;height:{unit.h}px;transform:{raised ===
 							unit.assoId
-								? unit.scale * HOVER_SCALE
-								: unit.scale});z-index:{raised === unit.assoId ? HOVER_Z : unit.z}"
+								? `translate(${(-unit.w * unit.scale * (HOVER_SCALE - 1)) / 2}px, ${(-unit.h * unit.scale * (HOVER_SCALE - 1)) / 2}px) scale(${unit.scale * HOVER_SCALE})`
+								: `scale(${unit.scale})`};z-index:{raised === unit.assoId ? HOVER_Z : unit.z}"
 							onmouseenter={() => (raised = unit.assoId)}
 							onmouseleave={() => (raised = null)}
 							onfocus={() => (raised = unit.assoId)}
