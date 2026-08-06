@@ -1,0 +1,62 @@
+name: Probe egress
+
+# One-off, dispatch-only. Delete once the question below is answered.
+#
+# The question: what refuses this host's outbound connections? Two failures are
+# recorded, both instant, both from bun - `Unable to connect` to gallery.mitv.fr
+# (479 times, one burst-shaped episode on 2026-08-06) and `ConnectionRefused` to
+# the npm registry - while curl succeeded to the same Cloudflare edge in the same
+# run. Both destinations sit behind Cloudflare.
+#
+# Three candidates, and this run separates them:
+#  - a firewall/IPS decision (CrowdSec bans SOURCE ips inbound, so it would need an
+#    OUTPUT reject; a DROP would hang rather than fail instantly, and its decisions
+#    expire, which would explain intermittence);
+#  - conntrack or ephemeral-port exhaustion (bursty by nature);
+#  - bun's own client - it caches DNS where curl re-resolves, so a withdrawn edge
+#    address would fail instantly for bun alone.
+#
+# **If bun fails in a round where curl succeeds to the same IP, it is bun, not the
+# network.** That is the whole point of interleaving them.
+#
+# This repository is PUBLIC: the firewall is probed for the PRESENCE of filtering
+# chains and rule counts only - no addresses, no rule bodies are printed.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    name: Probe
+    runs-on: self-hosted
+    steps:
+      - name: Is anything filtering egress at all
+        run: |
+          echo "--- crowdsec ---"
+          systemctl is-active crowdsec 2>/dev/null || echo "crowdsec service: not active or absent"
+          if command -v cscli >/dev/null 2>&1; then
+            echo "cscli present; active decisions: $(sudo -n cscli decisions list -o json 2>/dev/null | grep -c '"id"' || echo '?')"
+          else
+            echo "cscli: absent"
+          fi
+          echo "--- filtering chains (names and counts only) ---"
+          sudo -n nft list ruleset 2>/dev/null | grep -icE 'reject' | sed 's/^/nft reject rules: /' || echo "nft: not readable"
+          sudo -n nft list ruleset 2>/dev/null | grep -ioE 'chain [a-z0-9_-]+' | sort -u | head -20 || true
+          sudo -n iptables -S OUTPUT 2>/dev/null | grep -cE 'DROP|REJECT' | sed 's/^/iptables OUTPUT drop-or-reject rules: /' || echo "iptables: not readable"
+          echo "--- conntrack / ports ---"
+          echo "conntrack $(cat /proc/sys/net/netfilter/nf_conntrack_count 2>/dev/null || echo '?') / $(cat /proc/sys/net/netfilter/nf_conntrack_max 2>/dev/null || echo '?')"
+          echo "ephemeral range: $(cat /proc/sys/net/ipv4/ip_local_port_range 2>/dev/null || echo '?')"
+          echo "sockets in TIME_WAIT: $(ss -tan 2>/dev/null | grep -c TIME-WAIT || echo '?')"
+
+      - name: bun and curl interleaved, 20 rounds, both hosts
+        # Same target, same instant, two clients. A round where they disagree is the
+        # answer; 20 rounds because the fault is intermittent and a single success
+        # proves nothing (8/8 passed on 2026-08-06 while 479 failures sat in the log).
+        run: |
+          for i in $(seq 1 20); do
+            for host in https://gallery.mitv.fr/api/users/probe/avatar https://registry.npmjs.org/pm2-logrotate; do
+              c=$(curl -4 -sS -o /dev/null --max-time 10 -w '%{http_code}@%{remote_ip}' "$host" 2>&1 || echo "CURL-FAILED")
+              b=$(bun -e 'try { const r = await fetch(process.argv[1]); console.log("http " + r.status); } catch (e) { console.log("THREW " + e.message); }' "$host" 2>&1 | tail -1)
+              echo "round $i  $(echo "$host" | cut -d/ -f3)  curl=$c  bun=$b"
+            done
+          done
