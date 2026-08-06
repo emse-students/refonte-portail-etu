@@ -1,0 +1,74 @@
+name: Diagnose avatar proxy
+
+# One-off, dispatch-only. Runs on the machine that serves the portal, which has
+# no SSH access - the runner is the only way in. It answers the one question no
+# black-box probe can: why the avatar proxy's outbound fetch to MiGallery threw,
+# which src/routes/api/users/[userId]/avatar reports as a bodyless HTTP 502.
+#
+# This repository is PUBLIC, so a run log is world-readable: no secret is ever
+# printed, no raw log is dumped, matches are filtered and long hex runs are
+# redacted. Delete this file once the answer is read (see the legacy DB rescue
+# workflow, d986062 then d128501, for the same one-off shape).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    name: Diagnose
+    runs-on: self-hosted
+    steps:
+      - name: Avatar proxy errors already recorded in the pm2 stderr log
+        # ecosystem.config.cjs sets no `time: true`, so these lines carry no
+        # timestamp - the error text is the payload, not the ordering. Every
+        # grep is guarded: it exits 1 when it matches nothing, which would kill
+        # the step on the very absence it is here to report.
+        run: |
+          shopt -s nullglob
+          files=(~/.pm2/logs/portail-etu-error*.log)
+          echo "plain log files: ${files[*]:-none}"
+          for f in "${files[@]}"; do
+            echo "--- $f ($(wc -l < "$f" || echo '?') lines total) ---"
+            echo "matches: $(grep -c -F 'Avatar proxy error' "$f" || true)"
+            grep -A3 -F 'Avatar proxy error' "$f" 2>/dev/null | tail -60 \
+              | sed -E 's/[0-9a-f]{16,}/<redacted-id>/g' || true
+          done
+          rotated=(~/.pm2/logs/portail-etu-error*.log.gz)
+          echo "rotated log files: ${rotated[*]:-none}"
+          for f in "${rotated[@]}"; do
+            echo "--- $f (rotated) ---"
+            zcat "$f" 2>/dev/null | grep -A3 -F 'Avatar proxy error' | tail -30 \
+              | sed -E 's/[0-9a-f]{16,}/<redacted-id>/g' || true
+          done
+
+      - name: Can this host reach MiGallery at all
+        # The 502 is the route's own catch branch, so the question is whether
+        # THIS host resolves and TLS-handshakes to gallery.mitv.fr. No API key is
+        # sent: 401 is the expected healthy answer. -4 and -6 are measured apart
+        # because a host with a broken IPv6 route fails fast and intermittently,
+        # which is exactly the observed signature (a throw doing no network work,
+        # clearing on its own).
+        run: |
+          echo "--- DNS ---"
+          getent ahostsv4 gallery.mitv.fr || echo "no A record resolved"
+          getent ahostsv6 gallery.mitv.fr || echo "no AAAA record resolved"
+          for opt in -4 -6; do
+            echo "--- curl $opt ---"
+            curl "$opt" -sS -o /dev/null --max-time 15 \
+              -w 'http=%{http_code} ip=%{remote_ip} dns=%{time_namelookup}s connect=%{time_connect}s tls=%{time_appconnect}s total=%{time_total}s\n' \
+              https://gallery.mitv.fr/api/users/probe/avatar \
+              || echo "curl $opt FAILED (exit $?)"
+          done
+
+      - name: The exact call shape, under the runtime that actually serves it
+        # pm2 launches `bun ./build/index.js`, so only bun's fetch reproduces the
+        # failing call faithfully - curl succeeding proves nothing about it.
+        run: |
+          bun -e 'const t = Date.now();
+            try {
+              const r = await fetch("https://gallery.mitv.fr/api/users/probe/avatar", { headers: { Accept: "image/jpeg" } });
+              console.log("status", r.status, Date.now() - t + "ms");
+            } catch (e) {
+              console.log("THREW", Date.now() - t + "ms", e.constructor.name, e.message,
+                "| cause:", e.cause?.code ?? e.cause?.message ?? e.cause);
+            }' || echo "bun probe failed (exit $?)"
