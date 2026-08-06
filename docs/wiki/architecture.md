@@ -105,11 +105,50 @@ browser requests `/api/users/:id/avatar` (same origin); the SvelteKit endpoint
 fetches `${GALLERY_API_URL}/users/:id/avatar` with `GALLERY_API_KEY` and streams
 the image back. The `userId` is the Authentik uid carried by the public API,
 which is the same identifier MiGallery keys avatars by. On any miss the endpoint
-returns 404 and the UI falls back to generated initials.
+returns 404 and the UI falls back to generated initials - `MemberCard` swaps to
+initials on the image's `onerror`, so **any** failing status degrades, not only a 404.
 
 This is same-origin on purpose: unlike the public API, MiGallery lives on a
 separate host the deploy server _can_ reach, so proxying avoids exposing the key
 to the browser and avoids cross-site requests.
+
+### The cache, and what may be remembered
+
+Answers are cached in process by
+[`src/lib/server/avatarCache.ts`](../../src/lib/server/avatarCache.ts) - one hour
+for an image, ten minutes for an absence, capped at 500 entries. `X-Cache:
+hit|miss` on the response makes it verifiable with a single request, which matters
+because the deploy host has no SSH access.
+
+It exists for a measured reason. Without it, one association page of N members
+opened N connections to MiGallery **per visitor, per visit**. On 2026-08-06 the
+host briefly could not open outbound connections at all, and that amplification
+turned a single network fault into 479 recorded HTTP 502s in tight bursts - all of
+them the same bun error, `Unable to connect`, on a well-formed URL. Neither DNS,
+TLS nor the secrets were involved; the cache does not fix the network, it removes
+the redundant work that made one hiccup visible on every card.
+
+Hence the statuses, which must not be collapsed into each other:
+
+| Situation                              | Status | `Cache-Control`         | Cached in process |
+| -------------------------------------- | ------ | ----------------------- | ----------------- |
+| Image found                            | 200    | `public, max-age=86400` | yes, 1 h          |
+| Upstream 404: this user has no avatar  | 404    | `public, max-age=600`   | yes, 10 min       |
+| Upstream 401 / 429 / 5xx               | 404    | `no-store`              | **never**         |
+| Upstream unreachable (the fetch threw) | 502    | `no-store`              | **never**         |
+
+**Only an answer about the avatar may be remembered**, and exactly one status
+qualifies (`isCacheableAbsence`). `!res.ok` reads like "no avatar" and is not: a
+rotated `GALLERY_API_KEY` or one MiGallery 5xx, stored as an absence, would be
+remembered as "these members have no face" for the whole TTL, for every visitor.
+Likewise a transport failure stays a 502 - dressing it as a 404 or caching it would
+make a passing outage stick and erase the only signal this host emits.
+
+That signal is the route's `console.error`, and pm2 now stamps it with a time
+(`time: true` in `ecosystem.config.cjs`). Without that stamp the 479 failures above
+could not be placed in time at all, which is what made the diagnosis cost a whole
+session: the count alone reads as a chronic fault, while their position in the
+append-only log showed one burst-shaped episode.
 
 ## Frontend structure
 
