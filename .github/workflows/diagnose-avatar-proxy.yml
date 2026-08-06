@@ -20,25 +20,41 @@ jobs:
     steps:
       - name: Avatar proxy errors already recorded in the pm2 stderr log
         # ecosystem.config.cjs sets no `time: true`, so these lines carry no
-        # timestamp - the error text is the payload, not the ordering. Every
-        # grep is guarded: it exits 1 when it matches nothing, which would kill
-        # the step on the very absence it is here to report.
+        # timestamp - the error text is the payload, not the ordering. Every grep
+        # is guarded: it exits 1 when it matches nothing, which would kill the
+        # step on the very absence it is here to report.
+        #
+        # -a is mandatory and was the fault of the first run: this log holds
+        # binary bytes, so grep answered "binary file matches" and printed no
+        # lines, while -c still counted 479 of them. Never redirect a grep's
+        # stderr here either - that is what hid the explanation.
+        #
+        # The two strings separate the two failure modes: the route logs
+        # "Avatar proxy error" only from its catch (the fetch threw, HTTP 502)
+        # and "Avatar fetch failed" when the upstream answered non-ok (HTTP 404).
         run: |
           shopt -s nullglob
           files=(~/.pm2/logs/portail-etu-error*.log)
           echo "plain log files: ${files[*]:-none}"
           for f in "${files[@]}"; do
-            echo "--- $f ($(wc -l < "$f" || echo '?') lines total) ---"
-            echo "matches: $(grep -c -F 'Avatar proxy error' "$f" || true)"
-            grep -A3 -F 'Avatar proxy error' "$f" 2>/dev/null | tail -60 \
-              | sed -E 's/[0-9a-f]{16,}/<redacted-id>/g' || true
+            echo "=== $f ($(wc -l < "$f" || echo '?') lines total) ==="
+            echo "threw (catch branch, 502): $(grep -ac -F 'Avatar proxy error' "$f" || true)"
+            echo "upstream non-ok (404):     $(grep -ac -F 'Avatar fetch failed' "$f" || true)"
+            echo "--- distinct throw messages, most frequent first ---"
+            grep -a -F 'Avatar proxy error' "$f" \
+              | sed -E 's/for [0-9a-f]+/for <id>/g; s/[0-9a-f]{16,}/<redacted>/g' \
+              | sort | uniq -c | sort -rn | head -20 || true
+            echo "--- last 12 matches with their following lines ---"
+            grep -a -A2 -F 'Avatar proxy error' "$f" | tail -36 \
+              | sed -E 's/for [0-9a-f]+/for <id>/g; s/[0-9a-f]{16,}/<redacted>/g' || true
           done
           rotated=(~/.pm2/logs/portail-etu-error*.log.gz)
           echo "rotated log files: ${rotated[*]:-none}"
           for f in "${rotated[@]}"; do
-            echo "--- $f (rotated) ---"
-            zcat "$f" 2>/dev/null | grep -A3 -F 'Avatar proxy error' | tail -30 \
-              | sed -E 's/[0-9a-f]{16,}/<redacted-id>/g' || true
+            echo "=== $f (rotated) ==="
+            zcat "$f" | grep -a -F 'Avatar proxy error' \
+              | sed -E 's/for [0-9a-f]+/for <id>/g; s/[0-9a-f]{16,}/<redacted>/g' \
+              | sort | uniq -c | sort -rn | head -10 || true
           done
 
       - name: Can this host reach MiGallery at all
@@ -59,16 +75,46 @@ jobs:
               https://gallery.mitv.fr/api/users/probe/avatar \
               || echo "curl $opt FAILED (exit $?)"
           done
+          # The first run showed -6 failing in 1 ms while AAAA resolves, which is
+          # the whole hypothesis: an address family that is advertised and
+          # unroutable. Characterise it, because the real fix is here and not in
+          # the app - either the host gets IPv6 egress, or it stops preferring a
+          # family it cannot use (gai.conf precedence).
+          echo "--- IPv6 state of this host ---"
+          echo "disable_ipv6(all)=$(cat /proc/sys/net/ipv6/conf/all/disable_ipv6 2>/dev/null || echo '?')"
+          ip -6 route show default || echo "no default IPv6 route"
+          ip -6 addr show scope global | grep -E 'inet6' || echo "no global IPv6 address"
+          grep -vE '^\s*#|^\s*$' /etc/gai.conf 2>/dev/null || echo "gai.conf has no active directive (kernel default: IPv6 first)"
 
       - name: The exact call shape, under the runtime that actually serves it
         # pm2 launches `bun ./build/index.js`, so only bun's fetch reproduces the
         # failing call faithfully - curl succeeding proves nothing about it.
+        #
+        # Repeated, because the first run got one success (401 in 85ms) and a
+        # single success cannot show an intermittent family choice. The second
+        # probe pins the IPv6 literal to capture the error string bun produces on
+        # an unroutable family: if it matches what the pm2 log records, the chain
+        # is observed rather than inferred. TLS will not complete against a bare
+        # IP (no SNI match) - the connect attempt is the measurement, not the
+        # handshake.
         run: |
+          echo "--- 8 ordinary calls, looking for an intermittent throw ---"
+          bun -e 'for (let i = 0; i < 8; i++) {
+              const t = Date.now();
+              try {
+                const r = await fetch("https://gallery.mitv.fr/api/users/probe/avatar", { headers: { Accept: "image/jpeg" } });
+                console.log(i, "status", r.status, Date.now() - t + "ms");
+              } catch (e) {
+                console.log(i, "THREW", Date.now() - t + "ms", e.constructor.name, e.message,
+                  "| cause:", e.cause?.code ?? e.cause?.message ?? e.cause);
+              }
+            }' || echo "bun probe failed (exit $?)"
+          echo "--- forced onto the unroutable family ---"
           bun -e 'const t = Date.now();
             try {
-              const r = await fetch("https://gallery.mitv.fr/api/users/probe/avatar", { headers: { Accept: "image/jpeg" } });
+              const r = await fetch("https://[2606:4700:3031::6815:1fef]/api/users/probe/avatar");
               console.log("status", r.status, Date.now() - t + "ms");
             } catch (e) {
               console.log("THREW", Date.now() - t + "ms", e.constructor.name, e.message,
                 "| cause:", e.cause?.code ?? e.cause?.message ?? e.cause);
-            }' || echo "bun probe failed (exit $?)"
+            }' || echo "bun v6 probe failed (exit $?)"
