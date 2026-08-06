@@ -6,12 +6,25 @@ on:
     branches: [main]
     types:
       - completed
+  # Manual escape hatch. On 2026-08-06 a GitHub Actions outage dropped the push
+  # triggers outright: "Run Tests" was cancelled in the queue, so this workflow was
+  # skipped, and a commit whose trigger is lost never gets one back. A dispatch
+  # still went through when nothing else did.
+  #
+  # It deploys the current `main` WITHOUT the CI gate, so it is deliberate, not
+  # routine: the pre-push hook already runs lint, format:check, check, test and
+  # build locally, which is what makes this acceptable as a fallback path and not
+  # as the normal one.
+  workflow_dispatch:
 
 jobs:
   deploy:
     name: Deploy
     runs-on: self-hosted
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    # The dispatch branch is required: on a manual run `github.event.workflow_run`
+    # does not exist, so the original condition alone would silently skip the job -
+    # a deploy that reports success while deploying nothing.
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
 
     steps:
       - name: Checkout code

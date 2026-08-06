@@ -47,8 +47,19 @@ jobs:
           ls -la ~/.pm2/logs/
 
       - name: Rotate from now on, so the size cannot come back
+        # Retried: the first attempt died on `ConnectionRefused downloading package
+        # manifest`, which is this host's intermittent outbound failure - the same
+        # class as the avatar proxy's `Unable to connect`, from the same runtime,
+        # while curl succeeded in the same run. So the install is not reliable here
+        # on one try, and a silent failure would leave the log growing again.
         run: |
-          pm2 install pm2-logrotate || echo "pm2-logrotate install FAILED - rotation NOT active"
+          installed=""
+          for attempt in 1 2 3 4 5; do
+            if pm2 install pm2-logrotate; then installed=yes; break; fi
+            echo "attempt $attempt failed - retrying (host outbound connections are intermittent)"
+            sleep 20
+          done
+          if [ -z "$installed" ]; then echo "pm2-logrotate install FAILED - rotation NOT active"; fi
           pm2 set pm2-logrotate:max_size 10M
           pm2 set pm2-logrotate:retain 5
           pm2 set pm2-logrotate:compress true
