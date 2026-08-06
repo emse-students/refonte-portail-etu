@@ -44,10 +44,27 @@ jobs:
             grep -a -F 'Avatar proxy error' "$f" \
               | sed -E 's/for [0-9a-f]+/for <id>/g; s/[0-9a-f]{16,}/<redacted>/g' \
               | sort | uniq -c | sort -rn | head -20 || true
-            echo "--- last 12 matches with their following lines ---"
-            grep -a -A2 -F 'Avatar proxy error' "$f" | tail -36 \
-              | sed -E 's/for [0-9a-f]+/for <id>/g; s/[0-9a-f]{16,}/<redacted>/g' || true
+            echo "--- where the throws sit in the file (append-only, so position is time) ---"
+            # The log carries no timestamp (no `time: true`), but it only ever
+            # grows: the line numbers of the matches therefore say whether these
+            # are one or two outage windows or a permanent drizzle. That single
+            # distinction decides the fix, so it is the whole point of this run.
+            grep -an -F 'Avatar proxy error' "$f" | cut -d: -f1 > /tmp/avatar-throws.txt || true
+            echo "first match at line $(head -1 /tmp/avatar-throws.txt || echo '?'), last at $(tail -1 /tmp/avatar-throws.txt || echo '?')"
+            echo "bucketed by 100k lines:"
+            awk '{b = int($1 / 100000) * 100000; c[b]++} END {for (k in c) printf "  %8d-%8d  %d\n", k, k + 99999, c[k]}' \
+              /tmp/avatar-throws.txt | sort -n || true
+            echo "gaps between consecutive throws, most frequent first (1 = adjacent lines):"
+            awk 'NR > 1 {print $1 - p} {p = $1}' /tmp/avatar-throws.txt \
+              | sort -n | uniq -c | sort -rn | head -12 || true
+            echo "--- what actually fills these 1.9M lines (digits and hex normalised) ---"
+            sed -E 's/[0-9a-f]{8,}/<hex>/g; s/[0-9]+/<n>/g; s/^[[:space:]]+//' "$f" \
+              | sort | uniq -c | sort -rn | head -12 || true
           done
+          echo "=== process state (pm2 list prints no env, unlike pm2 describe) ==="
+          pm2 list --no-color || true
+          stat -c 'error log: size=%s bytes, last written %y' ~/.pm2/logs/portail-etu-error.log || true
+          stat -c 'out log:   size=%s bytes, last written %y' ~/.pm2/logs/portail-etu-out.log || true
           rotated=(~/.pm2/logs/portail-etu-error*.log.gz)
           echo "rotated log files: ${rotated[*]:-none}"
           for f in "${rotated[@]}"; do
