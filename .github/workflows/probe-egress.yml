@@ -48,6 +48,31 @@ jobs:
           echo "ephemeral range: $(cat /proc/sys/net/ipv4/ip_local_port_range 2>/dev/null || echo '?')"
           echo "sockets in TIME_WAIT: $(ss -tan 2>/dev/null | grep -c TIME-WAIT || echo '?')"
 
+      - name: Did CrowdSec ever ban a Cloudflare edge address
+        # The mechanism worth testing is CrowdSec by the INBOUND path, not the
+        # outbound one: every request reaching this host arrives from Cloudflare, so
+        # one scanner behind Cloudflare gets a Cloudflare EDGE ip banned as a
+        # source - and the ban then also drops the SYN-ACK of connections this host
+        # initiates towards that same address. That produces exactly what was
+        # observed: instant failures, in bursts, on some addresses only (DNS hands
+        # out several), clearing on their own when the decision expires.
+        #
+        # Decisions expire but alerts are retained, so the history is the evidence.
+        # Addresses are redacted to /16 before printing - this repository is public -
+        # and the Cloudflare question is answered as a COUNT, computed before
+        # redaction.
+        run: |
+          raw=$(sudo -n cscli alerts list --since 48h -o human 2>/dev/null || echo "")
+          if [ -z "$raw" ]; then echo "no alert history readable (cscli absent, or sudo refused)"; fi
+          echo "alerts in the last 48h: $(echo "$raw" | grep -cE '^\s*\|' || true)"
+          echo "alerts naming a Cloudflare edge range (104.16 / 104.21 / 172.67): $(echo "$raw" | grep -cE '(^|[^0-9.])(104\.(16|21)|172\.67)\.' || true)"
+          echo "--- history, redacted to /16 ---"
+          echo "$raw" | sed -E 's/([0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}\.[0-9]{1,3}/\1.x.x/g' | head -40
+          echo "--- decisions still live, redacted ---"
+          sudo -n cscli decisions list -o human 2>/dev/null \
+            | sed -E 's/([0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}\.[0-9]{1,3}/\1.x.x/g' | head -20 \
+            || echo "none readable"
+
       - name: bun and curl interleaved, 20 rounds, both hosts
         # Same target, same instant, two clients. A round where they disagree is the
         # answer; 20 rounds because the fault is intermittent and a single success
