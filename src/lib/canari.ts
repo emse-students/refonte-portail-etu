@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/public";
 import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "$lib/types";
+import { OUTBOUND_BUDGET_MS } from "$lib/outbound";
 
 /**
  * Base URL of the public Canari instance. Overridable at runtime via the
@@ -14,9 +15,16 @@ const API = `${CANARI_URL}/api/public`;
 /** SvelteKit's load `fetch`, passed through so SSR requests are traced/deduped. */
 type Fetch = typeof globalThis.fetch;
 
-/** Throws a readable error when the public API is unreachable or errors out. */
+/**
+ * Throws a readable error when the public API is unreachable or errors out.
+ *
+ * The budget matters here even though these run in the visitor's browser (`ssr = false`): the
+ * loaders are built to degrade on a THROW - they return empty data with a `failed` flag - and a
+ * fetch with no deadline never throws. The page would sit on its loading state instead, which is
+ * the one outcome nothing downstream handles.
+ */
 async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
-	const res = await fetch(url);
+	const res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
 	if (!res.ok) {
 		throw new Error(`Canari public API ${res.status} for ${url}`);
 	}
@@ -57,7 +65,7 @@ const LEGACY_CARD_PAD_X = 12;
  * the two repositories to be deployed in a particular order. See the loop below.
  */
 export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
-	const res = await fetch(`${API}/carte`);
+	const res = await fetch(`${API}/carte`, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
 	if (res.status === 404) return null;
 	if (!res.ok) {
 		throw new Error(`Canari public API ${res.status} for ${API}/carte`);

@@ -104,9 +104,11 @@ browser requests `/api/users/:id/avatar` (same origin); the SvelteKit endpoint
 [`src/routes/api/users/[userId]/avatar/+server.ts`](../../src/routes/api/users/%5BuserId%5D/avatar/+server.ts)
 fetches `${GALLERY_API_URL}/users/:id/avatar` with `GALLERY_API_KEY` and streams
 the image back. The `userId` is the Authentik uid carried by the public API,
-which is the same identifier MiGallery keys avatars by. On any miss the endpoint
-returns 404 and the UI falls back to generated initials - `MemberCard` swaps to
-initials on the image's `onerror`, so **any** failing status degrades, not only a 404.
+which is the same identifier MiGallery keys avatars by. On any miss the UI falls
+back to generated initials - `MemberCard` swaps to initials on the image's
+`onerror`, so **any** failing status degrades, not only a 404. That is exactly why
+the status is free to say what really happened, and must: nothing on screen
+depends on it, and it is the only place the difference survives.
 
 This is same-origin on purpose: unlike the public API, MiGallery lives on a
 separate host the deploy server _can_ reach, so proxying avoids exposing the key
@@ -130,19 +132,42 @@ the redundant work that made one hiccup visible on every card.
 
 Hence the statuses, which must not be collapsed into each other:
 
-| Situation                              | Status | `Cache-Control`         | Cached in process |
-| -------------------------------------- | ------ | ----------------------- | ----------------- |
-| Image found                            | 200    | `public, max-age=86400` | yes, 1 h          |
-| Upstream 404: this user has no avatar  | 404    | `public, max-age=600`   | yes, 10 min       |
-| Upstream 401 / 429 / 5xx               | 404    | `no-store`              | **never**         |
-| Upstream unreachable (the fetch threw) | 502    | `no-store`              | **never**         |
+| Situation                              | Status | `Cache-Control`         | Cached in process | Logged  |
+| -------------------------------------- | ------ | ----------------------- | ----------------- | ------- |
+| Image found                            | 200    | `public, max-age=86400` | yes, 1 h          | no      |
+| Upstream 404: this user has no avatar  | 404    | `public, max-age=600`   | yes, 10 min       | **no**  |
+| Upstream 401 / 429 / 5xx               | 502    | `no-store`              | **never**         | `error` |
+| Upstream unreachable (the fetch threw) | 502    | `no-store`              | **never**         | `error` |
+| Nothing within `OUTBOUND_BUDGET_MS`    | 502    | `no-store`              | **never**         | `error` |
 
 **Only an answer about the avatar may be remembered**, and exactly one status
 qualifies (`isCacheableAbsence`). `!res.ok` reads like "no avatar" and is not: a
 rotated `GALLERY_API_KEY` or one MiGallery 5xx, stored as an absence, would be
 remembered as "these members have no face" for the whole TTL, for every visitor.
-Likewise a transport failure stays a 502 - dressing it as a 404 or caching it would
-make a passing outage stick and erase the only signal this host emits.
+
+The same distinction governs the STATUS and the LOG, and both used to blur it:
+
+- a refused key answered **404**, which is this portal asserting that the member
+  has no face. It is a 502 now - a claim about MiGallery, which is what it is;
+- a plain 404 was logged at `error`, on every faceless card. A member with no
+  photo is the commonest case on the roster and is not an incident, so it is now
+  silent. The lines that remain all accuse.
+
+### The outbound budget
+
+Every remote call carries `signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS)` - 4 s,
+declared once in [`src/lib/outbound.ts`](../../src/lib/outbound.ts) and shared with
+the two Canari public-API calls in `src/lib/canari.ts`. `fetch` has **no** default
+deadline, so a MiGallery that accepted the connection and then said nothing held
+this route open indefinitely.
+
+That is the opposite failure from the one measured above, and both were live on
+the same route at once: an unreachable upstream fails fast and gets amplified by
+the missing cache, while an upstream with no deadline cannot fail at all. The
+second is the worse of the two for the visitor, because there is no error to catch
+and no fallback to reach - the loaders here degrade on a **throw**, and a request
+with no deadline never throws. It expires as a `TimeoutError`, so the route's
+`catch` is what reports it.
 
 That signal is the route's `console.error`, and pm2 now stamps it with a time
 (`time: true` in `ecosystem.config.cjs`). Without that stamp the 479 failures above
