@@ -32,20 +32,35 @@ export default defineConfig({
 		// Compile Paraglide before SvelteKit so the generated runtime in
 		// src/lib/paraglide exists.
 		//
-		// The strategy list is deliberately short. The site renders on the SERVER
-		// and hydrates in the BROWSER, so the locale is resolved twice and the two
-		// answers must agree by construction - Svelte claims the server's text
-		// nodes on hydration rather than comparing them. Paraglide skips
-		// `localStorage` and `preferredLanguage` whenever `isServer`, so either one
-		// in this list means the server falls through to `baseLocale` while the
-		// client answers something else, and the reader is stuck on French text
-		// until their first client-side navigation. `cookie` is the only strategy
-		// both sides can read; `LocaleToggle` writes it and reloads.
-		// See src/hooks.server.ts.
+		// The site renders on the SERVER and hydrates in the BROWSER, so the locale
+		// is resolved twice and the two answers must agree by construction -
+		// Svelte claims the server's text nodes on hydration rather than comparing
+		// them.
+		//
+		// `preferredLanguage` looks like it cannot satisfy that, because
+		// `getLocale()` skips it whenever `isServer`. What makes it work is
+		// `paraglideMiddleware` in src/hooks.server.ts: it resolves the locale from
+		// the REQUEST - Accept-Language included - and runs the whole render inside
+		// that binding, so `getLocale()` never reaches its own strategy list on the
+		// server. The middleware is the load-bearing half; the list alone proves
+		// nothing.
+		//
+		// Measured 2026-08-19, same Paraglide version, same middleware: an
+		// `Accept-Language: en` request gets `<html lang="en">` and English text
+		// from sky.mitv.fr and gallery.mitv.fr, which carry `preferredLanguage`.
+		// This site, which had dropped it, answered `fr` to every visitor on earth.
+		//
+		// `localStorage` stays out: nothing on the server can read it.
+		//
+		// One consequence, latent today: the HTML now varies by Accept-Language and
+		// the response carries no `Vary` header. Cloudflare reports `DYNAMIC` for it
+		// - nothing caches it - so this costs nothing until somebody adds a cache
+		// rule for HTML, at which point one visitor's language would be served to
+		// the next.
 		paraglideVitePlugin({
 			project: "./project.inlang",
 			outdir: "./src/lib/paraglide",
-			strategy: ["cookie", "baseLocale"],
+			strategy: ["cookie", "preferredLanguage", "baseLocale"],
 		}),
 		sveltekit(),
 		paraglideNodeBuiltinSpecifier(),

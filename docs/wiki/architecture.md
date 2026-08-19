@@ -63,29 +63,47 @@ Two things were harmless in a SPA and are not on a server:
   server-side, which is the only trace a rendered error leaves.
 - **The locale is now resolved twice**, once by the server and once by the
   hydrating client, and Svelte claims the server's text nodes rather than
-  comparing them. See [Locale under SSR](#locale-under-ssr).
+  comparing them - so the two resolutions have to agree by construction, not by
+  luck. What makes them agree is the middleware, not a shortened strategy list.
+  See [Locale under SSR](#locale-under-ssr).
 
 ### Locale under SSR
 
-Paraglide's strategy list is `["cookie", "baseLocale"]`
+The strategy list is `["cookie", "preferredLanguage", "baseLocale"]`
 ([`vite.config.ts`](../../vite.config.ts)), and
-[`src/hooks.server.ts`](../../src/hooks.server.ts) runs `paraglideMiddleware` so
-the server resolves the locale before rendering and stamps it into `<html lang>`.
+[`src/hooks.server.ts`](../../src/hooks.server.ts) runs `paraglideMiddleware`.
 
-Those are the only two strategies Paraglide can evaluate on BOTH sides:
-`localStorage` and `preferredLanguage` are skipped whenever `isServer`, so
-either one in the list makes the server fall through to the base locale while the
-client answers something else - and the reader is left on French text with
-nothing logged anywhere, until their first client-side navigation. Automatic
-`Accept-Language` detection is the price, paid deliberately: the base locale is
-French, the site serves a French school, and `LocaleToggle` writes the cookie and
-reloads, so a reader's choice survives. Readers who had picked English before
-this change had it in `localStorage`; they are reset to French once and must
-click the toggle again.
+**The middleware is the load-bearing half, not the list.** `getLocale()` skips
+`localStorage` and `preferredLanguage` whenever `isServer`, which reads like a
+ban on both under SSR - and that reading cost this site its automatic language
+detection for two days. What actually happens is that `paraglideMiddleware`
+resolves the locale from the REQUEST, `Accept-Language` included, and runs the
+entire render inside that binding, so `getLocale()` never reaches its own
+strategy list on the server at all. Both sides therefore answer from the same
+signal: the header the browser sent, and the `navigator.languages` it derives
+that header from.
 
-The response therefore varies on the `PARAGLIDE_LOCALE` cookie. Nothing caches it
-today - Bun serves the site directly on its own host, with no CDN in front - but
-any shared cache added later owes a `Vary: Cookie`.
+Measured on 2026-08-19, same Paraglide version and the same middleware in each:
+
+| Site                  | Strategy                    | `Accept-Language: en` gets                     |
+| --------------------- | --------------------------- | ---------------------------------------------- |
+| `sky.mitv.fr`         | with `preferredLanguage`    | `<html lang="en">`, `Sky - ICM mapping`        |
+| `gallery.mitv.fr`     | with `preferredLanguage`    | `<html lang="en">`                             |
+| `portail-etu.emse.fr` | without, before this change | `<html lang="fr">`, for every visitor on earth |
+
+`localStorage` stays out for the original reason, which does survive: nothing on
+the server can read it. A reader who had picked English before SSR landed had it
+there, and is detected from their browser now instead.
+
+`LocaleToggle` writes the `PARAGLIDE_LOCALE` cookie and reloads, and the cookie
+comes first, so an explicit choice still beats the header.
+
+**The response now varies on both the cookie and `Accept-Language`, and carries
+no `Vary` header for either.** Nothing caches it today - Bun serves the site on
+its own host, and Cloudflare reports `DYNAMIC` for the sibling sites in the same
+shape - so this costs nothing until somebody adds a cache rule for HTML, at which
+point one visitor's language is served to the next. Any shared cache added later
+owes `Vary: Cookie, Accept-Language`.
 
 ### `ORIGIN` is not optional
 

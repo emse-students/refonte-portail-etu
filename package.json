@@ -6,10 +6,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "rm -r node_modules/.vite-temp; vite dev",
-		"build": "rm -r node_modules/.vite-temp; vite build",
+		"build": "rm -rf node_modules/.vite-temp && vite build",
 		"preview": "rm -r node_modules/.vite-temp; vite preview",
 		"prepare": "husky && npm run paraglide:compile",
-		"paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide",
+		"paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy cookie preferredLanguage baseLocale",
 		"lint": "eslint --ext .js,.ts,.svelte .",
 		"lint:fix": "eslint --ext .js,.ts,.svelte . --fix",
 		"format": "prettier --write .",
