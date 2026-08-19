@@ -35,6 +35,7 @@
 	"service_unavailable": "Le service est momentanément indisponible. Réessayez dans quelques instants.",
 	"error_association_not_found": "Association introuvable",
 	"error_list_not_found": "Liste introuvable",
+	"error_upstream_unavailable": "Le service qui fournit ces données est momentanément injoignable. Réessayez dans un instant.",
 	"lists_meta_description": "Les listes de campagne des promotions de l'EMSE.",
 	"lists_title": "Listes de campagne",
 	"lists_subtitle": "Les listes qui animent les campagnes BDE, BDS et BDA, promotion après promotion.",

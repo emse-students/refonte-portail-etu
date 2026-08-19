@@ -12,15 +12,104 @@ Browser ──► Portail (SvelteKit, adapter-bun)
    └──► GET /api/users/:id/avatar ──► MiGallery       (member faces, server-proxied)
 ```
 
-## Client-side rendering
+## Server-side rendering
 
-Pages set `export const ssr = false` (see [`src/routes/+layout.ts`](../../src/routes/+layout.ts)).
-The deploy host cannot reach `canari-emse.fr` from the server (hairpin NAT: the
-portal and Canari sit behind the same public IP), so server-side `fetch` to the
-public API fails. Rendering in the browser sidesteps this: the visitor's browser
-reaches Canari directly. Page loaders are resilient - on API failure they return
-empty data with a `failed` flag rather than throwing, so the static shell always
-renders.
+Pages render on the server and then hydrate (`export const ssr = true`, see
+[`src/routes/+layout.ts`](../../src/routes/+layout.ts)). Loaders stay UNIVERSAL
+(`+page.ts`, never `+page.server.ts`): the server renders the first view and
+SvelteKit serialises the result into the page, so hydration re-fetches nothing,
+while a later client-side navigation reaches Canari straight from the visitor's
+browser. Loaders are still resilient - the directory pages return empty data
+with a `failed` flag rather than throwing - so the shell always renders.
+
+### It was `ssr = false`, and the reason has been refuted
+
+This section used to read: _"the deploy host cannot reach `canari-emse.fr` from
+the server (hairpin NAT: the portal and Canari sit behind the same public IP)"_.
+Both halves of that were checked on 2026-08-19 and neither holds:
+
+- **The premise.** `canari-emse.fr` resolves to Cloudflare anycast
+  (104.21.10.94 / 172.67.162.196); `portail-etu.emse.fr` is 193.49.175.67. They
+  do not share a public IP, so a server-side request leaves for Cloudflare rather
+  than turning back through the portal's own NAT. There is no hairpin to suffer.
+- **The consequence.** Whether the mechanism is gone is a different question from
+  whether the reason describes it, so it was measured from the deploy host
+  ITSELF, by a dispatch-only workflow kept in the repository
+  ([`.github/workflows/probe-egress.yml`](../../.github/workflows/probe-egress.yml)):
+  `[canari-public-associations] status=200 bytes=30732 dns=0.018s connect=0.034s
+tls=0.063s total=0.122s`. The self-hosted runner is the deploy box, so that is
+  exactly what the app gets.
+
+The probe stays in the repo rather than being deleted with the claim it settled:
+if server-side egress ever breaks, this is the one command that says so, and it
+prints status codes, byte counts and timings only - never a body, a header or an
+environment value, because the repository is public.
+
+**What it cost.** With `ssr = false`, `<svelte:head>` never ran on the server, so
+every page shipped a head with no title, no description and no preview image -
+measured on prod the same day on `/associations/bde`, which returned charset,
+icon, viewport, a verification token, a logo preload and two stylesheet links,
+and nothing else. That was the entire indexable surface of a site whose whole
+purpose is being the public face of the ecosystem. See [SEO](seo.md).
+
+### What turning it on made load-bearing
+
+Two things were harmless in a SPA and are not on a server:
+
+- **Both detail loaders answered 404 for ANY upstream failure.** A visitor
+  reloaded; a crawler deindexes. The distinction is now carried as a type
+  (`CanariApiError.status`, `null` when there was no answer at all) and only a
+  404 from the API becomes a 404 - everything else is a 503, and it is logged
+  server-side, which is the only trace a rendered error leaves.
+- **The locale is now resolved twice**, once by the server and once by the
+  hydrating client, and Svelte claims the server's text nodes rather than
+  comparing them. See [Locale under SSR](#locale-under-ssr).
+
+### Locale under SSR
+
+Paraglide's strategy list is `["cookie", "baseLocale"]`
+([`vite.config.ts`](../../vite.config.ts)), and
+[`src/hooks.server.ts`](../../src/hooks.server.ts) runs `paraglideMiddleware` so
+the server resolves the locale before rendering and stamps it into `<html lang>`.
+
+Those are the only two strategies Paraglide can evaluate on BOTH sides:
+`localStorage` and `preferredLanguage` are skipped whenever `isServer`, so
+either one in the list makes the server fall through to the base locale while the
+client answers something else - and the reader is left on French text with
+nothing logged anywhere, until their first client-side navigation. Automatic
+`Accept-Language` detection is the price, paid deliberately: the base locale is
+French, the site serves a French school, and `LocaleToggle` writes the cookie and
+reloads, so a reader's choice survives. Readers who had picked English before
+this change had it in `localStorage`; they are reset to French once and must
+click the toggle again.
+
+The response therefore varies on the `PARAGLIDE_LOCALE` cookie. Nothing caches it
+today - Bun serves the site directly on its own host, with no CDN in front - but
+any shared cache added later owes a `Vary: Cookie`.
+
+### `ORIGIN` is not optional
+
+Every absolute URL the head carries - `og:url`, `og:image`, `link rel=canonical`,
+every `<loc>` in the sitemap - is built from `page.url.origin`, never from a
+constant, so the same code is correct on production, on localhost and in a
+preview. Under SSR that origin comes from the request, and the adapter needs to
+be told what it is: `ecosystem.config.cjs` sets
+`ORIGIN=https://portail-etu.emse.fr`. Without it a locally started production
+build advertises `https://localhost:4319` in its canonical tag.
+
+### Running the production build locally
+
+`ORIGIN=https://portail-etu.emse.fr PORT=4319 bun ./build/index.js`.
+
+The `ORIGIN` matters for more than the canonical URL. SvelteKit's universal
+`fetch` enforces CORS on the server for cross-origin loads, because the response
+is serialised into the page for hydration and so must be something the browser
+would have been allowed to read. Canari's `/api/public/*` answers a **localhost**
+origin with two `Access-Control-Allow-Origin` headers (nginx adds `*`, and
+social-service's allowlist echoes the origin), which is invalid and which
+SvelteKit rejects - every detail page 503s. Answering as the production origin
+gets a single `*` and works. That duplicate is a Canari-side defect; it is fixed
+there, and this note stays because it is the symptom anyone will hit first.
 
 ## Data source: Canari public API
 

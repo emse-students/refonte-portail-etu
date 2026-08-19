@@ -16,17 +16,49 @@ const API = `${CANARI_URL}/api/public`;
 type Fetch = typeof globalThis.fetch;
 
 /**
- * Throws a readable error when the public API is unreachable or errors out.
+ * A call to the public API that did not return data, carrying WHY as a value.
  *
- * The budget matters here even though these run in the visitor's browser (`ssr = false`): the
- * loaders are built to degrade on a THROW - they return empty data with a `failed` flag - and a
- * fetch with no deadline never throws. The page would sit on its loading state instead, which is
- * the one outcome nothing downstream handles.
+ * `status` is the API's own status code, or `null` when the request never got an answer at all -
+ * a timeout, a DNS failure, a refused connection. That distinction is the whole point of the type:
+ * a 404 is the API ANSWERING that a slug does not exist, and a timeout is the API saying nothing.
+ * A page that turns both into its own 404 tells a crawler to deindex a page that exists, over a
+ * blip. Never classify by reading the message - the caller reads `status`.
+ */
+export class CanariApiError extends Error {
+	constructor(
+		readonly status: number | null,
+		readonly url: string,
+		cause?: unknown
+	) {
+		super(`Canari public API ${status ?? "unreachable"} for ${url}`);
+		this.name = "CanariApiError";
+		this.cause = cause;
+	}
+
+	/** True when the API answered, and its answer was that this resource does not exist. */
+	get isAbsent(): boolean {
+		return this.status === 404;
+	}
+}
+
+/**
+ * Throws a {@link CanariApiError} when the public API is unreachable or errors out.
+ *
+ * The budget matters on both sides of the render: a fetch with no deadline never throws, and the
+ * loaders are built to degrade on a THROW - they return empty data with a `failed` flag. Without it
+ * a client render would sit on its loading state and a server render would hold the response open,
+ * neither of which anything downstream handles.
  */
 async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
-	const res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	let res: Response;
+	try {
+		res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	} catch (e) {
+		// No answer at all. `status: null` is what separates this from a 404 downstream.
+		throw new CanariApiError(null, url, e);
+	}
 	if (!res.ok) {
-		throw new Error(`Canari public API ${res.status} for ${url}`);
+		throw new CanariApiError(res.status, url);
 	}
 	return (await res.json()) as T;
 }

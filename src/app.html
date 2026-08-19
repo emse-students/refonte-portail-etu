@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="fr">
+<!-- lang is stamped per request by src/hooks.server.ts; the locale is resolved from the
+     PARAGLIDE_LOCALE cookie so the server and the hydrating client always agree. -->
+<html lang="%paraglide.lang%">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />

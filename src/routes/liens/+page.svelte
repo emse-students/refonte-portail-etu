@@ -1,13 +1,24 @@
 <script lang="ts">
 	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
-	import { pageTitle } from "$lib/site";
 	import { m } from "$lib/paraglide/messages";
+	import { page } from "$app/state";
+	import Seo from "$lib/components/Seo.svelte";
+	import { breadcrumbNode } from "$lib/seo";
+	import { SITE_NAME } from "$lib/site";
 </script>
 
-<svelte:head>
-	<title>{pageTitle(m.nav_links())}</title>
-	<meta name="description" content={m.links_meta_description()} />
-</svelte:head>
+<Seo
+	meta={{
+		section: m.nav_links(),
+		description: m.links_meta_description(),
+		jsonLd: [
+			breadcrumbNode(page.url.origin, [
+				{ name: SITE_NAME, path: "/" },
+				{ name: m.nav_links(), path: "/liens" },
+			]),
+		],
+	}}
+/>
 
 <div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
 	<header class="text-center mb-12">

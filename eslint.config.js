@@ -57,6 +57,10 @@ export default [
 	},
 	{
 		files: ["**/*.svelte"],
+		// eslint-plugin-svelte filters suppressed messages in this processor's `postprocess`, so
+		// WITHOUT it `svelte/comment-directive` reports nothing and `<!-- eslint-disable ... -->`
+		// inside markup is silently inert - a disable comment that reads as applied and is not.
+		processor: "svelte/svelte",
 		languageOptions: {
 			ecmaVersion: 2022,
 			sourceType: "module",
@@ -75,7 +79,16 @@ export default [
 			"@typescript-eslint": ts,
 		},
 		rules: {
+			// `svelte.configs.recommended` is an ARRAY of flat configs in eslint-plugin-svelte 3,
+			// so `.rules` is undefined and this spread has always contributed NOTHING. The
+			// recommended set is therefore off, and the two rules below are the whole Svelte
+			// ruleset this repo runs. Measured 2026-08-19: turning the real set on reports 17
+			// errors, 14 of them `no-navigation-without-resolve` across eight components - a
+			// refactor of its own, filed in docs/wiki/backlog.md rather than smuggled in here.
 			...svelte.configs.recommended.rules,
+			// What makes `<!-- eslint-disable-next-line -->` work inside markup at all. Without it
+			// a template warning cannot be suppressed anywhere, however well justified.
+			"svelte/comment-directive": "error",
 			...ts.configs.recommended.rules,
 			"@typescript-eslint/no-unused-vars": [
 				"warn",

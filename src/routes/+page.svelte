@@ -3,18 +3,22 @@
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import Button from "$lib/components/Button.svelte";
 	import { reveal } from "$lib/actions/reveal";
-	import { pageTitle } from "$lib/site";
 	import { m } from "$lib/paraglide/messages";
+	import { page } from "$app/state";
+	import Seo from "$lib/components/Seo.svelte";
+	import { institutionNode, siteNode } from "$lib/seo";
 
 	let { data } = $props();
 
 	const preview = $derived(data.associations.slice(0, 8));
 </script>
 
-<svelte:head>
-	<title>{pageTitle()}</title>
-	<meta name="description" content={m.home_meta_description()} />
-</svelte:head>
+<Seo
+	meta={{
+		description: m.home_meta_description(),
+		jsonLd: [institutionNode(), siteNode(page.url.origin)],
+	}}
+/>
 
 <section class="relative pt-24 pb-32 px-6 text-center overflow-hidden flex flex-col items-center">
 	<!-- Subtle Hero Grid Background -->

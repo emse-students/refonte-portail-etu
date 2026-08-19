@@ -1,8 +1,11 @@
 <script lang="ts">
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import type { CanariAssociation } from "$lib/types";
-	import { pageTitle } from "$lib/site";
 	import { m } from "$lib/paraglide/messages";
+	import { page } from "$app/state";
+	import Seo from "$lib/components/Seo.svelte";
+	import { breadcrumbNode, itemListNode } from "$lib/seo";
+	import { SITE_NAME } from "$lib/site";
 
 	let { data } = $props();
 
@@ -23,10 +26,23 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{pageTitle(m.nav_lists())}</title>
-	<meta name="description" content={m.lists_meta_description()} />
-</svelte:head>
+<Seo
+	meta={{
+		section: m.nav_lists(),
+		description: m.lists_meta_description(),
+		jsonLd: [
+			breadcrumbNode(page.url.origin, [
+				{ name: SITE_NAME, path: "/" },
+				{ name: m.nav_lists(), path: "/lists" },
+			]),
+			itemListNode(
+				page.url.origin,
+				m.lists_title(),
+				data.lists.map((l) => ({ name: l.name, path: `/lists/${l.slug}` }))
+			),
+		],
+	}}
+/>
 
 <div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
 	<header class="text-center mb-12">

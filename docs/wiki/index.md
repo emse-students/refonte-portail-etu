@@ -9,12 +9,15 @@ This wiki is the canonical technical documentation. Start here.
 
 - [Architecture](architecture.md) - how the showcase renders, where its data
   comes from, and how avatars are served.
+- [SEO and link previews](seo.md) - the head, the JSON-LD graph and the
+  sitemap; what a crawler and an unfurler actually get.
 - [Deployment](deployment.md) - CI/CD, quality gates, environment and secrets.
+- [Backlog](backlog.md) - wanted, understood, and deliberately not scheduled.
 
 ## In one paragraph
 
-The portal is a SvelteKit app that renders entirely in the browser
-(`ssr = false`) and reads Canari's public, unauthenticated API
+The portal is a SvelteKit app that renders on the server and then hydrates
+(`ssr = true`) and reads Canari's public, unauthenticated API
 (`/api/public/*`) for associations, campaign lists and their public members.
 Member avatars are proxied same-origin from MiGallery. There is no database, no
 authentication and no write path: everything is managed inside Canari.

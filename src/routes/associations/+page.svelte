@@ -4,8 +4,11 @@
 	import Search from "$lib/components/icons/Search.svelte";
 	import X from "$lib/components/icons/X.svelte";
 	import NoResults from "$lib/components/icons/NoResults.svelte";
-	import { pageTitle } from "$lib/site";
 	import { m } from "$lib/paraglide/messages";
+	import { page } from "$app/state";
+	import Seo from "$lib/components/Seo.svelte";
+	import { breadcrumbNode, itemListNode } from "$lib/seo";
+	import { SITE_NAME } from "$lib/site";
 
 	let { data } = $props();
 
@@ -22,10 +25,25 @@
 	const archived = $derived(filtered.filter((a) => a.archived));
 </script>
 
-<svelte:head>
-	<title>{pageTitle(m.nav_associations())}</title>
-	<meta name="description" content={m.associations_meta_description()} />
-</svelte:head>
+<Seo
+	meta={{
+		section: m.nav_associations(),
+		description: m.associations_meta_description(),
+		jsonLd: [
+			breadcrumbNode(page.url.origin, [
+				{ name: SITE_NAME, path: "/" },
+				{ name: m.nav_associations(), path: "/associations" },
+			]),
+			// The directory's links only exist after hydration, so the list is stated here as data:
+			// this is the crawlable half of the link graph, next to the sitemap.
+			itemListNode(
+				page.url.origin,
+				m.associations_title(),
+				data.associations.map((a) => ({ name: a.name, path: `/associations/${a.slug}` }))
+			),
+		],
+	}}
+/>
 
 <div class="max-w-6xl mx-auto px-6 py-10 md:py-16 w-full box-border">
 	<header class="text-center mb-12">
