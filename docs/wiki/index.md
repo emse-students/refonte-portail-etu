@@ -11,6 +11,8 @@ This wiki is the canonical technical documentation. Start here.
   comes from, and how avatars are served.
 - [SEO and link previews](seo.md) - the head, the JSON-LD graph and the
   sitemap; what a crawler and an unfurler actually get.
+- [Search](search.md) - the directory's search box, the ecosystem's
+  tolerance ladder, and why prose is matched differently from a name.
 - [Deployment](deployment.md) - CI/CD, quality gates, environment and secrets.
 - [Backlog](backlog.md) - wanted, understood, and deliberately not scheduled.
 

@@ -9,16 +9,21 @@
 	import Seo from "$lib/components/Seo.svelte";
 	import { breadcrumbNode, itemListNode } from "$lib/seo";
 	import { SITE_NAME } from "$lib/site";
+	import { fuzzyRank } from "$lib/search/fuzzy";
 
 	let { data } = $props();
 
 	let query = $state("");
 
+	// Ranked, not filtered: closest name first, then the entries whose description merely contains
+	// what was typed. `includes` was the whole matcher here until 2026-08-19, so a reader who
+	// mistyped a name they could see on the screen was told there was no such association.
 	const filtered = $derived(
-		data.associations.filter(
-			(a) =>
-				a.name.toLowerCase().includes(query.toLowerCase()) ||
-				(a.description ?? "").toLowerCase().includes(query.toLowerCase())
+		fuzzyRank(
+			query,
+			data.associations,
+			(a) => a.name,
+			(a) => a.description ?? ""
 		)
 	);
 	const active = $derived(filtered.filter((a) => !a.archived));
