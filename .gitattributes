@@ -1,0 +1,22 @@
+# The working tree is LF everywhere, on every platform.
+#
+# `.prettierrc` sets no `endOfLine`, so prettier defaults to `lf`. Without this file a checkout on
+# Windows (`core.autocrlf=true`) materialises CRLF, and the pre-push `format:check` then fails on 82
+# files nobody touched - a gate reporting the operating system rather than the code. The blobs were
+# already LF, so this changes no committed content: it fixes what a checkout writes to disk.
+* text=auto eol=lf
+
+# Binary: never normalised, or they are corrupted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.svg text
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
