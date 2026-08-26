@@ -150,6 +150,30 @@ jobs:
           echo "exit=${rc} (124 = still running at the timeout) elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/probe.log)"
           grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/probe.log | head -40
 
+          # It hangs before it prints anything and before it binds, so the stall
+          # is inside the module graph load. Ask the kernel what the process is
+          # waiting on rather than inferring it: wchan names the wait channel,
+          # and the open descriptors name the exact file if it is blocked on one.
+          echo "--- entropy (a blocking read on /dev/random stalls exactly like this) ---"
+          cat /proc/sys/kernel/random/entropy_avail 2>/dev/null || echo "unreadable"
+
+          echo "--- where the process is stuck ---"
+          PORT=3998 bun ./build/index.js > /tmp/stuck.log 2>&1 &
+          probe_pid=$!
+          sleep 8
+          if kill -0 "$probe_pid" 2>/dev/null; then
+            echo "pid=${probe_pid} state=$(awk '/^State:/{print $2,$3}' /proc/$probe_pid/status 2>/dev/null)"
+            echo "wchan=$(cat /proc/$probe_pid/wchan 2>/dev/null)"
+            echo "syscall=$(cat /proc/$probe_pid/syscall 2>/dev/null | cut -c1-60)"
+            echo "threads=$(awk '/^Threads:/{print $2}' /proc/$probe_pid/status 2>/dev/null)"
+            echo "--- open descriptors ---"
+            ls -l /proc/$probe_pid/fd 2>/dev/null | sed 's/.* -> //' | sort | uniq -c | sort -rn | head -20
+          else
+            echo "the probe process already exited; log follows"
+            cat /tmp/stuck.log | head -20
+          fi
+          kill -9 "$probe_pid" 2>/dev/null || true
+
           echo "--- what is actually in build/ ---"
           ls -la build/ | head -12
           exit 1
