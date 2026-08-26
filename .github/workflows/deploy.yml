@@ -30,52 +30,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      # The SAME pin as "Run Tests", and it must stay the same. Without this step
-      # the job used whatever bun happened to be installed on the self-hosted box
-      # (1.3.7), while the lockfile is written by 1.4.0 in `lockfileVersion: 2`:
-      # the old bun cannot parse it, ignores it, and `--frozen-lockfile` turns
-      # that into a fatal error. CI was green and the deploy failed on the same
-      # commit, because the toolchain the deploy resolved was ambient machine
-      # state that nothing declared.
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.4.0"
-
-      # Facts about the box, printed BEFORE anything is cleaned, so the evidence
-      # survives whatever the next step does to it. A clean container reproduces
-      # this repo's install, build, deploy-copy and startup perfectly, so what
-      # breaks production is machine state that nothing here declares - which is
-      # exactly what this prints.
-      - name: Machine facts
-        run: |
-          echo "bun: $(command -v bun) $(bun --version)"
-          echo "--- disk ---";   df -h ~ | tail -2
-          echo "--- memory ---"; free -m | head -3
-          echo "--- bun install cache ---"
-          du -sh ~/.bun/install/cache 2>/dev/null || echo "no cache dir"
-          echo "--- what production currently holds ---"
-          ls -la ~/portail-etu 2>&1 | head -15
-          echo "build/: $(ls ~/portail-etu/build 2>/dev/null | wc -l) entries, node_modules/: $(ls ~/portail-etu/node_modules 2>/dev/null | wc -l) entries"
-
-      # Install into a clean tree, from a cache this bun wrote. Everything else
-      # has been eliminated as the cause of the production stall: the code, the
-      # lockfile, the deploy copy, the runtime environment and the build itself
-      # all reproduce perfectly in a clean bun 1.4.0 container, and the built
-      # files on the box checksum identical to the ones built here. What the
-      # container does that this box never did is start from nothing - this box
-      # carries a 1.6 GB install cache written by bun 1.3.7, before setup-bun
-      # replaced it, and node_modules built from it.
+      # Install bun with the official script rather than setup-bun, because this
+      # box is a KVM guest whose CPU advertises no AVX2, and bun's ordinary
+      # linux-x64 binary requires it. It does not fail cleanly without it: it
+      # spins. That is what took production down for hours - the server burned
+      # CPU forever inside its module load, before its first log line and before
+      # it bound a port, while `bun -e` still worked because the trivial path
+      # never reaches the vectorised code.
       #
-      # Keeping the install clean is also what the deploy should have been doing
-      # anyway: a deploy that inherits whatever the last one left behind is not
-      # reproducible, and that is the whole property this workflow is meant to
-      # have.
+      # The install script reads /proc/cpuinfo and picks bun-linux-x64-baseline
+      # when AVX2 is missing. setup-bun does not, so pinning the version there
+      # bought a reproducible toolchain and an unrunnable binary. The version is
+      # still pinned - to the same 1.4.0 as "Run Tests" - and this also fixes the
+      # runtime, since pm2 launches ~/.bun/bin/bun, the very binary written here.
+      - name: Install the bun this CPU can run
+        run: |
+          export BUN_INSTALL="$HOME/.bun"
+          curl -fsSL https://bun.sh/install | bash -s "bun-v1.4.0"
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+          echo "installed $("$HOME/.bun/bin/bun" --version) / avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
+
+      # Install into a clean tree: a deploy that inherits whatever the previous
+      # one left in node_modules is not reproducible, which is the property this
+      # workflow exists to provide.
       - name: Install dependencies
         run: |
-          echo "build/server aggregate before: n/a (pre-build)"
           rm -rf node_modules
-          bun pm cache rm || true
           bun install --frozen-lockfile
 
       - name: Generate SvelteKit files
@@ -83,43 +63,6 @@ jobs:
 
       - name: Build application
         run: bun run build
-
-      # Does it start where it was just built, before anything is copied? A clean
-      # container runs this exact build in a second, so if it also runs here then
-      # the fault is the copy or the target directory, and if it does not then it
-      # is this machine. Nothing else separates those two.
-      - name: Does the freshly built server start in place?
-        run: |
-          set +e
-          started=$(date +%s)
-          PORT=3997 timeout 40 bun ./build/index.js > /tmp/inplace.log 2>&1
-          echo "in the build workspace: exit=$? elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/inplace.log)"
-          grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/inplace.log | head -10
-          echo "precompressed assets: $(find build/client -name '*.br' | wc -l) br, $(find build/client -name '*.gz' | wc -l) gz"
-          echo "symlinks under build/: $(find build/ -type l | wc -l)"
-          echo "bun binary: $(readlink -f "$(command -v bun)")"
-
-          # Everything except the bun binary itself is now eliminated, and that
-          # binary is the one thing this deploy changed on this box: setup-bun
-          # replaced the 1.3.7 the app had been running under. Same version
-          # string as the container that runs this build fine is not the same
-          # build - bun ships a separate baseline binary for CPUs without AVX2,
-          # so what the CPU advertises matters here.
-          echo "cpu: $(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2-)"
-          echo "avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no), avx512f: $(grep -qm1 avx512f /proc/cpuinfo && echo yes || echo no)"
-
-          echo "--- the same build under bun 1.3.7, installed alongside ---"
-          export BUN_INSTALL=/tmp/bun137
-          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" >/tmp/bun137.log 2>&1 ||
-            echo "install failed: $(tail -3 /tmp/bun137.log)"
-          if [ -x /tmp/bun137/bin/bun ]; then
-            echo "installed: $(/tmp/bun137/bin/bun --version)"
-            started=$(date +%s)
-            PORT=3996 timeout 40 /tmp/bun137/bin/bun ./build/index.js > /tmp/old.log 2>&1
-            echo "under 1.3.7: exit=$? elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/old.log)"
-            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/old.log | head -10
-          fi
-          set -e
 
       - name: Paste files to right location
         run: |
@@ -168,52 +111,22 @@ jobs:
       - name: Verify the app actually answers
         run: |
           for attempt in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:3000/ || echo 000)
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:3000/ || true)
             if [ "$code" = "200" ]; then
               echo "The app answered 200 on attempt ${attempt}."
               exit 0
             fi
-            echo "Attempt ${attempt}: HTTP ${code}, retrying in 3s..."
+            echo "Attempt ${attempt}: HTTP ${code:-none}, retrying in 3s..."
             sleep 3
           done
 
-          echo "::error::The app never answered 200. Last status: ${code}."
-
-          # Ask the kernel, not the process. Whether anything holds :3000 is
-          # immune to stdout buffering - a short console.log stays in bun's
-          # buffer when stdout is a pipe and the process is killed before it
-          # flushes, which is exactly how an earlier probe here read as "the app
-          # prints nothing" when the real question was whether it ever binds.
-          echo "--- who listens ---"
-          ss -ltnp 2>/dev/null | head -20 || netstat -ltnp 2>/dev/null | head -20
-
-          # Run it with stdout on a FILE, so nothing can be lost to buffering.
-          echo "--- can bun run anything at all here? ---"
-          cd ~/portail-etu
-          bun -e 'console.log("inline code runs, bun is fine")' || echo "bun cannot even run inline code"
-
-          echo "--- is this the build CI produced? ---"
-          md5sum build/index.js build/handler.js 2>&1
-
-          echo "--- how much CPU does this box have, and how busy is it? ---"
-          echo "cpus=$(nproc) load=$(cut -d' ' -f1-3 /proc/loadavg)"
-
-          # The process burns CPU rather than blocking, so the question is whether
-          # it is slow or stuck. Fifteen seconds cannot tell those apart; a long
-          # run can. If it prints its Listening line at some point, this is a
-          # startup that outgrew the time pm2 and the health check allow it. If it
-          # never does, it is a genuine infinite loop.
-          echo "--- running the built server for up to 150s ---"
-          started=$(date +%s)
-          set +e
-          PORT=3999 timeout 150 bun ./build/index.js > /tmp/probe.log 2>&1
-          rc=$?
-          set -e
-          echo "exit=${rc} (124 = still running at the timeout) elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/probe.log)"
-          grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/probe.log | head -40
-
-          echo "--- what is actually in build/ ---"
-          ls -la build/ | head -12
-          echo "build/server: $(du -sh build/server 2>/dev/null | cut -f1), $(find build/server -type f | wc -l) files"
-          echo "build/server aggregate: $(find build/server -type f -exec md5sum {} + | sort -k2 | md5sum)"
+          echo "::error::The app never answered 200. Last status: ${code:-none}."
+          # pm2 reports `online` the instant it spawns a process, so its table is
+          # not evidence that anything serves; the restart counter and the app's
+          # own output are. There is no SSH to this box - printing them here is
+          # the only way anyone sees them.
+          pm2 describe portail-etu 2>&1 |
+            grep -aiE 'status|restarts|uptime|script|exec cwd' || true
+          pm2 logs portail-etu --nostream --lines 30 2>&1 |
+            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' || true
           exit 1
