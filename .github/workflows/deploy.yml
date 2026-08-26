@@ -45,14 +45,19 @@ jobs:
       # runtime, since pm2 launches ~/.bun/bin/bun, the very binary written here.
       - name: Install the bun this CPU can run
         run: |
-          export BUN_INSTALL="$HOME/.bun"
-          curl -fsSL https://bun.sh/install | bash -s "bun-v1.4.0"
+          # Name the baseline artifact instead of trusting a detection script.
+          # This box is a KVM guest advertising no AVX2, and bun's ordinary
+          # linux-x64 build needs it - without it, it does not fail, it spins,
+          # forever, inside the module load and before any output. Which build is
+          # on this machine is too load-bearing to be inferred.
+          curl -fsSL -o /tmp/bun-baseline.zip             https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64-baseline.zip
+          rm -rf /tmp/bun-baseline && mkdir -p /tmp/bun-baseline
+          unzip -qo /tmp/bun-baseline.zip -d /tmp/bun-baseline
+          mkdir -p "$HOME/.bun/bin"
+          install -m 755 /tmp/bun-baseline/bun-linux-x64-baseline/bun "$HOME/.bun/bin/bun"
           echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
-          echo "installed $("$HOME/.bun/bin/bun" --version) / avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
+          echo "installed $("$HOME/.bun/bin/bun" --version) (baseline) / avx2 on this cpu: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
 
-      # Install into a clean tree: a deploy that inherits whatever the previous
-      # one left in node_modules is not reproducible, which is the property this
-      # workflow exists to provide.
       - name: Install dependencies
         run: |
           rm -rf node_modules
@@ -63,6 +68,24 @@ jobs:
 
       - name: Build application
         run: bun run build
+
+      # Prove the binary runs this build before pm2 is handed it. A server that
+      # never binds is invisible to every step here except one that waits for its
+      # first line, and that is exactly how this failure hid: pm2 said `online`,
+      # the deploy said success, and the site said 502.
+      - name: The built server must start
+        run: |
+          set +e
+          PORT=3997 timeout 25 bun ./build/index.js > /tmp/start.log 2>&1
+          rc=$?
+          set -e
+          if grep -q "Listening on" /tmp/start.log; then
+            echo "It starts: $(grep -m1 'Listening on' /tmp/start.log)"
+          else
+            echo "::error::The built server never bound a port (exit ${rc}, $(stat -c %s /tmp/start.log) bytes of output)."
+            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/start.log | head -20
+            exit 1
+          fi
 
       - name: Paste files to right location
         run: |
