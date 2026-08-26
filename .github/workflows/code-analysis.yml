@@ -43,7 +43,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.4.0"
+          bun-version-file: ".bun-version"
 
       # Non-fatal, and LOUD when it fails. CodeQL reads JavaScript and TypeScript from source; a
       # missing node_modules costs import resolution, not the run. What it must never do is fail
@@ -85,7 +85,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.4.0"
+          bun-version-file: ".bun-version"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

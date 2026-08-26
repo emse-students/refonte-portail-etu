@@ -30,33 +30,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      # Install bun with the official script rather than setup-bun, because this
-      # box is a KVM guest whose CPU advertises no AVX2, and bun's ordinary
-      # linux-x64 binary requires it. It does not fail cleanly without it: it
-      # spins. That is what took production down for hours - the server burned
-      # CPU forever inside its module load, before its first log line and before
-      # it bound a port, while `bun -e` still worked because the trivial path
-      # never reaches the vectorised code.
+      # One bun, named in one place. `.bun-version` is the pin; every workflow
+      # that uses setup-bun reads the same file, and pm2 launches the very binary
+      # written here, so install, build and runtime can no longer disagree.
       #
-      # The install script reads /proc/cpuinfo and picks bun-linux-x64-baseline
-      # when AVX2 is missing. setup-bun does not, so pinning the version there
-      # bought a reproducible toolchain and an unrunnable binary. The version is
-      # still pinned - to the same 1.4.0 as "Run Tests" - and this also fixes the
-      # runtime, since pm2 launches ~/.bun/bin/bun, the very binary written here.
-      - name: Install the bun this CPU can run
+      # Two properties of this host force both halves of that pin:
+      #
+      #  - It is a KVM guest whose CPU advertises no AVX2, so it needs the
+      #    `baseline` artifact. setup-bun always fetches the ordinary linux-x64
+      #    build, which is why the version is installed by hand here instead.
+      #  - Its runtime cannot start on bun 1.3.9 or later. `bun --version`
+      #    answers instantly and `bun install` succeeds, but a `bun -e` that only
+      #    writes one marker file spins at 100% CPU forever and leaves no marker.
+      #    That is what took production down: the server burned CPU inside its
+      #    module load, before its first log line and before it bound a port,
+      #    while every check that looked at bun still passed. A CD run bisected
+      #    it on this machine - 1.3.14 through 1.3.9 all hang, 1.3.8 reaches user
+      #    code - so 1.3.8 is the newest release this box can run, and the pin
+      #    holds until upstream fixes it or the runtime moves into a container.
+      - name: Install the pinned bun this CPU can run
         run: |
-          # Name the baseline artifact instead of trusting a detection script.
-          # This box is a KVM guest advertising no AVX2, and bun's ordinary
-          # linux-x64 build needs it - without it, it does not fail, it spins,
-          # forever, inside the module load and before any output. Which build is
-          # on this machine is too load-bearing to be inferred.
-          curl -fsSL -o /tmp/bun-baseline.zip             https://github.com/oven-sh/bun/releases/download/bun-v1.4.0/bun-linux-x64-baseline.zip
+          BUN_VERSION="$(tr -d '[:space:]' < .bun-version)"
+          curl -fsSL -o /tmp/bun-baseline.zip "https://github.com/oven-sh/bun/releases/download/bun-v$BUN_VERSION/bun-linux-x64-baseline.zip"
           rm -rf /tmp/bun-baseline && mkdir -p /tmp/bun-baseline
           unzip -qo /tmp/bun-baseline.zip -d /tmp/bun-baseline
           mkdir -p "$HOME/.bun/bin"
           install -m 755 /tmp/bun-baseline/bun-linux-x64-baseline/bun "$HOME/.bun/bin/bun"
           echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
-          echo "installed $("$HOME/.bun/bin/bun" --version) (baseline) / avx2 on this cpu: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
+
+          # A version string only proves the binary loads. This box's whole
+          # outage was a bun that answered --version and then never reached user
+          # code, so the install is not finished until it has run some.
+          rm -f /tmp/bun-alive
+          timeout 15 "$HOME/.bun/bin/bun" -e 'require("fs").writeFileSync("/tmp/bun-alive","ok")'
+          if [ ! -f /tmp/bun-alive ]; then
+            echo "::error::bun $BUN_VERSION installs but cannot reach user code on this host"
+            exit 1
+          fi
+          echo "bun $("$HOME/.bun/bin/bun" --version) (baseline), runtime verified / avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
 
       - name: Install dependencies
         run: |
@@ -68,71 +79,6 @@ jobs:
 
       - name: Build application
         run: bun run build
-
-      # bun 1.4.0's runtime cannot start on this host: a `bun -e` that only
-      # writes a marker file spins forever at 100% CPU and leaves no marker,
-      # while `bun --version` answers instantly and `bun install` works. The
-      # same build under 1.3.7 serves normally. So walk back from 1.3.14 to
-      # the newest release whose runtime actually reaches user code here, and
-      # make that one the runtime the server is restarted with. Install and
-      # build stay on 1.4.0 in this run because bun.lock is lockfileVersion 2;
-      # the follow-up commit pins the whole project to the winner instead.
-      - name: Pick a bun whose runtime works on this host
-        run: |
-          set +e
-          WINNER=""
-          for v in 1.3.14 1.3.13 1.3.12 1.3.11 1.3.10 1.3.9 1.3.8 1.3.7; do
-            d="$HOME/bun-probe/$v"
-            rm -rf "$d" && mkdir -p "$d"
-            curl -fsSL -o "$d/b.zip" \
-              "https://github.com/oven-sh/bun/releases/download/bun-v$v/bun-linux-x64-baseline.zip" || {
-              echo "  $v: download failed"; continue; }
-            unzip -qo "$d/b.zip" -d "$d" || { echo "  $v: unzip failed"; continue; }
-            b="$d/bun-linux-x64-baseline/bun"
-            chmod +x "$b"
-            rm -f "$HOME/.bun-marker"
-            timeout 15 "$b" -e 'require("fs").writeFileSync(process.env.HOME + "/.bun-marker","ok")'
-            code=$?
-            if [ -f "$HOME/.bun-marker" ]; then
-              echo "  $v: reaches user code (exit $code)"
-              WINNER="$v"; WINNER_BIN="$b"
-              break
-            fi
-            echo "  $v: hangs like 1.4.0 (exit $code)"
-          done
-
-          if [ -z "$WINNER" ]; then
-            echo "::error::no bun release between 1.3.7 and 1.3.14 can start here"
-            exit 1
-          fi
-
-          echo "newest working bun: $WINNER"
-          install -m 755 "$WINNER_BIN" "$HOME/.bun/bin/bun"
-          echo "  now on PATH: $(bun --version)"
-          rm -rf "$HOME/bun-probe"
-
-      # Decides between two futures, and cannot fail the job. Either a container
-      # can run bun 1.4 here - in which case the runtime belongs in an image,
-      # where its version is declared and reviewable, and the host's bun stops
-      # mattering - or it cannot, and the fault is below the container boundary
-      # (this VM has no AVX2) so pinning the repo to the last working release is
-      # the only honest answer until upstream fixes it. A container shares the
-      # host kernel and CPU, so the earlier clean run of oven/bun:1.4.0 on a
-      # developer machine proves nothing about this one.
-      - name: Can a container run bun 1.4 on this host?
-        run: |
-          set +e
-          echo "  docker:  $(command -v docker || echo absent)"
-          echo "  sudo -n: $(sudo -n true 2>&1 && echo available || echo 'not available')"
-          echo "  in docker group: $(id -nG | tr ' ' '\n' | grep -cx docker)"
-          if command -v docker >/dev/null; then
-            echo "  daemon:  $(timeout 20 docker info --format '{{.ServerVersion}}' 2>&1 | head -1)"
-            timeout 300 docker run --rm oven/bun:1.4.0 \
-              bun -e 'console.log("bun 1.4.0 reached user code inside a container")'
-            echo "  container run: exit=$?"
-          fi
-          echo "  cpu flags: $(grep -m1 -o 'avx2' /proc/cpuinfo || echo 'no avx2')"
-          exit 0
 
       - name: Paste files to right location
         run: |
