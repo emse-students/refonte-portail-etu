@@ -69,38 +69,55 @@ jobs:
       - name: Build application
         run: bun run build
 
-      # Three experiments in one run. Two things changed on this box at once -
-      # bun 1.3.7 became 1.4.0, and the dependency set was replaced - and a clean
-      # container running 1.4.0 against the new dependencies is fine, so neither
-      # alone explains it. The baseline binary hangs identically to the ordinary
-      # one, so the CPU's missing AVX2 is not the cause either.
+      # One variable at a time. The module graph is exonerated: importing
+      # env.js - a file whose whole body reads Bun.env - hangs exactly like
+      # importing handler.js, and so does disabling the JIT. What every hang
+      # shares instead is that stdout was a regular file.
       - name: Diagnostic matrix
         run: |
           set +e
 
-          echo "=== A. the same build under bun 1.3.7 ==="
+          # Every hang measured so far redirected stdout to a regular file, and
+          # every success (the container, a local run, `bun run build` in this
+          # very job) wrote to a pipe or a tty. pm2 redirects to a file too.
+          # So the probes below vary ONLY the shape of stdout.
+
+          echo "=== 1. no redirect (stdout is the runner's pipe) ==="
+          timeout 10 bun -e 'console.log("hi from -e")'
+          echo "  exit=$?"
+
+          echo "=== 2. redirected to a file under /tmp ==="
+          timeout 10 bun -e 'console.log("hi from -e")' > /tmp/p2.log 2>&1
+          echo "  exit=$? bytes=$(stat -c %s /tmp/p2.log)"
+
+          echo "=== 3. redirected to a file on the work filesystem ==="
+          timeout 10 bun -e 'console.log("hi from -e")' > ./p3.log 2>&1
+          echo "  exit=$? bytes=$(stat -c %s ./p3.log)"
+          rm -f ./p3.log
+
+          echo "=== 4. piped ==="
+          timeout 10 bun -e 'console.log("hi from -e")' | cat
+          echo "  exit=${PIPESTATUS[0]}"
+
+          echo "=== 5. did user code run at all when redirected? ==="
+          rm -f /tmp/p5.marker
+          timeout 10 bun -e 'require("fs").writeFileSync("/tmp/p5.marker","ok")' > /tmp/p5.log 2>&1
+          echo "  exit=$? marker=$([ -f /tmp/p5.marker ] && echo present || echo absent)"
+
+          echo "=== 6. the real server, stdout NOT redirected ==="
+          PORT=3994 timeout 15 bun ./build/index.js
+          echo "  exit=$?"
+
+          echo "=== 7. the real server under bun 1.3.7, stdout NOT redirected ==="
           export BUN_INSTALL=/tmp/bun137
-          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" >/tmp/i.log 2>&1
+          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" > /tmp/i.log 2>&1
           if [ -x /tmp/bun137/bin/bun ]; then
-            PORT=3996 timeout 25 /tmp/bun137/bin/bun ./build/index.js > /tmp/a.log 2>&1
-            echo "  1.3.7: exit=$? bytes=$(stat -c %s /tmp/a.log) $(grep -m1 'Listening on' /tmp/a.log)"
-            head -5 /tmp/a.log
+            echo "  version: $(timeout 10 /tmp/bun137/bin/bun --version)"
+            PORT=3993 timeout 15 /tmp/bun137/bin/bun ./build/index.js
+            echo "  exit=$?"
           else
-            echo "  could not install 1.3.7: $(tail -2 /tmp/i.log)"
+            echo "  1.3.7 not installed: $(tail -2 /tmp/i.log)"
           fi
-
-          echo "=== B. bun 1.4.0 with the JIT disabled ==="
-          PORT=3995 BUN_JSC_useJIT=0 timeout 25 bun ./build/index.js > /tmp/b.log 2>&1
-          echo "  no-JIT: exit=$? bytes=$(stat -c %s /tmp/b.log) $(grep -m1 'Listening on' /tmp/b.log)"
-          head -5 /tmp/b.log
-
-          echo "=== C. where in the module graph does it stall? ==="
-          timeout 25 bun -e 'console.log("start"); await import("./build/handler.js"); console.log("handler.js imported")' > /tmp/c.log 2>&1
-          echo "  import handler.js: exit=$? bytes=$(stat -c %s /tmp/c.log)"
-          cat /tmp/c.log | head -5
-          timeout 25 bun -e 'console.log("start"); await import("./build/env.js"); console.log("env.js imported")' > /tmp/d.log 2>&1
-          echo "  import env.js: exit=$? bytes=$(stat -c %s /tmp/d.log)"
-          cat /tmp/d.log | head -5
 
           set -e
           echo "::error::diagnostic matrix - see above"
