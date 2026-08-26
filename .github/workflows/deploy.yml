@@ -125,20 +125,21 @@ jobs:
 
           echo "::error::The app never answered 200. Last status: ${code}."
 
-          # pm2's own logs are not enough to diagnose this: the error log carries
-          # the app's 404 access lines, which drown any startup failure inside the
-          # last-N window, and a process that dies before it binds writes nothing
-          # at all. So run exactly what pm2 runs, in the foreground, on a port
-          # nothing else holds, and capture what it says.
-          echo "--- Running the built server directly ---"
-          cd ~/portail-etu
-          echo "bun: $(command -v bun) $(bun --version)"
-          echo "build/index.js: $(ls -l build/index.js 2>&1)"
-          PORT=3999 timeout 15 bun ./build/index.js 2>&1 |
-            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' |
-            head -40 || true
+          # Ask the kernel, not the process. Whether anything holds :3000 is
+          # immune to stdout buffering - a short console.log stays in bun's
+          # buffer when stdout is a pipe and the process is killed before it
+          # flushes, which is exactly how an earlier probe here read as "the app
+          # prints nothing" when the real question was whether it ever binds.
+          echo "--- who listens ---"
+          ss -ltnp 2>/dev/null | head -20 || netstat -ltnp 2>/dev/null | head -20
 
-          echo "--- pm2 state ---"
-          pm2 describe portail-etu 2>&1 |
-            grep -aiE 'status|restarts|uptime|script|interpreter|exec cwd|error log' || true
+          # Run it with stdout on a FILE, so nothing can be lost to buffering.
+          echo "--- running the built server, output to a file ---"
+          cd ~/portail-etu
+          PORT=3999 timeout 15 bun ./build/index.js > /tmp/probe.log 2>&1 || true
+          echo "exit=$? size=$(stat -c %s /tmp/probe.log 2>/dev/null)"
+          grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/probe.log | head -40
+
+          echo "--- what is actually in build/ ---"
+          ls -la build/ | head -12
           exit 1
