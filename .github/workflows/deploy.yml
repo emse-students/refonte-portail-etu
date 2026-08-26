@@ -84,6 +84,22 @@ jobs:
       - name: Build application
         run: bun run build
 
+      # Does it start where it was just built, before anything is copied? A clean
+      # container runs this exact build in a second, so if it also runs here then
+      # the fault is the copy or the target directory, and if it does not then it
+      # is this machine. Nothing else separates those two.
+      - name: Does the freshly built server start in place?
+        run: |
+          set +e
+          started=$(date +%s)
+          PORT=3997 timeout 40 bun ./build/index.js > /tmp/inplace.log 2>&1
+          echo "in the build workspace: exit=$? elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/inplace.log)"
+          grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/inplace.log | head -10
+          echo "precompressed assets: $(find build/client -name '*.br' | wc -l) br, $(find build/client -name '*.gz' | wc -l) gz"
+          echo "symlinks under build/: $(find build/ -type l | wc -l)"
+          echo "bun binary: $(readlink -f "$(command -v bun)")"
+          set -e
+
       - name: Paste files to right location
         run: |
           cd ~/portail-etu
