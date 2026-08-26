@@ -42,6 +42,22 @@ jobs:
         with:
           bun-version: "1.4.0"
 
+      # Facts about the box, printed BEFORE anything is cleaned, so the evidence
+      # survives whatever the next step does to it. A clean container reproduces
+      # this repo's install, build, deploy-copy and startup perfectly, so what
+      # breaks production is machine state that nothing here declares - which is
+      # exactly what this prints.
+      - name: Machine facts
+        run: |
+          echo "bun: $(command -v bun) $(bun --version)"
+          echo "--- disk ---";   df -h ~ | tail -2
+          echo "--- memory ---"; free -m | head -3
+          echo "--- bun install cache ---"
+          du -sh ~/.bun/install/cache 2>/dev/null || echo "no cache dir"
+          echo "--- what production currently holds ---"
+          ls -la ~/portail-etu 2>&1 | head -15
+          echo "build/: $(ls ~/portail-etu/build 2>/dev/null | wc -l) entries, node_modules/: $(ls ~/portail-etu/node_modules 2>/dev/null | wc -l) entries"
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
