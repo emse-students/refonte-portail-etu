@@ -98,6 +98,27 @@ jobs:
           echo "precompressed assets: $(find build/client -name '*.br' | wc -l) br, $(find build/client -name '*.gz' | wc -l) gz"
           echo "symlinks under build/: $(find build/ -type l | wc -l)"
           echo "bun binary: $(readlink -f "$(command -v bun)")"
+
+          # Everything except the bun binary itself is now eliminated, and that
+          # binary is the one thing this deploy changed on this box: setup-bun
+          # replaced the 1.3.7 the app had been running under. Same version
+          # string as the container that runs this build fine is not the same
+          # build - bun ships a separate baseline binary for CPUs without AVX2,
+          # so what the CPU advertises matters here.
+          echo "cpu: $(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2-)"
+          echo "avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no), avx512f: $(grep -qm1 avx512f /proc/cpuinfo && echo yes || echo no)"
+
+          echo "--- the same build under bun 1.3.7, installed alongside ---"
+          export BUN_INSTALL=/tmp/bun137
+          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" >/tmp/bun137.log 2>&1 ||
+            echo "install failed: $(tail -3 /tmp/bun137.log)"
+          if [ -x /tmp/bun137/bin/bun ]; then
+            echo "installed: $(/tmp/bun137/bin/bun --version)"
+            started=$(date +%s)
+            PORT=3996 timeout 40 /tmp/bun137/bin/bun ./build/index.js > /tmp/old.log 2>&1
+            echo "under 1.3.7: exit=$? elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/old.log)"
+            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/old.log | head -10
+          fi
           set -e
 
       - name: Paste files to right location
