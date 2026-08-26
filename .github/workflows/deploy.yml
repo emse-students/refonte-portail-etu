@@ -134,10 +134,20 @@ jobs:
           ss -ltnp 2>/dev/null | head -20 || netstat -ltnp 2>/dev/null | head -20
 
           # Run it with stdout on a FILE, so nothing can be lost to buffering.
-          echo "--- running the built server, output to a file ---"
+          echo "--- can bun run anything at all here? ---"
           cd ~/portail-etu
-          PORT=3999 timeout 15 bun ./build/index.js > /tmp/probe.log 2>&1 || true
-          echo "exit=$? size=$(stat -c %s /tmp/probe.log 2>/dev/null)"
+          bun -e 'console.log("inline code runs, bun is fine")' || echo "bun cannot even run inline code"
+
+          echo "--- is this the build CI produced? ---"
+          md5sum build/index.js build/handler.js 2>&1
+
+          echo "--- running the built server: exit code and elapsed time ---"
+          started=$(date +%s)
+          set +e
+          PORT=3999 timeout 15 bun ./build/index.js > /tmp/probe.log 2>&1
+          rc=$?
+          set -e
+          echo "exit=${rc} (124 = still running at the timeout) elapsed=$(( $(date +%s) - started ))s bytes=$(stat -c %s /tmp/probe.log)"
           grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/probe.log | head -40
 
           echo "--- what is actually in build/ ---"
