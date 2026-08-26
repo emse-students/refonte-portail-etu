@@ -69,23 +69,42 @@ jobs:
       - name: Build application
         run: bun run build
 
-      # Prove the binary runs this build before pm2 is handed it. A server that
-      # never binds is invisible to every step here except one that waits for its
-      # first line, and that is exactly how this failure hid: pm2 said `online`,
-      # the deploy said success, and the site said 502.
-      - name: The built server must start
+      # Three experiments in one run. Two things changed on this box at once -
+      # bun 1.3.7 became 1.4.0, and the dependency set was replaced - and a clean
+      # container running 1.4.0 against the new dependencies is fine, so neither
+      # alone explains it. The baseline binary hangs identically to the ordinary
+      # one, so the CPU's missing AVX2 is not the cause either.
+      - name: Diagnostic matrix
         run: |
           set +e
-          PORT=3997 timeout 25 bun ./build/index.js > /tmp/start.log 2>&1
-          rc=$?
-          set -e
-          if grep -q "Listening on" /tmp/start.log; then
-            echo "It starts: $(grep -m1 'Listening on' /tmp/start.log)"
+
+          echo "=== A. the same build under bun 1.3.7 ==="
+          export BUN_INSTALL=/tmp/bun137
+          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" >/tmp/i.log 2>&1
+          if [ -x /tmp/bun137/bin/bun ]; then
+            PORT=3996 timeout 25 /tmp/bun137/bin/bun ./build/index.js > /tmp/a.log 2>&1
+            echo "  1.3.7: exit=$? bytes=$(stat -c %s /tmp/a.log) $(grep -m1 'Listening on' /tmp/a.log)"
+            head -5 /tmp/a.log
           else
-            echo "::error::The built server never bound a port (exit ${rc}, $(stat -c %s /tmp/start.log) bytes of output)."
-            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' /tmp/start.log | head -20
-            exit 1
+            echo "  could not install 1.3.7: $(tail -2 /tmp/i.log)"
           fi
+
+          echo "=== B. bun 1.4.0 with the JIT disabled ==="
+          PORT=3995 BUN_JSC_useJIT=0 timeout 25 bun ./build/index.js > /tmp/b.log 2>&1
+          echo "  no-JIT: exit=$? bytes=$(stat -c %s /tmp/b.log) $(grep -m1 'Listening on' /tmp/b.log)"
+          head -5 /tmp/b.log
+
+          echo "=== C. where in the module graph does it stall? ==="
+          timeout 25 bun -e 'console.log("start"); await import("./build/handler.js"); console.log("handler.js imported")' > /tmp/c.log 2>&1
+          echo "  import handler.js: exit=$? bytes=$(stat -c %s /tmp/c.log)"
+          cat /tmp/c.log | head -5
+          timeout 25 bun -e 'console.log("start"); await import("./build/env.js"); console.log("env.js imported")' > /tmp/d.log 2>&1
+          echo "  import env.js: exit=$? bytes=$(stat -c %s /tmp/d.log)"
+          cat /tmp/d.log | head -5
+
+          set -e
+          echo "::error::diagnostic matrix - see above"
+          exit 1
 
       - name: Paste files to right location
         run: |
