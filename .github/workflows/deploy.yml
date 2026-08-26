@@ -69,55 +69,48 @@ jobs:
       - name: Build application
         run: bun run build
 
-      # One variable at a time. The module graph is exonerated: importing
-      # env.js - a file whose whole body reads Bun.env - hangs exactly like
-      # importing handler.js, and so does disabling the JIT. What every hang
-      # shares instead is that stdout was a regular file.
+      # bun's runtime never reaches user code here: a `bun -e` that only writes
+      # a marker file leaves no marker, whatever stdout is. Yet `bun install`
+      # and `bun run build` - same binary - work in this very job. The site ran
+      # under bun until this week, on the box's own 1.3.7, which our install
+      # step replaced with 1.4.0. So: identify the box, and run the SAME build
+      # under 1.3.7 installed the way that provably works here (unzip the
+      # release artifact; the curl|bash installer left nothing executable).
       - name: Diagnostic matrix
         run: |
           set +e
 
-          # Every hang measured so far redirected stdout to a regular file, and
-          # every success (the container, a local run, `bun run build` in this
-          # very job) wrote to a pipe or a tty. pm2 redirects to a file too.
-          # So the probes below vary ONLY the shape of stdout.
+          echo "=== the box ==="
+          echo "  kernel:  $(uname -r)"
+          echo "  distro:  $(. /etc/os-release && echo "$PRETTY_NAME")"
+          echo "  glibc:   $(ldd --version | head -1)"
+          echo "  node:    $(command -v node) $(node --version 2>&1)"
+          echo "  bun(s):  $(command -v -a bun | tr '\n' ' ')"
+          echo "  1.4.0:   $(timeout 10 bun --version) (exit $?)"
+          echo "  leftover /tmp/bun137: $(ls -l /tmp/bun137/bin 2>&1 | tr '\n' ' ')"
 
-          echo "=== 1. no redirect (stdout is the runner's pipe) ==="
-          timeout 10 bun -e 'console.log("hi from -e")'
+          echo "=== install 1.3.7 from the release artifact ==="
+          for flavour in bun-linux-x64-baseline bun-linux-x64; do
+            curl -fsSL -o /tmp/b137.zip \
+              "https://github.com/oven-sh/bun/releases/download/bun-v1.3.7/${flavour}.zip" || continue
+            rm -rf /tmp/b137 && mkdir -p /tmp/b137
+            unzip -qo /tmp/b137.zip -d /tmp/b137 || continue
+            B137=$(find /tmp/b137 -name bun -type f | head -1)
+            [ -n "$B137" ] && chmod +x "$B137" && break
+          done
+          echo "  binary:  ${B137:-NONE} ($flavour)"
+          echo "  version: $(timeout 10 "$B137" --version 2>&1) (exit $?)"
+
+          echo "=== does 1.3.7 reach user code? ==="
+          rm -f /tmp/m137 /tmp/m140
+          timeout 10 "$B137" -e 'require("fs").writeFileSync("/tmp/m137","ok")'
+          echo "  1.3.7: exit=$? marker=$([ -f /tmp/m137 ] && echo present || echo absent)"
+          timeout 10 bun -e 'require("fs").writeFileSync("/tmp/m140","ok")'
+          echo "  1.4.0: exit=$? marker=$([ -f /tmp/m140 ] && echo present || echo absent)"
+
+          echo "=== the real server under 1.3.7 ==="
+          PORT=3992 timeout 15 "$B137" ./build/index.js
           echo "  exit=$?"
-
-          echo "=== 2. redirected to a file under /tmp ==="
-          timeout 10 bun -e 'console.log("hi from -e")' > /tmp/p2.log 2>&1
-          echo "  exit=$? bytes=$(stat -c %s /tmp/p2.log)"
-
-          echo "=== 3. redirected to a file on the work filesystem ==="
-          timeout 10 bun -e 'console.log("hi from -e")' > ./p3.log 2>&1
-          echo "  exit=$? bytes=$(stat -c %s ./p3.log)"
-          rm -f ./p3.log
-
-          echo "=== 4. piped ==="
-          timeout 10 bun -e 'console.log("hi from -e")' | cat
-          echo "  exit=${PIPESTATUS[0]}"
-
-          echo "=== 5. did user code run at all when redirected? ==="
-          rm -f /tmp/p5.marker
-          timeout 10 bun -e 'require("fs").writeFileSync("/tmp/p5.marker","ok")' > /tmp/p5.log 2>&1
-          echo "  exit=$? marker=$([ -f /tmp/p5.marker ] && echo present || echo absent)"
-
-          echo "=== 6. the real server, stdout NOT redirected ==="
-          PORT=3994 timeout 15 bun ./build/index.js
-          echo "  exit=$?"
-
-          echo "=== 7. the real server under bun 1.3.7, stdout NOT redirected ==="
-          export BUN_INSTALL=/tmp/bun137
-          curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.7" > /tmp/i.log 2>&1
-          if [ -x /tmp/bun137/bin/bun ]; then
-            echo "  version: $(timeout 10 /tmp/bun137/bin/bun --version)"
-            PORT=3993 timeout 15 /tmp/bun137/bin/bun ./build/index.js
-            echo "  exit=$?"
-          else
-            echo "  1.3.7 not installed: $(tail -2 /tmp/i.log)"
-          fi
 
           set -e
           echo "::error::diagnostic matrix - see above"
