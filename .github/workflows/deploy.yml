@@ -82,4 +82,33 @@ jobs:
 
       - name: Restart server
         run: |
+          cd ~/portail-etu
           pm2 restart ./ecosystem.config.cjs --update-env || pm2 start ./ecosystem.config.cjs
+
+      # A deploy that only starts the process proves nothing. On 2026-08-26 every
+      # step here reported success while the site served 502: pm2 prints `online`
+      # the instant it spawns, so a process that crashes a second later still
+      # leaves a green deploy behind, and the restart counter is the only thing on
+      # that table that gives it away.
+      #
+      # This step is the report the deploy never had. It asks the app the one
+      # question the whole deploy exists to answer - does it serve? - and when it
+      # does not, it prints the crash that nothing else on this box can show,
+      # because the runner is the only way in.
+      - name: Verify the app actually answers
+        run: |
+          for attempt in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:3000/ || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "The app answered 200 on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Attempt ${attempt}: HTTP ${code}, retrying in 3s..."
+            sleep 3
+          done
+
+          echo "::error::The app never answered 200. Last status: ${code}. Recent pm2 output:"
+          pm2 describe portail-etu 2>&1 | grep -aiE 'status|restarts|uptime|script|interpreter|exec cwd' || true
+          pm2 logs portail-etu --nostream --lines 60 2>&1 |
+            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' || true
+          exit 1
