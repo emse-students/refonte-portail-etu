@@ -107,8 +107,22 @@ jobs:
             sleep 3
           done
 
-          echo "::error::The app never answered 200. Last status: ${code}. Recent pm2 output:"
-          pm2 describe portail-etu 2>&1 | grep -aiE 'status|restarts|uptime|script|interpreter|exec cwd' || true
-          pm2 logs portail-etu --nostream --lines 60 2>&1 |
-            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' || true
+          echo "::error::The app never answered 200. Last status: ${code}."
+
+          # pm2's own logs are not enough to diagnose this: the error log carries
+          # the app's 404 access lines, which drown any startup failure inside the
+          # last-N window, and a process that dies before it binds writes nothing
+          # at all. So run exactly what pm2 runs, in the foreground, on a port
+          # nothing else holds, and capture what it says.
+          echo "--- Running the built server directly ---"
+          cd ~/portail-etu
+          echo "bun: $(command -v bun) $(bun --version)"
+          echo "build/index.js: $(ls -l build/index.js 2>&1)"
+          PORT=3999 timeout 15 bun ./build/index.js 2>&1 |
+            grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' |
+            head -40 || true
+
+          echo "--- pm2 state ---"
+          pm2 describe portail-etu 2>&1 |
+            grep -aiE 'status|restarts|uptime|script|interpreter|exec cwd|error log' || true
           exit 1
