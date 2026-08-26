@@ -69,57 +69,47 @@ jobs:
       - name: Build application
         run: bun run build
 
-      # The box is modern (Debian 13, kernel 6.12, glibc 2.41) and `bun
-      # --version` answers instantly, so the binary loads: it is the RUNTIME
-      # that spins, before any user code. /tmp is mounted noexec here, which
-      # is why every 1.3.7 install so far produced EACCES rather than a
-      # verdict - install under $HOME, and sample the threads of a hung 1.4.0.
-      - name: Diagnostic matrix
+      # bun 1.4.0's runtime cannot start on this host: a `bun -e` that only
+      # writes a marker file spins forever at 100% CPU and leaves no marker,
+      # while `bun --version` answers instantly and `bun install` works. The
+      # same build under 1.3.7 serves normally. So walk back from 1.3.14 to
+      # the newest release whose runtime actually reaches user code here, and
+      # make that one the runtime the server is restarted with. Install and
+      # build stay on 1.4.0 in this run because bun.lock is lockfileVersion 2;
+      # the follow-up commit pins the whole project to the winner instead.
+      - name: Pick a bun whose runtime works on this host
         run: |
           set +e
+          WINNER=""
+          for v in 1.3.14 1.3.13 1.3.12 1.3.11 1.3.10 1.3.9 1.3.8 1.3.7; do
+            d="$HOME/bun-probe/$v"
+            rm -rf "$d" && mkdir -p "$d"
+            curl -fsSL -o "$d/b.zip" \
+              "https://github.com/oven-sh/bun/releases/download/bun-v$v/bun-linux-x64-baseline.zip" || {
+              echo "  $v: download failed"; continue; }
+            unzip -qo "$d/b.zip" -d "$d" || { echo "  $v: unzip failed"; continue; }
+            b="$d/bun-linux-x64-baseline/bun"
+            chmod +x "$b"
+            rm -f "$HOME/.bun-marker"
+            timeout 15 "$b" -e 'require("fs").writeFileSync(process.env.HOME + "/.bun-marker","ok")'
+            code=$?
+            if [ -f "$HOME/.bun-marker" ]; then
+              echo "  $v: reaches user code (exit $code)"
+              WINNER="$v"; WINNER_BIN="$b"
+              break
+            fi
+            echo "  $v: hangs like 1.4.0 (exit $code)"
+          done
 
-          echo "=== kernel knobs bun's runtime depends on ==="
-          echo "  io_uring_disabled: $(cat /proc/sys/kernel/io_uring_disabled 2>&1)"
-          echo "  max_map_count:     $(cat /proc/sys/vm/max_map_count 2>&1)"
-          echo "  overcommit:        $(cat /proc/sys/vm/overcommit_memory 2>&1)"
-          echo "  strace:            $(command -v strace || echo absent)"
-          echo "  gdb:               $(command -v gdb || echo absent)"
-          echo "  /tmp mount:        $(findmnt -no OPTIONS /tmp 2>&1)"
-
-          echo "=== what is a hung 1.4.0 actually doing? ==="
-          bun -e 'require("fs").writeFileSync("/dev/null","x")' &
-          P=$!
-          sleep 5
-          if [ -d /proc/$P ]; then
-            echo "  threads: $(ls /proc/$P/task | wc -l)"
-            for t in /proc/$P/task/*; do
-              echo "    tid=$(basename $t) state=$(awk '{print $3}' $t/stat) wchan=$(cat $t/wchan 2>/dev/null) syscall=$(awk '{print $1}' $t/syscall 2>/dev/null)"
-            done
-            echo "  maps: $(wc -l < /proc/$P/maps) fds: $(ls /proc/$P/fd 2>/dev/null | wc -l)"
-            echo "  last fds: $(ls -l /proc/$P/fd 2>/dev/null | tail -4 | tr '\n' '|')"
-          else
-            echo "  already exited"
+          if [ -z "$WINNER" ]; then
+            echo "::error::no bun release between 1.3.7 and 1.3.14 can start here"
+            exit 1
           fi
-          kill -9 $P 2>/dev/null
 
-          echo "=== 1.3.7, installed where exec is allowed ==="
-          rm -rf "$HOME/bun-diag" && mkdir -p "$HOME/bun-diag"
-          curl -fsSL -o "$HOME/bun-diag/b.zip" \
-            https://github.com/oven-sh/bun/releases/download/bun-v1.3.7/bun-linux-x64-baseline.zip
-          unzip -qo "$HOME/bun-diag/b.zip" -d "$HOME/bun-diag"
-          B137="$HOME/bun-diag/bun-linux-x64-baseline/bun"
-          chmod +x "$B137"
-          echo "  version: $(timeout 10 "$B137" --version 2>&1) (exit $?)"
-          rm -f /tmp/m137
-          timeout 15 "$B137" -e 'require("fs").writeFileSync("/tmp/m137","ok")'
-          echo "  reaches user code: exit=$? marker=$([ -f /tmp/m137 ] && echo present || echo absent)"
-          echo "  the real server:"
-          PORT=3992 timeout 15 "$B137" ./build/index.js
-          echo "    exit=$?"
-
-          set -e
-          echo "::error::diagnostic matrix - see above"
-          exit 1
+          echo "newest working bun: $WINNER"
+          install -m 755 "$WINNER_BIN" "$HOME/.bun/bin/bun"
+          echo "  now on PATH: $(bun --version)"
+          rm -rf "$HOME/bun-probe"
 
       - name: Paste files to right location
         run: |
