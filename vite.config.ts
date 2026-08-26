@@ -1,6 +1,7 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig, type Plugin } from "vite";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
+import tailwindcss from "@tailwindcss/vite";
 
 /**
  * Rewrites Paraglide's `import("async_hooks")` to `import("node:async_hooks")`.
@@ -62,6 +63,7 @@ export default defineConfig({
 			outdir: "./src/lib/paraglide",
 			strategy: ["cookie", "preferredLanguage", "baseLocale"],
 		}),
+		tailwindcss(),
 		sveltekit(),
 		paraglideNodeBuiltinSpecifier(),
 	],

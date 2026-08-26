@@ -114,7 +114,7 @@
 
 	{#if hasBio}
 		<section
-			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed shadow-sm"
+			class="my-8 p-6 md:p-8 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-2xl text-mines-navy/90 dark:text-mines-platinum/90 leading-relaxed shadow-xs"
 		>
 			{#if entity.description?.trim()}
 				<ProfileBioMarkdown

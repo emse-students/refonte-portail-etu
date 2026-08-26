@@ -1,0 +1,96 @@
+name: Code Analysis
+
+# This repository had NO static analysis and NO secret scanning until 2026-08-26, while being
+# PUBLIC and while carrying the largest vulnerability debt of the five projects (29 advisories,
+# 21 of them high, measured that day). It was also the only one of the four GitHub repos without
+# this workflow - Canari, Sky and MiGallery have had it for months.
+#
+# Everything runs on GitHub-hosted runners. The self-hosted runner is the deploy path and the only
+# way into that box; analysis has no business there, and a CodeQL database is large enough that
+# building it on the deploy host would compete with the thing it is meant to protect.
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Daily, 02:00 UTC - the same hour as the sibling repositories, so a morning that is red is
+    # red everywhere at once rather than repo by repo through the day.
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # `javascript-typescript` is ONE language in CodeQL, not two: `typescript` is an alias of
+      # `javascript`, so a matrix naming both runs the identical analysis twice and files every
+      # finding twice. MiGallery did exactly that until the same day this file was written.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended, security-and-quality
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+
+      # Non-fatal, and LOUD when it fails. CodeQL reads JavaScript and TypeScript from source; a
+      # missing node_modules costs import resolution, not the run. What it must never do is fail
+      # silently, which is how an install that has been broken for months reads like a clean one.
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        continue-on-error: true
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+
+  secret-scan:
+    name: Scan for Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # No `continue-on-error`. `--only-verified` means TruffleHog authenticated the credential
+      # against its provider before reporting it, so a finding is a LIVE secret in a PUBLIC
+      # repository - not a string that resembles one. The build fails and the credential is
+      # rotated. This repo already treats its run logs as publishable; this is the same rule
+      # applied to its history.
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@v3.97.1
+        with:
+          path: ./
+          extra_args: --debug --only-verified
+
+  dependencies:
+    name: Check Dependencies Vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # A real gate, red when it should be red. It can fail on a morning nobody pushed anything -
+      # that is what it is for, and `.github/dependabot.yml` opens the pull request that fixes it.
+      - name: Audit dependencies
+        run: bun audit

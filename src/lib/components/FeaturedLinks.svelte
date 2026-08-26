@@ -15,16 +15,16 @@
 <div class="flex-grid-3">
 	{#each featuredLinks as link (link.name)}
 		<a
-			class="relative flex items-center gap-4 p-5 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-xl shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent)] dark:hover:border-[var(--accent)] transition-all duration-300 overflow-hidden group"
+			class="relative flex items-center gap-4 p-5 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-xl shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-(--accent) dark:hover:border-(--accent) transition-all duration-300 overflow-hidden group"
 			href={link.url}
 			target="_blank"
 			rel="noopener noreferrer"
 			style="--accent:{link.accent}"
 		>
-			<div class="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent)]"></div>
+			<div class="absolute left-0 top-0 bottom-0 w-1 bg-(--accent)"></div>
 
 			<div
-				class="relative flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold overflow-hidden shadow-sm"
+				class="relative flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold overflow-hidden shadow-xs"
 				style={link.icon ? "" : `background:${link.accent}`}
 			>
 				{#if link.icon}
@@ -50,7 +50,7 @@
 			</div>
 
 			<span
-				class="ml-auto text-[var(--accent)] text-xl transition-transform duration-200 group-hover:translate-x-1"
+				class="ml-auto text-(--accent) text-xl transition-transform duration-200 group-hover:translate-x-1"
 				aria-hidden="true">&rarr;</span
 			>
 		</a>

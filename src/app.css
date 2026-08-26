@@ -1,17 +1,79 @@
-@import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap");
-@import "@fontsource/fira-mono";
+@import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap")
+layer(base);
+@import "@fontsource/fira-mono" layer(base);
 /*
  * Canari's own two families, self-hosted at the same versions Canari uses. They style nothing here
  * by default: the "Carte de la Vie Asso" (CarteVieAsso.svelte) is a pixel copy of a poster composed
  * in Canari, so its text has to be set in the fonts it was composed in or every measured box is
  * wrong. Nothing else on the showcase references them.
  */
-@import "@fontsource-variable/nunito/wght.css";
-@import "@fontsource-variable/fredoka/wght.css";
+@import "@fontsource-variable/nunito/wght.css" layer(base);
+@import "@fontsource-variable/fredoka/wght.css" layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+	--font-sans: Inter, Roboto, sans-serif;
+	--font-heading: "Glass Antiqua", serif;
+	--font-mono: "Fira Mono", monospace;
+
+	--color-mines-navy: #1b263b;
+	--color-mines-navy-light: #415a77;
+	--color-mines-navy-dark: #0d1b2a;
+	--color-mines-gold: #e09f3e;
+	--color-mines-grey: #778da9;
+	--color-mines-platinum: #e0e1dd;
+	--color-mines-light: #fdfcf5;
+	--color-mines-light-alt: #f4f1de;
+
+	--color-glass-100: rgba(255, 255, 255, 0.1);
+	--color-glass-200: rgba(255, 255, 255, 0.2);
+	--color-glass-300: rgba(255, 255, 255, 0.3);
+	--color-glass-dark: rgba(27, 38, 59, 0.6);
+	--color-glass-light-100: rgba(0, 0, 0, 0.03);
+	--color-glass-light-200: rgba(0, 0, 0, 0.08);
+
+	--background-image-glass-gradient: linear-gradient(
+		135deg,
+		rgba(255, 255, 255, 0.1),
+		rgba(255, 255, 255, 0)
+	);
+	--background-image-glass-gradient-dark: linear-gradient(
+		135deg,
+		rgba(0, 0, 0, 0.05),
+		rgba(0, 0, 0, 0)
+	);
+}
+
+@utility glass-card {
+	@apply bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+}
+
+@utility btn-primary {
+	@apply inline-flex items-center justify-center bg-mines-gold text-mines-navy px-6 py-3 rounded-lg font-bold transition-all duration-200 shadow-md hover:bg-yellow-500 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:shadow-xs border-none cursor-pointer;
+}
+
+@utility btn-ghost {
+	@apply inline-flex items-center justify-center bg-black/5 dark:bg-white/10 text-mines-navy dark:text-mines-platinum px-6 py-3 rounded-lg font-semibold transition-all duration-200 border border-black/10 dark:border-white/20 hover:bg-black/10 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/30 backdrop-blur-xs cursor-pointer;
+}
+
+@utility flex-grid-4 {
+	@apply flex flex-wrap justify-center gap-6;
+	& > * {
+		@apply w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)];
+	}
+}
+
+@utility flex-grid-3 {
+	@apply flex flex-wrap justify-center gap-4;
+	& > * {
+		@apply w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.666rem)];
+	}
+}
 
 @layer base {
 	html {
@@ -53,38 +115,6 @@
 
 	a {
 		@apply transition-all duration-200;
-	}
-}
-
-@layer components {
-	.glass-card {
-		@apply bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
-	}
-
-	.glass-panel {
-		@apply bg-white/70 dark:bg-mines-navy/60 backdrop-blur-lg border-b border-white/40 dark:border-white/10;
-	}
-
-	.btn-primary {
-		@apply inline-flex items-center justify-center bg-mines-gold text-mines-navy px-6 py-3 rounded-lg font-bold transition-all duration-200 shadow-md hover:bg-yellow-500 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:shadow-sm border-none cursor-pointer;
-	}
-
-	.btn-ghost {
-		@apply inline-flex items-center justify-center bg-black/5 dark:bg-white/10 text-mines-navy dark:text-mines-platinum px-6 py-3 rounded-lg font-semibold transition-all duration-200 border border-black/10 dark:border-white/20 hover:bg-black/10 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/30 backdrop-blur-sm cursor-pointer;
-	}
-
-	.flex-grid-4 {
-		@apply flex flex-wrap justify-center gap-6;
-	}
-	.flex-grid-4 > * {
-		@apply w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)];
-	}
-
-	.flex-grid-3 {
-		@apply flex flex-wrap justify-center gap-4;
-	}
-	.flex-grid-3 > * {
-		@apply w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.666rem)];
 	}
 }
 

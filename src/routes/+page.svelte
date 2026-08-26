@@ -23,19 +23,19 @@
 <section class="relative pt-24 pb-32 px-6 text-center overflow-hidden flex flex-col items-center">
 	<!-- Subtle Hero Grid Background -->
 	<div
-		class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_80%)] -z-10 opacity-30 dark:opacity-100"
+		class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTM5LjUgMGwuNS41djM5bC0uNS41SDBMMSAzOS41di0zOUwwIC41WiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIi8+Cjwvc3ZnPg==')] mask-[radial-gradient(circle_at_center,black_40%,transparent_80%)] -z-10 opacity-30 dark:opacity-100"
 		aria-hidden="true"
 	></div>
 
 	<!-- Glow -->
 	<div
-		class="absolute -top-1/4 left-1/2 w-[min(800px,100vw)] aspect-square -translate-x-1/2 bg-[radial-gradient(circle,rgba(224,159,62,0.15)_0%,rgba(65,90,119,0.1)_40%,transparent_70%)] blur-[40px] pointer-events-none -z-10"
+		class="absolute -top-1/4 left-1/2 w-[min(800px,100vw)] aspect-square -translate-x-1/2 bg-[radial-gradient(circle,rgba(224,159,62,0.15)_0%,rgba(65,90,119,0.1)_40%,transparent_70%)] blur-2xl pointer-events-none -z-10"
 		aria-hidden="true"
 	></div>
 
 	<div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center" use:reveal>
 		<span
-			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/20 dark:bg-mines-gold/10 text-mines-gold-dark dark:text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/30 dark:border-mines-gold/20 backdrop-blur-sm shadow-sm"
+			class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mines-gold/20 dark:bg-mines-gold/10 text-mines-gold-dark dark:text-mines-gold text-sm font-semibold tracking-wider uppercase mb-6 border border-mines-gold/30 dark:border-mines-gold/20 backdrop-blur-xs shadow-xs"
 		>
 			{m.home_eyebrow()}
 		</span>
@@ -44,7 +44,7 @@
 			class="text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-mines-navy dark:text-mines-platinum mb-5 font-extrabold"
 		>
 			{m.home_title_lead()}
-			<span class="bg-gradient-to-br from-mines-gold to-yellow-500 bg-clip-text text-transparent"
+			<span class="bg-linear-to-br from-mines-gold to-yellow-500 bg-clip-text text-transparent"
 				>{m.home_title_highlight()}</span
 			><br />
 			{m.home_title_tail()}
@@ -103,7 +103,7 @@
 				</dd>
 			</div>
 			<div
-				class="hidden md:block w-px h-16 bg-gradient-to-b from-transparent via-black/10 dark:via-white/20 to-transparent z-10"
+				class="hidden md:block w-px h-16 bg-linear-to-b from-transparent via-black/10 dark:via-white/20 to-transparent z-10"
 			></div>
 			<div class="flex flex-col items-center text-center flex-1 z-10">
 				<dt class="text-4xl md:text-5xl font-extrabold text-mines-navy dark:text-white mb-2">

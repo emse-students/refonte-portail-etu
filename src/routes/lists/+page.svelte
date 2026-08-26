@@ -56,7 +56,7 @@
 
 	{#if data.failed}
 		<div
-			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-sm"
+			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-xs"
 		>
 			{m.service_unavailable()}
 		</div>
@@ -66,7 +66,7 @@
 		{#each sections as section (section.promo)}
 			<section>
 				<h2
-					class="inline-block m-0 mb-6 px-4 py-2 text-lg font-semibold text-mines-navy-dark bg-mines-gold/30 dark:bg-mines-gold rounded-full shadow-sm border border-mines-gold/40 dark:border-transparent"
+					class="inline-block m-0 mb-6 px-4 py-2 text-lg font-semibold text-mines-navy-dark bg-mines-gold/30 dark:bg-mines-gold rounded-full shadow-xs border border-mines-gold/40 dark:border-transparent"
 				>
 					{section.promo === 0 ? m.lists_misc_heading() : m.campaigns_year({ year: section.promo })}
 				</h2>

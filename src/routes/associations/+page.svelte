@@ -69,7 +69,7 @@
 				type="text"
 				placeholder={m.associations_search_placeholder()}
 				bind:value={query}
-				class="w-full py-3.5 pl-12 pr-12 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-full text-mines-navy dark:text-mines-platinum placeholder:text-mines-navy/50 dark:placeholder:text-mines-platinum/50 outline-none transition-all duration-300 focus:border-mines-gold focus:bg-white/60 dark:focus:bg-glass-200 shadow-lg"
+				class="w-full py-3.5 pl-12 pr-12 bg-white/40 dark:bg-glass-100 backdrop-blur-md border border-white/60 dark:border-white/20 rounded-full text-mines-navy dark:text-mines-platinum placeholder:text-mines-navy/50 dark:placeholder:text-mines-platinum/50 outline-hidden transition-all duration-300 focus:border-mines-gold focus:bg-white/60 dark:focus:bg-glass-200 shadow-lg"
 			/>
 			{#if query}
 				<button
@@ -85,7 +85,7 @@
 
 	{#if data.failed}
 		<div
-			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-sm"
+			class="mb-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-800 dark:text-orange-200 text-center backdrop-blur-xs"
 		>
 			{m.service_unavailable()}
 		</div>
@@ -122,7 +122,7 @@
 
 	{#if active.length === 0 && archived.length === 0}
 		<div
-			class="py-16 text-center text-mines-navy/50 dark:text-mines-platinum/50 flex flex-col items-center justify-center bg-white/40 dark:bg-glass-100 rounded-3xl border border-white/60 dark:border-white/5 backdrop-blur-sm"
+			class="py-16 text-center text-mines-navy/50 dark:text-mines-platinum/50 flex flex-col items-center justify-center bg-white/40 dark:bg-glass-100 rounded-3xl border border-white/60 dark:border-white/5 backdrop-blur-xs"
 		>
 			<NoResults width="56" height="56" stroke-width="1.5" class="mb-4 opacity-50" />
 			<p class="text-lg">{m.associations_empty()}</p>

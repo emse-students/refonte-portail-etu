@@ -68,7 +68,7 @@
 				<Button
 					href="https://canari-emse.fr"
 					variant="primary"
-					class="!px-5 !py-2 text-sm"
+					class="px-5! py-2! text-sm"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
@@ -97,7 +97,7 @@
 			<LocaleToggle />
 			<ThemeToggle />
 			<button
-				class="p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-mines-gold"
+				class="p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-hidden focus:ring-2 focus:ring-mines-gold"
 				aria-label={menuOpen ? m.menu_close() : m.menu_open()}
 				aria-expanded={menuOpen}
 				onclick={() => (menuOpen = !menuOpen)}
