@@ -295,6 +295,14 @@ append-only log showed one burst-shaped episode.
   `EntityDetail`, `MemberCard`, `FeaturedLinks`, `GlassCard`, `Button`,
   `ThemeToggle`.
 - **Brand**: names centralised in [`src/lib/site.ts`](../../src/lib/site.ts).
+- **Icons**: [`@lucide/svelte`](https://lucide.dev), the same package and the same
+  major as every other repository in this ecosystem. There is no hand-drawn icon
+  here any more; the five that existed (`Sun`, `Moon`, `Search`, `X`,
+  `NoResults`) were Feather-era copies that drifted from what lucide ships and
+  were replaced on 2026-08-27. Two of its prop names are not the ones an SVG
+  takes: `Icon.svelte` writes `width`/`height` from `size` and `stroke-width`
+  from `strokeWidth` **after** spreading rest props, so passing the attribute
+  spellings is silently ignored. Use `size={20}` and `strokeWidth={1.5}`.
 - **Helpers**: logo/avatar URLs, initials and deterministic colors in
   [`src/lib/media.ts`](../../src/lib/media.ts).
 

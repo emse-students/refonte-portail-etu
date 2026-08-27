@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { toggleTheme } from "$lib/theme";
-	import Sun from "./icons/Sun.svelte";
-	import Moon from "./icons/Moon.svelte";
+	import { Moon, Sun } from "@lucide/svelte";
 	import { m } from "$lib/paraglide/messages";
 
 	let isDark = $state(false);
@@ -31,8 +30,8 @@
 	aria-label={m.theme_toggle()}
 >
 	{#if isDark}
-		<Sun width="20" height="20" class="opacity-80 hover:opacity-100" />
+		<Sun size={20} class="opacity-80 hover:opacity-100" />
 	{:else}
-		<Moon width="20" height="20" class="opacity-80 hover:opacity-100" />
+		<Moon size={20} class="opacity-80 hover:opacity-100" />
 	{/if}
 </button>

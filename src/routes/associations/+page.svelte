@@ -1,9 +1,7 @@
 <script lang="ts">
 	import AssociationCard from "$lib/components/AssociationCard.svelte";
 	import CarteVieAsso from "$lib/components/CarteVieAsso.svelte";
-	import Search from "$lib/components/icons/Search.svelte";
-	import X from "$lib/components/icons/X.svelte";
-	import NoResults from "$lib/components/icons/NoResults.svelte";
+	import { Search, SearchX, X } from "@lucide/svelte";
 	import { m } from "$lib/paraglide/messages";
 	import { page } from "$app/state";
 	import Seo from "$lib/components/Seo.svelte";
@@ -62,8 +60,7 @@
 		<div class="relative max-w-xl mx-auto">
 			<Search
 				class="absolute left-4 top-1/2 -translate-y-1/2 text-mines-navy/50 dark:text-mines-platinum/50 pointer-events-none"
-				width="20"
-				height="20"
+				size={20}
 			/>
 			<input
 				type="text"
@@ -77,7 +74,7 @@
 					onclick={() => (query = "")}
 					class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 text-mines-navy dark:text-mines-platinum hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
 				>
-					<X width="16" height="16" class="" />
+					<X size={16} />
 				</button>
 			{/if}
 		</div>
@@ -124,7 +121,7 @@
 		<div
 			class="py-16 text-center text-mines-navy/50 dark:text-mines-platinum/50 flex flex-col items-center justify-center bg-white/40 dark:bg-glass-100 rounded-3xl border border-white/60 dark:border-white/5 backdrop-blur-xs"
 		>
-			<NoResults width="56" height="56" stroke-width="1.5" class="mb-4 opacity-50" />
+			<SearchX size={56} strokeWidth={1.5} class="mb-4 opacity-50" />
 			<p class="text-lg">{m.associations_empty()}</p>
 		</div>
 	{/if}
