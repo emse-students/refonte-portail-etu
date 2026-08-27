@@ -16,6 +16,10 @@ fi
 PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$HOME/.cargo/bin:$PATH"
 export PATH
 
-"$SCRIPT_DIR/install-oxvelte.sh"
+# Invoked through `sh` rather than executed: two of the four repositories that carry this script
+# lost the executable bit on the way into git (a Windows checkout with core.fileMode false), and CI
+# then failed with "Permission denied" on a file that runs fine on every workstation. The mode is
+# set correctly as well; this line means a lost mode can never break the gate again.
+sh "$SCRIPT_DIR/install-oxvelte.sh"
 
 exec oxvelte "$@"
