@@ -1,1 +1,12 @@
-bunx lint-staged
+#!/bin/sh
+# Pre-commit: measure, never rewrite.
+#
+# This used to be `bunx lint-staged`, which ran prettier --write and eslint --fix over the staged
+# files. A hook that rewrites what you are committing hands you a commit you have not read, so it
+# is gone: `bun run format` is a thing you type, and this hook only checks. It also checks the
+# WHOLE tree rather than the staged subset - oxfmt formats 87 files in about half a second and
+# oxlint is the same order, so the staged-only optimisation buys nothing and misses a file that a
+# rebase or a merge left unformatted.
+
+bun run format:check || { echo "Pre-commit failed: format:check (run 'bun run format')."; exit 1; }
+bun run lint || { echo "Pre-commit failed: lint."; exit 1; }

@@ -47,7 +47,7 @@
 		<!-- Desktop Nav -->
 		<nav class="hidden md:flex items-center gap-6" aria-label={m.nav_primary_aria()}>
 			<div class="flex items-center gap-2">
-				{#each nav as item}
+				{#each nav as item (item.href)}
 					<a
 						href={item.href}
 						class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {isActive(
@@ -132,7 +132,7 @@
 		<div
 			class="bg-mines-navy/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex flex-col gap-2"
 		>
-			{#each nav as item}
+			{#each nav as item (item.href)}
 				<a
 					href={item.href}
 					class="block px-4 py-3 rounded-xl font-medium transition-colors {isActive(item.href)

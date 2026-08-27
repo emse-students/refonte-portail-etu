@@ -6,7 +6,9 @@ Two GitHub Actions workflows:
 
 - **`Run Tests`** (`.github/workflows/test.yml`) - runs on every push to `main`
   and every pull request. Installs with `--frozen-lockfile` on a pinned Bun,
-  then `lint`, `format:check`, `check`, `test` and `build`.
+  then `lint`, `lint:svelte`, `format:check`, `check`, `test` and `build`.
+  `lint:svelte` builds a Rust binary from a pinned revision, restored from a
+  cache keyed on that revision ([tooling](tooling.md)).
 - **`Deploy to Server`** (`.github/workflows/deploy.yml`) - runs on a
   self-hosted runner after `Run Tests` succeeds. Builds the app, copies the
   output into `~/portail-etu` (preserving the server `.env`), and restarts it
@@ -16,8 +18,10 @@ Two GitHub Actions workflows:
 
 A **pre-push** hook (`.husky/pre-push`) runs the exact same pipeline as CI plus
 the production build. The rule: if something would turn CI or the deploy red, it
-must fail at push time first. A **pre-commit** hook runs `lint-staged`
-(Prettier + ESLint) on staged files.
+must fail at push time first. A **pre-commit** hook runs `format:check` and
+`lint` over the whole tree. It only measures: `lint-staged` is gone with
+Prettier and ESLint, because a hook that rewrites what you are committing hands
+you a commit you have not read ([tooling](tooling.md)).
 
 Reproducibility: the Bun version is pinned and installs use
 `--frozen-lockfile`, so CI, the deploy runner and a fresh clone all resolve the

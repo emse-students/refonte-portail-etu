@@ -9,9 +9,12 @@ if ! git diff --cached --quiet; then
   exit 1
 fi
 
-echo "Pre-push: running lint, format:check, check, test, build..."
+echo "Pre-push: running lint, lint:svelte, format:check, check, test, build..."
 
 bun run lint || { echo "Pre-push failed: lint."; exit 1; }
+# oxlint reads the <script> block of a .svelte file and not the template, so the template half is a
+# second linter. It builds the pinned oxvelte on first use and is a no-op afterwards.
+bun run lint:svelte || { echo "Pre-push failed: lint:svelte."; exit 1; }
 bun run format:check || { echo "Pre-push failed: format:check (run 'bun run format')."; exit 1; }
 bun run check || { echo "Pre-push failed: type check (svelte-check)."; exit 1; }
 bun run test || { echo "Pre-push failed: tests."; exit 1; }

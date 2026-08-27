@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap")
-layer(base);
+@import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap") layer(base);
 @import "@fontsource/fira-mono" layer(base);
 /*
  * Canari's own two families, self-hosted at the same versions Canari uses. They style nothing here

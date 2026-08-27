@@ -11,6 +11,10 @@
 
 	// Group lists by promo, most recent first; promo-less lists go last under 0.
 	const sections = $derived.by(() => {
+		// A plain Map rather than SvelteMap: this one is a local accumulator, built and thrown away
+		// inside the derivation, and nothing outside this function ever holds a reference to it.
+		// SvelteMap exists to make mutations after render reactive; there are none to make.
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const groups = new Map<number, CanariAssociation[]>();
 		for (const list of data.lists as CanariAssociation[]) {
 			const key = list.promo ?? 0;

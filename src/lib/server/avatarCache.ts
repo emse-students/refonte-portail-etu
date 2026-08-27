@@ -21,7 +21,8 @@
 
 /** The two answers the upstream can actually give about an avatar. */
 export type AvatarAnswer =
-	{ readonly kind: "image"; readonly body: ArrayBuffer } | { readonly kind: "absent" };
+	| { readonly kind: "image"; readonly body: ArrayBuffer }
+	| { readonly kind: "absent" };
 
 /**
  * Whether a non-ok upstream status means "this user has no avatar" - the only

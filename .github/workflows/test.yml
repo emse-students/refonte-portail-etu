@@ -34,6 +34,26 @@ jobs:
       - name: Linting
         run: bun run lint
 
+      # oxvelte is a Rust binary built from a pinned revision, and ubuntu-latest ships a Rust
+      # toolchain, so the only thing needed here is to not rebuild it on every run. The key names
+      # the revision: a key naming the version restores whichever binary was built first and means
+      # several different linters under one name. Move both together or CI lints with the old one.
+      - name: Cache oxvelte build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/oxvelte
+            ~/.cargo/.crates2.json
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: oxvelte-7196779a-${{ runner.os }}
+
+      # oxlint reads the <script> block of a .svelte file and not the template. The template half
+      # is a separate linter, so a Svelte-only regression needs a step of its own to be seen.
+      - name: Linting Svelte templates
+        run: bun run lint:svelte
+
       - name: Code Style Check
         run: bun run format:check
 

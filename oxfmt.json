@@ -1,0 +1,32 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"printWidth": 100,
+	"useTabs": true,
+	"semi": true,
+	"singleQuote": false,
+	"quoteProps": "as-needed",
+	"trailingComma": "es5",
+	"bracketSpacing": true,
+	"arrowParens": "always",
+	"proseWrap": "preserve",
+	"endOfLine": "lf",
+	"insertFinalNewline": true,
+	"svelte": true,
+	"ignorePatterns": [
+		"**/node_modules/**",
+		"**/build/**",
+		"**/.svelte-kit/**",
+		"**/dist/**",
+		"**/coverage/**",
+		"**/static/**",
+		"**/src/lib/assets/**",
+		"**/src/lib/paraglide/**",
+		"**/project.inlang/.meta.json",
+		"**/project.inlang/README.md",
+		"**/project.inlang/cache/**",
+		"**/bun.lock",
+		"**/.env",
+		"**/.env.*",
+		"**/*.log"
+	]
+}

@@ -12,6 +12,12 @@
  * click the wrong tile.
  */
 
+// oxlint-disable unicorn/no-new-array -- every `new Array<T>(n)` below is a row of a dynamic
+// programming matrix, pre-sized and then written in full by the loop that follows. The rule warns
+// about the reader who cannot tell a length from a single element; the explicit type argument
+// answers that, and `Array.from({ length: n })` would allocate and iterate on the one path in this
+// module that runs per candidate row.
+
 /** Below this many characters a token carries no information: every name would match it. */
 const SHORT_TOKEN_LENGTH = 3;
 /** From this many characters a token is long enough for a second edit to cost almost nothing. */

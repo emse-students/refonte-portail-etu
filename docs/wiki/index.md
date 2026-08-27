@@ -14,6 +14,8 @@ This wiki is the canonical technical documentation. Start here.
 - [Search](search.md) - the directory's search box, the ecosystem's
   tolerance ladder, and why prose is matched differently from a name.
 - [Deployment](deployment.md) - CI/CD, quality gates, environment and secrets.
+- [Tooling](tooling.md) - what formats, lints and typechecks the repository, and
+  what was measured before each tool was believed.
 - [Backlog](backlog.md) - wanted, understood, and deliberately not scheduled.
 
 ## In one paragraph

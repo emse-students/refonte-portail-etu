@@ -4,10 +4,10 @@ import { afterEach, vi } from "vitest";
 
 // Mock svelte/transition to avoid waiting for animations
 vi.mock("svelte/transition", () => ({
-	fade: (node: Element, params: any) => ({ duration: 0 }),
-	scale: (node: Element, params: any) => ({ duration: 0 }),
-	slide: (node: Element, params: any) => ({ duration: 0 }),
-	fly: (node: Element, params: any) => ({ duration: 0 }),
+	fade: (_node: Element, _params: unknown) => ({ duration: 0 }),
+	scale: (_node: Element, _params: unknown) => ({ duration: 0 }),
+	slide: (_node: Element, _params: unknown) => ({ duration: 0 }),
+	fly: (_node: Element, _params: unknown) => ({ duration: 0 }),
 }));
 
 vi.mock("$env/static/private", () => import.meta.env);
@@ -49,7 +49,7 @@ vi.mock("$app/navigation", () => ({
 
 // Mock $app/stores
 vi.mock("$app/stores", () => {
-	const { readable, writable } = require("svelte/store");
+	const { readable } = require("svelte/store");
 	return {
 		getStores: () => ({
 			page: readable({

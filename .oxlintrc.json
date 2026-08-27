@@ -1,0 +1,22 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "import", "unicorn"],
+	"env": {
+		"browser": true,
+		"node": true,
+		"es2024": true
+	},
+	"ignorePatterns": [
+		"build/",
+		".svelte-kit/",
+		"dist/",
+		"coverage/",
+		"static/",
+		"src/lib/assets/",
+		"src/lib/paraglide/",
+		"*.config.*"
+	],
+	"rules": {
+		"no-console": "off"
+	}
+}

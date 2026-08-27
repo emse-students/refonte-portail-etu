@@ -52,21 +52,27 @@ initials.
 
 ## Scripts
 
-| Command          | Description                                             |
-| ---------------- | ------------------------------------------------------- |
-| `bun run dev`    | Dev server.                                             |
-| `bun run build`  | Production build (adapter-bun).                         |
-| `bun run check`  | `svelte-kit sync` + `svelte-check` (0 errors expected). |
-| `bun run lint`   | ESLint. `lint:fix` auto-fixes.                          |
-| `bun run format` | Prettier write. `format:check` verifies.                |
-| `bun run test`   | Vitest.                                                 |
+| Command               | Description                                                    |
+| --------------------- | -------------------------------------------------------------- |
+| `bun run dev`         | Dev server.                                                    |
+| `bun run build`       | Production build (adapter-bun).                                |
+| `bun run check`       | `svelte-kit sync` + `svelte-check --tsgo` (0 errors expected). |
+| `bun run lint`        | oxlint, whole repository. `lint:fix` auto-fixes.               |
+| `bun run lint:svelte` | oxvelte, the template half. `lint:svelte:fix` auto-fixes.      |
+| `bun run format`      | oxfmt write. `format:check` verifies.                          |
+| `bun run test`        | Vitest.                                                        |
+
+The toolchain and every measurement behind it: [docs/wiki/tooling.md](docs/wiki/tooling.md).
 
 ## Quality gates
 
-A **pre-push** hook runs the full pipeline (`lint`, `format:check`, `check`,
-`test`, `build`) so a red CI/deploy is caught locally before pushing. The
-`Run Tests` workflow runs the same gates on `main` and pull requests. Installs
-are pinned (`bun install --frozen-lockfile`, Bun 1.3.14) for reproducibility.
+A **pre-commit** hook measures formatting and lint over the whole tree; it never
+rewrites what you are committing. A **pre-push** hook runs the full pipeline
+(`lint`, `lint:svelte`, `format:check`, `check`, `test`, `build`) so a red
+CI/deploy is caught locally before pushing. The `Run Tests` workflow runs the
+same gates on `main` and pull requests. Installs are pinned
+(`bun install --frozen-lockfile`, the version in `.bun-version`) for
+reproducibility.
 
 ## License
 
