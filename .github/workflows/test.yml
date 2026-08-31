@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - main
+  # `deploy.yml` calls this as its `verify` job on the dispatch path. A squash merge made with
+  # GITHUB_TOKEN raises no `push`, so the auto-merge sweep has to dispatch the deploy - and a
+  # dispatch that skipped this would deploy a COMBINATION of updates nothing ever tested together.
+  workflow_call:
 
 jobs:
   test:
@@ -67,3 +71,34 @@ jobs:
       # build must fail here (and in the pre-push hook) rather than only at deploy.
       - name: Build
         run: bun run build
+
+      # A BUILD IS NOT A BOOT. The step above proves `svelte-adapter-bun` produced
+      # something; it proves nothing about whether the thing it produced starts. The
+      # only place that was ever checked is `deploy.yml`'s "Verify the app actually
+      # answers" - which is real, and which runs AFTER pm2 has already restarted
+      # production with the broken build. That is a report, not a gate.
+      #
+      # So the same question is asked here, where the answer costs a red pull request
+      # instead of an outage. No `.env` is written: the app must start from nothing,
+      # which is also what proves the defaults are complete.
+      #
+      # The log is printed on failure because a server that exits during startup says
+      # why exactly once, on its own stdout, and the runner is the only reader.
+      - name: Boot the packaged server
+        run: |
+          set -euo pipefail
+          PORT=3399 bun ./build/index.js > /tmp/boot.log 2>&1 &
+          pid=$!
+          for attempt in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 http://127.0.0.1:3399/ || true)
+            if [ "$code" = "200" ]; then
+              echo "The packaged server answered 200 on attempt ${attempt}."
+              kill "$pid" 2>/dev/null || true
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::The packaged server never answered. Last status: ${code:-none}."
+          cat /tmp/boot.log || true
+          kill "$pid" 2>/dev/null || true
+          exit 1

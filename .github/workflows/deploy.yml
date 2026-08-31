@@ -11,20 +11,49 @@ on:
   # skipped, and a commit whose trigger is lost never gets one back. A dispatch
   # still went through when nothing else did.
   #
-  # It deploys the current `main` WITHOUT the CI gate, so it is deliberate, not
-  # routine: the pre-push hook already runs lint, format:check, check, test and
-  # build locally, which is what makes this acceptable as a fallback path and not
-  # as the normal one.
+  # It now RUNS the suite first (the `verify` job below), because this trigger is no
+  # longer only a human escape hatch: the Dependabot sweep uses it too. The original
+  # no-gate behaviour survives as the explicit `skip_ci` input, for the case it was
+  # written for - the pre-push hook already runs lint, format:check, check, test and
+  # build locally, which is what makes that acceptable as a fallback and not as the
+  # normal path.
   workflow_dispatch:
+    inputs:
+      skip_ci:
+        description: "Deploy current main WITHOUT running the tests first (outage escape hatch)"
+        type: boolean
+        default: false
 
 jobs:
+  # THE DISPATCH PATH IS NOW GATED, because it stopped being only a human escape hatch. The
+  # Dependabot sweep dispatches this workflow after merging - a squash made with GITHUB_TOKEN raises
+  # no `push` event, so nothing else would ever deploy those merges - and two updates that are green
+  # apart are not evidence that their COMBINATION is. Running the suite on the merged tree is what
+  # makes merging several in one sweep safe.
+  #
+  # `skip_ci` keeps the original escape hatch alive as an explicit act rather than as the default:
+  # on 2026-08-06 an Actions outage dropped the push triggers and a dispatch was the only way
+  # through. The sweep never sets it.
+  verify:
+    name: Run Tests
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.skip_ci }}
+    uses: ./.github/workflows/test.yml
+
   deploy:
     name: Deploy
     runs-on: self-hosted
     # The dispatch branch is required: on a manual run `github.event.workflow_run`
     # does not exist, so the original condition alone would silently skip the job -
     # a deploy that reports success while deploying nothing.
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    # `always()` because `verify` is SKIPPED on the workflow_run path, and a skipped `needs` would
+    # otherwise skip this job too. `success' || 'skipped'` is the whole condition: a verify that
+    # FAILED must stop the deploy, and those are the only three states it can be in.
+    needs: verify
+    if: >-
+      ${{ always() &&
+      (needs.verify.result == 'success' || needs.verify.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')) }}
 
     steps:
       - name: Checkout code

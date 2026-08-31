@@ -2,17 +2,75 @@
 
 ## Pipeline
 
-Two GitHub Actions workflows:
+Three GitHub Actions workflows:
 
 - **`Run Tests`** (`.github/workflows/test.yml`) - runs on every push to `main`
-  and every pull request. Installs with `--frozen-lockfile` on a pinned Bun,
-  then `lint`, `lint:svelte`, `format:check`, `check`, `test` and `build`.
+  and every pull request, and is CALLED by the deploy's dispatch path. Installs
+  with `--frozen-lockfile` on a pinned Bun, then `lint`, `lint:svelte`,
+  `format:check`, `check`, `test`, `build` - and then **boots what it built**.
   `lint:svelte` builds a Rust binary from a pinned revision, restored from a
   cache keyed on that revision ([tooling](tooling.md)).
 - **`Deploy to Server`** (`.github/workflows/deploy.yml`) - runs on a
   self-hosted runner after `Run Tests` succeeds. Builds the app, copies the
-  output into `~/portail-etu` (preserving the server `.env`), and restarts it
-  with pm2 (`ecosystem.config.cjs`).
+  output into `~/portail-etu` (preserving the server `.env`), restarts it with
+  pm2 (`ecosystem.config.cjs`), and then asks the app whether it actually
+  answers.
+- **`Dependabot auto-merge`** (`.github/workflows/dependabot-auto-merge.yml`) -
+  merges the dependency updates this repository has evidence about, and
+  dispatches the deploy for them. See below.
+
+**A build is not a boot.** `bun run build` proves `svelte-adapter-bun` produced
+something; it proves nothing about whether the thing it produced starts. Until
+2026-08-31 the only place that was ever checked was the deploy's own
+verification - which is real, and which runs _after_ pm2 has already restarted
+production with the broken build. That is a report, not a gate. `Run Tests` now
+starts `build/index.js` and asks it for a page, so the answer costs a red pull
+request instead of an outage. No `.env` is written for it: the app must start
+from nothing, which is also what proves its defaults are complete.
+
+## Dependency updates, and the merge that reaches the server
+
+Dependabot opens the pull requests;
+`.github/workflows/dependabot-auto-merge.yml` decides which of them this
+repository has EVIDENCE about, and `.github/scripts/dependabot-auto-merge.sh` is
+the decision itself, shared by both of that workflow's triggers.
+
+**Three things make it converge rather than merely fire.**
+
+- **An hourly sweep, not only a `workflow_run`.** A pull request whose checks
+  completed days ago never receives another event, so an event-only automation
+  acts on what it happened to catch and on nothing else. The sweep enumerates
+  every open Dependabot pull request, so the right state is reached from any
+  starting state. The clock decides how fast the queue drains, never whether the
+  outcome is right.
+- **A staleness gate.** A green check is evidence about the workflow that
+  PRODUCED it, not about the one `main` carries today, and an absent check is
+  indistinguishable from an inapplicable one. A head not built on current `main`
+  is not merged on its old verdict; its branch is updated instead (at most three
+  per pass, because each is a full CI run).
+- **A dispatch, because a merge made with `GITHUB_TOKEN` raises no `push`
+  event.** GitHub's anti-recursion rule means `Run Tests` never ran on those
+  merges and `deploy.yml` never saw the `workflow_run` it waits for, so `main`
+  drifted from the server silently. `workflow_dispatch` is the documented
+  exception, and the sweep issues exactly one for the whole pass.
+
+Merging several in one sweep is safe because the dispatch path now runs a
+`verify` job that calls `test.yml` on the MERGED tree, and the deploy job
+refuses to run unless it passed - two updates green apart are not evidence that
+their combination is green. The original no-gate dispatch survives as the
+explicit `skip_ci` input, for the case it was written for: on 2026-08-06 an
+Actions outage dropped the push triggers and a manual dispatch was the only way
+through. The sweep never sets it.
+
+**The ceiling is what this repository declares itself unable to see**, and it is
+currently EMPTY - a measured answer, not an omission. It is never a semver
+judgement: a break that stops the tree compiling is caught by `check`, `lint`
+and `build`. An entry is a dependency whose failure would be INVISIBLE to that,
+and every entry must name the test that retires it, because a refusal nobody can
+lift is the queue this whole mechanism exists to avoid. Both candidates measured
+on 2026-08-31 were closed by writing the gate instead: `svelte-adapter-bun` by
+the boot step above, and `@humanspeak/svelte-markdown` by
+`tests/profileBioMarkdown.test.ts`.
 
 ## Quality gates catch breakage before it ships
 
