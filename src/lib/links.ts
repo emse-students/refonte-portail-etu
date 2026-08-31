@@ -39,7 +39,7 @@ export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Le Cercle",
 		id: "cercle",
-		url: "https://portail-etu.emse.fr/cercle",
+		url: "https://cercle.canari-emse.fr",
 		icon: "/links/cercle.png",
 		accent: "#e09f3e",
 	},
