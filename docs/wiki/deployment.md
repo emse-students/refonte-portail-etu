@@ -77,7 +77,13 @@ the decision itself, shared by both of that workflow's triggers.
   same workflow run that uses it. The scripts are also LINTED before a merge, by
   a `shellcheck` pinned to a version and a digest rather than taken from the
   runner image - it was run, and made to fail on a spliced defect, before the
-  gate was turned on. The sweep still marks any head Dependabot did
+  gate was turned on. **And until 2026-09-01 none of this had ever executed
+  here**: the script was committed without its executable bit, so every pass
+  answered `Permission denied`, printed `merged 0` and went GREEN, because the
+  step swallowed the status alongside the refusals it was meant to survive. The
+  script declines by PRINTING and exits 0 either way, so a non-zero status is
+  now fatal and annotated, and it is invoked through `bash` so a mode bit cannot
+  decide whether the chain runs at all. The sweep still marks any head Dependabot did
   not write, whoever wrote it: detecting the state rather than its cause is what
   heals a branch already trapped.
 - **A dispatch, because a merge made with `GITHUB_TOKEN` raises no `push`
