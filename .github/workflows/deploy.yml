@@ -34,9 +34,18 @@ jobs:
   # `skip_ci` keeps the original escape hatch alive as an explicit act rather than as the default:
   # on 2026-08-06 an Actions outage dropped the push triggers and a dispatch was the only way
   # through. The sweep never sets it.
+  # A CALLED WORKFLOW CANNOT BE GRANTED MORE THAN ITS CALLER GRANTS IT, and exceeding that is a
+  # STARTUP FAILURE - no job runs, no log is produced, and the API returns neither an annotation nor
+  # an error message. `test.yml` now calls `code-analysis.yml`, whose CodeQL job asks for
+  # `security-events: write`, so this job must grant it or the deploy dies before its first line.
+  # Derived from what the callees declare, not chosen here.
   verify:
     name: Run Tests
     if: ${{ github.event_name == 'workflow_dispatch' && !inputs.skip_ci }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     uses: ./.github/workflows/test.yml
 
   deploy:

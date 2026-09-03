@@ -1,0 +1,105 @@
+# =================================================================================================
+# EVERYTHING THIS REPOSITORY DOES ON A CLOCK, AND EVERYTHING IT DOES BY HAND, IN ONE PLACE
+#
+# TWO JOBS. The nightly security pass, and the egress probe - which is on no clock at all and lives
+# here anyway, because a dispatch-only diagnostic does not need a row of its own in the Actions
+# list. `probe-egress.yml` was exactly that row: one job, one trigger, run twice.
+#
+# WHAT A CLOCK IS ALLOWED TO BE HERE. *Termination comes from a proof, never from a clock*, so a
+# schedule is only ever a FLOOR UNDER THE WORST CASE: arriving late, or not at all, must cost a late
+# REPORT and never a wrong outcome. That holds - the analysis also runs on every pull request, and
+# this pass exists for the one case a pull request cannot cover: **a new advisory landing against
+# code nobody touched.** GitHub delivers a cron with hours of jitter and DROPS the slots it misses
+# rather than queueing them, measured across these four repositories.
+#
+# HOW A RUN KNOWS WHICH JOB IT IS: `github.event.schedule` carries the cron string that fired,
+# verbatim, so each job names its own. A job that names no cron is dispatch-only, and that is how
+# the probe below stays a hand tool.
+# =================================================================================================
+name: Scheduled
+
+on:
+  schedule:
+    # Daily, 02:00 UTC - the same hour as the sibling repositories, so a morning that is red is red
+    # everywhere at once rather than repo by repo through the day.
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which job to run by hand."
+        required: true
+        default: analysis
+        type: choice
+        options: [all, analysis, probe-egress]
+
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: Security
+    if: >
+      github.event.schedule == '0 2 * * *' ||
+      (github.event_name == 'workflow_dispatch' &&
+      contains(fromJSON('["all", "analysis"]'), inputs.job))
+    # Derived from what the callee declares, not chosen here: a caller CAPS a called workflow, and
+    # exceeding that cap is a startup failure with no log and no annotation.
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: ./.github/workflows/code-analysis.yml
+    # HERE AN UNAUDITED TREE IS A FAILURE, and on a pull request it is not - see the input's own
+    # comment in `code-analysis.yml`. Nothing is queued behind this run, so the same silence is
+    # simply reported, which is what stops the toleration from turning into a tree nobody has
+    # audited for a week.
+    with:
+      registry_outage_is_failure: true
+
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  # WHAT THE DEPLOY HOST CAN REACH, MEASURED FROM THE DEPLOY HOST
+  #
+  # ON NO CRON, DELIBERATELY. This answers a question that is asked when somebody asks it, not every
+  # night: `src/routes/+layout.ts` sets `ssr = false`, and the reason written down is a hairpin NAT
+  # that the DNS no longer describes - `canari-emse.fr` resolves to Cloudflare anycast while
+  # `portail-etu.emse.fr` is 193.49.175.67, so a server-side request leaves for Cloudflare rather
+  # than turning back through the portal's own NAT. Whether it WORKS is a separate question from
+  # whether that reason holds, and it decides this site's entire `<head>`: with `ssr = false` a
+  # crawler and every link unfurler see an empty shell, because `<svelte:head>` never runs.
+  #
+  # The self-hosted runner IS the deploy box, so what this measures is exactly what the app
+  # would get. It deploys nothing.
+  #
+  # THIS REPOSITORY IS PUBLIC: the probe prints status codes, byte counts and timings only - never a
+  # response body, never a header, never an environment value.
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  probe-egress:
+    name: Probe egress
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      contains(fromJSON('["all", "probe-egress"]'), inputs.job)
+    runs-on: self-hosted
+    steps:
+      - name: Resolve and reach the Canari public API
+        run: |
+          set +e
+          probe() {
+            label="$1"
+            url="$2"
+            # -o /dev/null so no body is ever written to a public log.
+            out=$(curl -sS -o /dev/null -m 10 \
+              -w 'status=%{http_code} bytes=%{size_download} dns=%{time_namelookup}s connect=%{time_connect}s tls=%{time_appconnect}s total=%{time_total}s' \
+              "$url" 2>&1)
+            echo "[$label] $out"
+          }
+
+          echo "--- what this host resolves ---"
+          getent hosts canari-emse.fr || echo "canari-emse.fr does not resolve here"
+          getent hosts portail-etu.emse.fr || echo "portail-etu.emse.fr does not resolve here"
+
+          echo "--- what this host can reach ---"
+          probe "canari-public-associations" "https://canari-emse.fr/api/public/associations?type=association"
+          probe "canari-version" "https://canari-emse.fr/api/version"
+          # A control: if this fails too, the finding is "no egress at all", which
+          # is a different diagnosis and a different fix.
+          probe "control-cloudflare" "https://1.1.1.1/"
