@@ -78,7 +78,7 @@ jobs:
       # the revision: a key naming the version restores whichever binary was built first and means
       # several different linters under one name. Move both together or CI lints with the old one.
       - name: Cache oxvelte build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/bin/oxvelte
