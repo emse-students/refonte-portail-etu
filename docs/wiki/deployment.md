@@ -22,7 +22,9 @@ by the deploy):
   green, and then gets out of the way. See below.
 - **`Scheduled`** (`.github/workflows/scheduled.yml`) - everything on a clock,
   and the one dispatch-only diagnostic: the nightly security pass, and the
-  egress probe that answers whether the deploy host can reach Canari.
+  egress probe that answers whether the deploy host can reach Canari. The probe
+  is on NO cron: a job that names no cron string is dispatch-only, which is how
+  a hand tool lives in this file without running every night.
 
 **A build is not a boot.** `bun run build` proves `svelte-adapter-bun` produced
 something; it proves nothing about whether the thing it produced starts. Until
