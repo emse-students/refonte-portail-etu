@@ -1,72 +1,57 @@
-name: Deploy to Server
+# =================================================================================================
+# DEPLOY THE PORTAL - A LIBRARY, CALLED ONLY BY `release.yml`
+#
+# NO TRIGGERS OF ITS OWN, AND NO ROW OF ITS OWN IN THE ACTIONS LIST, since 2026-09-04. It fired on
+# `workflow_run` after `Run Tests` finished on `main`, which made every merge a deployment:
+# production was whatever the last green pull request happened to be, and nobody chose it.
+# **Nothing deploys on a push any more** - `release.yml` is the only caller, in every repository of
+# the ecosystem.
+#
+# ITS `verify` JOB IS GONE WITH THE DISPATCH PATH THAT NEEDED IT. That job re-ran the whole suite,
+# because a dispatch could otherwise deploy a combination nothing had tested together. The release
+# preflight READS the verdict that already exists on the commit instead - cheaper, and stricter,
+# because it also refuses an ABSENT check, which a re-run cannot even notice.
+#
+# AND `skip_ci` IS GONE WITH IT. It was the escape hatch for the 2026-08-06 Actions outage that
+# dropped the push triggers; the release path has no push trigger to lose, and a flag that skips the
+# only evidence a deploy has is a fallback path - reaching one means the primary path failed, and
+# the fix belongs there.
+#
+# IT IS HANDED A COMMIT AND A VERSION rather than working them out. The caller has already put them
+# through the gates; recomputing them here would be a second opinion about what is being shipped.
+# =================================================================================================
+name: Deploy
 
 on:
-  workflow_run:
-    workflows: ["Run Tests"]
-    branches: [main]
-    types:
-      - completed
-  # Manual escape hatch. On 2026-08-06 a GitHub Actions outage dropped the push
-  # triggers outright: "Run Tests" was cancelled in the queue, so this workflow was
-  # skipped, and a commit whose trigger is lost never gets one back. A dispatch
-  # still went through when nothing else did.
-  #
-  # It now RUNS the suite first (the `verify` job below), because this trigger is no
-  # longer only a human escape hatch: the Dependabot sweep uses it too. The original
-  # no-gate behaviour survives as the explicit `skip_ci` input, for the case it was
-  # written for - the pre-push hook already runs lint, format:check, check, test and
-  # build locally, which is what makes that acceptable as a fallback and not as the
-  # normal path.
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      skip_ci:
-        description: "Deploy current main WITHOUT running the tests first (outage escape hatch)"
-        type: boolean
-        default: false
+      sha:
+        description: "The commit to build and ship. Resolved and gated by the caller."
+        required: true
+        type: string
+      version:
+        description: "The version being released, without a leading `v`. Recorded in the run log."
+        required: true
+        type: string
+
+permissions:
+  contents: read
 
 jobs:
-  # THE DISPATCH PATH IS NOW GATED, because it stopped being only a human escape hatch. The
-  # Dependabot sweep dispatches this workflow after merging - a squash made with GITHUB_TOKEN raises
-  # no `push` event, so nothing else would ever deploy those merges - and two updates that are green
-  # apart are not evidence that their COMBINATION is. Running the suite on the merged tree is what
-  # makes merging several in one sweep safe.
-  #
-  # `skip_ci` keeps the original escape hatch alive as an explicit act rather than as the default:
-  # on 2026-08-06 an Actions outage dropped the push triggers and a dispatch was the only way
-  # through. The sweep never sets it.
-  # A CALLED WORKFLOW CANNOT BE GRANTED MORE THAN ITS CALLER GRANTS IT, and exceeding that is a
-  # STARTUP FAILURE - no job runs, no log is produced, and the API returns neither an annotation nor
-  # an error message. `test.yml` now calls `code-analysis.yml`, whose CodeQL job asks for
-  # `security-events: write`, so this job must grant it or the deploy dies before its first line.
-  # Derived from what the callees declare, not chosen here.
-  verify:
-    name: Run Tests
-    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.skip_ci }}
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    uses: ./.github/workflows/test.yml
-
+  # NO `if:` AND NO `needs:`, and that is the point of being a library. Every condition this job
+  # used to carry was about which trigger had fired and whether some other run had gone green; a
+  # called workflow runs because its caller decided it should, and the caller's gates are the
+  # condition.
   deploy:
     name: Deploy
     runs-on: self-hosted
-    # The dispatch branch is required: on a manual run `github.event.workflow_run`
-    # does not exist, so the original condition alone would silently skip the job -
-    # a deploy that reports success while deploying nothing.
-    # `always()` because `verify` is SKIPPED on the workflow_run path, and a skipped `needs` would
-    # otherwise skip this job too. `success' || 'skipped'` is the whole condition: a verify that
-    # FAILED must stop the deploy, and those are the only three states it can be in.
-    needs: verify
-    if: >-
-      ${{ always() &&
-      (needs.verify.result == 'success' || needs.verify.result == 'skipped') &&
-      (github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')) }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          # The commit the caller gated, never `github.sha` - which on a `release` event is the tag
+          # and on a dispatch is whatever the branch happens to be by then.
+          ref: ${{ inputs.sha }}
 
       # One bun, named in one place. `.bun-version` is the pin; every workflow
       # that uses setup-bun reads the same file, and pm2 launches the very binary

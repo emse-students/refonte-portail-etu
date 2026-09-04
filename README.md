@@ -69,7 +69,7 @@ The toolchain and every measurement behind it: [docs/wiki/tooling.md](docs/wiki/
 A **pre-commit** hook measures formatting and lint over the whole tree; it never
 rewrites what you are committing. A **pre-push** hook runs the full pipeline
 (`lint`, `lint:svelte`, `format:check`, `check`, `test`, `build`) so a red
-CI/deploy is caught locally before pushing. The `Run Tests` workflow runs the
+CI/deploy is caught locally before pushing. The `CI` workflow runs the
 same gates on `main` and pull requests. Installs are pinned
 (`bun install --frozen-lockfile`, the version in `.bun-version`) for
 reproducibility.

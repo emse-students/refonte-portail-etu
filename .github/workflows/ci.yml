@@ -1,4 +1,9 @@
-name: Run Tests
+# THE NAME AND THE FILE ARE THE ECOSYSTEM'S, NOT THIS REPOSITORY'S (2026-09-04). It was
+# `test.yml` / `Run Tests` here, `ci.yml` / `CI` in MiGallery, `ci-bun.yml` / `CI (Bun)` in Sky and
+# `pull-request.yml` / `CI` in Canari - four names for the same job, from four afternoons. The check
+# a ruleset requires is `CI passed` either way; what a common name buys is that somebody reading two
+# repositories does not have to learn which file is which.
+name: CI
 
 on:
   push:
@@ -7,10 +12,16 @@ on:
   pull_request:
     branches:
       - main
-  # `deploy.yml` calls this as its `verify` job on the dispatch path. A squash merge made with
-  # GITHUB_TOKEN raises no `push`, so the auto-merge sweep has to dispatch the deploy - and a
-  # dispatch that skipped this would deploy a COMBINATION of updates nothing ever tested together.
-  workflow_call:
+  # A HAND RE-RUN OF THE SUITE ON `main`, after an infrastructure fault.
+  #
+  # NO `workflow_call`, REMOVED 2026-09-04 WITH THE THING THAT CALLED IT. `deploy.yml` had a
+  # `verify` job that re-ran this whole suite on its dispatch path, because a sweep's
+  # `GITHUB_TOKEN` merge raised no `push` and a dispatch that skipped the suite would deploy a
+  # combination nothing had tested together. The sweep is gone, the push no longer deploys anything
+  # at all, and the release preflight READS the verdict that already exists on the commit rather
+  # than taking a second one. A trigger nothing uses is a claim a file makes about itself that is
+  # not true.
+  workflow_dispatch:
 
 jobs:
   test:
@@ -56,6 +67,12 @@ jobs:
       # itself was not.
       - name: Test the audit classifier
         run: bash .github/scripts/tests/audit-dependencies.test.sh
+
+      # AND THE GATES THAT DECIDE WHETHER A RELEASE MAY START. Three questions, asserted on BOTH
+      # sides of each - a gate known to pass is not a gate known to be able to refuse. No network:
+      # `gh` is a fake on `PATH` that answers from the environment.
+      - name: Test the release gates
+        run: bash .github/scripts/tests/release-preflight.test.sh
 
       # Pin the Bun version so CI, the deploy runner and a fresh clone all
       # resolve the same toolchain. Must be >= 1.2 to read the text bun.lock.

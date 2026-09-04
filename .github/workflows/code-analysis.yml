@@ -9,13 +9,13 @@ name: Code Analysis
 # way into that box; analysis has no business there, and a CodeQL database is large enough that
 # building it on the deploy host would compete with the thing it is meant to protect.
 
-# CALLED BY `test.yml` AND BY `scheduled.yml`, AND BY NOTHING ELSE, since 2026-09-04. It used to
+# CALLED BY `ci.yml` AND BY `scheduled.yml`, AND BY NOTHING ELSE, since 2026-09-04. It used to
 # carry its own `pull_request` and `schedule` triggers, which put its verdict OUTSIDE the check a
 # merge waits on: CodeQL, the secret scan and the vulnerability audit all ran on every pull request
 # and could not block a single one. A red tick nothing enforces is worse than no tick, because it
 # looks enforced - and this repository is PUBLIC and carried the largest advisory debt of the five.
 #
-# `test.yml` calls it as a job feeding `CI passed`; `scheduled.yml` calls the same file nightly,
+# `ci.yml` calls it as a job feeding `CI passed`; `scheduled.yml` calls the same file nightly,
 # which is the half a pull request cannot see - a new advisory landing against code nobody touched.
 #
 # ITS PERMISSIONS ARE PER JOB, and the caller must grant at least as much: a called workflow cannot
