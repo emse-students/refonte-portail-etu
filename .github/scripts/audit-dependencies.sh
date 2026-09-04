@@ -57,27 +57,47 @@ fi
 # give up on the 503 above, so attempts are expensive; three of them spread over a couple of minutes
 # of backoff covers a blip, and a longer outage is not something a pull request should sit through.
 #
-# AND THE CALLER MAY SAY ONE, BECAUSE AN OUTAGE IS A PROPERTY OF THE REGISTRY, NOT OF THE DIRECTORY.
-# Canari audits FIVE trees in one job. With a budget that is purely per-directory, a registry that is
-# down costs five separate three-attempt discoveries of the same fact - fifteen `bun audit` calls,
-# each carrying bun's own multi-minute timeout, to learn one thing. *Never learn by failing what a
-# fact could have told you*: the first tree to come back with a 2 has established that npm is not
-# answering, and every caller in this repository hands that forward as `AUDIT_ATTEMPTS=1`.
+# `AUDIT_ATTEMPTS` IS A CALLER INPUT AND NOTHING IN ANY OF THE FOUR REPOSITORIES SETS IT, which is
+# a change from what this comment used to claim. It existed for one shape: Canari audited FIVE trees
+# in ONE sequential job, so a registry that was down cost five separate three-attempt discoveries of
+# the same fact - fifteen `bun audit` calls, each carrying bun's own multi-minute timeout, to learn
+# one thing. The first tree to answer 2 had already established that npm was not answering, and
+# handing that forward as `AUDIT_ATTEMPTS=1` spared the other four - *never learn by failing what a
+# fact could have told you*.
+#
+# ON 2026-09-04 THAT JOB BECAME FIVE PARALLEL ONES and the saving went with it. Parallel jobs cannot
+# tell each other anything, and no longer need to: what the shared budget bought was SEQUENTIAL time,
+# and five audits that overlap cost one audit however many of them meet a 503. The other three
+# repositories audit a single tree, so the budget was never theirs to share in the first place.
+#
+# The variable is still honoured, and deliberately: it is the one knob a caller has if a registry
+# outage ever needs to be discovered cheaply again. A default of three, reached by nobody passing
+# anything, is the whole of the current policy.
 ATTEMPTS="${AUDIT_ATTEMPTS:-3}"
 BACKOFF_BASE_S=20
 
 # The registry did not answer. Narrow on purpose - see the header.
 #
-# THE WORDING DIFFERS BY BUN VERSION, AND THAT IS NOT HYPOTHETICAL. The same npm 503 on the same
-# evening produced two different lines in two repositories:
+# THE WORDING DIFFERS BY BUN VERSION, AND THREE SHAPES HAVE NOW BEEN SEEN. One class of failure -
+# the request did not complete - printed three different ways:
 #
 #     bun 1.4.0   error: POST https://registry.npmjs.org/-/npm/v1/security/advisories/bulk - 503
 #     bun 1.3.8   error: audit request failed (status 503)
+#     bun 1.3.8   Timeout: audit request failed
 #
-# The second was met by a classifier that knew only the first, and it did exactly what it should:
-# reported a finding, went red, and was fixed here. That is the whole argument for failing CLOSED on
-# an unrecognised failure - the alternative silently stops auditing and reports success for ever.
-TRANSPORT_RE='(registry\.npmjs\.org.* - [45][0-9][0-9]$|audit request failed \(status [45][0-9][0-9]\)|ConnectionRefused|ConnectionClosed|ConnectionTimedOut|SocketNotConnected|FailedToOpenSocket|DNSResolveFailed|error: (Timeout|socket hang up))'
+# The second was met by a classifier that knew only the first. The THIRD was met on 2026-09-04 by
+# one that knew the first two and required a `(status NNN)` a timeout does not carry - so it
+# reported a finding and turned every pull request in Portail-etu red, against a tree with no
+# advisory in it. Both times the classifier failed CLOSED, which is the whole argument for that
+# direction: the alternative silently stops auditing and reports success for ever.
+#
+# SO THE STATUS CODE IS NO LONGER REQUIRED, and that is a generalisation rather than a third
+# pattern bolted on. `audit request failed` IS the transport failure - bun prints it when the
+# request did not complete, and a request that DID complete and found advisories prints the
+# advisory table instead. Whatever surrounds the phrase (a status, a `Timeout:` prefix, nothing at
+# all) is decoration on a fact the phrase has already stated. *A distinction carried in prose is
+# one exactly one call site will make*: the phrase is the distinction, the decoration is not.
+TRANSPORT_RE='(registry\.npmjs\.org.* - [45][0-9][0-9]$|audit request failed|ConnectionRefused|ConnectionClosed|ConnectionTimedOut|SocketNotConnected|FailedToOpenSocket|DNSResolveFailed|error: (Timeout|socket hang up))'
 
 for attempt in $(seq 1 "$ATTEMPTS"); do
   echo "--- bun audit in $DIR (attempt $attempt/$ATTEMPTS)"
