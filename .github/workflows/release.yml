@@ -1,43 +1,137 @@
+# =================================================================================================
+# PUBLISHING A RELEASE - THE ONE THING THAT DEPLOYS
+#
+# NOTHING DEPLOYS ON A PUSH (user, 2026-09-04: *"Pour tous les repos, le push sur main ne doit rien
+# deployer, c'est la release qui le fait."*). A merge to `main` runs the CI and stops there. This
+# file is the only route to production, in every repository of the ecosystem, and the human gesture
+# is publishing a GitHub release:
+#
+#     gh release create v1.2.3 --generate-notes
+#
+# SO A MERGED FIX IS NOT A SHIPPED FIX. That is the deliberate cost: dependency updates merge
+# themselves and then WAIT, and what they wait for is somebody deciding that this is the tree that
+# ships. The alternative - deploying whatever last merged - means production is whatever the last
+# green pull request happened to be, which nobody chose.
+#
+# WHAT USED TO BE HERE. This file re-ran the whole suite on a tag push and then created the GitHub
+# release. Both halves were wrong: the tests had already run on that exact commit, so running them
+# again was a second opinion about the same tree - and the one that would ship - while the deploy
+# hung off a `workflow_run` on `main`, so the push decided. The suite's verdict is now READ rather
+# than re-taken (gate 3), and the release decides.
+# =================================================================================================
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
+  # A HAND RE-DEPLOY OF WHAT IS ALREADY RELEASED - not a bypass. It runs the SAME gates against
+  # `main`, so it cannot ship anything the release path would refuse. It exists for the case a
+  # deploy failed on infrastructure rather than on code.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ONE DEPLOYMENT AT A TIME, AND THE LOSER WAITS RATHER THAN DIES. `cancel-in-progress: false`
+# because a half-applied deploy that is killed leaves the box in a state nobody described.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  test:
-    name: Run Tests
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  # MAY THIS RELEASE START?
+  #
+  # Three questions, all of them in `.github/scripts/release-preflight.sh` so they can be tested
+  # without a run - and they are, on both sides of every gate, by `release-preflight.test.sh`.
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  preflight:
+    name: May this release start?
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      sha: ${{ steps.resolve.outputs.sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: ".bun-version"
+      # WHAT IS BEING RELEASED, AND FROM WHICH COMMIT - the only two facts the gates need.
+      #
+      # `github.event.release.target_commitish` is NOT the answer: it carries a branch NAME
+      # (`main`) rather than the commit the tag was placed on, and the two differ the moment
+      # anything merges. The tag is resolved to its commit instead.
+      - name: What is being released, and from where
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+            SHA="$(git rev-parse origin/main)"
+            VERSION="$(node -p "require('./package.json').version")"
+            echo "A hand re-deploy of main at ${SHA:0:8}, version $VERSION."
+          else
+            SHA="$(git rev-list -n1 '${{ github.event.release.tag_name }}')"
+            VERSION='${{ github.event.release.tag_name }}'
+          fi
+          {
+            echo "version=${VERSION#v}"
+            echo "sha=$SHA"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: The gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.resolve.outputs.version }}
+          TARGET_SHA: ${{ steps.resolve.outputs.sha }}
+        run: bash .github/scripts/release-preflight.sh
 
-      - name: Generate SvelteKit files
-        run: bunx svelte-kit sync
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  # BUILD ON THE BOX AND RESTART IT
+  #
+  # `deploy.yml` is a library with no triggers of its own. It is handed the commit the gates above
+  # approved and the version they read, so what is built is what was checked.
+  #
+  # `secrets: inherit` because the deploy needs the box's own secrets, and enumerating them here
+  # would be a second list to keep in step with the one the callee actually reads.
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  deploy:
+    name: Deploy
+    needs: preflight
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/deploy.yml
+    with:
+      sha: ${{ needs.preflight.outputs.sha }}
+      version: ${{ needs.preflight.outputs.version }}
+    secrets: inherit
 
-      - name: Run tests
-        run: bun run test
-
-  release:
-    name: Create Release
-    needs: test
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  # THE PACKAGED ARTEFACT, ATTACHED TO THE RELEASE THAT ALREADY EXISTS
+  #
+  # THIS IS THE HALF THAT SURVIVED THE TRIGGER CHANGE. When this file ran on a tag push it re-ran
+  # the suite, built the tarball, and CREATED the release with generated notes. The release is now
+  # the trigger rather than the product - but the tarball is a real capability and is kept: it is
+  # the only copy of a deployable build that does not live on the box.
+  #
+  # IT DOES NOT GATE THE DEPLOY, and is not gated by it. A tarball that failed to build must not
+  # hold production back, and a production deploy that failed must not deprive anybody of the
+  # tarball - they answer different questions and share only the commit.
+  # ═══════════════════════════════════════════════════════════════════════════════════════════════
+  assets:
+    name: Package and attach
+    needs: preflight
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          ref: ${{ needs.preflight.outputs.sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -50,12 +144,13 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Archive Production Artifact
-        run: |
-          tar -czf release-build.tar.gz build ecosystem.config.cjs package.json
+      - name: Archive the production artifact
+        run: tar -czf release-build.tar.gz build ecosystem.config.cjs package.json
 
-      - name: Create Release
+      # `files` only - no `body`, no `generate_release_notes`. The release already has its notes,
+      # and writing over them from here would silently replace whatever a human wrote by hand.
+      - name: Attach the archive to the release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v3
         with:
-          generate_release_notes: true
           files: release-build.tar.gz

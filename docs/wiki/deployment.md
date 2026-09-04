@@ -2,35 +2,62 @@
 
 ## Pipeline
 
-Five GitHub Actions workflows, two of which are libraries nothing triggers
-directly (`code-analysis.yml`, called by the two below; and `test.yml`, called
-by the deploy):
+Four workflows with a row of their own in the Actions list, and two libraries
+nothing triggers directly:
 
-- **`Run Tests`** (`.github/workflows/test.yml`) - runs on every push to `main`
-  and every pull request, and is CALLED by the deploy's dispatch path. Installs
-  with `--frozen-lockfile` on a pinned Bun, then `lint`, `lint:svelte`,
-  `format:check`, `check`, `test`, `build` - and then **boots what it built**.
-  `lint:svelte` builds a Rust binary from a pinned revision, restored from a
-  cache keyed on that revision ([tooling](tooling.md)).
-- **`Deploy to Server`** (`.github/workflows/deploy.yml`) - runs on a
-  self-hosted runner after `Run Tests` succeeds. Builds the app, copies the
-  output into `~/portail-etu` (preserving the server `.env`), restarts it with
-  pm2 (`ecosystem.config.cjs`), and then asks the app whether it actually
-  answers.
+- **`CI`** (`.github/workflows/ci.yml`) - runs on every pull request and on
+  every push to `main`. Installs with `--frozen-lockfile` on a pinned Bun, then
+  `lint`, `lint:svelte`, `format:check`, `check`, `test`, `build` - and then
+  **boots what it built**. Ends in `CI passed`, the one check the ruleset
+  requires and the one the release gate reads.
+- **`Release`** (`.github/workflows/release.yml`) - **the only thing that
+  deploys**. Three gates, then `deploy.yml` and the packaged archive.
 - **`Arm auto-merge`** (`.github/workflows/arm-auto-merge.yml`) - asks GitHub to
-  squash-merge every pull request in this repository the moment `CI passed` goes
-  green, and then gets out of the way. See below.
+  squash-merge every pull request the moment `CI passed` goes green.
 - **`Scheduled`** (`.github/workflows/scheduled.yml`) - everything on a clock,
-  and the one dispatch-only diagnostic: the nightly security pass, and the
-  egress probe that answers whether the deploy host can reach Canari. The probe
-  is on NO cron: a job that names no cron string is dispatch-only, which is how
-  a hand tool lives in this file without running every night.
+  plus the dispatch-only egress probe.
+
+Two files have no trigger of their own and no row in the Actions list:
+`code-analysis.yml` (called by the two above) and `deploy.yml` (called by the
+release).
+
+## Nothing deploys on a push - the release does
+
+**Since 2026-09-04, and in every repository of the ecosystem** (user: _"Pour tous
+les repos, le push sur main ne doit rien deployer, c'est la release qui le
+fait."_). `deploy.yml` used to fire on `workflow_run` after `Run Tests` finished
+on `main`, so every merge was a deployment: production was whatever the last
+green pull request happened to be, and nobody chose it. The human gesture that
+ships is now publishing a GitHub release:
+
+```sh
+gh release create v1.2.3 --generate-notes
+```
+
+`release.yml` asks three questions, all of them in
+`.github/scripts/release-preflight.sh` so they can be tested without a run - and
+they are, on both sides of every gate:
+
+1. **Is the version a version?**
+2. **Is the released commit on `main`?**
+3. **Did `CI passed` go green ON that commit?** Not "run the tests again". The
+   `verify` job did exactly that, and a second run is a second opinion about the
+   same tree - the one that ships. **An absent check is refused too**: that is
+   not a failure, it means nothing ever asked, and an absent measurement is not
+   permission.
+
+`skip_ci` went with `verify`. It was the escape hatch for the 2026-08-06 Actions
+outage that dropped the push triggers; the release path has no push trigger to
+lose, and a flag that skips the only evidence a deploy has is a fallback path -
+reaching one means the primary path failed, and the fix belongs there.
+
+**So a merged fix is not a shipped fix**, and that is the deliberate cost.
 
 **A build is not a boot.** `bun run build` proves `svelte-adapter-bun` produced
 something; it proves nothing about whether the thing it produced starts. Until
 2026-08-31 the only place that was ever checked was the deploy's own
 verification - which is real, and which runs _after_ pm2 has already restarted
-production with the broken build. That is a report, not a gate. `Run Tests` now
+production with the broken build. That is a report, not a gate. `CI` now
 starts `build/index.js` and asks it for a page, so the answer costs a red pull
 request instead of an outage. No `.env` is written for it: the app must start
 from nothing, which is also what proves its defaults are complete.
@@ -66,13 +93,11 @@ times out of ten on emse-students/canari. An App INSTALLATION is not an account
 with push access. _A gate whose only remedy is unavailable is a stop, not a
 gate._
 
-**And the deploy still happens.** Auto-merge merges as whoever ARMED it, and the
-arming is done with an App token, so the squash lands as a real `push` to
-`main`: `Run Tests` runs on it, `deploy.yml` sees the `workflow_run` it waits
-for, and the server gets the merged tree. That is the whole reason the App
-identity is not optional - a `GITHUB_TOKEN` merge raises no push (GitHub's
-anti-recursion rule) and `main` would drift from the server silently, which is
-exactly what the sweep's dispatch existed to paper over.
+**And the merge no longer reaches the server, which is the point.** Auto-merge merges as whoever
+ARMED it, and the arming is done with an App token, so the squash lands as a real `push` to `main`
+and `CI` runs on it - which is what the release gate reads. What it does NOT do any more is deploy:
+that is `release.yml`'s job alone. A dependency update therefore merges itself and then waits for
+somebody to decide this is the tree that ships.
 
 **The ceiling is what this repository declares itself unable to see**, and it is
 currently EMPTY - a measured answer, not an omission. It is never a semver
@@ -90,7 +115,7 @@ the boot step above, and `@humanspeak/svelte-markdown` by
 CodeQL, the TruffleHog secret scan and the vulnerability audit ran on every pull
 request and **could not block one**, because nothing required them - _a red tick
 nothing enforces is worse than no tick, because it looks enforced_, and this
-repository is PUBLIC and carried the largest advisory debt of the five. `test.yml`
+repository is PUBLIC and carried the largest advisory debt of the five. `ci.yml`
 calls it as its `security` job and aggregates everything into `CI passed`;
 `scheduled.yml` calls the same file nightly, which is the half a pull request
 cannot see: a new advisory landing against code nobody touched.

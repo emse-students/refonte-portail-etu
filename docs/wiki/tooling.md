@@ -114,14 +114,14 @@ under the compiler svelte-check drives.
 
 ## Where each gate runs
 
-| Script                        | pre-commit | pre-push | CI (`Run Tests`) |
-| ----------------------------- | ---------- | -------- | ---------------- |
-| `format:check` (oxfmt)        | yes        | yes      | yes              |
-| `lint` (oxlint)               | yes        | yes      | yes              |
-| `lint:svelte` (oxvelte)       | no         | yes      | yes              |
-| `check` (svelte-check --tsgo) | no         | yes      | yes              |
-| `test` (vitest)               | no         | yes      | yes              |
-| `build`                       | no         | yes      | yes              |
+| Script                        | pre-commit | pre-push | CI (`ci.yml`) |
+| ----------------------------- | ---------- | -------- | ------------- |
+| `format:check` (oxfmt)        | yes        | yes      | yes           |
+| `lint` (oxlint)               | yes        | yes      | yes           |
+| `lint:svelte` (oxvelte)       | no         | yes      | yes           |
+| `check` (svelte-check --tsgo) | no         | yes      | yes           |
+| `test` (vitest)               | no         | yes      | yes           |
+| `build`                       | no         | yes      | yes           |
 
 `lint:svelte` is out of the pre-commit hook because it builds a Rust binary the first time it runs
 on a machine; every run after that is a no-op grep of `.crates2.json`. In CI the binary is restored
