@@ -33,6 +33,20 @@ updates:
       - "dependencies"
       - "bun"
     open-pull-requests-limit: 5
+    # `@typescript/native` IS IGNORED BECAUSE DEPENDABOT CANNOT SEE IT AT ALL - not because this
+    # repository declines the update. It is an npm ALIAS (`npm:typescript@^7.0.2`), and Dependabot
+    # resolves a dependency by the name it is DECLARED under: it asks
+    # `registry.npmjs.org/@typescript%2Fnative`, gets a 404 because no such package exists, and
+    # fails the WHOLE update job on it. Every `bun` job in this repository had been red on that one
+    # line since at least 2026-08-24, on every single run, and nobody was looking - which is exactly
+    # what a permanently red job buys you.
+    #
+    # NO COVERAGE IS LOST, and that is the whole reason this is an ignore rather than a fix. The 404
+    # means TS 7 behind the alias was NEVER being offered an update; ignoring it removes a failure,
+    # not a capability. What retires this entry is deleting the alias - the day `typescript` itself
+    # is the 7.x line and svelte-check no longer needs both majors present.
+    ignore:
+      - dependency-name: "@typescript/native"
     groups:
       development-dependencies:
         dependency-type: "development"
