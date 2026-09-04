@@ -89,7 +89,7 @@ jobs:
       # rotated. This repo already treats its run logs as publishable; this is the same rule
       # applied to its history.
       - name: TruffleHog Secret Scan
-        uses: trufflesecurity/trufflehog@v3.97.1
+        uses: trufflesecurity/trufflehog@v3.97.2
         with:
           path: ./
           extra_args: --debug --only-verified
