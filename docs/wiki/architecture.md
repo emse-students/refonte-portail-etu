@@ -111,7 +111,7 @@ Every absolute URL the head carries - `og:url`, `og:image`, `link rel=canonical`
 every `<loc>` in the sitemap - is built from `page.url.origin`, never from a
 constant, so the same code is correct on production, on localhost and in a
 preview. Under SSR that origin comes from the request, and the adapter needs to
-be told what it is: `ecosystem.config.cjs` sets
+be told what it is: `docker-compose.yml` sets
 `ORIGIN=https://portail-etu.emse.fr`. Without it a locally started production
 build advertises `https://localhost:4319` in its canonical tag.
 
@@ -276,11 +276,14 @@ and no fallback to reach - the loaders here degrade on a **throw**, and a reques
 with no deadline never throws. It expires as a `TimeoutError`, so the route's
 `catch` is what reports it.
 
-That signal is the route's `console.error`, and pm2 now stamps it with a time
-(`time: true` in `ecosystem.config.cjs`). Without that stamp the 479 failures above
-could not be placed in time at all, which is what made the diagnosis cost a whole
-session: the count alone reads as a chronic fault, while their position in the
-append-only log showed one burst-shaped episode.
+That signal is the route's `console.error`, and every line it produces is
+stamped with a time - not by the app, but by Docker's own JSON log driver,
+read back with `docker compose logs --timestamps`. Without that stamp the 479
+failures above could not be placed in time at all, which is what made the
+diagnosis cost a whole session: the count alone reads as a chronic fault, while
+their position in the append-only log showed one burst-shaped episode. (At the
+time of that incident the process was still pm2-supervised, stamped by its own
+`time: true`; the property moved with the runtime, not the requirement.)
 
 ## Frontend structure
 

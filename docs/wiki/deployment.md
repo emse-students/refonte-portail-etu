@@ -56,11 +56,11 @@ reaching one means the primary path failed, and the fix belongs there.
 **A build is not a boot.** `bun run build` proves `svelte-adapter-bun` produced
 something; it proves nothing about whether the thing it produced starts. Until
 2026-08-31 the only place that was ever checked was the deploy's own
-verification - which is real, and which runs _after_ pm2 has already restarted
-production with the broken build. That is a report, not a gate. `CI` now
-starts `build/index.js` and asks it for a page, so the answer costs a red pull
-request instead of an outage. No `.env` is written for it: the app must start
-from nothing, which is also what proves its defaults are complete.
+verification - which is real, and which runs _after_ the container has already
+restarted production with the broken build. That is a report, not a gate. `CI`
+now starts `build/index.js` and asks it for a page, so the answer costs a red
+pull request instead of an outage. No `.env` is written for it: the app must
+start from nothing, which is also what proves its defaults are complete.
 
 ## Dependency updates, and the merge that reaches the server
 
@@ -148,29 +148,35 @@ same toolchain and dependency tree. The `bun.lock` is committed.
 
 `.bun-version` is the single source of truth. `package.json` repeats it in
 `packageManager` and `engines.bun` so a human and a tool see the same number;
-every workflow using `setup-bun` reads the file via `bun-version-file`, and
-`deploy.yml` reads it too. Change the pin in one place or not at all.
+every workflow using `setup-bun` reads the file via `bun-version-file`, and the
+`Dockerfile`'s `FROM oven/bun:1.3.8` repeats the same number by hand, since a
+Docker base image tag can't read a file in the build context. Change the pin in
+one place, and remember to change it in that second place too.
 
 Two independent properties of the deploy host set it:
 
 - **No AVX2.** The box is a KVM guest whose CPU does not advertise it, and
   Bun's ordinary `linux-x64` build requires it. `setup-bun` only ever fetches
-  that build, so `deploy.yml` downloads `bun-linux-x64-baseline` by name rather
-  than trusting a detection script - which build sits on that machine is far too
-  load-bearing to be inferred.
+  that build, which is why CI and the deploy runner never install Bun straight
+  from `setup-bun`. Inside the `Dockerfile`, `oven/bun`'s own image resolves the
+  `x64-baseline` artifact unconditionally on amd64 - not by detecting the host,
+  but because that is the only build the image ever ships for that
+  architecture - so the container gets the right binary without a detection
+  script of its own.
 - **Bun's runtime cannot start there from 1.3.9 onward.** This one cost hours of
   downtime on 2026-08-26. The failure mode is the reason: `bun --version` answers
   instantly, `bun install` succeeds, and `bun run build` succeeds _too_ - because
   `bun run` honours a bin's node shebang, so Vite actually ran under Node. Every
-  check that looked at Bun passed. Only the server itself, launched by pm2 as
-  `bun ./build/index.js`, spun at 100% CPU inside its module load - before its
+  check that looked at Bun passed. Only the server itself, launched (then) by pm2
+  as `bun ./build/index.js`, spun at 100% CPU inside its module load - before its
   first log line, before it bound a port. A CD run bisected it on the host
   itself: 1.3.14 through 1.3.9 all hang, **1.3.8 reaches user code**.
 
-So the install step is not finished when the binary answers `--version`. It runs
-a one-line `bun -e` that writes a marker file and fails the deploy if the marker
-is absent. A version string proves a binary loads; only user code running proves
-a runtime works.
+So a version string is never enough on this host - only user code running
+proves a runtime works. Since the move to Docker, that proof is `deploy.yml`'s
+"Verify the app actually answers" step, which asks the just-started container
+for a page rather than trusting that `docker compose up` reported success; the
+image tag being `1.3.8` is what keeps the question from coming up at all.
 
 **This also keeps Dependabot alive.** Bun 1.4.0 writes `lockfileVersion: 2`, and
 Bun 1.3.x cannot parse it - `UnknownLockfileVersion`. Dependabot's bundled Bun is
@@ -193,8 +199,14 @@ Runtime configuration is read via `$env/dynamic/*` (see `.env.example`):
 | `GALLERY_API_KEY`   | server-only | MiGallery API key (never sent to browser). |
 | `PORTAL_URL`        | server-only | `Origin` header for MiGallery, if needed.  |
 
-Today these live in a `.env` on the deploy server, which the deploy step
-preserves across releases.
+Today these live in a `.env` on the deploy server, rewritten by the deploy step
+on every release and loaded into the container at start via `env_file:` in
+`docker-compose.yml` - the image itself is built and could be pushed anywhere
+without ever containing a secret.
+
+`ORIGIN` and `BODY_SIZE_LIMIT` are not secrets and don't come from GitHub
+Secrets; they're set directly in `docker-compose.yml`'s `environment:` block
+(formerly `ecosystem.config.cjs`'s `env`).
 
 ## Planned: fully secret-driven CD (see backlog)
 
