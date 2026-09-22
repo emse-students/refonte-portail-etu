@@ -135,11 +135,15 @@ bun, everywhere: `bun install`, `bun run`, `bun test` and `bun` as the runtime b
 `packageManager` and `engines`, which is how CI, the deploy runner and a fresh clone resolve the
 same toolchain.
 
-**That version is 1.3.8 and the rest of the ecosystem is on 1.4.0**, deliberately, for two reasons
-that [deployment](deployment.md) sets out in full: bun's runtime cannot start on the deploy host
-from 1.3.9 onward, and 1.4.0 writes `lockfileVersion: 2`, which Dependabot cannot read - a v2
-lockfile silently stops every dependency PR here. Both are constraints rather than preferences, so
-do not "converge" this number by editing the file.
+**That version was 1.3.8 while the rest of the ecosystem sat on 1.4.0**, for two reasons that
+[deployment](deployment.md) sets out in full: bun's runtime could not start on the deploy host from
+1.3.9 onward - a property of that host's CPU lacking AVX, not of Bun - and 1.4.0 writes
+`lockfileVersion: 2`, which Dependabot cannot read. Since the host's CPU was changed to one with
+AVX2 (2026-09-22), the pin moved to **1.4.2**, re-verified by booting the actual production build
+on the host before committing to it - see deployment.md for exactly what was checked, including a
+direct test of whether `--frozen-lockfile` under 1.4.2 rewrites the existing v1 lockfile (it
+doesn't). If this repo's host constraints ever change again, re-verify against the real build
+before moving the number - don't converge it on faith just because it now matches everyone else's.
 
 ## What a contributor types
 
