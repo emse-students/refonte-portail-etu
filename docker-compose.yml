@@ -1,0 +1,16 @@
+services:
+  portail-etu:
+    build: .
+    container_name: portail-etu
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      # Written by deploy.yml from GitHub Secrets on every release, same as before.
+      - .env
+    environment:
+      # Read by the adapter at request time via $env/dynamic - no rebuild needed
+      # to change either. See docs/wiki/architecture.md on why ORIGIN matters
+      # for canonical URLs and the sitemap.
+      ORIGIN: "https://portail-etu.emse.fr"
+      BODY_SIZE_LIMIT: "10485760" # 10MB

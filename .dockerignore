@@ -1,0 +1,24 @@
+node_modules
+.git
+.github
+.husky
+.vscode
+
+# Build output - regenerated inside the image
+build
+.svelte-kit
+/src/lib/paraglide
+
+# Never ship secrets in a build layer - injected at runtime instead
+.env
+.env.*
+!.env.example
+
+# Not needed to build or run the app
+coverage
+test-results
+playwright-report
+logs
+*.log
+data-export
+docs

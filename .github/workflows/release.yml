@@ -145,7 +145,7 @@ jobs:
         run: bun run build
 
       - name: Archive the production artifact
-        run: tar -czf release-build.tar.gz build ecosystem.config.cjs package.json
+        run: tar -czf release-build.tar.gz build Dockerfile docker-compose.yml package.json
 
       # `files` only - no `body`, no `generate_release_notes`. The release already has its notes,
       # and writing over them from here would silently replace whatever a human wrote by hand.

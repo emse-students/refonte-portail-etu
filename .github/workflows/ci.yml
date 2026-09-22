@@ -127,7 +127,7 @@ jobs:
       # A BUILD IS NOT A BOOT. The step above proves `svelte-adapter-bun` produced
       # something; it proves nothing about whether the thing it produced starts. The
       # only place that was ever checked is `deploy.yml`'s "Verify the app actually
-      # answers" - which is real, and which runs AFTER pm2 has already restarted
+      # answers" - which is real, and which runs AFTER Docker has already restarted
       # production with the broken build. That is a report, not a gate.
       #
       # So the same question is asked here, where the answer costs a red pull request

@@ -53,71 +53,38 @@ jobs:
           # and on a dispatch is whatever the branch happens to be by then.
           ref: ${{ inputs.sha }}
 
-      # One bun, named in one place. `.bun-version` is the pin; every workflow
-      # that uses setup-bun reads the same file, and pm2 launches the very binary
-      # written here, so install, build and runtime can no longer disagree.
-      #
-      # Two properties of this host force both halves of that pin:
-      #
-      #  - It is a KVM guest whose CPU advertises no AVX2, so it needs the
-      #    `baseline` artifact. setup-bun always fetches the ordinary linux-x64
-      #    build, which is why the version is installed by hand here instead.
-      #  - Its runtime cannot start on bun 1.3.9 or later. `bun --version`
-      #    answers instantly and `bun install` succeeds, but a `bun -e` that only
-      #    writes one marker file spins at 100% CPU forever and leaves no marker.
-      #    That is what took production down: the server burned CPU inside its
-      #    module load, before its first log line and before it bound a port,
-      #    while every check that looked at bun still passed. A CD run bisected
-      #    it on this machine - 1.3.14 through 1.3.9 all hang, 1.3.8 reaches user
-      #    code - so 1.3.8 is the newest release this box can run, and the pin
-      #    holds until upstream fixes it or the runtime moves into a container.
-      - name: Install the pinned bun this CPU can run
-        run: |
-          BUN_VERSION="$(tr -d '[:space:]' < .bun-version)"
-          curl -fsSL -o /tmp/bun-baseline.zip "https://github.com/oven-sh/bun/releases/download/bun-v$BUN_VERSION/bun-linux-x64-baseline.zip"
-          rm -rf /tmp/bun-baseline && mkdir -p /tmp/bun-baseline
-          unzip -qo /tmp/bun-baseline.zip -d /tmp/bun-baseline
-          mkdir -p "$HOME/.bun/bin"
-          install -m 755 /tmp/bun-baseline/bun-linux-x64-baseline/bun "$HOME/.bun/bin/bun"
-          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
-
-          # A version string only proves the binary loads. This box's whole
-          # outage was a bun that answered --version and then never reached user
-          # code, so the install is not finished until it has run some.
-          rm -f /tmp/bun-alive
-          timeout 15 "$HOME/.bun/bin/bun" -e 'require("fs").writeFileSync("/tmp/bun-alive","ok")'
-          if [ ! -f /tmp/bun-alive ]; then
-            echo "::error::bun $BUN_VERSION installs but cannot reach user code on this host"
-            exit 1
-          fi
-          echo "bun $("$HOME/.bun/bin/bun" --version) (baseline), runtime verified / avx2: $(grep -qm1 avx2 /proc/cpuinfo && echo yes || echo no)"
-
-      - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          bun install --frozen-lockfile
-
-      - name: Generate SvelteKit files
-        run: bunx svelte-kit sync
-
-      - name: Build application
-        run: bun run build
-
       - name: Paste files to right location
         run: |
           cd ~/portail-etu
           # Wipe everything, including any stale hand-written .env: runtime
-          # config is rewritten from GitHub Secrets in the next step, so the
-          # server keeps no manual state and a fresh machine deploys identically.
+          # config is rewritten from GitHub Secrets further down, so the server
+          # keeps no manual state and a fresh machine deploys identically. `cp -a
+          # SRC/.` (not `SRC/*`) so dotfiles - Dockerfile's neighbour
+          # `.dockerignore` in particular - actually make the trip.
           find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-          cp ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/* . -r
+          cp -a ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/. .
+
+      # `oven/bun:1.3.8` resolves to the `x64-baseline` build on every amd64 host,
+      # unconditionally - the same artifact `.bun-version` pins everywhere else in
+      # this repo, and for the same reason: the host is a KVM guest whose CPU
+      # advertises no AVX2. That single tag also carries the other half of the
+      # pin, since this host's Bun runtime cannot reach user code on 1.3.9 or
+      # later (see docs/wiki/deployment.md) - so the image, not the runner, is now
+      # what has to stay on 1.3.8. No install step of Bun's own belongs on this
+      # runner any more: everything from `bun install` to `bun run build` now runs
+      # inside the container build, on the pinned image, every time.
+      - name: Build the Docker image
+        run: |
+          cd ~/portail-etu
+          docker compose build
 
       - name: Write runtime environment from GitHub Secrets
         # Secrets are passed via env (masked in logs) rather than interpolated
-        # into the script body. Bun auto-loads ~/portail-etu/.env at runtime, so
-        # the pm2-launched server reads these without a rebuild. Empty values are
-        # safe: the app code falls back to public defaults for the URLs and
-        # disables the avatar proxy when GALLERY_API_KEY is unset.
+        # into the script body. `docker-compose.yml` loads ~/portail-etu/.env at
+        # container start via `env_file`, so the container reads these without a
+        # rebuild - the image itself never sees a secret. Empty values are safe:
+        # the app code falls back to public defaults for the URLs and disables
+        # the avatar proxy when GALLERY_API_KEY is unset.
         env:
           PUBLIC_CANARI_URL: ${{ secrets.PUBLIC_CANARI_URL }}
           GALLERY_API_URL: ${{ secrets.GALLERY_API_URL }}
@@ -135,13 +102,19 @@ jobs:
       - name: Restart server
         run: |
           cd ~/portail-etu
-          pm2 restart ./ecosystem.config.cjs --update-env || pm2 start ./ecosystem.config.cjs
+          # --force-recreate: the image tag never changes between deploys (it's
+          # always "the code just built"), so without it Compose could decide
+          # nothing about the container's config changed and leave the old one
+          # running on the old image - the same silent no-op `pm2 restart` never
+          # had, since pm2 always re-execs the script it's given.
+          docker compose up -d --force-recreate --remove-orphans
 
-      # A deploy that only starts the process proves nothing. On 2026-08-26 every
-      # step here reported success while the site served 502: pm2 prints `online`
-      # the instant it spawns, so a process that crashes a second later still
-      # leaves a green deploy behind, and the restart counter is the only thing on
-      # that table that gives it away.
+      # A deploy that only starts the container proves nothing. On 2026-08-26
+      # every step here reported success while the site served 502: pm2 printed
+      # `online` the instant it spawned, so a process that crashed a second later
+      # still left a green deploy behind, and the restart counter was the only
+      # thing on that table that gave it away. Docker's own healthcheck-less `up`
+      # is exactly as easy to fool.
       #
       # This step is the report the deploy never had. It asks the app the one
       # question the whole deploy exists to answer - does it serve? - and when it
@@ -149,6 +122,7 @@ jobs:
       # because the runner is the only way in.
       - name: Verify the app actually answers
         run: |
+          cd ~/portail-etu
           for attempt in $(seq 1 10); do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:3000/ || true)
             if [ "$code" = "200" ]; then
@@ -160,12 +134,13 @@ jobs:
           done
 
           echo "::error::The app never answered 200. Last status: ${code:-none}."
-          # pm2 reports `online` the instant it spawns a process, so its table is
-          # not evidence that anything serves; the restart counter and the app's
-          # own output are. There is no SSH to this box - printing them here is
-          # the only way anyone sees them.
-          pm2 describe portail-etu 2>&1 |
-            grep -aiE 'status|restarts|uptime|script|exec cwd' || true
-          pm2 logs portail-etu --nostream --lines 30 2>&1 |
+          # `docker compose ps` is the restart counter pm2's table used to be -
+          # not evidence that anything serves, but evidence of how it failed.
+          # `--timestamps` replaces pm2's `time: true`, which is what let the
+          # 2026-08-26 diagnosis place 479 avatar-proxy failures in time at all
+          # instead of reading as one chronic fault. There is no SSH to this box -
+          # printing them here is the only way anyone sees them.
+          docker compose ps 2>&1 || true
+          docker compose logs --no-color --timestamps --tail 30 2>&1 |
             grep -av -iE '(secret|token|password|api[_-]?key|authorization|bearer)' || true
           exit 1
