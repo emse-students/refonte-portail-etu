@@ -144,45 +144,67 @@ Reproducibility: the Bun version is pinned and installs use
 `--frozen-lockfile`, so CI, the deploy runner and a fresh clone all resolve the
 same toolchain and dependency tree. The `bun.lock` is committed.
 
-## The Bun version is pinned to 1.3.8, and that is not arbitrary
+## The Bun version is pinned, and that is not arbitrary
 
 `.bun-version` is the single source of truth. `package.json` repeats it in
 `packageManager` and `engines.bun` so a human and a tool see the same number;
 every workflow using `setup-bun` reads the file via `bun-version-file`, and the
-`Dockerfile`'s `FROM oven/bun:1.3.8` repeats the same number by hand, since a
-Docker base image tag can't read a file in the build context. Change the pin in
-one place, and remember to change it in that second place too.
+`Dockerfile`'s `FROM oven/bun:<version>` repeats the same number by hand, since
+a Docker base image tag can't read a file in the build context. Change the pin
+in one place, and remember to change it in that second place too.
 
-Two independent properties of the deploy host set it:
+### 2026-08 to 2026-09: pinned to 1.3.8, because the host had no AVX2
 
-- **No AVX2.** The box is a KVM guest whose CPU does not advertise it, and
-  Bun's ordinary `linux-x64` build requires it. `setup-bun` only ever fetches
-  that build, which is why CI and the deploy runner never install Bun straight
-  from `setup-bun`. Inside the `Dockerfile`, `oven/bun`'s own image resolves the
-  `x64-baseline` artifact unconditionally on amd64 - not by detecting the host,
-  but because that is the only build the image ever ships for that
-  architecture - so the container gets the right binary without a detection
-  script of its own.
-- **Bun's runtime cannot start there from 1.3.9 onward.** This one cost hours of
-  downtime on 2026-08-26. The failure mode is the reason: `bun --version` answers
-  instantly, `bun install` succeeds, and `bun run build` succeeds _too_ - because
-  `bun run` honours a bin's node shebang, so Vite actually ran under Node. Every
-  check that looked at Bun passed. Only the server itself, launched (then) by pm2
-  as `bun ./build/index.js`, spun at 100% CPU inside its module load - before its
-  first log line, before it bound a port. A CD run bisected it on the host
-  itself: 1.3.14 through 1.3.9 all hang, **1.3.8 reaches user code**.
+For about a month the pin was held at 1.3.8 by a property of the deploy host,
+not of Bun: it was a KVM guest whose CPU **did not advertise AVX2 - or AVX at
+all**. Bun 1.3.9 through at least 1.3.14 crash on a CPU like that: `bun
+--version` answers instantly, `bun install` succeeds, `bun run build` succeeds
+too (because `bun run` honours a bin's node shebang, so Vite actually ran under
+Node) - and then the real runtime, launched (then) by pm2 as
+`bun ./build/index.js`, either spun at 100% CPU inside its module load with no
+log line and no bound port, or - reproduced directly on the host on 2026-09-22 -
+printed `CPU lacks AVX support`, ballooned to 16 GB RSS over 46 seconds, and
+segfaulted. Every check that only looked at Bun's own CLI passed; only the
+actual bundled server running proved otherwise. A CD run bisected it on the
+host itself in August: 1.3.14 through 1.3.9 all fail, **1.3.8 reaches user
+code**.
 
-So a version string is never enough on this host - only user code running
-proves a runtime works. Since the move to Docker, that proof is `deploy.yml`'s
-"Verify the app actually answers" step, which asks the just-started container
-for a page rather than trusting that `docker compose up` reported success; the
-image tag being `1.3.8` is what keeps the question from coming up at all.
+`oven/bun`'s Docker images resolve the `x64-baseline` build unconditionally on
+amd64 - not by detecting the host, but because that's the only x64 build the
+image ever ships - so the container got the right binary without a detection
+script of its own. That half of the reasoning is permanent and has nothing to
+do with the version number: baseline is the safe default on any x64 host
+regardless of what it advertises.
 
-**This also keeps Dependabot alive.** Bun 1.4.0 writes `lockfileVersion: 2`, and
-Bun 1.3.x cannot parse it - `UnknownLockfileVersion`. Dependabot's bundled Bun is
-1.3.x, so a v2 lockfile silently stops every dependency PR in this repo. At 1.3.8
-the lockfile stays at version 1 and Dependabot keeps working. Any future move
-past 1.4.0 has to answer that question first.
+### 2026-09-22: the host's CPU was changed, and 1.4.2 was re-verified from scratch
+
+The KVM host's CPU model was changed to one that advertises real `avx`/`avx2`
+(confirmed via `lscpu`/`/proc/cpuinfo`). Since the original failure was tied to
+the missing instruction set rather than to Bun's code, that's a testable claim,
+not an assumption to take on faith: the actual production build (extracted from
+the running container, not a synthetic script) was booted under `oven/bun:1.4.2`
+directly on the host - clean boot, immediate `Listening on ...` log line,
+`HTTP 200`, ~1% CPU, ~15 MB RSS. The pin moved to 1.4.2 on that evidence.
+
+**A version string is still never enough on this host by itself** - only user
+code running proves a runtime works, which is why this was re-verified against
+the real build rather than `bun --version` or `bun install`. Since the move to
+Docker, the standing proof of that on every deploy is `deploy.yml`'s "Verify
+the app actually answers" step, which asks the just-started container for a
+page rather than trusting that `docker compose up` reported success.
+
+**The Dependabot lockfile concern was checked, not just remembered.** Bun 1.4.0
+introduced `lockfileVersion: 2`, which Bun 1.3.x (Dependabot's bundled version)
+cannot parse - `UnknownLockfileVersion` - which would silently stop every
+dependency PR in this repo if `bun.lock` ever got rewritten to v2. Before
+adopting 1.4.2 this was tested directly: `bun install --frozen-lockfile` under
+1.4.2 against this repo's existing v1 `bun.lock` leaves it at
+`lockfileVersion: 1` - the flag that every install in this repo already uses
+(CI, the Docker build, the deploy runner) does not upgrade the format. The
+residual risk is unchanged from before and unrelated to this pin: a human
+running a plain `bun install` (no `--frozen-lockfile`) with a newer local Bun
+and committing the result could still write v2, exactly as it could have with
+any previous version.
 
 The general rule this leaves: **a repo moved to the Bun runtime must be verified
 on its target host, not only in CI.** CI runs on a different machine, and here

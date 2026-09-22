@@ -1,10 +1,10 @@
-# 1.3.8 is pinned here for the same reason it is pinned in `.bun-version`: on the
-# production host (a KVM guest with no AVX2) Bun's runtime cannot reach user code
-# from 1.3.9 onward - it spins at 100% CPU during module load, before its first
-# log line and before it binds a port, while `--version` and `bun install` both
-# still succeed. See docs/wiki/deployment.md. oven/bun's images always resolve the
-# x64-baseline build regardless of tag, which is the other half of that pin.
-FROM oven/bun:1.3.8 AS build
+# Pinned to the same version as `.bun-version`, for the same reason: reproducible
+# builds across CI, deploy and this image. Bun was held at 1.3.8 for months because
+# 1.3.9+ crashed on the production host - a KVM guest whose CPU lacked AVX, which
+# some Bun codegen path silently required. That was a hardware property, not a Bun
+# bug: once the host's CPU model was changed to one with AVX/AVX2, 1.4.2 was
+# re-verified to boot the actual production build cleanly. See docs/wiki/deployment.md.
+FROM oven/bun:1.4.2 AS build
 WORKDIR /app
 
 # The whole tree is needed before `bun install`, not just the lockfile: `prepare`
@@ -15,7 +15,7 @@ COPY . .
 RUN bun install --frozen-lockfile
 RUN bunx svelte-kit sync && bun run build
 
-FROM oven/bun:1.3.8-slim AS runtime
+FROM oven/bun:1.4.2-slim AS runtime
 WORKDIR /home/bun/app
 
 # svelte-adapter-bun's output is self-contained (everything is bundled at build
