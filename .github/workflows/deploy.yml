@@ -61,8 +61,15 @@ jobs:
           # keeps no manual state and a fresh machine deploys identically. `cp -a
           # SRC/.` (not `SRC/*`) so dotfiles - Dockerfile's neighbour
           # `.dockerignore` in particular - actually make the trip.
+          #
+          # THE SOURCE IS `$GITHUB_WORKSPACE`, NEVER A PATH SPELLED OUT HERE. It used to read
+          # `~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu`, which encoded three
+          # things this file has no business knowing: where the runner is installed, whose home it
+          # sits in, and how Actions lays out `_work`. All three moved the day the runner left a
+          # personal account for the `gha-runner` service account, and none of them is a fact about
+          # this deploy. Actions already hands the checkout directory over in this variable.
           find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-          cp -a ~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu/. .
+          cp -a "${GITHUB_WORKSPACE}/." .
 
       # `oven/bun` resolves to the `x64-baseline` build on every amd64 host,
       # unconditionally - the safe default regardless of what the host CPU

@@ -210,6 +210,36 @@ The general rule this leaves: **a repo moved to the Bun runtime must be verified
 on its target host, not only in CI.** CI runs on a different machine, and here
 the difference was one CPU feature flag.
 
+## The runner, and the account it runs as
+
+**One self-hosted runner, registered at the organisation level, installed on the
+deploy host itself.** It is what makes `runs-on: self-hosted` reach the box at
+all: there is no SSH path into this machine from CI, so the runner is not a
+convenience, it is the only way in. `deploy.yml` and the egress probe in
+`scheduled.yml` are the only jobs that use it; everything else runs on
+`ubuntu-latest`.
+
+**It runs as a dedicated service account, `gha-runner`, since 2026-09-24.** It
+ran as a person's login for as long as it existed, which coupled every
+deployment of this portal to one human account on a machine we share with other
+associations: the day that account is closed or renamed, the runner stops and
+the deploy stops with it, for a reason nobody would look for. The service
+account has no password, no `sudo` and one group - `docker`, which the deploy
+needs and which is what gives it its real privilege.
+
+|                 | Path                                                     |
+| --------------- | -------------------------------------------------------- |
+| Runner install  | `/opt/actions-runner/runners/<repository>/`              |
+| Deploy checkout | `~/portail-etu`, the directory `deploy.yml` works in     |
+| Service unit    | `actions.runner.<org>.<name>.service`, `User=gha-runner` |
+
+**No workflow spells out where the runner lives.** `deploy.yml` reads
+`$GITHUB_WORKSPACE` for the built tree and `~` for its deploy directory, so
+moving the runner, renaming the account or a change in how Actions lays out
+`_work` reaches nothing in this repository. The one line that did spell it out
+is what had to be edited to move the account at all, which is the argument
+against ever writing another.
+
 ## Environment and secrets
 
 Runtime configuration is read via `$env/dynamic/*` (see `.env.example`):
