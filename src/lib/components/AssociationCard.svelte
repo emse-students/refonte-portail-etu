@@ -13,6 +13,21 @@
 	} = $props();
 
 	const isList = $derived(association.type === "list");
+
+	/**
+	 * A LIST'S SECOND THEME, small, under the main name - the same subordinate row `EntityDetail`
+	 * and Canari's own tile draw. Either half may exist without the other, so the row appears when
+	 * EITHER is present and the logo falls back to the main name for its initials.
+	 */
+	const secondName = $derived(isList ? (association.name2?.trim() ?? "") : "");
+	const secondLogoId = $derived(isList ? (association.logoMediaId2?.trim() ?? "") : "");
+	const hasSecondTheme = $derived(Boolean(secondName) || Boolean(secondLogoId));
+	const secondTheme = $derived({
+		name: secondName || association.name,
+		logoMediaId: secondLogoId || null,
+		logoUrl: null,
+		color: association.color,
+	});
 </script>
 
 <GlassCard href="{base}/{association.slug}" class="flex items-center gap-4 p-4 group">
@@ -29,6 +44,17 @@
 		>
 			{association.name}
 		</h3>
+		{#if hasSecondTheme}
+			<div class="flex items-center gap-2 mb-1">
+				<AssociationLogo association={secondTheme} size={24} />
+				{#if secondName}
+					<span
+						class="min-w-0 text-sm font-semibold text-mines-navy/60 dark:text-mines-platinum/60 line-clamp-1"
+						>{secondName}</span
+					>
+				{/if}
+			</div>
+		{/if}
 		<div
 			class="flex flex-wrap items-center gap-2 text-sm text-mines-navy/70 dark:text-mines-platinum/70"
 		>
