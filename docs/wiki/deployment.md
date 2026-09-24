@@ -229,7 +229,7 @@ needs and which is what gives it its real privilege.
 
 |                 | Path                                                     |
 | --------------- | -------------------------------------------------------- |
-| Runner install  | `/opt/actions-runner/runners/<repository>/`              |
+| Runner install  | `/opt/actions-runner/runners/portail-etu/`               |
 | Deploy checkout | `~/portail-etu`, the directory `deploy.yml` works in     |
 | Service unit    | `actions.runner.<org>.<name>.service`, `User=gha-runner` |
 
@@ -239,6 +239,28 @@ moving the runner, renaming the account or a change in how Actions lays out
 `_work` reaches nothing in this repository. The one line that did spell it out
 is what had to be edited to move the account at all, which is the argument
 against ever writing another.
+
+### The deploy job has NOT run since the move, and what that does and does not mean
+
+The runner moved on 2026-09-24; the last `Deploy` run was **2026-09-04**. What
+was proven after the move is that the runner picks up work at all - the
+scheduled egress probe, the only other `self-hosted` job, was dispatched and
+came back `success`. **The deploy path itself is verified by inspection, not by
+a run**, and the next release is where it is really tested:
+
+- `~` for `gha-runner` resolves to `/opt/actions-runner`, so `~/portail-etu`
+  is `/opt/actions-runner/portail-etu`, which exists and carries the tree;
+- the running container still reports `/home/muselli/portail-etu/docker-compose.yml`
+  as its config file, because it was created before the move and nothing has
+  recreated it since;
+- **the project name is `portail-etu` on both sides**, so the next deploy
+  adopts that project rather than standing a second one beside it. That used
+  to be true because both directories happened to share a basename; it is now
+  written in the compose file.
+
+The stack holds **no named volume and no bind mount**, so nothing persistent
+rides on any of this - a failed deploy costs the portal its uptime, never its
+data.
 
 ## Environment and secrets
 
