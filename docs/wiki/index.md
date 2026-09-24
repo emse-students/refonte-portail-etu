@@ -1,7 +1,7 @@
 # Portail Étudiant ICM - Technical Wiki
 
 The read-only showcase (vitrine) of associative life at the École des Mines de
-Saint-Étienne, and the open face of [Canari](https://canari-emse.fr).
+Saint-Étienne, and the open face of [Canari](https://canari.emse.fr).
 
 This wiki is the canonical technical documentation. Start here.
 

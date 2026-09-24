@@ -7,8 +7,8 @@ The portal is a thin, read-only view over Canari. It holds no data of its own:
 ```
 Browser ──► Portail (SvelteKit, adapter-bun)
    │
-   ├──► GET https://canari-emse.fr/api/public/*      (associations, lists, members)
-   ├──► GET https://canari-emse.fr/api/media/public/* (logos)
+   ├──► GET https://canari.emse.fr/api/public/*      (associations, lists, members)
+   ├──► GET https://canari.emse.fr/api/media/public/* (logos)
    └──► GET /api/users/:id/avatar ──► MiGallery       (member faces, server-proxied)
 ```
 
@@ -44,6 +44,13 @@ The probe stays in the repo rather than being deleted with the claim it settled:
 if server-side egress ever breaks, this is the one command that says so, and it
 prints status codes, byte counts and timings only - never a body, a header or an
 environment value, because the repository is public.
+
+**Re-checked for `canari.emse.fr`, 2026-09-25** - Canari's estate migration moved production onto
+the SAME shared host `portail-etu.emse.fr` already runs on, which raised a real question this time:
+does the new name share the portal's own public IP, reintroducing the hairpin this section refuted?
+It does not: `canari.emse.fr` resolves to `193.49.175.122` while `portail-etu.emse.fr` is
+`193.49.175.67`, different addresses just like the Cloudflare-vs-origin case above. A curl from the
+target host itself confirmed it end to end: `200`, `87ms`.
 
 **What it cost.** With `ssr = false`, `<svelte:head>` never ran on the server, so
 every page shipped a head with no title, no description and no preview image -
@@ -142,7 +149,7 @@ are in [`src/lib/types.ts`](../../src/lib/types.ts).
 | `/api/public/carte`                   | The published Carte de la Vie Asso |
 | `/api/media/public/:id`               | A public logo blob                 |
 
-`PUBLIC_CANARI_URL` overrides the base URL (defaults to `https://canari-emse.fr`).
+`PUBLIC_CANARI_URL` overrides the base URL (defaults to `https://canari.emse.fr`).
 
 ## The Carte de la Vie Asso
 

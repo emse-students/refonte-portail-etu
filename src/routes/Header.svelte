@@ -66,7 +66,7 @@
 				<LocaleToggle />
 				<ThemeToggle />
 				<Button
-					href="https://canari-emse.fr"
+					href="https://canari.emse.fr"
 					variant="primary"
 					class="px-5! py-2! text-sm"
 					target="_blank"
@@ -146,7 +146,7 @@
 			{/each}
 			<div class="mt-4 pt-4 border-t border-white/10">
 				<Button
-					href="https://canari-emse.fr"
+					href="https://canari.emse.fr"
 					variant="primary"
 					class="w-full"
 					target="_blank"
