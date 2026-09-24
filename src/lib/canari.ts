@@ -7,7 +7,7 @@ import { OUTBOUND_BUDGET_MS } from "$lib/outbound";
  * PUBLIC_CANARI_URL env var (bun adapter reads it without a rebuild); defaults
  * to production. Used for both the read-only API and public media (logos).
  */
-export const CANARI_URL = (env.PUBLIC_CANARI_URL || "https://canari-emse.fr").replace(/\/$/, "");
+export const CANARI_URL = (env.PUBLIC_CANARI_URL || "https://canari.emse.fr").replace(/\/$/, "");
 
 /** Absolute URL of the public read-only API root. */
 const API = `${CANARI_URL}/api/public`;

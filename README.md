@@ -2,7 +2,7 @@
 
 The open, read-only **showcase** (vitrine) of student associative life at the
 École des Mines de Saint-Étienne. It is the public face of
-[Canari](https://canari-emse.fr): it lists associations and campaign lists with
+[Canari](https://canari.emse.fr): it lists associations and campaign lists with
 their members, and points visitors to the wider student ecosystem (Canari,
 MiGallery, Sky, Le Cercle).
 
@@ -13,9 +13,11 @@ read-only API; associations, lists and members are managed inside Canari.
 
 - **Frontend**: SvelteKit 5 (Svelte runes) + TailwindCSS, served by
   `svelte-adapter-bun`.
-- **Client-rendered**: pages render in the browser (`ssr = false`) because the
-  deploy host cannot reach `canari-emse.fr` server-side; the browser fetches the
-  public API directly.
+- **Server-rendered, then hydrated** (`ssr = true`): the server renders the
+  first view, hydration re-fetches nothing, and a later client-side navigation
+  reaches Canari straight from the visitor's browser (see
+  [`src/routes/+layout.ts`](src/routes/+layout.ts) for why this was `ssr = false`
+  and no longer is).
 - **Data source**: Canari's public API at `${PUBLIC_CANARI_URL}/api/public/*`
   (associations, lists, members). Logos are public media blobs on the same host.
 - **Avatars**: member faces are proxied same-origin through
@@ -42,7 +44,7 @@ bun run dev             # http://localhost:5173
 
 | Variable            | Required | Purpose                                                                           |
 | ------------------- | -------- | --------------------------------------------------------------------------------- |
-| `PUBLIC_CANARI_URL` | no       | Base URL of the Canari instance. Defaults to `https://canari-emse.fr`.            |
+| `PUBLIC_CANARI_URL` | no       | Base URL of the Canari instance. Defaults to `https://canari.emse.fr`.            |
 | `GALLERY_API_URL`   | yes\*    | MiGallery base URL. Avatar endpoint is `${GALLERY_API_URL}/users/:id/avatar`.     |
 | `GALLERY_API_KEY`   | yes\*    | Server-side MiGallery API key for the avatar proxy. Never exposed to the browser. |
 | `PORTAL_URL`        | no       | `Origin` header sent to MiGallery, if it enforces one.                            |

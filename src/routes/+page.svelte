@@ -59,7 +59,7 @@
 		<div class="flex flex-wrap gap-4 justify-center">
 			<Button href="/associations" variant="primary">{m.home_cta_explore()}</Button>
 			<Button
-				href="https://canari-emse.fr"
+				href="https://canari.emse.fr"
 				variant="ghost"
 				target="_blank"
 				rel="noopener noreferrer"
