@@ -1,3 +1,11 @@
+# Stated, never inferred. Sans cette ligne le nom du projet Compose est le nom du DOSSIER ou le
+# fichier se trouve - et ce dossier vient de changer, de /home/muselli/portail-etu vers
+# /opt/actions-runner/portail-etu, quand le runner a quitte un compte personnel. Les deux
+# s appellent "portail-etu", donc le projet est reste le meme; par coincidence, pas par ecrit. Un
+# dossier nomme autrement aurait cree un SECOND projet a cote, laissant l ancien conteneur tourner
+# et repondre.
+name: portail-etu
+
 services:
   portail-etu:
     build: .
