@@ -94,12 +94,17 @@ jobs:
           }
 
           echo "--- what this host resolves ---"
+          getent hosts canari.emse.fr || echo "canari.emse.fr does not resolve here"
           getent hosts canari-emse.fr || echo "canari-emse.fr does not resolve here"
           getent hosts portail-etu.emse.fr || echo "portail-etu.emse.fr does not resolve here"
 
           echo "--- what this host can reach ---"
-          probe "canari-public-associations" "https://canari-emse.fr/api/public/associations?type=association"
-          probe "canari-version" "https://canari-emse.fr/api/version"
+          probe "canari-public-associations" "https://canari.emse.fr/api/public/associations?type=association"
+          probe "canari-version" "https://canari.emse.fr/api/version"
+          # The legacy name, kept as a second measurement rather than replaced: it is the one the
+          # 2026-08-19 run went out to Cloudflare through, and `canari.emse.fr` is not behind
+          # Cloudflare at all. If the two answer differently, the difference IS the finding.
+          probe "canari-version-legacy" "https://canari-emse.fr/api/version"
           # A control: if this fails too, the finding is "no egress at all", which
           # is a different diagnosis and a different fix.
           probe "control-cloudflare" "https://1.1.1.1/"

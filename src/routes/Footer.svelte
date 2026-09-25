@@ -46,7 +46,7 @@
 						>{m.footer_ecosystem_heading()}</span
 					>
 					<a
-						href="https://canari-emse.fr"
+						href="https://canari.emse.fr"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit group"

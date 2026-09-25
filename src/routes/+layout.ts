@@ -9,6 +9,13 @@
  * the request leaves for Cloudflare rather than hairpinning through the portal's own NAT, and it
  * came back `status=200 bytes=30732` in 122 ms.
  *
+ * **AND THE NETWORK MOVED AGAIN ON 2026-09-24, so that paragraph is a record and not a current
+ * measurement.** Canari is reached as `canari.emse.fr` now, which is NOT behind Cloudflare at all -
+ * it resolves straight to the shared host this site is deployed on. The 2026-08-19 run measured
+ * `canari-emse.fr` going out to anycast; the route it described no longer exists for the name this
+ * code now fetches. Whether SSR still reaches the API, and by which path, is unmeasured - re-run
+ * the egress probe in `.github/workflows/scheduled.yml` before treating either paragraph as true.
+ *
  * The cost of leaving it off was the whole point of this site. It is the PUBLIC face of the
  * ecosystem - no login, no editing - and with `ssr = false` `<svelte:head>` never ran on the
  * server, so every page shipped a head with no title, no description and no preview image. Measured

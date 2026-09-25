@@ -18,7 +18,7 @@ export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Canari",
 		id: "canari",
-		url: "https://canari-emse.fr",
+		url: "https://canari.emse.fr",
 		icon: "/links/canari.png",
 		accent: "#1b263b",
 	},
