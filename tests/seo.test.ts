@@ -4,7 +4,9 @@ import {
 	breadcrumbNode,
 	canonicalUrl,
 	defaultImage,
+	entityDescription,
 	fullTitle,
+	META_DESCRIPTION_MAX,
 	institutionNode,
 	itemListNode,
 	organizationNode,
@@ -41,11 +43,36 @@ describe("absolute URLs", () => {
 });
 
 describe("fullTitle", () => {
-	it("suffixes a section, and leaves the home page as the bare site name", () => {
+	it("suffixes a section, and names the school on the home page", () => {
 		expect(fullTitle({ section: "Associations", description: "x" })).toBe(
 			"Associations - Portail Étudiant ICM"
 		);
-		expect(fullTitle({ description: "x" })).toBe("Portail Étudiant ICM");
+		expect(fullTitle({ description: "x" })).toBe("Portail Étudiant ICM - Mines Saint-Étienne");
+	});
+});
+
+describe("entityDescription", () => {
+	const lead = "BDE, association étudiante de l'École des Mines de Saint-Étienne.";
+
+	it("is the lead alone when the entity has no tagline", () => {
+		expect(entityDescription(lead, null)).toBe(lead);
+		expect(entityDescription(lead, "   ")).toBe(lead);
+	});
+
+	it("follows the lead with the tagline, so 75 pages do not share one sentence", () => {
+		expect(entityDescription(lead, "Boisson technique")).toBe(`${lead} Boisson technique`);
+	});
+
+	it("strips the markup a tagline typed in Canari can carry, and collapses its whitespace", () => {
+		expect(entityDescription(lead, "LISTE BDE 2023<br>Que la  vérité\néclate")).toBe(
+			`${lead} LISTE BDE 2023 Que la vérité éclate`
+		);
+	});
+
+	it("cuts a long tagline at a word boundary, within what a search result shows", () => {
+		const out = entityDescription(lead, "mot ".repeat(80));
+		expect(out.length).toBeLessThanOrEqual(META_DESCRIPTION_MAX);
+		expect(out.endsWith("mot…")).toBe(true);
 	});
 });
 

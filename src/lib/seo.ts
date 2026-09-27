@@ -40,6 +40,30 @@ export function canonicalUrl(origin: string, pathname: string): string {
 	return `${origin}${pathname}`;
 }
 
+/** Where a search result cuts a description; past it the sentence is lost mid-word. */
+export const META_DESCRIPTION_MAX = 160;
+
+/**
+ * An entity page's description: what the page IS, then the entity's own tagline when it has one.
+ *
+ * The tagline alone is not a description - most are in-jokes ("Boisson technique") that tell a
+ * reader nothing about the page - and the lead alone is the same sentence on 75 pages, which an
+ * engine discards and rewrites (SEO audit, 2026-09-27). Taglines are typed in Canari and some carry
+ * markup (`<br>`), so tags are stripped and whitespace collapsed; the result is cut at a word
+ * boundary so it never ends mid-word.
+ */
+export function entityDescription(lead: string, tagline: string | null): string {
+	const plain = (tagline ?? "")
+		.replace(/<[^>]*>/g, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+	const text = plain ? `${lead} ${plain}` : lead;
+	if (text.length <= META_DESCRIPTION_MAX) return text;
+	const cut = text.slice(0, META_DESCRIPTION_MAX - 1);
+	const lastSpace = cut.lastIndexOf(" ");
+	return `${lastSpace > lead.length ? cut.slice(0, lastSpace) : cut}…`;
+}
+
 /** The full title, so a caller never rebuilds the suffix. */
 export function fullTitle(meta: SeoMeta): string {
 	return pageTitle(meta.section);

@@ -90,6 +90,29 @@ crawler treats a broken sitemap as a reason to stop asking. Archived entities ar
 skipped: still reachable by URL, simply not something to put in front of a search
 engine on their own.
 
+It carries no `<lastmod>`, deliberately: the public API exposes no modification date, and an
+invented one (the request time, the build time) is worse than none - Google stops trusting a
+site's `lastmod` once it has caught it lying. It becomes worth adding the day Canari's public
+projection carries an `updatedAt`.
+
+### What a result shows: the title and the description (audit 2026-09-27)
+
+Everything above was in place; what a search result actually PRINTS was not. Two fixes:
+
+- **The home title names the school** - `HOME_TITLE` in `src/lib/site.ts`, `Portail Étudiant ICM -
+Mines Saint-Étienne`. The brand alone ranks for nothing anyone types. Inner pages keep the short
+  suffix: their own name already says what they are, and a result cuts a title at ~60 characters.
+- **An entity's description is `entityDescription(lead, tagline)`** in `src/lib/seo.ts`: what the
+  page IS (`association_meta_description` / `list_meta_description`, "X, association étudiante de
+  l'École des Mines de Saint-Étienne."), then the entity's own tagline from Canari when it has one.
+  The old template (`Présentation de X à l'EMSE.`) was one sentence on 75 pages, which an engine
+  discards and rewrites; the tagline alone is usually an in-joke ("Boisson technique"). Markup
+  typed into a tagline (`<br>`) is stripped, and the result is cut at a word boundary within 160
+  characters. Measured: 22 of 31 active associations and 17 of 44 lists have a tagline.
+
+`static/robots.txt` also stopped `Allow`ing `/autres-sites` and `/partenariats`, two routes that
+no longer exist (both `404`).
+
 ### A 404 is a claim, and only the API may make it
 
 Both detail loaders used to answer 404 for any upstream failure. In a SPA that
