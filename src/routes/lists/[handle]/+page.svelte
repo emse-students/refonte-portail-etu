@@ -4,7 +4,7 @@
 	import { m } from "$lib/paraglide/messages";
 	import { page } from "$app/state";
 	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode, organizationNode } from "$lib/seo";
+	import { breadcrumbNode, entityDescription, organizationNode } from "$lib/seo";
 	import { logoUrl } from "$lib/media";
 
 	let { data } = $props();
@@ -13,7 +13,10 @@
 <Seo
 	meta={{
 		section: data.list.name,
-		description: m.list_meta_description({ name: data.list.name }),
+		description: entityDescription(
+			m.list_meta_description({ name: data.list.name }),
+			data.list.description
+		),
 		type: "article",
 		image: logoUrl(data.list),
 		imageAlt: data.list.name,

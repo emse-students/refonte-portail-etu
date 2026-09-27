@@ -57,8 +57,6 @@ Allow: /associations
 Allow: /associations/*
 Allow: /lists
 Allow: /lists/*
-Allow: /autres-sites
-Allow: /partenariats
 
 # Disallow crawling of API endpoints
 Disallow: /api/
