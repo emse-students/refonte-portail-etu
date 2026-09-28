@@ -32,7 +32,7 @@ export const featuredLinks: FeaturedLink[] = [
 	{
 		name: "Sky",
 		id: "sky",
-		url: "https://sky.mitv.fr",
+		url: "https://sky.emse.fr",
 		icon: "/links/sky.png",
 		accent: "#778da9",
 	},
