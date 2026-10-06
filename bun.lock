@@ -8,7 +8,7 @@
         "@fontsource-variable/fredoka": "^5.3.0",
         "@fontsource-variable/nunito": "^5.3.0",
         "@fontsource/fira-mono": "^5.3.0",
-        "@humanspeak/svelte-markdown": "^1.9.2",
+        "@humanspeak/svelte-markdown": "^2.0.0",
         "@inlang/paraglide-js": "^2.25.4",
         "@lucide/svelte": "^1.48.0",
         "@sveltejs/kit": "^2.70.3",
@@ -115,9 +115,9 @@
 
     "@fontsource/fira-mono": ["@fontsource/fira-mono@5.3.0", "", {}, "sha512-FZzRwKhpoXQU1uhEGKUg5AHUUdfiaTXxGCdBBeGHUmcZaqEDEmndSVvpXHkSViH25f/UiWfhcWTib+6A8o4qeQ=="],
 
-    "@humanspeak/memory-cache": ["@humanspeak/memory-cache@1.1.2", "", {}, "sha512-6kmeqrCVThw4RYZsJ74l9cOdZQ84XHnGIzrv+Po49CZBNNVDEzi0CGsTx+KKmr/Hb6hY6yDGxeWTiz4VHkdsEg=="],
+    "@humanspeak/memory-cache": ["@humanspeak/memory-cache@1.2.0", "", {}, "sha512-im7GIIpgjdD6Fx68xCeiXw3XiDv30/WMRAaodMm+ep0ptYfEUd0cdNeTAylHGIRTJIeByKFHdTmPjAktyDM/JQ=="],
 
-    "@humanspeak/svelte-markdown": ["@humanspeak/svelte-markdown@1.9.2", "", { "dependencies": { "@humanspeak/memory-cache": "^1.1.2", "github-slugger": "^2.0.0", "htmlparser2": "^12.0.0", "marked": "^18.0.9" }, "peerDependencies": { "katex": ">=0.16.0", "mermaid": ">=10.0.0", "shiki": ">=4.0.0", "svelte": "^5.0.0" }, "optionalPeers": ["katex", "mermaid", "shiki"] }, "sha512-sczMB4oNSpADBWT6l9AkIErpJDDzGsamzl2/w3J5yAYBWWofLcmVDCti5KY5l0+Cec2p9xyb73qkkukoNmLPWQ=="],
+    "@humanspeak/svelte-markdown": ["@humanspeak/svelte-markdown@2.0.0", "", { "dependencies": { "@humanspeak/memory-cache": "^1.2.0", "github-slugger": "^2.0.0", "htmlparser2": "^12.0.0", "marked": "^18.0.14" }, "peerDependencies": { "@tanstack/highlight": ">=0.1.0", "katex": ">=0.16.0", "mermaid": ">=10.0.0", "shiki": ">=4.0.0", "svelte": "^5.0.0" }, "optionalPeers": ["@tanstack/highlight", "katex", "mermaid", "shiki"] }, "sha512-Dg3YNMMX0/ZOVNKGEilQjagMT8a/GgfufDycWxRoLXqVd/Ygs3WCQuwrsqJuBST4fAK5oFh0jql1c6Unw3o9iA=="],
 
     "@inlang/paraglide-js": ["@inlang/paraglide-js@2.25.4", "", { "dependencies": { "@inlang/recommend-sherlock": "^0.2.1", "@inlang/sdk": "^3.0.6", "commander": "11.1.0", "consola": "3.4.0", "jiti": "^2.7.0", "json5": "2.2.3", "unplugin": "^2.1.2", "urlpattern-polyfill": "^10.0.0", "valibot": "^1.4.2" }, "peerDependencies": { "typescript": ">=5.6", "vite": ">=5.0.0" }, "optionalPeers": ["typescript", "vite"], "bin": { "paraglide-js": "bin/run.js" } }, "sha512-z8OoKAcPT0DwlfTQ/SvaPBQILrtmkl4lUPCSQPjKxqERRp1n7W7a2eKi7EvfylatWivSZFGHGjlB6Ad20w0nzw=="],
 
@@ -569,7 +569,7 @@
 
     "magicast": ["magicast@0.5.4", "", { "dependencies": { "@babel/parser": "^7.29.7", "@babel/types": "^7.29.7", "source-map-js": "^1.2.1" } }, "sha512-llBEhWm1SacoRwgHUoQJYtwp4PBLF4faQi5TCpIGyGs9n4y5+juI0tDgyKIfpqxckRHaHzouUEph3THklWh03w=="],
 
-    "marked": ["marked@18.0.11", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw=="],
+    "marked": ["marked@18.1.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-PamYXWWWg2nboG3oX5Ffzpy3EFZROqZJK9hSlMmUnekp7TxPs5DcT95vwd46m73/exfKCRVMtgXoPMI4FEJL6w=="],
 
     "mdn-data": ["mdn-data@2.27.1", "", {}, "sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ=="],
 
