@@ -1,5 +1,6 @@
 import type { PageLoad } from "./$types";
 import { CanariApiError, getAssociationBySlug } from "$lib/canari";
+import { listsPeople, NOINDEX } from "$lib/robots";
 import { error } from "@sveltejs/kit";
 import { m } from "$lib/paraglide/messages";
 
@@ -12,9 +13,11 @@ import { m } from "$lib/paraglide/messages";
  * a search engine to deindex a page that exists, over a blip. 503 is the status that means "ask
  * again", and it is what both a crawler and a visitor need here.
  */
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ fetch, params, setHeaders }) => {
 	try {
 		const association = await getAssociationBySlug(fetch, params.handle);
+		// Same rule as the `<meta>` the page emits, for clients that stop at the headers.
+		if (listsPeople(association)) setHeaders({ "X-Robots-Tag": NOINDEX });
 		return { association };
 	} catch (e) {
 		if (e instanceof CanariApiError && !e.isAbsent) {

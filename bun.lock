@@ -6,8 +6,10 @@
       "name": "portailetu",
       "devDependencies": {
         "@fontsource-variable/fredoka": "^5.3.0",
+        "@fontsource-variable/inter": "^5.3.0",
         "@fontsource-variable/nunito": "^5.3.0",
         "@fontsource/fira-mono": "^5.3.0",
+        "@fontsource/glass-antiqua": "^5.3.0",
         "@humanspeak/svelte-markdown": "^1.9.2",
         "@inlang/paraglide-js": "^2.25.4",
         "@lucide/svelte": "^1.48.0",
@@ -111,9 +113,13 @@
 
     "@fontsource-variable/fredoka": ["@fontsource-variable/fredoka@5.3.0", "", {}, "sha512-13w98iw2RcmYfZQRZPLSu+0YJK3HHm5A2XrpU26moFIAePmfiKfvkmEJUgkc8r5GNR+pbDijOueS1KdGAMAWmQ=="],
 
+    "@fontsource-variable/inter": ["@fontsource-variable/inter@5.3.0", "", {}, "sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA=="],
+
     "@fontsource-variable/nunito": ["@fontsource-variable/nunito@5.3.0", "", {}, "sha512-tw0ch7evIDSwoeUy+0XzocYHfbRWLeCRPJy22KgbrLjDLAbNw/fErBiil10Ssrs3Sjr55zaZrr36a975j8cBkQ=="],
 
     "@fontsource/fira-mono": ["@fontsource/fira-mono@5.3.0", "", {}, "sha512-FZzRwKhpoXQU1uhEGKUg5AHUUdfiaTXxGCdBBeGHUmcZaqEDEmndSVvpXHkSViH25f/UiWfhcWTib+6A8o4qeQ=="],
+
+    "@fontsource/glass-antiqua": ["@fontsource/glass-antiqua@5.3.0", "", {}, "sha512-Ur4/Zp4kzkPamdsHyU45+SDErXEhM7iNwGBv+9uisOudu8nsJpjwis7gaRqpWMR0aDTa/lgtIXy12aclu3Ad9w=="],
 
     "@humanspeak/memory-cache": ["@humanspeak/memory-cache@1.1.2", "", {}, "sha512-6kmeqrCVThw4RYZsJ74l9cOdZQ84XHnGIzrv+Po49CZBNNVDEzi0CGsTx+KKmr/Hb6hY6yDGxeWTiz4VHkdsEg=="],
 

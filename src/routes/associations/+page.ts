@@ -1,4 +1,5 @@
 import type { PageLoad } from "./$types";
+import { NOINDEX } from "$lib/robots";
 import { getAssociations, getPublishedCarte } from "$lib/canari";
 
 /**
@@ -9,10 +10,12 @@ import { getAssociations, getPublishedCarte } from "$lib/canari";
  * is a bonus above the directory, so neither its absence (the usual case - `getPublishedCarte`
  * already returns null on 404) nor a failure fetching it may cost the visitor the association list.
  */
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, setHeaders }) => {
 	const [associations, carte] = await Promise.all([
 		getAssociations(fetch, "association").catch(() => null),
 		getPublishedCarte(fetch).catch(() => null),
 	]);
+	// The poster's cards and directory print members' names: no index while it is on the page.
+	if (carte) setHeaders({ "X-Robots-Tag": NOINDEX });
 	return { associations: associations ?? [], failed: associations === null, carte };
 };

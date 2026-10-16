@@ -31,7 +31,8 @@ const mocked = vi.mocked(getAssociationBySlug);
 type DetailLoad = (event: unknown) => Promise<Record<string, { slug: string }>>;
 
 /** The load event both loaders read: a `fetch` they pass through, and the slug. */
-const EVENT = { fetch: vi.fn(), params: { handle: "bde" } };
+const setHeaders = vi.fn();
+const EVENT = { fetch: vi.fn(), params: { handle: "bde" }, setHeaders };
 
 /** Runs a loader and returns the HttpError SvelteKit would have thrown to the renderer. */
 async function statusOf(load: DetailLoad, failure: unknown): Promise<{ status: number }> {
@@ -46,6 +47,7 @@ async function statusOf(load: DetailLoad, failure: unknown): Promise<{ status: n
 
 beforeEach(() => {
 	mocked.mockReset();
+	setHeaders.mockReset();
 });
 
 describe.each([
@@ -56,6 +58,17 @@ describe.each([
 		mocked.mockResolvedValue({ slug: "bde", name: "BDE" } as never);
 		const data = await load(EVENT);
 		expect(data[key].slug).toBe("bde");
+	});
+
+	it("sends X-Robots-Tag: noindex when the page prints members, and not otherwise", async () => {
+		mocked.mockResolvedValue({ slug: "bde", members: [{ userId: "u1" }] } as never);
+		await load(EVENT);
+		expect(setHeaders).toHaveBeenCalledWith({ "X-Robots-Tag": "noindex" });
+
+		setHeaders.mockReset();
+		mocked.mockResolvedValue({ slug: "bde", members: [] } as never);
+		await load(EVENT);
+		expect(setHeaders).not.toHaveBeenCalled();
 	});
 
 	it("404s only when the API ANSWERED that the slug does not exist", async () => {

@@ -32,6 +32,7 @@
 	meta={{
 		section: m.nav_associations(),
 		description: m.associations_meta_description(),
+		noindex: Boolean(data.carte),
 		jsonLd: [
 			breadcrumbNode(page.url.origin, [
 				{ name: SITE_NAME, path: "/" },

@@ -6,6 +6,7 @@
 	import Seo from "$lib/components/Seo.svelte";
 	import { breadcrumbNode, entityDescription, organizationNode } from "$lib/seo";
 	import { logoUrl } from "$lib/media";
+	import { listsPeople } from "$lib/robots";
 
 	let { data } = $props();
 </script>
@@ -18,6 +19,7 @@
 			data.list.description
 		),
 		type: "article",
+		noindex: listsPeople(data.list),
 		image: logoUrl(data.list),
 		imageAlt: data.list.name,
 		jsonLd: [

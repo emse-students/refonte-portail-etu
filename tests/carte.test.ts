@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { getPublishedCarte } from "$lib/canari";
 import { load } from "../src/routes/associations/+page";
 import type { PublishedCarte } from "$lib/types";
@@ -136,8 +136,10 @@ describe("getPublishedCarte", () => {
 
 describe("the association directory load", () => {
 	/** Calls the page load with a stub fetch; the loader uses no other event field. */
+	const setHeaders = vi.fn();
+	beforeEach(() => setHeaders.mockReset());
 	const run = (fetch: typeof globalThis.fetch) =>
-		load({ fetch } as Parameters<typeof load>[0]) as Promise<{
+		load({ fetch, setHeaders } as unknown as Parameters<typeof load>[0]) as Promise<{
 			associations: unknown[];
 			failed: boolean;
 			carte: PublishedCarte | null;
@@ -153,6 +155,8 @@ describe("the association directory load", () => {
 		expect(data.failed).toBe(false);
 		expect(data.associations).toHaveLength(1);
 		expect(data.carte).toEqual(CARTE);
+		// The poster prints members' names: the page is noindex while it is live.
+		expect(setHeaders).toHaveBeenCalledWith({ "X-Robots-Tag": "noindex" });
 	});
 
 	it("keeps the directory when the map fetch fails", async () => {
@@ -165,6 +169,7 @@ describe("the association directory load", () => {
 		expect(data.associations).toHaveLength(1);
 		expect(data.failed).toBe(false);
 		expect(data.carte).toBeNull();
+		expect(setHeaders).not.toHaveBeenCalled();
 	});
 
 	it("keeps the map when the association fetch fails", async () => {

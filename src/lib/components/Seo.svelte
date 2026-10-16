@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/state";
+	import { NOINDEX } from "$lib/robots";
 	import { SITE_NAME } from "$lib/site";
 	import { canonicalUrl, defaultImage, fullTitle, jsonLdScript, type SeoMeta } from "$lib/seo";
 
@@ -17,6 +18,9 @@
 <svelte:head>
 	<title>{title}</title>
 	<meta name="description" content={meta.description} />
+	{#if meta.noindex}
+		<meta name="robots" content={NOINDEX} />
+	{/if}
 	<link rel="canonical" href={canonical} />
 
 	<meta property="og:type" content={meta.type ?? "website"} />

@@ -69,6 +69,21 @@
 						>
 					</a>
 				</div>
+				<div class="flex flex-col gap-4">
+					<span class="text-sm font-semibold uppercase tracking-wider text-white/90 mb-1"
+						>{m.footer_legal_heading()}</span
+					>
+					<a
+						href="/mentions-legales"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						>{m.nav_legal()}</a
+					>
+					<a
+						href="/confidentialite"
+						class="text-mines-platinum/70 hover:text-white transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-2 w-fit"
+						>{m.nav_privacy()}</a
+					>
+				</div>
 			</nav>
 		</div>
 
