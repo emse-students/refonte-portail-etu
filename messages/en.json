@@ -64,5 +64,10 @@
 	"footer_nav_aria": "Footer links",
 	"footer_nav_heading": "Navigation",
 	"footer_ecosystem_heading": "Ecosystem",
-	"footer_credits": "Les Rootz - {year} - Léon Muselli / Jolan Boudin / Mathieu Daussin"
+	"footer_credits": "Les Rootz - {year} - Léon Muselli / Jolan Boudin / Mathieu Daussin",
+	"footer_legal_heading": "Legal",
+	"nav_legal": "Legal notice",
+	"nav_privacy": "Privacy",
+	"legal_meta_description": "Publisher, publication director and host of the Portail Étudiant ICM (French only).",
+	"privacy_meta_description": "Which personal data is shown, why, for how long, and how to ask for its removal (French only)."
 }

@@ -1,4 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
+import { isApiPath, NOINDEX } from "$lib/robots";
 import { paraglideMiddleware } from "$lib/paraglide/server";
 
 /**
@@ -23,10 +24,15 @@ import { paraglideMiddleware } from "$lib/paraglide/server";
  * portal is served straight from Bun on its own host, with no CDN in front - but any shared cache
  * added later owes a `Vary: Cookie`.
  */
-export const handle: Handle = ({ event, resolve }) =>
-	paraglideMiddleware(event.request, ({ request, locale }) => {
+export const handle: Handle = async ({ event, resolve }) => {
+	const response = await paraglideMiddleware(event.request, ({ request, locale }) => {
 		event.request = request;
 		return resolve(event, {
 			transformPageChunk: ({ html }) => html.replace("%paraglide.lang%", locale),
 		});
 	});
+	// The avatar proxy serves people's faces: never an indexable document (see `$lib/robots`).
+	// Page-level `X-Robots-Tag` for pages that list people is set by their loaders.
+	if (isApiPath(event.url.pathname)) response.headers.set("X-Robots-Tag", NOINDEX);
+	return response;
+};

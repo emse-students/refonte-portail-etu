@@ -64,5 +64,10 @@
 	"footer_nav_aria": "Liens du pied de page",
 	"footer_nav_heading": "Navigation",
 	"footer_ecosystem_heading": "Écosystème",
-	"footer_credits": "Les Rootz - {year} - Léon Muselli / Jolan Boudin / Mathieu Daussin"
+	"footer_credits": "Les Rootz - {year} - Léon Muselli / Jolan Boudin / Mathieu Daussin",
+	"footer_legal_heading": "Informations légales",
+	"nav_legal": "Mentions légales",
+	"nav_privacy": "Confidentialité",
+	"legal_meta_description": "Éditeur, directeur de la publication et hébergeur du Portail Étudiant ICM.",
+	"privacy_meta_description": "Quelles données personnelles sont affichées, pourquoi, pendant combien de temps, et comment demander leur retrait."
 }

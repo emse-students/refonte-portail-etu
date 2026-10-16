@@ -13,6 +13,8 @@ This wiki is the canonical technical documentation. Start here.
   sitemap; what a crawler and an unfurler actually get.
 - [Search](search.md) - the directory's search box, the ecosystem's
   tolerance ladder, and why prose is matched differently from a name.
+- [Data protection](data-protection.md) - what personal data is shown, the noindex and
+  sitemap rules, self-hosted fonts, and the account id this repo cannot hide.
 - [Deployment](deployment.md) - CI/CD, quality gates, environment and secrets.
 - [Tooling](tooling.md) - what formats, lints and typechecks the repository, and
   what was measured before each tool was believed.

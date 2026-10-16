@@ -218,7 +218,9 @@ browser requests `/api/users/:id/avatar` (same origin); the SvelteKit endpoint
 [`src/routes/api/users/[userId]/avatar/+server.ts`](../../src/routes/api/users/%5BuserId%5D/avatar/+server.ts)
 fetches `${GALLERY_API_URL}/users/:id/avatar` with `GALLERY_API_KEY` and streams
 the image back. The `userId` is the Authentik uid carried by the public API,
-which is the same identifier MiGallery keys avatars by. On any miss the UI falls
+which is the same identifier MiGallery keys avatars by. **That id therefore
+appears in every avatar URL**; hiding it needs an opaque token from Canari, see
+[data-protection](data-protection.md#what-this-repository-cannot-fix-the-account-id). On any miss the UI falls
 back to generated initials - `MemberCard` swaps to initials on the image's
 `onerror`, so **any** failing status degrades, not only a 404. That is exactly why
 the status is free to say what really happened, and must: nothing on screen
@@ -326,3 +328,5 @@ time of that incident the process was still pm2-supervised, stamped by its own
 | `/lists`                 | Campaign lists, grouped by promotion year |
 | `/lists/[handle]`        | One campaign list with members            |
 | `/liens`                 | Ecosystem links                           |
+| `/mentions-legales`      | Legal notice (French only)                |
+| `/confidentialite`       | Privacy policy (French only)              |

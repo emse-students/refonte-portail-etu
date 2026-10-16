@@ -1,5 +1,6 @@
 import type { PageLoad } from "./$types";
 import { CanariApiError, getAssociationBySlug } from "$lib/canari";
+import { listsPeople, NOINDEX } from "$lib/robots";
 import { error } from "@sveltejs/kit";
 import { m } from "$lib/paraglide/messages";
 
@@ -10,9 +11,11 @@ import { m } from "$lib/paraglide/messages";
  * answer; anything else means the API did not answer, and 503 is what says "ask again" instead of
  * telling a search engine to drop a page that exists.
  */
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ fetch, params, setHeaders }) => {
 	try {
 		const list = await getAssociationBySlug(fetch, params.handle);
+		// Same rule as the `<meta>` the page emits, for clients that stop at the headers.
+		if (listsPeople(list)) setHeaders({ "X-Robots-Tag": NOINDEX });
 		return { list };
 	} catch (e) {
 		if (e instanceof CanariApiError && !e.isAbsent) {

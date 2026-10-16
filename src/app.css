@@ -1,5 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Glass+Antiqua&family=Inter:wght@400;500;600;700&display=swap")
-	layer(base);
+/*
+ * Every family is SELF-HOSTED (@fontsource): a Google Fonts import sent each visitor's IP address to
+ * Google on every page view, which a showcase of students' names cannot justify (GDPR, see
+ * docs/wiki/data-protection.md). Inter and Glass Antiqua used to come from fonts.googleapis.com.
+ */
+@import "@fontsource-variable/inter/wght.css" layer(base);
+@import "@fontsource/glass-antiqua/latin-400.css" layer(base);
 @import "@fontsource/fira-mono" layer(base);
 /*
  * Canari's own two families, self-hosted at the same versions Canari uses. They style nothing here
@@ -17,7 +22,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-	--font-sans: Inter, Roboto, sans-serif;
+	--font-sans: "Inter Variable", Inter, Roboto, sans-serif;
 	--font-heading: "Glass Antiqua", serif;
 	--font-mono: "Fira Mono", monospace;
 

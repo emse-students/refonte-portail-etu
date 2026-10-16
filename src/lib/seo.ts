@@ -26,6 +26,8 @@ export interface SeoMeta {
 	imageAlt?: string;
 	/** `website` for a listing, `article` for one entity's page. */
 	type?: "website" | "article";
+	/** True when the page prints people's names: emits `<meta name="robots" content="noindex">`. */
+	noindex?: boolean;
 	/** JSON-LD graph nodes for this page, if any. */
 	jsonLd?: unknown[];
 }

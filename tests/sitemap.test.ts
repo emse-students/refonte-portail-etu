@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { CanariAssociation } from "$lib/types";
 
-vi.mock("$lib/canari", () => ({ getAssociations: vi.fn() }));
+vi.mock("$lib/canari", () => ({ getAssociations: vi.fn(), getPublishedCarte: vi.fn() }));
 
-import { getAssociations } from "$lib/canari";
+import { getAssociations, getPublishedCarte } from "$lib/canari";
 import { GET } from "../src/routes/sitemap.xml/+server";
 
 /**
@@ -37,6 +37,7 @@ function assoc(slug: string, over: Partial<CanariAssociation> = {}): CanariAssoc
 }
 
 const mocked = vi.mocked(getAssociations);
+const carteMock = vi.mocked(getPublishedCarte);
 
 /** Calls the handler the way SvelteKit does, and returns the body. */
 async function render(): Promise<string> {
@@ -50,6 +51,8 @@ async function render(): Promise<string> {
 
 beforeEach(() => {
 	mocked.mockReset();
+	carteMock.mockReset();
+	carteMock.mockResolvedValue(null);
 });
 
 describe("GET /sitemap.xml", () => {
@@ -66,6 +69,8 @@ describe("GET /sitemap.xml", () => {
 			"https://portail-etu.emse.fr/associations",
 			"https://portail-etu.emse.fr/lists",
 			"https://portail-etu.emse.fr/liens",
+			"https://portail-etu.emse.fr/confidentialite",
+			"https://portail-etu.emse.fr/mentions-legales",
 			"https://portail-etu.emse.fr/associations/bde",
 			"https://portail-etu.emse.fr/lists/promo-2027",
 		]) {
@@ -79,6 +84,30 @@ describe("GET /sitemap.xml", () => {
 		const body = await render();
 		expect(body).toContain("/associations/bde");
 		expect(body).not.toContain("vieux-club");
+	});
+
+	it("leaves out pages that print member names - they are noindex", async () => {
+		mocked.mockImplementation((_f, type) =>
+			Promise.resolve(
+				type === "association"
+					? [assoc("bde", { memberCount: 12 }), assoc("solo", { memberCount: 0 })]
+					: [assoc("promo-2027", { type: "list", memberCount: 30 })]
+			)
+		);
+
+		const body = await render();
+		expect(body).not.toContain("/associations/bde");
+		expect(body).not.toContain("/lists/promo-2027");
+		expect(body).toContain("/associations/solo");
+	});
+
+	it("leaves the directory out while a carte prints members' names", async () => {
+		mocked.mockResolvedValue([]);
+		carteMock.mockResolvedValue({ version: 2 } as never);
+
+		const body = await render();
+		expect(body).not.toContain("<loc>https://portail-etu.emse.fr/associations</loc>");
+		expect(body).toContain("<loc>https://portail-etu.emse.fr/lists</loc>");
 	});
 
 	it("still serves the static routes when the API is unreachable", async () => {
