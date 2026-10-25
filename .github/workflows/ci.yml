@@ -151,9 +151,9 @@ jobs:
               page=$(curl -s --max-time 5 -H "Host: $host" http://127.0.0.1:3399/)
               map=$(curl -s --max-time 5 -H "Host: $host" http://127.0.0.1:3399/sitemap.xml)
               fail=0
-              echo "$page" | grep -q "rel=\"canonical\" href=\"https://$host/\"" || { echo "::error::canonical does not use the Host header"; fail=1; }
-              echo "$page" | grep -q "\"@id\":\"https://$host/#website\"" || { echo "::error::JSON-LD @id does not use the Host header"; fail=1; }
-              echo "$map" | grep -q "<loc>https://$host/</loc>" || { echo "::error::sitemap <loc> does not use the Host header"; fail=1; }
+              grep -q "rel=\"canonical\" href=\"https://$host/\"" <<<"$page" || { echo "::error::canonical does not use the Host header"; fail=1; }
+              grep -q "\"@id\":\"https://$host/#website\"" <<<"$page" || { echo "::error::JSON-LD @id does not use the Host header"; fail=1; }
+              grep -q "<loc>https://$host/</loc>" <<<"$map" || { echo "::error::sitemap <loc> does not use the Host header"; fail=1; }
               kill "$pid" 2>/dev/null || true
               exit $fail
             fi
