@@ -1,13 +1,13 @@
 <script lang="ts">
-	import AssociationCard from "$lib/components/AssociationCard.svelte";
-	import CarteVieAsso from "$lib/components/CarteVieAsso.svelte";
+	import AssociationCard from "#lib/components/AssociationCard.svelte";
+	import CarteVieAsso from "#lib/components/CarteVieAsso.svelte";
 	import { Search, SearchX, X } from "@lucide/svelte";
-	import { m } from "$lib/paraglide/messages";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode, itemListNode } from "$lib/seo";
-	import { SITE_NAME } from "$lib/site";
-	import { fuzzyRank } from "$lib/search/fuzzy";
+	import Seo from "#lib/components/Seo.svelte";
+	import { breadcrumbNode, itemListNode } from "#lib/seo";
+	import { SITE_NAME } from "#lib/site";
+	import { fuzzyRank } from "#lib/search/fuzzy";
 
 	let { data } = $props();
 

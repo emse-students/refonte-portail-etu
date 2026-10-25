@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
-import { getAssociations, getPublishedCarte } from "$lib/canari";
-import { sitemapEligible } from "$lib/robots";
+import { getAssociations, getPublishedCarte } from "#lib/canari";
+import { sitemapEligible } from "#lib/robots";
 
 /**
  * The site's link graph, stated for crawlers.

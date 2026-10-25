@@ -1,10 +1,14 @@
 import type { RequestEvent } from "@sveltejs/kit";
-import { env } from "$env/dynamic/private";
-import { AvatarCache, isCacheableAbsence, type AvatarAnswer } from "$lib/server/avatarCache";
-import { OUTBOUND_BUDGET_MS } from "$lib/outbound";
+import {
+	GALLERY_API_URL as GALLERY_API_URL_VAR,
+	GALLERY_API_KEY,
+	PORTAL_URL,
+} from "$app/env/private";
+import { AvatarCache, isCacheableAbsence, type AvatarAnswer } from "#lib/server/avatarCache";
+import { OUTBOUND_BUDGET_MS } from "#lib/outbound";
 
 /** MiGallery base URL; the avatar endpoint lives at `${base}/users/:id/avatar`. */
-const GALLERY_API_URL = (env.GALLERY_API_URL || "https://gallery.mitv.fr/api").replace(/\/+$/, "");
+const GALLERY_API_URL = (GALLERY_API_URL_VAR || "https://gallery.mitv.fr/api").replace(/\/+$/, "");
 
 /**
  * Shared by every request: pm2 runs a single fork, so one process serves all
@@ -73,7 +77,7 @@ export const GET = async (event: RequestEvent): Promise<Response> => {
 		return new Response(null, { status: 400 });
 	}
 
-	if (!env.GALLERY_API_KEY) {
+	if (!GALLERY_API_KEY) {
 		console.error("GALLERY_API_KEY is not set - avatar proxy disabled");
 		return new Response(null, { status: 503 });
 	}
@@ -86,8 +90,8 @@ export const GET = async (event: RequestEvent): Promise<Response> => {
 			method: "GET",
 			headers: {
 				Accept: "image/jpeg",
-				"x-api-key": env.GALLERY_API_KEY,
-				Origin: env.PORTAL_URL ?? "",
+				"x-api-key": GALLERY_API_KEY,
+				Origin: PORTAL_URL ?? "",
 			},
 			// Without this, a MiGallery that accepts the connection and then says nothing holds
 			// this request open for as long as it likes - and an avatar is a decoration.

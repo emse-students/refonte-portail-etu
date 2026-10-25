@@ -13,12 +13,12 @@ WORKDIR /app
 # there yet.
 COPY . .
 RUN bun install --frozen-lockfile
-RUN bunx svelte-kit sync && bun run build
+RUN bunx --bun svelte-kit sync && bun run build
 
 FROM oven/bun:1.4.2-slim AS runtime
 WORKDIR /home/bun/app
 
-# svelte-adapter-bun's output is self-contained (everything is bundled at build
+# @sveltejs/adapter-bun's output is self-contained (everything is bundled at build
 # time - see package.json, which has no runtime `dependencies`), so the image
 # only needs the build output and the Bun binary, never node_modules.
 COPY --from=build --chown=bun:bun /app/build ./build

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SvelteMarkdown, { allowHtmlOnly } from "@humanspeak/svelte-markdown";
 	import BioLink from "./BioLink.svelte";
-	import { normalizeBioLineBreaks } from "$lib/markdown";
+	import { normalizeBioLineBreaks } from "#lib/markdown";
 
 	/**
 	 * Renders an association/list bio (Markdown) exactly like Canari's

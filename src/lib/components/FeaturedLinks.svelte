@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { featuredLinks } from "$lib/links";
-	import { initials } from "$lib/media";
-	import { m } from "$lib/paraglide/messages";
+	import { featuredLinks } from "#lib/links";
+	import { initials } from "#lib/media";
+	import { m } from "#lib/paraglide/messages";
 
 	// Maps each link's stable id to its localized tagline message function.
 	const taglines = {

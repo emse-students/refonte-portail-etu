@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getLocale, setLocale, locales } from "$lib/paraglide/runtime";
-	import { m } from "$lib/paraglide/messages";
+	import { getLocale, setLocale, locales } from "#lib/paraglide/runtime";
+	import { m } from "#lib/paraglide/messages";
 
 	// Cycle to the next locale (fr <-> en). setLocale reloads the page to apply
 	// the new language everywhere.

@@ -1,5 +1,5 @@
-import { CANARI_URL } from "$lib/canari";
-import type { CanariAssociation } from "$lib/types";
+import { CANARI_URL } from "#lib/canari";
+import type { CanariAssociation } from "#lib/types";
 
 /**
  * Public URL of an association/list logo, or null when it has none.

@@ -1,4 +1,4 @@
-import { SITE_NAME, SITE_TAGLINE, pageTitle } from "$lib/site";
+import { SITE_NAME, SITE_TAGLINE, pageTitle } from "#lib/site";
 
 /**
  * What a crawler and a link unfurler are given, and how it is built.

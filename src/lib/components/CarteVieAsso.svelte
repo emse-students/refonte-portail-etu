@@ -24,9 +24,9 @@
 	rendered faithfully, so the map is simply omitted until the author republishes.
 -->
 <script lang="ts">
-	import type { CanariAssociation, PublishedCarte, PublishedCarteUnit } from "$lib/types";
-	import { logoUrl, avatarUrl, generateColor } from "$lib/media";
-	import { m } from "$lib/paraglide/messages";
+	import type { CanariAssociation, PublishedCarte, PublishedCarteUnit } from "#lib/types";
+	import { logoUrl, avatarUrl, generateColor } from "#lib/media";
+	import { m } from "#lib/paraglide/messages";
 
 	let {
 		carte,

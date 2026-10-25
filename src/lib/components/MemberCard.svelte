@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { CanariMember } from "$lib/types";
-	import { initials, generateColor, avatarUrl } from "$lib/media";
-	import { m } from "$lib/paraglide/messages";
+	import type { CanariMember } from "#lib/types";
+	import { initials, generateColor, avatarUrl } from "#lib/media";
+	import { m } from "#lib/paraglide/messages";
 
 	let { member, bureau = false }: { member: CanariMember; bureau?: boolean } = $props();
 

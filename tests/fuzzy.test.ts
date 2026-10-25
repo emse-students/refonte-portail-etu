@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editDistance, fuzzyRank, fuzzyScore, normalizeForSearch } from "$lib/search/fuzzy";
+import { editDistance, fuzzyRank, fuzzyScore, normalizeForSearch } from "#lib/search/fuzzy";
 
 /**
  * The ecosystem search contract, pinned in this repository's own code. The numbers, the measurement

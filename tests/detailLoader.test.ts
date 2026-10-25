@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("$lib/canari", async () => {
-	const actual = await vi.importActual<typeof import("$lib/canari")>("$lib/canari");
+vi.mock("#lib/canari", async () => {
+	const actual = await vi.importActual<typeof import("#lib/canari")>("#lib/canari");
 	return {
 		CanariApiError: actual.CanariApiError,
 		getAssociationBySlug: vi.fn(),
 	};
 });
 
-import { CanariApiError, getAssociationBySlug } from "$lib/canari";
+import { CanariApiError, getAssociationBySlug } from "#lib/canari";
 import { load as loadAssociation } from "../src/routes/associations/[handle]/+page";
 import { load as loadList } from "../src/routes/lists/[handle]/+page";
 

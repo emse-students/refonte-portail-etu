@@ -1,12 +1,12 @@
 <script lang="ts">
-	import EntityDetail from "$lib/components/EntityDetail.svelte";
-	import { SITE_NAME } from "$lib/site";
-	import { m } from "$lib/paraglide/messages";
+	import EntityDetail from "#lib/components/EntityDetail.svelte";
+	import { SITE_NAME } from "#lib/site";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode, entityDescription, organizationNode } from "$lib/seo";
-	import { logoUrl } from "$lib/media";
-	import { listsPeople } from "$lib/robots";
+	import Seo from "#lib/components/Seo.svelte";
+	import { breadcrumbNode, entityDescription, organizationNode } from "#lib/seo";
+	import { logoUrl } from "#lib/media";
+	import { listsPeople } from "#lib/robots";
 
 	let { data } = $props();
 </script>

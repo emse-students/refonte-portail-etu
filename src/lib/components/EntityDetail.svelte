@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { CanariAssociationDetail } from "$lib/types";
+	import type { CanariAssociationDetail } from "#lib/types";
 	import AssociationLogo from "./AssociationLogo.svelte";
 	import MemberCard from "./MemberCard.svelte";
 	import GlassCard from "./GlassCard.svelte";
 	import ProfileBioMarkdown from "./ProfileBioMarkdown.svelte";
-	import { m } from "$lib/paraglide/messages";
+	import { m } from "#lib/paraglide/messages";
 
 	let {
 		entity,

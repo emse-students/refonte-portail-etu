@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { CanariAssociation } from "$lib/types";
+import type { CanariAssociation } from "#lib/types";
 
-vi.mock("$lib/canari", () => ({ getAssociations: vi.fn(), getPublishedCarte: vi.fn() }));
+vi.mock("#lib/canari", () => ({ getAssociations: vi.fn(), getPublishedCarte: vi.fn() }));
 
-import { getAssociations, getPublishedCarte } from "$lib/canari";
+import { getAssociations, getPublishedCarte } from "#lib/canari";
 import { GET } from "../src/routes/sitemap.xml/+server";
 
 /**

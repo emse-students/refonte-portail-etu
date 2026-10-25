@@ -1,6 +1,6 @@
 import type { PageLoad } from "./$types";
-import { NOINDEX } from "$lib/robots";
-import { getAssociations, getPublishedCarte } from "$lib/canari";
+import { NOINDEX } from "#lib/robots";
+import { getAssociations, getPublishedCarte } from "#lib/canari";
 
 /**
  * All associations (active + archived) for the directory page, plus the Carte de la Vie Asso when

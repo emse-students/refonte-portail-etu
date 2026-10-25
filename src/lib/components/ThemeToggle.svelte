@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { toggleTheme } from "$lib/theme";
+	import { toggleTheme } from "#lib/theme";
 	import { Moon, Sun } from "@lucide/svelte";
-	import { m } from "$lib/paraglide/messages";
+	import { m } from "#lib/paraglide/messages";
 
 	let isDark = $state(false);
 

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import logo from "$lib/assets/logo.png";
-	import { SITE_NAME } from "$lib/site";
-	import Button from "$lib/components/Button.svelte";
-	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
-	import LocaleToggle from "$lib/components/LocaleToggle.svelte";
-	import { m } from "$lib/paraglide/messages";
+	import logo from "#lib/assets/logo.png";
+	import { SITE_NAME } from "#lib/site";
+	import Button from "#lib/components/Button.svelte";
+	import ThemeToggle from "#lib/components/ThemeToggle.svelte";
+	import LocaleToggle from "#lib/components/LocaleToggle.svelte";
+	import { m } from "#lib/paraglide/messages";
 
 	const nav = [
 		{ href: "/", label: m.nav_home() },

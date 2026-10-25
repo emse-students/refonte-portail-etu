@@ -124,7 +124,7 @@ jobs:
       - name: Build
         run: bun run build
 
-      # A BUILD IS NOT A BOOT. The step above proves `svelte-adapter-bun` produced
+      # A BUILD IS NOT A BOOT. The step above proves `@sveltejs/adapter-bun` produced
       # something; it proves nothing about whether the thing it produced starts. The
       # only place that was ever checked is `deploy.yml`'s "Verify the app actually
       # answers" - which is real, and which runs AFTER Docker has already restarted

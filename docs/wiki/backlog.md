@@ -55,18 +55,3 @@ through a custom strategy that ALSO answers identically on the client, or a
 `/en` URL prefix (`url` strategy), which is the option that also gives search
 engines separate indexable URLs and `hreflang`. The second is the better answer
 and is a routing change across every link in the site.
-
-## SvelteKit 3 and its two low advisories
-
-`bun audit` ends at two LOW advisories on `@sveltejs/kit` 2.x (enhanced-form redirect and a
-cache-control XSS on prerendered pages), both fixed only in 3.0.0. Tried 2026-10-25 with kit 3.1.0:
-the migration itself is mechanical (configuration moves from `svelte.config.js` into the
-`sveltekit(...)` Vite plugin and loses its `kit` namespace, `tsconfig.json` extends `$app/tsconfig`
-and lists `$app/types`, `$lib` becomes `#lib` through a `package.json` `imports` map across 40
-files, and the `cookie` override must go because kit 3 needs cookie 2). Checks, tests and lint all
-passed after that, and `bun audit` read zero.
-
-**What blocks it is the adapter, not this repo**: `svelte-adapter-bun` 1.0.2 (the latest) targets
-kit 2 and fails the build with `adapter_generate_manifest_removed` (kit 3 dropped
-`generateManifest`). The upgrade lands when the adapter ships kit 3 support, or when the adapter is
-replaced; the migration notes above are the whole of the rest.

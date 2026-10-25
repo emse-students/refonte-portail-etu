@@ -4,9 +4,13 @@
 	"private": true,
 	"license": "SEE LICENSE IN LICENSE",
 	"type": "module",
+	"imports": {
+		"#lib": "./src/lib",
+		"#lib/*": "./src/lib/*"
+	},
 	"scripts": {
 		"dev": "rm -r node_modules/.vite-temp; vite dev",
-		"build": "rm -rf node_modules/.vite-temp && vite build",
+		"build": "rm -rf node_modules/.vite-temp && bun --bun vite build",
 		"preview": "rm -r node_modules/.vite-temp; vite preview",
 		"prepare": "husky && bun run paraglide:compile",
 		"paraglide:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --strategy cookie preferredLanguage baseLocale",
@@ -31,7 +35,8 @@
 		"@humanspeak/svelte-markdown": "^2.1.3",
 		"@inlang/paraglide-js": "^2.25.4",
 		"@lucide/svelte": "^1.48.0",
-		"@sveltejs/kit": "^2.70.3",
+		"@sveltejs/adapter-bun": "^1.0.0",
+		"@sveltejs/kit": "^3.1.0",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@tailwindcss/typography": "^0.5.20",
 		"@tailwindcss/vite": "^4.3.3",
@@ -46,7 +51,6 @@
 		"oxfmt": "^0.70.0",
 		"oxlint": "^1.85.0",
 		"svelte": "^5.57.1",
-		"svelte-adapter-bun": "^1.0.1",
 		"svelte-check": "^4.7.6",
 		"tailwindcss": "^4.3.3",
 		"typescript": "~6.0.3",
@@ -55,7 +59,6 @@
 	},
 	"overrides": {
 		"brace-expansion": "^5.0.9",
-		"cookie": "^0.7.0",
 		"nanoid": "^3.3.18",
 		"postcss": "^8.5.26",
 		"postcss-selector-parser": "^7.1.6"
