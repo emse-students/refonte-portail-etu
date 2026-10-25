@@ -112,21 +112,26 @@ shape - so this costs nothing until somebody adds a cache rule for HTML, at whic
 point one visitor's language is served to the next. Any shared cache added later
 owes `Vary: Cookie, Accept-Language`.
 
-### `ORIGIN` is not optional
+### The origin comes from the Host header
 
 Every absolute URL the head carries - `og:url`, `og:image`, `link rel=canonical`,
-every `<loc>` in the sitemap - is built from `page.url.origin`, never from a
-constant, so the same code is correct on production, on localhost and in a
-preview. Under SSR that origin comes from the request, and the adapter needs to
-be told what it is: `docker-compose.yml` sets
-`ORIGIN=https://portail-etu.emse.fr`. Without it a locally started production
-build advertises `https://localhost:4319` in its canonical tag.
+every `<loc>` in the sitemap, the JSON-LD `@id`s - is built from `page.url.origin`,
+never from a constant, so the same code is correct on production, on localhost and
+in a preview. `@sveltejs/adapter-bun` has no runtime `ORIGIN` variable: the origin
+is `https://` plus the request `Host` header (or `kit.paths.origin` if pinned at
+build time, which we deliberately do not do: one image must be right everywhere).
+**So the reverse proxy MUST forward `Host`** (`proxy_set_header Host $host`), and
+SvelteKit's CSRF origin check derives from the same value. The CI boot step
+requests a page with `Host: portail-etu.emse.fr` and asserts the canonical, the
+sitemap `<loc>` and the JSON-LD `@id` carry that host, so an adapter change cannot
+move it silently.
 
 ### Running the production build locally
 
-`ORIGIN=https://portail-etu.emse.fr PORT=4319 bun ./build/index.js`.
+`PORT=4319 bun ./build/index.js`, then request it with the production host to see
+production URLs: `curl -H "Host: portail-etu.emse.fr" http://127.0.0.1:4319/`.
 
-The `ORIGIN` matters for more than the canonical URL. SvelteKit's universal
+The origin matters for more than the canonical URL. SvelteKit's universal
 `fetch` enforces CORS on the server for cross-origin loads, because the response
 is serialised into the page for hydration and so must be something the browser
 would have been allowed to read. Canari's `/api/public/*` answers a **localhost**

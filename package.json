@@ -22,7 +22,6 @@
 		"format:check": "oxfmt -c ./oxfmt.json --check .",
 		"check": "bun run paraglide:compile && svelte-kit sync && svelte-check --tsgo --tsconfig ./tsconfig.json",
 		"check:watch": "bun run paraglide:compile && svelte-kit sync && svelte-check --tsgo --tsconfig ./tsconfig.json --watch",
-		"tsc-check": "tsc --noEmit",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage"
 	},

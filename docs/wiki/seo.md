@@ -46,9 +46,9 @@ Every route component renders `<Seo meta={...} />` and nothing else touches
 `og:image`, `og:url` and `link rel=canonical` are resolved by a machine with no
 page context, so a relative path is silently useless to every one of them. They
 are built from `page.url.origin` - never a constant - so the same code is right
-on production, on localhost and in a preview build. Under SSR that means `ORIGIN`
-must be set for the adapter; see
-[architecture](architecture.md#origin-is-not-optional).
+on production, on localhost and in a preview build. Under SSR that origin is
+`https://` + the request `Host` header, so the proxy must forward it; see
+[architecture](architecture.md#the-origin-comes-from-the-host-header).
 
 ### JSON-LD, and the one thing that can bite
 

@@ -27,7 +27,7 @@ function paraglideNodeBuiltinSpecifier(): Plugin {
 			if (!code.includes('import("async_hooks")')) return null;
 			return {
 				code: code.replace('import("async_hooks")', 'import("node:async_hooks")'),
-				map: { mappings: "" },
+				map: null,
 			};
 		},
 	};
