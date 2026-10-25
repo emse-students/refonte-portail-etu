@@ -1,10 +1,10 @@
 <script lang="ts">
-	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
-	import { m } from "$lib/paraglide/messages";
+	import FeaturedLinks from "#lib/components/FeaturedLinks.svelte";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode } from "$lib/seo";
-	import { SITE_NAME } from "$lib/site";
+	import Seo from "#lib/components/Seo.svelte";
+	import { breadcrumbNode } from "#lib/seo";
+	import { SITE_NAME } from "#lib/site";
 </script>
 
 <Seo

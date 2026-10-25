@@ -2,12 +2,14 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig, type Plugin } from "vite";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
+import adapter from "@sveltejs/adapter-bun";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /**
  * Rewrites Paraglide's `import("async_hooks")` to `import("node:async_hooks")`.
  *
  * `paraglideMiddleware` loads AsyncLocalStorage through the BARE specifier, which nothing in the
- * build can resolve, so `svelte-adapter-bun`'s bundling pass printed UNRESOLVED_IMPORT on every
+ * build can resolve, so `@sveltejs/adapter-bun`'s bundling pass printed UNRESOLVED_IMPORT on every
  * build: "Could not resolve 'async_hooks' ... treating it as an external dependency". It was right -
  * Bun provides the module at runtime and the build worked - but a warning nobody can act on is a
  * line its reader learns to skip, and the next one will be real. The adapter externalises anything
@@ -23,7 +25,10 @@ function paraglideNodeBuiltinSpecifier(): Plugin {
 		transform(code, id) {
 			if (!id.includes("paraglide/server.js")) return null;
 			if (!code.includes('import("async_hooks")')) return null;
-			return { code: code.replace('import("async_hooks")', 'import("node:async_hooks")') };
+			return {
+				code: code.replace('import("async_hooks")', 'import("node:async_hooks")'),
+				map: null,
+			};
 		},
 	};
 }
@@ -64,7 +69,12 @@ export default defineConfig({
 			strategy: ["cookie", "preferredLanguage", "baseLocale"],
 		}),
 		tailwindcss(),
-		sveltekit(),
+		sveltekit({
+			preprocess: vitePreprocess(),
+			adapter: adapter({ precompress: true }),
+			paths: { relative: true },
+			env: { dir: "./.env" },
+		}),
 		paraglideNodeBuiltinSpecifier(),
 	],
 });

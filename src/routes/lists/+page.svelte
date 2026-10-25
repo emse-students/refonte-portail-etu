@@ -1,11 +1,11 @@
 <script lang="ts">
-	import AssociationCard from "$lib/components/AssociationCard.svelte";
-	import type { CanariAssociation } from "$lib/types";
-	import { m } from "$lib/paraglide/messages";
+	import AssociationCard from "#lib/components/AssociationCard.svelte";
+	import type { CanariAssociation } from "#lib/types";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode, itemListNode } from "$lib/seo";
-	import { SITE_NAME } from "$lib/site";
+	import Seo from "#lib/components/Seo.svelte";
+	import { breadcrumbNode, itemListNode } from "#lib/seo";
+	import { SITE_NAME } from "#lib/site";
 
 	let { data } = $props();
 

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { CanariAssociation } from "$lib/types";
+	import type { CanariAssociation } from "#lib/types";
 	import AssociationLogo from "./AssociationLogo.svelte";
 	import GlassCard from "./GlassCard.svelte";
-	import { m } from "$lib/paraglide/messages";
+	import { m } from "#lib/paraglide/messages";
 
 	let {
 		association,

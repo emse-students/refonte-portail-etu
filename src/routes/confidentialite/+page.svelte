@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { m } from "$lib/paraglide/messages";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { breadcrumbNode } from "$lib/seo";
-	import { SITE_NAME } from "$lib/site";
+	import Seo from "#lib/components/Seo.svelte";
+	import { breadcrumbNode } from "#lib/seo";
+	import { SITE_NAME } from "#lib/site";
 </script>
 
 <!-- French-only on purpose, like /mentions-legales: only the chrome goes through Paraglide. -->

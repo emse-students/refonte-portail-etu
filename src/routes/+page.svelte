@@ -1,12 +1,12 @@
 <script lang="ts">
-	import FeaturedLinks from "$lib/components/FeaturedLinks.svelte";
-	import AssociationCard from "$lib/components/AssociationCard.svelte";
-	import Button from "$lib/components/Button.svelte";
-	import { reveal } from "$lib/actions/reveal";
-	import { m } from "$lib/paraglide/messages";
+	import FeaturedLinks from "#lib/components/FeaturedLinks.svelte";
+	import AssociationCard from "#lib/components/AssociationCard.svelte";
+	import Button from "#lib/components/Button.svelte";
+	import { reveal } from "#lib/actions/reveal";
+	import { m } from "#lib/paraglide/messages";
 	import { page } from "$app/state";
-	import Seo from "$lib/components/Seo.svelte";
-	import { institutionNode, siteNode } from "$lib/seo";
+	import Seo from "#lib/components/Seo.svelte";
+	import { institutionNode, siteNode } from "#lib/seo";
 
 	let { data } = $props();
 

@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { getAssociations } from "$lib/canari";
+import { getAssociations } from "#lib/canari";
 
 /**
  * Home data: active (non-archived) associations previewed on the landing page,

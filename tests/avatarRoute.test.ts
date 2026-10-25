@@ -17,8 +17,10 @@ import type { RequestEvent } from "@sveltejs/kit";
  * that it asked for one. A test must never assert a wall clock.
  */
 
-vi.mock("$env/dynamic/private", () => ({
-	env: { GALLERY_API_KEY: "test-key", GALLERY_API_URL: "https://gallery.example/api" },
+vi.mock("$app/env/private", () => ({
+	GALLERY_API_KEY: "test-key",
+	GALLERY_API_URL: "https://gallery.example/api",
+	PORTAL_URL: undefined,
 }));
 
 const { GET } = await import("../src/routes/api/users/[userId]/avatar/+server");

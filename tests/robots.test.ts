@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { isApiPath, listsPeople, NOINDEX, sitemapEligible } from "$lib/robots";
+import { isApiPath, listsPeople, NOINDEX, sitemapEligible } from "#lib/robots";
 
-vi.mock("$lib/paraglide/server", () => ({
+vi.mock("#lib/paraglide/server", () => ({
 	paraglideMiddleware: (
 		req: Request,
 		cb: (a: { request: Request; locale: string }) => Promise<Response>

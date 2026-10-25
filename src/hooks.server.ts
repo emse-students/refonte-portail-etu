@@ -1,6 +1,6 @@
 import type { Handle } from "@sveltejs/kit";
-import { isApiPath, NOINDEX } from "$lib/robots";
-import { paraglideMiddleware } from "$lib/paraglide/server";
+import { isApiPath, NOINDEX } from "#lib/robots";
+import { paraglideMiddleware } from "#lib/paraglide/server";
 
 /**
  * Resolves the request's locale BEFORE the page renders, and stamps it into `<html lang>`.
@@ -31,7 +31,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			transformPageChunk: ({ html }) => html.replace("%paraglide.lang%", locale),
 		});
 	});
-	// The avatar proxy serves people's faces: never an indexable document (see `$lib/robots`).
+	// The avatar proxy serves people's faces: never an indexable document (see `#lib/robots`).
 	// Page-level `X-Robots-Tag` for pages that list people is set by their loaders.
 	if (isApiPath(event.url.pathname)) response.headers.set("X-Robots-Tag", NOINDEX);
 	return response;

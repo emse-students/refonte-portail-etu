@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AvatarCache, isCacheableAbsence } from "$lib/server/avatarCache";
+import { AvatarCache, isCacheableAbsence } from "#lib/server/avatarCache";
 
 /**
  * The avatar cache exists because the portal had none: a page of N members opened

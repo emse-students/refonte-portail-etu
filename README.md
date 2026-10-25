@@ -12,7 +12,7 @@ read-only API; associations, lists and members are managed inside Canari.
 ## How it works
 
 - **Frontend**: SvelteKit 5 (Svelte runes) + TailwindCSS, served by
-  `svelte-adapter-bun`.
+  `@sveltejs/adapter-bun`.
 - **Server-rendered, then hydrated** (`ssr = true`): the server renders the
   first view, hydration re-fetches nothing, and a later client-side navigation
   reaches Canari straight from the visitor's browser (see

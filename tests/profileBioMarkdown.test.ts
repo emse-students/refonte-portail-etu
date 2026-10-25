@@ -17,7 +17,7 @@
 
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/svelte";
-import ProfileBioMarkdown from "$lib/components/ProfileBioMarkdown.svelte";
+import ProfileBioMarkdown from "#lib/components/ProfileBioMarkdown.svelte";
 
 describe("ProfileBioMarkdown", () => {
 	it("renders ordinary Markdown", () => {

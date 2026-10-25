@@ -53,7 +53,7 @@ reaching one means the primary path failed, and the fix belongs there.
 
 **So a merged fix is not a shipped fix**, and that is the deliberate cost.
 
-**A build is not a boot.** `bun run build` proves `svelte-adapter-bun` produced
+**A build is not a boot.** `bun run build` proves `@sveltejs/adapter-bun` produced
 something; it proves nothing about whether the thing it produced starts. Until
 2026-08-31 the only place that was ever checked was the deploy's own
 verification - which is real, and which runs _after_ the container has already
@@ -105,7 +105,7 @@ judgement: a break that stops the tree compiling is caught by `check`, `lint`
 and `build`. An entry is a dependency whose failure would be INVISIBLE to that,
 and every entry must name the test that retires it, because a refusal nobody can
 lift is the queue this whole mechanism exists to avoid. Both candidates measured
-on 2026-08-31 were closed by writing the gate instead: `svelte-adapter-bun` by
+on 2026-08-31 were closed by writing the gate instead: `svelte-adapter-bun` (the adapter then in use, since replaced by `@sveltejs/adapter-bun`) by
 the boot step above, and `@humanspeak/svelte-markdown` by
 `tests/profileBioMarkdown.test.ts`.
 
@@ -264,7 +264,7 @@ data.
 
 ## Environment and secrets
 
-Runtime configuration is read via `$env/dynamic/*` (see `.env.example`):
+Runtime configuration is read via `src/env.ts` and `$app/env/private` / `$app/env/public` (see `.env.example`):
 
 | Variable            | Scope       | Purpose                                    |
 | ------------------- | ----------- | ------------------------------------------ |
@@ -278,9 +278,10 @@ on every release and loaded into the container at start via `env_file:` in
 `docker-compose.yml` - the image itself is built and could be pushed anywhere
 without ever containing a secret.
 
-`ORIGIN` and `BODY_SIZE_LIMIT` are not secrets and don't come from GitHub
-Secrets; they're set directly in `docker-compose.yml`'s `environment:` block
-(formerly `ecosystem.config.cjs`'s `env`).
+`BODY_SIZE_LIMIT` is not a secret and does not come from GitHub Secrets; it is set
+directly in `docker-compose.yml`'s `environment:` block. There is no `ORIGIN`: the
+origin is derived from the request `Host` header, which the reverse proxy MUST forward
+(see [architecture](architecture.md#the-origin-comes-from-the-host-header)).
 
 ## Planned: fully secret-driven CD (see backlog)
 

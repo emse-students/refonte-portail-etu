@@ -1,8 +1,8 @@
 import type { PageLoad } from "./$types";
-import { CanariApiError, getAssociationBySlug } from "$lib/canari";
-import { listsPeople, NOINDEX } from "$lib/robots";
+import { CanariApiError, getAssociationBySlug } from "#lib/canari";
+import { listsPeople, NOINDEX } from "#lib/robots";
 import { error } from "@sveltejs/kit";
-import { m } from "$lib/paraglide/messages";
+import { m } from "#lib/paraglide/messages";
 
 /**
  * One association with its public members, resolved by slug.

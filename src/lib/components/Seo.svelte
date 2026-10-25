@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import { NOINDEX } from "$lib/robots";
-	import { SITE_NAME } from "$lib/site";
-	import { canonicalUrl, defaultImage, fullTitle, jsonLdScript, type SeoMeta } from "$lib/seo";
+	import { NOINDEX } from "#lib/robots";
+	import { SITE_NAME } from "#lib/site";
+	import { canonicalUrl, defaultImage, fullTitle, jsonLdScript, type SeoMeta } from "#lib/seo";
 
 	let { meta }: { meta: SeoMeta } = $props();
 

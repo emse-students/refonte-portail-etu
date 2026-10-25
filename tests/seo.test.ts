@@ -13,7 +13,7 @@ import {
 	prune,
 	serializeJsonLd,
 	siteNode,
-} from "$lib/seo";
+} from "#lib/seo";
 
 /**
  * What a crawler and a link unfurler are handed is the product of this site, so the properties worth

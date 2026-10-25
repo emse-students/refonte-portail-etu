@@ -85,7 +85,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Generate SvelteKit files
-        run: bunx svelte-kit sync
+        run: bunx --bun svelte-kit sync
 
       - name: Linting
         run: bun run lint
@@ -124,7 +124,7 @@ jobs:
       - name: Build
         run: bun run build
 
-      # A BUILD IS NOT A BOOT. The step above proves `svelte-adapter-bun` produced
+      # A BUILD IS NOT A BOOT. The step above proves `@sveltejs/adapter-bun` produced
       # something; it proves nothing about whether the thing it produced starts. The
       # only place that was ever checked is `deploy.yml`'s "Verify the app actually
       # answers" - which is real, and which runs AFTER Docker has already restarted
@@ -145,8 +145,17 @@ jobs:
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 http://127.0.0.1:3399/ || true)
             if [ "$code" = "200" ]; then
               echo "The packaged server answered 200 on attempt ${attempt}."
+              # The origin is https:// + the Host header (the adapter has no runtime ORIGIN), so
+              # canonical, sitemap and JSON-LD must carry the host the proxy forwards.
+              host=portail-etu.emse.fr
+              page=$(curl -s --max-time 5 -H "Host: $host" http://127.0.0.1:3399/)
+              map=$(curl -s --max-time 5 -H "Host: $host" http://127.0.0.1:3399/sitemap.xml)
+              fail=0
+              grep -q "rel=\"canonical\" href=\"https://$host/\"" <<<"$page" || { echo "::error::canonical does not use the Host header"; fail=1; }
+              grep -q "\"@id\":\"https://$host/#website\"" <<<"$page" || { echo "::error::JSON-LD @id does not use the Host header"; fail=1; }
+              grep -q "<loc>https://$host/</loc>" <<<"$map" || { echo "::error::sitemap <loc> does not use the Host header"; fail=1; }
               kill "$pid" 2>/dev/null || true
-              exit 0
+              exit $fail
             fi
             sleep 1
           done

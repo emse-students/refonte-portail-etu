@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CanariAssociation } from "$lib/types";
-	import { logoUrl, initials, generateColor } from "$lib/media";
+	import type { CanariAssociation } from "#lib/types";
+	import { logoUrl, initials, generateColor } from "#lib/media";
 
 	let {
 		association,

@@ -131,7 +131,7 @@ first, which is several different linters under one name. Move the key and the p
 ## Package manager and runtime
 
 bun, everywhere: `bun install`, `bun run`, `bun test` and `bun` as the runtime behind
-`svelte-adapter-bun`. The version lives in [`.bun-version`](../../.bun-version) and is repeated in
+`@sveltejs/adapter-bun`. The version lives in [`.bun-version`](../../.bun-version) and is repeated in
 `packageManager` and `engines`, which is how CI, the deploy runner and a fresh clone resolve the
 same toolchain.
 

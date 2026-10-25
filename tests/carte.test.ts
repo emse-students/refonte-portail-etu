@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { getPublishedCarte } from "$lib/canari";
+import { getPublishedCarte } from "#lib/canari";
 import { load } from "../src/routes/associations/+page";
-import type { PublishedCarte } from "$lib/types";
+import type { PublishedCarte } from "#lib/types";
 
 /**
  * The published Carte de la Vie Asso is optional by design: most of the time Canari has none live,
