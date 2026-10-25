@@ -36,3 +36,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (isApiPath(event.url.pathname)) response.headers.set("X-Robots-Tag", NOINDEX);
 	return response;
 };
+
+/**
+ * Ends the process once `@sveltejs/adapter-bun` has finished draining.
+ *
+ * On SIGTERM/SIGINT the adapter stops the server, waits for in-flight requests (up to
+ * `SHUTDOWN_TIMEOUT`, 30 s), emits `sveltekit:shutdown` and then NEVER exits: it relies on the
+ * event loop emptying. Today nothing here keeps it open, but one future timer, stream or client
+ * would turn `docker stop` into a full grace period followed by SIGKILL (exit 137). Exiting here
+ * makes the stop deterministic - the CI boot step sends a real SIGTERM and asserts it.
+ */
+process.on("sveltekit:shutdown", (reason: unknown) => {
+	console.log(`Shutdown (${String(reason)}): drained, exiting.`);
+	process.exit(0);
+});
