@@ -219,40 +219,32 @@ convenience, it is the only way in. `deploy.yml` and the egress probe in
 `scheduled.yml` are the only jobs that use it; everything else runs on
 `ubuntu-latest`.
 
-**It runs as a dedicated service account, `gha-runner`, since 2026-09-24.** It
-ran as a person's login for as long as it existed, which coupled every
-deployment of this portal to one human account on a machine we share with other
-associations: the day that account is closed or renamed, the runner stops and
-the deploy stops with it, for a reason nobody would look for. The service
-account has no password, no `sudo` and one group - `docker`, which the deploy
-needs and which is what gives it its real privilege.
-
-|                 | Path                                                     |
-| --------------- | -------------------------------------------------------- |
-| Runner install  | `/opt/actions-runner/runners/portail-etu/`               |
-| Deploy checkout | `~/portail-etu`, the directory `deploy.yml` works in     |
-| Service unit    | `actions.runner.<org>.<name>.service`, `User=gha-runner` |
+**It runs as a dedicated, unprivileged runner account.** It ran as a person's
+login for as long as it existed, which coupled every deployment of this portal to
+one human account on a machine we share with other associations: the day that
+account is closed or renamed, the runner stops and the deploy stops with it, for
+a reason nobody would look for. The dedicated account has no password and no
+`sudo`; the one extra privilege it holds is the one the deploy needs.
 
 **No workflow spells out where the runner lives.** `deploy.yml` reads
 `$GITHUB_WORKSPACE` for the built tree and `~` for its deploy directory, so
 moving the runner, renaming the account or a change in how Actions lays out
-`_work` reaches nothing in this repository. The one line that did spell it out
-is what had to be edited to move the account at all, which is the argument
+its work tree reaches nothing in this repository. The one line that did spell it
+out is what had to be edited to move the account at all, which is the argument
 against ever writing another.
 
-### The deploy job has NOT run since the move, and what that does and does not mean
+### The deploy job after the runner moved, and what that does and does not mean
 
-The runner moved on 2026-09-24; the last `Deploy` run was **2026-09-04**. What
-was proven after the move is that the runner picks up work at all - the
-scheduled egress probe, the only other `self-hosted` job, was dispatched and
-came back `success`. **The deploy path itself is verified by inspection, not by
-a run**, and the next release is where it is really tested:
+After the runner changed account, the scheduled egress probe, the only other
+`self-hosted` job, was dispatched and came back `success`, which proves the
+runner picks up work at all. **The deploy path itself was verified by inspection,
+not by a run**, and the next release is where it is really tested:
 
-- `~` for `gha-runner` resolves to `/opt/actions-runner`, so `~/portail-etu`
-  is `/opt/actions-runner/portail-etu`, which exists and carries the tree;
-- the running container still reports `/home/muselli/portail-etu/docker-compose.yml`
-  as its config file, because it was created before the move and nothing has
-  recreated it since;
+- `~` for the runner account is the deployment account's home directory, which
+  carries the tree;
+- the running container may still report the old compose file location as its
+  config file, because it was created before the move and nothing has recreated
+  it since;
 - **the project name is `portail-etu` on both sides**, so the next deploy
   adopts that project rather than standing a second one beside it. That used
   to be true because both directories happened to share a basename; it is now

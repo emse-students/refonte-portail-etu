@@ -4,7 +4,7 @@ import { AvatarCache, isCacheableAbsence } from "#lib/server/avatarCache";
 /**
  * The avatar cache exists because the portal had none: a page of N members opened
  * N connections to MiGallery per visitor, so one burst of outbound connection
- * failures on the host became 479 HTTP 502s (2026-08-06). What is worth pinning
+ * failures on the host became hundreds of HTTP 502s (2026-08-06). What is worth pinning
  * down is not that a cache caches - it is the three rules that make it safe, each
  * invisible in the happy path:
  *

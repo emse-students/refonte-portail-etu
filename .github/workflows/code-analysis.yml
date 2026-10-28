@@ -1,8 +1,7 @@
 name: Code Analysis
 
 # This repository had NO static analysis and NO secret scanning until 2026-08-26, while being
-# PUBLIC and while carrying the largest vulnerability debt of the five projects (29 advisories,
-# 21 of them high, measured that day). It was also the only one of the four GitHub repos without
+# PUBLIC. It was also the only one of the four GitHub repos without
 # this workflow - Canari, Sky and MiGallery have had it for months.
 #
 # Everything runs on GitHub-hosted runners. The self-hosted runner is the deploy path and the only
@@ -13,7 +12,7 @@ name: Code Analysis
 # carry its own `pull_request` and `schedule` triggers, which put its verdict OUTSIDE the check a
 # merge waits on: CodeQL, the secret scan and the vulnerability audit all ran on every pull request
 # and could not block a single one. A red tick nothing enforces is worse than no tick, because it
-# looks enforced - and this repository is PUBLIC and carried the largest advisory debt of the five.
+# looks enforced - and this repository is PUBLIC.
 #
 # `ci.yml` calls it as a job feeding `CI passed`; `scheduled.yml` calls the same file nightly,
 # which is the half a pull request cannot see - a new advisory landing against code nobody touched.

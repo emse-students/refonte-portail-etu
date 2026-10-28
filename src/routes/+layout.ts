@@ -5,8 +5,8 @@
  * public IP", so a server-side fetch to the public API could not complete. **That reason no longer
  * describes the network, and the probe that settled it is in the repository**
  * (`.github/workflows/probe-egress.yml`, run 2026-08-19 on the deploy host itself):
- * `canari-emse.fr` resolves to Cloudflare anycast while `portail-etu.emse.fr` is 193.49.175.67, so
- * the request leaves for Cloudflare rather than hairpinning through the portal's own NAT, and it
+ * `canari-emse.fr` resolves to Cloudflare anycast while `portail-etu.emse.fr` resolves to the
+ * school's own address, so the request leaves for Cloudflare rather than hairpinning through the portal's own NAT, and it
  * came back `status=200 bytes=30732` in 122 ms.
  *
  * The cost of leaving it off was the whole point of this site. It is the PUBLIC face of the

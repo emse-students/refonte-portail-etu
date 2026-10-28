@@ -4,7 +4,7 @@
  * Why it exists: the portal cached nothing, so one association page with N
  * members opened N connections to MiGallery per visitor, on every single visit.
  * When the host briefly could not open an outbound connection (2026-08-06), that
- * amplification turned one network fault into 479 recorded HTTP 502s - one per
+ * amplification turned one network fault into hundreds of recorded HTTP 502s - one per
  * card, in tight bursts.
  *
  * What it deliberately does NOT store: failures. A transport error is not an

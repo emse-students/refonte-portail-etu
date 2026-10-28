@@ -60,4 +60,4 @@ rendered as text anywhere, and the avatar route accepts only `[a-zA-Z0-9_-]{1,12
 - The director of publication is written as "le/la président(e) de l'association Rootz" because no
   name was supplied; name the person when the mandate is known.
 - The host is described as the school's shared server administered with the DSI; no company is
-  named. Confirm the wording with the DSI.
+  named.
