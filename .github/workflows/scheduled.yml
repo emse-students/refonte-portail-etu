@@ -62,8 +62,8 @@ jobs:
   # ON NO CRON, DELIBERATELY. This answers a question that is asked when somebody asks it, not every
   # night: `src/routes/+layout.ts` sets `ssr = false`, and the reason written down is a hairpin NAT
   # that the DNS no longer describes - `canari-emse.fr` resolves to Cloudflare anycast while
-  # `portail-etu.emse.fr` is 193.49.175.67, so a server-side request leaves for Cloudflare rather
-  # than turning back through the portal's own NAT. Whether it WORKS is a separate question from
+  # `portail-etu.emse.fr` resolves to the school's own address, so a server-side request leaves for
+  # Cloudflare rather than turning back through the portal's own NAT. Whether it WORKS is a separate question from
   # whether that reason holds, and it decides this site's entire `<head>`: with `ssr = false` a
   # crawler and every link unfurler see an empty shell, because `<svelte:head>` never runs.
   #

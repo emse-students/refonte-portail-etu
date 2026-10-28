@@ -29,7 +29,7 @@ the server (hairpin NAT: the portal and Canari sit behind the same public IP)"_.
 Both halves of that were checked on 2026-08-19 and neither holds:
 
 - **The premise.** `canari-emse.fr` resolves to Cloudflare anycast
-  (104.21.10.94 / 172.67.162.196); `portail-etu.emse.fr` is 193.49.175.67. They
+  while `portail-etu.emse.fr` resolves to the school's own address. They
   do not share a public IP, so a server-side request leaves for Cloudflare rather
   than turning back through the portal's own NAT. There is no hairpin to suffer.
 - **The consequence.** Whether the mechanism is gone is a different question from
@@ -48,8 +48,7 @@ environment value, because the repository is public.
 **Re-checked for `canari.emse.fr`, 2026-09-25** - Canari's estate migration moved production onto
 the SAME shared host `portail-etu.emse.fr` already runs on, which raised a real question this time:
 does the new name share the portal's own public IP, reintroducing the hairpin this section refuted?
-It does not: `canari.emse.fr` resolves to `193.49.175.122` while `portail-etu.emse.fr` is
-`193.49.175.67`, different addresses just like the Cloudflare-vs-origin case above. A curl from the
+It does not: the two names resolve to different addresses, just like the Cloudflare-vs-origin case above. A curl from the
 target host itself confirmed it end to end: `200`, `87ms`.
 
 **What it cost.** With `ssr = false`, `<svelte:head>` never ran on the server, so
@@ -244,10 +243,10 @@ hit|miss` on the response makes it verifiable with a single request, which matte
 because the deploy host has no SSH access.
 
 It exists for a measured reason. Without it, one association page of N members
-opened N connections to MiGallery **per visitor, per visit**. On 2026-08-06 the
+opened N connections to MiGallery **per visitor, per visit**. Once the
 host briefly could not open outbound connections at all, and that amplification
-turned a single network fault into 479 recorded HTTP 502s in tight bursts - all of
-them the same bun error, `Unable to connect`, on a well-formed URL. Neither DNS,
+turned a single network fault into hundreds of recorded HTTP 502s in tight bursts - all of
+them the same runtime error, `Unable to connect`, on a well-formed URL. Neither DNS,
 TLS nor the secrets were involved; the cache does not fix the network, it removes
 the redundant work that made one hiccup visible on every card.
 
@@ -292,12 +291,12 @@ with no deadline never throws. It expires as a `TimeoutError`, so the route's
 
 That signal is the route's `console.error`, and every line it produces is
 stamped with a time - not by the app, but by Docker's own JSON log driver,
-read back with `docker compose logs --timestamps`. Without that stamp the 479
+read back with `docker compose logs --timestamps`. Without that stamp the
 failures above could not be placed in time at all, which is what made the
 diagnosis cost a whole session: the count alone reads as a chronic fault, while
-their position in the append-only log showed one burst-shaped episode. (At the
-time of that incident the process was still pm2-supervised, stamped by its own
-`time: true`; the property moved with the runtime, not the requirement.)
+their position in the append-only log showed one burst-shaped episode. (The stamp
+used to come from the process supervisor; the property moved with the runtime,
+not the requirement.)
 
 ## Frontend structure
 

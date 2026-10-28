@@ -62,12 +62,11 @@ jobs:
           # SRC/.` (not `SRC/*`) so dotfiles - Dockerfile's neighbour
           # `.dockerignore` in particular - actually make the trip.
           #
-          # THE SOURCE IS `$GITHUB_WORKSPACE`, NEVER A PATH SPELLED OUT HERE. It used to read
-          # `~/actions-runner/_work/refonte-portail-etu/refonte-portail-etu`, which encoded three
-          # things this file has no business knowing: where the runner is installed, whose home it
-          # sits in, and how Actions lays out `_work`. All three moved the day the runner left a
-          # personal account for the `gha-runner` service account, and none of them is a fact about
-          # this deploy. Actions already hands the checkout directory over in this variable.
+          # THE SOURCE IS `$GITHUB_WORKSPACE`, NEVER A PATH SPELLED OUT HERE. It used to spell out the runner's
+          # work directory, which encoded three things this file has no business knowing: where the
+          # runner is installed, whose home it sits in, and how Actions lays out its work tree. All
+          # three moved the day the runner left a personal account for a dedicated one, and none of
+          # them is a fact about this deploy. Actions already hands the checkout directory over in this variable.
           find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
           cp -a "${GITHUB_WORKSPACE}/." .
 
@@ -141,7 +140,7 @@ jobs:
           # `docker compose ps` is the restart counter pm2's table used to be -
           # not evidence that anything serves, but evidence of how it failed.
           # `--timestamps` replaces pm2's `time: true`, which is what let the
-          # 2026-08-26 diagnosis place 479 avatar-proxy failures in time at all
+          # 2026-08-26 diagnosis place a burst of avatar-proxy failures in time at all
           # instead of reading as one chronic fault. There is no SSH to this box -
           # printing them here is the only way anyone sees them.
           docker compose ps 2>&1 || true

@@ -65,7 +65,7 @@ const respond = (answer: AvatarAnswer, cacheState: "hit" | "miss"): Response => 
  *
  * Answers are cached in process (see avatarCache): without it a page of N members
  * opened N connections to MiGallery on every visit, which is what turned a single
- * burst of outbound connection failures into 479 HTTP 502s. A transport failure is
+ * burst of outbound connection failures into hundreds of HTTP 502s. A transport failure is
  * never cached and never disguised as a 404 - it is a 502 marked `no-store`,
  * because "I could not reach the upstream" is not an answer about the avatar.
  */

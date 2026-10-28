@@ -8,7 +8,7 @@
  * association page simply never finishes rendering, and the `error` handler that would have shown
  * something useful never runs.
  *
- * That is the opposite failure from the one measured on 2026-08-06 (479 recorded 502s from a single
+ * That is the opposite failure from the one measured on 2026-08-06 (hundreds of recorded 502s from a single
  * burst of outbound connection failures, amplified by the absence of a cache): a request that
  * cannot be reached fails fast and is retried, while a request with no deadline cannot fail at all.
  * Both were live at the same time on the same route.
