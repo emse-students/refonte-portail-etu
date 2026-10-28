@@ -123,4 +123,21 @@ jobs:
           REGISTRY_OUTAGE_IS_FAILURE: ${{ inputs.registry_outage_is_failure }}
         run: |
           set -uo pipefail
-          .github/scripts/audit-dependencies.sh . || [ "$?" -eq 2 ]
+          # ONE SUPPRESSION (2026-10-28): GHSA-gcqx-w48m-w2h4 is LOW, `deepmerge` <= 4.3.1, and NO
+          # fixed version is published (4.3.1 is the latest; the newest vite-plugin-svelte still
+          # asks for ^4.3.1). It arrives only through `@sveltejs/vite-plugin-svelte`, build tooling
+          # that merges the project's own configuration. It retires itself: the next step fails
+          # once the audit stops naming it.
+          .github/scripts/audit-dependencies.sh . --ignore=GHSA-gcqx-w48m-w2h4 || [ "$?" -eq 2 ]
+
+      - name: Every ignored advisory is still reported
+        if: ${{ !cancelled() }}
+        run: |
+          set -uo pipefail
+          unignored=$(mktemp)
+          .github/scripts/audit-dependencies.sh . >"$unignored" 2>&1 || true
+          if grep -q 'was NOT audited' "$unignored"; then
+            echo "    the advisory endpoint did not answer; the audit step above carries that verdict."
+            exit 0
+          fi
+          bash .github/scripts/ignored-advisories-still-reported.sh "$unignored" GHSA-gcqx-w48m-w2h4
