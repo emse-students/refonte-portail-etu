@@ -21,6 +21,26 @@
 	);
 	const bureau = $derived(entity.members.filter((member) => member.isAdmin));
 	const others = $derived(entity.members.filter((member) => !member.isAdmin));
+
+	/**
+	 * A LIST'S SECOND THEME - the campaign identity it runs beside its public one.
+	 *
+	 * Either half may exist without the other (renamed before the second logo is uploaded, or the
+	 * reverse), so the block is drawn when EITHER is present. Requiring BOTH, as this page used to,
+	 * dropped a second logo whose name had not been filled in and a second name whose logo had not
+	 * been uploaded - and the `<h1>` disagreed with the logo row about it, testing only `name2`.
+	 * Canari's own `AssociationDetailView` and `AssociationTile` take the same decision.
+	 */
+	const secondName = $derived(entity.type === "list" ? (entity.name2?.trim() ?? "") : "");
+	const secondLogoId = $derived(entity.type === "list" ? (entity.logoMediaId2?.trim() ?? "") : "");
+	const hasSecondTheme = $derived(Boolean(secondName) || Boolean(secondLogoId));
+	/** The second theme as a logo subject; its initials fall back to the main name when unnamed. */
+	const secondTheme = $derived({
+		name: secondName || entity.name,
+		logoMediaId: secondLogoId || null,
+		logoUrl: null,
+		color: entity.color,
+	});
 </script>
 
 <article class="max-w-4xl mx-auto px-6 py-12 w-full box-border animate-fade-in">
@@ -46,21 +66,7 @@
 		class="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 md:p-8"
 		style="border-top-color: {entity.color || '#1b263b'}; border-top-width: 4px;"
 	>
-		<div class="flex gap-3 flex-none">
-			<AssociationLogo association={entity} size={104} rounded="24%" />
-			{#if entity.type === "list" && entity.name2 && entity.logoMediaId2}
-				<AssociationLogo
-					association={{
-						name: entity.name2,
-						logoMediaId: entity.logoMediaId2,
-						logoUrl: null,
-						color: entity.color,
-					}}
-					size={104}
-					rounded="24%"
-				/>
-			{/if}
-		</div>
+		<AssociationLogo association={entity} size={104} rounded="24%" />
 		<div class="text-center sm:text-left flex-1 min-w-0">
 			{#if entity.type === "list" && entity.parentName}
 				<span
@@ -71,12 +77,30 @@
 			<h1
 				class="m-0 mb-3 text-3xl md:text-4xl font-heading text-mines-navy dark:text-mines-platinum"
 			>
-				{entity.name}{#if entity.name2}<span
-						class="text-mines-navy/60 dark:text-mines-platinum/60 font-semibold"
-					>
-						&amp; {entity.name2}</span
-					>{/if}
+				{entity.name}
 			</h1>
+			<!--
+				THE SECOND LOGO SITS WITH THE SECOND NAME (user, 2026-09-23). Both logos shared one
+				104px row while both names shared the `<h1>`, so the reader had to cross the two
+				pairings over to match a theme to its mark. The second theme is now one subordinate
+				row - its own logo beside its own name - which is what Canari draws too.
+
+				It also fixes the name being glued to the ampersand. `<span>\n\t&amp; {name2}</span>`
+				put the separating space at the START of an element's content, which Svelte trims,
+				so production rendered `Mines'tagnard& Mines'diana Jones`. No shape here carries a
+				space in markup any more: `gap-*` does it, and a compiler cannot trim that.
+			-->
+			{#if hasSecondTheme}
+				<div class="flex items-center justify-center sm:justify-start gap-3 mb-3">
+					<AssociationLogo association={secondTheme} size={44} rounded="24%" />
+					{#if secondName}
+						<span
+							class="min-w-0 text-xl md:text-2xl font-heading font-semibold text-mines-navy/60 dark:text-mines-platinum/60 [overflow-wrap:anywhere]"
+							>{secondName}</span
+						>
+					{/if}
+				</div>
+			{/if}
 			<div class="flex flex-wrap justify-center sm:justify-start gap-2 mb-3">
 				{#if entity.type === "list" && entity.promo}
 					<span
