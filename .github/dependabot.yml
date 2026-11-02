@@ -47,6 +47,12 @@ updates:
     # is the 7.x line and svelte-check no longer needs both majors present.
     ignore:
       - dependency-name: "@typescript/native"
+      # `svelte-check` 4.7.7 and 4.7.8 stop resolving the `#lib/*` entries of package.json
+      # `imports`: every such import reports "Cannot find module" (147 errors, with and without
+      # `--tsgo`), while 4.7.6 reports none on the same tree. Held until a release resolves them
+      # again - lift this entry by bumping to that release and seeing `bun run check` stay at 0.
+      - dependency-name: "svelte-check"
+        versions: [">=4.7.7 <=4.7.8"]
     groups:
       development-dependencies:
         dependency-type: "development"
