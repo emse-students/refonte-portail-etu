@@ -20,8 +20,10 @@ read-only API; associations, lists and members are managed inside Canari.
   and no longer is).
 - **Data source**: Canari's public API at `${PUBLIC_CANARI_URL}/api/public/*`
   (associations, lists, members). Logos are public media blobs on the same host.
-- **Avatars**: member faces are proxied same-origin through
-  `/api/users/:id/avatar`, which fetches MiGallery with a server-side key.
+- **Avatars**: member faces load straight from Canari at the `avatarUrl` its
+  public API hands out. While Canari does not send it yet, they fall back to the
+  same-origin proxy `/api/users/:id/avatar`, which fetches MiGallery with a
+  server-side key (transitional, see [architecture](docs/wiki/architecture.md)).
 - **Carte de la Vie Asso**: when Canari has a poster published, the association
   directory renders it as an interactive map above the tiles, on wide screens. The
   payload is the poster already **resolved** (every box and font size in poster

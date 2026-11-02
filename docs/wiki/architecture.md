@@ -9,7 +9,8 @@ Browser ──► Portail (SvelteKit, adapter-bun)
    │
    ├──► GET https://canari.emse.fr/api/public/*      (associations, lists, members)
    ├──► GET https://canari.emse.fr/api/media/public/* (logos)
-   └──► GET /api/users/:id/avatar ──► MiGallery       (member faces, server-proxied)
+   ├──► GET https://canari.emse.fr/<avatarUrl>        (member photos, browser-direct)
+   └──► GET /api/users/:id/avatar ──► MiGallery       (TRANSITIONAL photo fallback, server-proxied)
 ```
 
 ## Server-side rendering
@@ -182,8 +183,10 @@ was. Four properties follow from that:
   dead link.
 - **People are a snapshot.** Which member sits in which crown slot is an authoring
   decision in Canari, so member names, roles and initials travel in the payload. A
-  roster change needs a republish. Only `userId` travels for the photo; the face
-  itself comes from this repo's own `/api/users/:id/avatar` proxy.
+  roster change needs a republish. The photo travels as `avatarUrl`, the address
+  the public roster hands out for the same face (see below). The cards are keyed
+  by POSITION: they are a frozen snapshot in render order, never reordered, so no
+  card field has to stay for the key's sake.
 - **A member card is sized by its name, so BOTH its dimensions travel.** Canari
   shrinks the name to fit the card and, past a readable floor, widens the card
   instead - so `w` varies from card to card. Its `photo` is published separately
@@ -215,7 +218,28 @@ map is omitted and the reason logged - the poster still exists in Canari, and on
 republish from its editor is the whole fix. The load fetches the carte and the
 association list independently, so neither can take the other down.
 
-## Avatars: same-origin MiGallery proxy
+## Member photos: Canari's `avatarUrl`, then the legacy proxy
+
+Every roster member and carte card is moving to an `avatarUrl`: a RELATIVE path
+on the Canari origin (`/api/public/members/:memberId/avatar`), keyed by the
+roster row rather than by the person's account. One function decides the photo,
+[`memberPhotoUrl`](../../src/lib/media.ts):
+
+| Payload                    | Photo loaded from                                      |
+| -------------------------- | ------------------------------------------------------ |
+| `avatarUrl` is a path      | `${PUBLIC_CANARI_URL}<path>`, by the visitor's browser |
+| `avatarUrl` is `null`      | nowhere - initials (the card's member left the roster) |
+| no `avatarUrl`, a `userId` | the legacy proxy below, `/api/users/:userId/avatar`    |
+
+An absolute `avatarUrl` is accepted only on the Canari origin, so a payload
+cannot point an `<img>` at a host of its choosing. A `null` never falls back to
+the account id: Canari answers null precisely when the face is no longer public.
+The `userId` branch is TRANSITIONAL: Canari strips `userId` once this reads
+`avatarUrl` in production, and the proxy below, its cache and its key go with it.
+No list key depends on `userId` - the roster keys on its row `id`. All three
+payload shapes are pinned in [`tests/memberPhoto.test.ts`](../../tests/memberPhoto.test.ts).
+
+### The legacy proxy: same-origin MiGallery
 
 Member faces come from MiGallery, which requires a server-side API key. The
 browser requests `/api/users/:id/avatar` (same origin); the SvelteKit endpoint
@@ -224,7 +248,7 @@ fetches `${GALLERY_API_URL}/users/:id/avatar` with `GALLERY_API_KEY` and streams
 the image back. The `userId` is the Authentik uid carried by the public API,
 which is the same identifier MiGallery keys avatars by. **That id therefore
 appears in every avatar URL**; hiding it needs an opaque token from Canari, see
-[data-protection](data-protection.md#what-this-repository-cannot-fix-the-account-id). On any miss the UI falls
+[data-protection](data-protection.md#the-account-id-on-its-way-out). On any miss the UI falls
 back to generated initials - `MemberCard` swaps to initials on the image's
 `onerror`, so **any** failing status degrades, not only a 404. That is exactly why
 the status is free to say what really happened, and must: nothing on screen
