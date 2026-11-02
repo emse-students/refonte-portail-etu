@@ -1,0 +1,10 @@
+name: "Portail-etu CodeQL config"
+
+# `src/lib/paraglide` is emitted by `paraglide-js compile` (the `prepare` and `check` scripts), is
+# gitignored, and is regenerated from `messages/`. The analysis job installs dependencies, which
+# runs `prepare` and writes it into the checkout, so CodeQL read generated runtime and message
+# modules and reported 200+ alerts on code nobody hand-maintains (superfluous-trailing-arguments,
+# trivial-conditional, call-to-non-callable... all inherent to the generator). Scope is named here
+# so a run reads the same whether or not the compile happened. Hand-written code stays in scope.
+paths-ignore:
+  - src/lib/paraglide
