@@ -37,7 +37,7 @@ Both halves of that were checked on 2026-08-19 and neither holds:
   ITSELF, by a dispatch-only workflow kept in the repository
   ([`.github/workflows/probe-egress.yml`](../../.github/workflows/probe-egress.yml)):
   `[canari-public-associations] status=200 bytes=30732 dns=0.018s connect=0.034s
-tls=0.063s total=0.122s`. The self-hosted runner is the deploy box, so that is
+  tls=0.063s total=0.122s`. The self-hosted runner is the deploy box, so that is
   exactly what the app gets.
 
 The probe stays in the repo rather than being deleted with the claim it settled:

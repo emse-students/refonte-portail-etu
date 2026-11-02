@@ -100,7 +100,7 @@ projection carries an `updatedAt`.
 Everything above was in place; what a search result actually PRINTS was not. Two fixes:
 
 - **The home title names the school** - `HOME_TITLE` in `src/lib/site.ts`, `Portail Étudiant ICM -
-Mines Saint-Étienne`. The brand alone ranks for nothing anyone types. Inner pages keep the short
+  Mines Saint-Étienne`. The brand alone ranks for nothing anyone types. Inner pages keep the short
   suffix: their own name already says what they are, and a result cuts a title at ~60 characters.
 - **An entity's description is `entityDescription(lead, tagline)`** in `src/lib/seo.ts`: what the
   page IS (`association_meta_description` / `list_meta_description`, "X, association étudiante de
