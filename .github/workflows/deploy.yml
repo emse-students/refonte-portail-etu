@@ -85,14 +85,21 @@ jobs:
         # Secrets are passed via env (masked in logs) rather than interpolated
         # into the script body. `docker-compose.yml` loads ~/portail-etu/.env at
         # container start via `env_file`, so the container reads these without a
-        # rebuild - the image itself never sees a secret. An empty value is safe:
-        # the app code falls back to the public default URL.
+        # rebuild - the image itself never sees a secret. Empty values are safe:
+        # the app code falls back to public defaults for the URLs and disables
+        # the avatar proxy when GALLERY_API_KEY is unset.
         env:
           PUBLIC_CANARI_URL: ${{ secrets.PUBLIC_CANARI_URL }}
+          GALLERY_API_URL: ${{ secrets.GALLERY_API_URL }}
+          GALLERY_API_KEY: ${{ secrets.GALLERY_API_KEY }}
+          PORTAL_URL: ${{ secrets.PORTAL_URL }}
         run: |
           cd ~/portail-etu
           cat > .env <<EOF
           PUBLIC_CANARI_URL=${PUBLIC_CANARI_URL}
+          GALLERY_API_URL=${GALLERY_API_URL}
+          GALLERY_API_KEY=${GALLERY_API_KEY}
+          PORTAL_URL=${PORTAL_URL}
           EOF
 
       - name: Restart server
@@ -133,7 +140,7 @@ jobs:
           # `docker compose ps` is the restart counter pm2's table used to be -
           # not evidence that anything serves, but evidence of how it failed.
           # `--timestamps` replaces pm2's `time: true`, which is what let the
-          # 2026-08-26 diagnosis place a burst of outbound failures in time at all
+          # 2026-08-26 diagnosis place a burst of avatar-proxy failures in time at all
           # instead of reading as one chronic fault. There is no SSH to this box -
           # printing them here is the only way anyone sees them.
           docker compose ps 2>&1 || true

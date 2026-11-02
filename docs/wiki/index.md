@@ -8,13 +8,13 @@ This wiki is the canonical technical documentation. Start here.
 ## Contents
 
 - [Architecture](architecture.md) - how the showcase renders, where its data
-  comes from, and where member photos come from.
+  comes from, and how avatars are served.
 - [SEO and link previews](seo.md) - the head, the JSON-LD graph and the
   sitemap; what a crawler and an unfurler actually get.
 - [Search](search.md) - the directory's search box, the ecosystem's
   tolerance ladder, and why prose is matched differently from a name.
 - [Data protection](data-protection.md) - what personal data is shown, the noindex and
-  sitemap rules, self-hosted fonts, and why no account id is read any more.
+  sitemap rules, self-hosted fonts, and the account id this repo cannot hide.
 - [Deployment](deployment.md) - CI/CD, quality gates, environment and secrets.
 - [Tooling](tooling.md) - what formats, lints and typechecks the repository, and
   what was measured before each tool was believed.
@@ -25,5 +25,5 @@ This wiki is the canonical technical documentation. Start here.
 The portal is a SvelteKit app that renders on the server and then hydrates
 (`ssr = true`) and reads Canari's public, unauthenticated API
 (`/api/public/*`) for associations, campaign lists and their public members.
-Member photos are loaded from the `avatarUrl` Canari serves. There is no database, no
+Member avatars are proxied same-origin from MiGallery. There is no database, no
 authentication and no write path: everything is managed inside Canari.

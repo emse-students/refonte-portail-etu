@@ -243,7 +243,7 @@
 							<!-- Bureau cards over the blob's top arc, then the president in front of them. -->
 							<!-- Keyed by position: the cards are a frozen snapshot in render order, never reordered. -->
 							{#each unit.cards as card, slot (slot)}
-								{@const photo = memberPhotoUrl(card.avatarUrl)}
+								{@const photo = memberPhotoUrl(card)}
 								<div class="absolute" style="left:{card.x}px;top:{card.y}px">
 									<div
 										class="box-border"

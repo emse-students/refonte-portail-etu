@@ -36,16 +36,19 @@ export interface CanariAssociation {
 /**
  * A public member row, joined with the users mirror for display name and promo.
  *
- * NO ACCOUNT ID IS READ HERE, ON PURPOSE. The roster used to carry `userId` (the MiConnect `sub`),
- * and this showcase built each photo URL from it - which put an identifier that names a person
- * across Canari, MiGallery and this site into every `<img src>`. The photo now arrives as
- * `avatarUrl`, keyed by the roster row, and the list is keyed by `id`. Canari may still send
- * `userId` and `createdAt` while it rolls out; they are deliberately absent from this type so no
- * code here can start depending on them again (see docs/wiki/data-protection.md).
+ * The photo comes from `avatarUrl`, keyed by the roster row, and the list is keyed by `id`. The
+ * account id (`userId`, the MiConnect `sub`) is read for ONE thing only, and only while Canari does
+ * not send `avatarUrl` yet: the legacy photo through this showcase's MiGallery proxy
+ * (`memberPhotoUrl`). Canari strips `userId` once this showcase reads `avatarUrl` everywhere.
  */
 export interface CanariMember {
-	/** The roster row's own id: one line of one public roster. The list key. */
+	/** The roster row's own id: one line of one public roster. The list key; Canari keeps it. */
 	id: string;
+	/**
+	 * TRANSITIONAL - the photo fallback while `avatarUrl` is absent, nothing else. Never a key, a
+	 * link or displayed text. Canari strips it once it serves `avatarUrl`.
+	 */
+	userId?: string;
 	role: string;
 	/** Coarse flag: true when the member holds any admin permission. */
 	isAdmin: boolean;
@@ -54,9 +57,9 @@ export interface CanariMember {
 	lastName: string | null;
 	promo: number | null;
 	/**
-	 * The member's photo, as Canari hands it out: a path on the Canari origin (resolved by
-	 * `memberPhotoUrl`). Absent from a Canari that predates the field, and null when there is none
-	 * to offer - both render initials.
+	 * The member's photo, as Canari hands it out: a path on the Canari origin, resolved by
+	 * `memberPhotoUrl`. Absent from a Canari that predates the field; null when there is no photo
+	 * to offer.
 	 */
 	avatarUrl?: string | null;
 }
@@ -125,11 +128,16 @@ export interface PublishedCarteText {
 export interface PublishedCarteCard {
 	/**
 	 * The member's photo, the same address the public roster hands out for the same face (a path on
-	 * the Canari origin, resolved by `memberPhotoUrl`). Absent from a Canari that predates the field,
-	 * and null for a card whose member has since left the association - both render `initials`.
-	 * Canari may still send the card's `userId`; nothing here reads it.
+	 * the Canari origin, resolved by `memberPhotoUrl`). Absent from a Canari that predates the field
+	 * (the legacy `userId` photo is used then); null for a card whose member has since left the
+	 * association, which renders `initials`.
 	 */
 	avatarUrl?: string | null;
+	/**
+	 * TRANSITIONAL - the photo fallback while `avatarUrl` is absent, nothing else: the cards are
+	 * keyed by position, never by this. Canari strips it once it serves `avatarUrl`.
+	 */
+	userId?: string;
 	name: string;
 	/** Role line under the name, or '' when the member has none. */
 	role: string;

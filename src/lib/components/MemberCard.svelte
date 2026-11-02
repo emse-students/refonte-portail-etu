@@ -11,7 +11,7 @@
 			m.member_fallback()
 	);
 
-	const photo = $derived(memberPhotoUrl(member.avatarUrl));
+	const photo = $derived(memberPhotoUrl(member));
 	let showPhoto = $state(true);
 </script>
 

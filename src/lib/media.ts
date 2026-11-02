@@ -16,14 +16,22 @@ export function logoUrl(a: Pick<CanariAssociation, "logoMediaId" | "logoUrl">): 
  * The URL a member photo is loaded from, or null when there is none to load - the caller then draws
  * initials and never issues the request.
  *
- * Canari serves the photo itself and hands out its address as `avatarUrl` on every public roster
- * member and carte card: a path on the Canari origin, keyed by the roster row rather than by the
- * person's account. A path is resolved against {@link CANARI_URL}; an absolute URL is accepted
- * only on that same origin, so a payload cannot point an `<img>` at a host of its choosing.
- * Anything else is refused, and said so, because it means Canari and this showcase disagree on the
- * contract.
+ * - **`avatarUrl` present** (Canari's address for the photo, keyed by the roster row): a path is
+ *   resolved against {@link CANARI_URL}, so the visitor's browser fetches it from Canari directly;
+ *   an absolute URL is accepted only on that same origin, so a payload cannot point an `<img>` at a
+ *   host of its choosing. `null` means Canari has no public photo for this row (a carte card whose
+ *   member left the association): initials, and NO fallback to the account id.
+ * - **`avatarUrl` absent** (a Canari that predates the field): the legacy path, this showcase's own
+ *   MiGallery proxy keyed by `userId`. TRANSITIONAL - it goes when Canari strips `userId`.
  */
-export function memberPhotoUrl(avatarUrl: string | null | undefined): string | null {
+export function memberPhotoUrl(person: {
+	avatarUrl?: string | null;
+	userId?: string | null;
+}): string | null {
+	const { avatarUrl, userId } = person;
+	if (avatarUrl === undefined) {
+		return userId ? `/api/users/${encodeURIComponent(userId)}/avatar` : null;
+	}
 	if (!avatarUrl) return null;
 	if (avatarUrl.startsWith("/") && !avatarUrl.startsWith("//")) return `${CANARI_URL}${avatarUrl}`;
 	try {

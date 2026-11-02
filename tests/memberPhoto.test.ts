@@ -12,94 +12,107 @@ import type {
 } from "#lib/types";
 
 /**
- * A member's photo is reached through the `avatarUrl` Canari hands out, never through the account id
- * (`userId`, the MiConnect `sub`) the public API used to carry: that id names a person across every
- * system of the ecosystem, and it sat in every `<img src>` this showcase drew.
+ * A member's photo is reached through the `avatarUrl` Canari hands out (keyed by the roster row),
+ * and the account id (`userId`, the MiConnect `sub`) is only a TRANSITIONAL fallback for a Canari
+ * that does not send `avatarUrl` yet. Canari and this repository deploy separately, so the three
+ * payload shapes the rollout passes through are all pinned here:
  *
- * Canari and this repository deploy separately, so BOTH payload shapes are pinned here:
+ * 1. **today**: `userId`, no `avatarUrl` - the legacy photo through this showcase's MiGallery proxy;
+ * 2. **the rollout**: `userId` AND `avatarUrl` - `avatarUrl` wins, the browser loads from Canari;
+ * 3. **after the strip**: `avatarUrl` only - unchanged from 2, nothing needs `userId`.
  *
- * - **the shape Canari serves today**: roster members and carte cards carry `userId` (and members
- *   `createdAt`), and no `avatarUrl`. Every face renders as initials, and nothing breaks - in
- *   particular two cards that share an account (or carry none) no longer collide on a list key;
- * - **the shape after Canari's anonymous-surface change**: no `userId` on members, an `avatarUrl`
- *   path on both, null on a carte card whose member left the association.
+ * And on every shape, no list key depends on `userId`: the roster keys on its row `id`, the carte
+ * cards on their position.
  */
 
-/** A roster member exactly as Canari's current public API serves it: account id, no photo URL. */
-const MEMBER_TODAY = {
+const BASE = {
 	id: "row-1",
-	userId: "sub-of-claire",
 	role: "Presidente",
 	isAdmin: true,
 	displayName: "Claire Vanruymbeke",
 	firstName: "Claire",
 	lastName: "Vanruymbeke",
 	promo: 2027,
+};
+const AVATAR_PATH = "/api/public/members/row-1/avatar";
+const FROM_CANARI = `${CANARI_URL}${AVATAR_PATH}`;
+const LEGACY = "/api/users/sub-of-claire/avatar";
+
+/** Shape 1, exactly as Canari's current public API serves it (`createdAt` included). */
+const MEMBER_TODAY = {
+	...BASE,
+	userId: "sub-of-claire",
 	createdAt: "2026-09-01T00:00:00.000Z",
 } as CanariMember;
-
-/** The same member after Canari's change: the account id and join date are gone, the photo is a path. */
-const MEMBER_NEXT: CanariMember = {
-	id: "row-1",
-	role: "Presidente",
-	isAdmin: true,
-	displayName: "Claire Vanruymbeke",
-	firstName: "Claire",
-	lastName: "Vanruymbeke",
-	promo: 2027,
-	avatarUrl: "/api/public/members/row-1/avatar",
+/** Shape 2: Canari adds `avatarUrl` and still sends `userId`. */
+const MEMBER_ROLLOUT: CanariMember = {
+	...BASE,
+	userId: "sub-of-claire",
+	avatarUrl: AVATAR_PATH,
 };
+/** Shape 3: `userId` and `createdAt` stripped. */
+const MEMBER_STRIPPED: CanariMember = { ...BASE, avatarUrl: AVATAR_PATH };
 
 afterEach(() => {
 	vi.restoreAllMocks();
 });
 
 describe("memberPhotoUrl", () => {
-	it("resolves Canari's path against the Canari origin", () => {
-		expect(memberPhotoUrl("/api/public/members/row-1/avatar")).toBe(
-			`${CANARI_URL}/api/public/members/row-1/avatar`
-		);
+	it("falls back to the legacy proxy only while avatarUrl is ABSENT", () => {
+		expect(memberPhotoUrl({ userId: "sub-of-claire" })).toBe(LEGACY);
+		expect(memberPhotoUrl({})).toBeNull();
 	});
 
-	it("is null when there is no photo to load, so no request is made", () => {
-		expect(memberPhotoUrl(undefined)).toBeNull();
-		expect(memberPhotoUrl(null)).toBeNull();
-		expect(memberPhotoUrl("")).toBeNull();
+	it("prefers avatarUrl, resolved against the Canari origin, whether or not userId is there", () => {
+		expect(memberPhotoUrl({ userId: "sub-of-claire", avatarUrl: AVATAR_PATH })).toBe(FROM_CANARI);
+		expect(memberPhotoUrl({ avatarUrl: AVATAR_PATH })).toBe(FROM_CANARI);
+	});
+
+	it("reads a null avatarUrl as 'no public photo', never as a reason to use the account id", () => {
+		// Canari answers null for a carte card whose member left the association: their face is no
+		// longer public, and the account id must not bring it back.
+		expect(memberPhotoUrl({ userId: "sub-of-claire", avatarUrl: null })).toBeNull();
+		expect(memberPhotoUrl({ userId: "sub-of-claire", avatarUrl: "" })).toBeNull();
 	});
 
 	it("accepts an absolute URL on the Canari origin", () => {
-		const url = `${CANARI_URL}/api/public/members/row-1/avatar`;
-		expect(memberPhotoUrl(url)).toBe(url);
+		expect(memberPhotoUrl({ avatarUrl: FROM_CANARI })).toBe(FROM_CANARI);
 	});
 
 	it("refuses any other origin, protocol-relative included, and says so", () => {
 		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-		expect(memberPhotoUrl("https://elsewhere.example/a.png")).toBeNull();
-		expect(memberPhotoUrl("//elsewhere.example/a.png")).toBeNull();
-		expect(memberPhotoUrl("javascript:alert(1)")).toBeNull();
+		expect(memberPhotoUrl({ avatarUrl: "https://elsewhere.example/a.png" })).toBeNull();
+		expect(memberPhotoUrl({ avatarUrl: "//elsewhere.example/a.png" })).toBeNull();
+		expect(memberPhotoUrl({ avatarUrl: "javascript:alert(1)" })).toBeNull();
 		expect(warn).toHaveBeenCalledTimes(3);
 		expect(warn.mock.calls[0][0]).toContain("[MEMBER_PHOTO]");
 	});
 });
 
 describe("MemberCard", () => {
-	it("draws initials and requests no photo from today's payload, never the account id", () => {
-		const { container, getByText } = render(MemberCard, { member: MEMBER_TODAY });
-		expect(getByText("CV")).toBeInTheDocument();
-		expect(container.querySelector("img")).toBeNull();
-		expect(container.innerHTML).not.toContain("sub-of-claire");
+	const src = (member: CanariMember) =>
+		render(MemberCard, { member }).container.querySelector("img")?.getAttribute("src");
+
+	it("loads today's photo through the legacy proxy", () => {
+		expect(src(MEMBER_TODAY)).toBe(LEGACY);
 	});
 
-	it("loads the photo from the avatarUrl of the next payload", () => {
-		const { container } = render(MemberCard, { member: MEMBER_NEXT });
-		expect(container.querySelector("img")?.getAttribute("src")).toBe(
-			`${CANARI_URL}/api/public/members/row-1/avatar`
-		);
+	it("loads the photo from Canari once avatarUrl is served, userId or not", () => {
+		expect(src(MEMBER_ROLLOUT)).toBe(FROM_CANARI);
+		expect(src(MEMBER_STRIPPED)).toBe(FROM_CANARI);
 	});
 
 	it("falls back to initials when the photo does not load (Canari answers 404 for no photo)", async () => {
-		const { container, getByText } = render(MemberCard, { member: MEMBER_NEXT });
+		const { container, getByText } = render(MemberCard, { member: MEMBER_STRIPPED });
 		await fireEvent.error(container.querySelector("img")!);
+		expect(container.querySelector("img")).toBeNull();
+		expect(getByText("CV")).toBeInTheDocument();
+	});
+
+	it("draws initials and requests nothing when there is no photo at all", () => {
+		const { container, getByText } = render(MemberCard, {
+			member: { ...BASE, avatarUrl: null } as CanariMember,
+		});
 		expect(container.querySelector("img")).toBeNull();
 		expect(getByText("CV")).toBeInTheDocument();
 	});
@@ -190,34 +203,36 @@ describe("CarteVieAsso member cards", () => {
 			],
 		}) as PublishedCarte;
 
-	/** Card photos, i.e. every `<img>` but the association logo (absent: the fixture has none). */
-	const photos = (container: HTMLElement) =>
-		[...container.querySelectorAll("img")].map((img) => img.getAttribute("src"));
+	/** Card photos, i.e. every `<img>` (the fixture association has no logo). */
+	const photos = (cards: Partial<PublishedCarteCard>[]) =>
+		[
+			...render(CarteVieAsso, {
+				carte: carteWith(cards),
+				associations: [ASSO],
+			}).container.querySelectorAll("img"),
+		].map((img) => img.getAttribute("src"));
 
-	it("renders today's cards as initials, two cards sharing an account id included", () => {
+	it("renders today's cards through the legacy proxy, two cards sharing an account id included", () => {
 		// Keyed on `userId`, the same person on two cards was a duplicate-key error that took the map down.
-		const today = [{ userId: "sub-of-claire" }, { userId: "sub-of-claire", initials: "CV2" }];
-		const { container, getByText } = render(CarteVieAsso, {
-			carte: carteWith(today as Partial<PublishedCarteCard>[]),
-			associations: [ASSO],
-		});
-		expect(getByText("CV")).toBeInTheDocument();
-		expect(getByText("CV2")).toBeInTheDocument();
-		expect(photos(container)).toEqual([]);
-		expect(container.innerHTML).not.toContain("sub-of-claire");
+		expect(photos([{ userId: "sub-of-claire" }, { userId: "sub-of-claire" }])).toEqual([
+			LEGACY,
+			LEGACY,
+		]);
 	});
 
-	it("loads each card's photo from the next payload's avatarUrl, initials only where it is null", () => {
-		const next = [
-			{ userId: "sub-of-claire", avatarUrl: "/api/public/members/row-1/avatar" },
-			{ userId: "sub-of-someone-who-left", avatarUrl: null, initials: "XY" },
-		];
-		const { container, getByText } = render(CarteVieAsso, {
-			carte: carteWith(next as Partial<PublishedCarteCard>[]),
-			associations: [ASSO],
-		});
-		expect(photos(container)).toEqual([`${CANARI_URL}/api/public/members/row-1/avatar`]);
-		expect(getByText("XY")).toBeInTheDocument();
-		expect(container.innerHTML).not.toContain("sub-of");
+	it("prefers avatarUrl during the rollout, and draws initials where Canari answers null", () => {
+		expect(
+			photos([
+				{ userId: "sub-of-claire", avatarUrl: AVATAR_PATH },
+				{ userId: "sub-of-someone-who-left", avatarUrl: null },
+			])
+		).toEqual([FROM_CANARI]);
+	});
+
+	it("needs no userId once Canari strips it, for the photo or the key", () => {
+		expect(photos([{ avatarUrl: AVATAR_PATH }, { avatarUrl: AVATAR_PATH }])).toEqual([
+			FROM_CANARI,
+			FROM_CANARI,
+		]);
 	});
 });

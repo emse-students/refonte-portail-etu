@@ -8,15 +8,16 @@ through Paraglide).
 
 ## What is personal data here
 
-| Datum                                                 | Where it comes from                                     | Where it is shown                                              |
-| ----------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
-| First name, last name, promo, role                    | Canari public API (`/api/public/*`)                     | member cards on `/associations/[handle]` and `/lists/[handle]` |
-| Photo                                                 | MiGallery, served by Canari at the member's `avatarUrl` | member cards, Carte de la Vie Asso                             |
-| Names, roles, photos, directory of the "Carte" poster | Canari, a **published snapshot**                        | `/associations`, while a carte is live                         |
+| Datum                                                 | Where it comes from                 | Where it is shown                                                                      |
+| ----------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------- |
+| First name, last name, promo, role                    | Canari public API (`/api/public/*`) | member cards on `/associations/[handle]` and `/lists/[handle]`                         |
+| Photo                                                 | Canari `avatarUrl`, or the proxy    | member cards, Carte de la Vie Asso                                                     |
+| Names, roles, photos, directory of the "Carte" poster | Canari, a **published snapshot**    | `/associations`, while a carte is live                                                 |
+| Account id (`userId`, the MiConnect `sub`)            | Canari public API                   | **not displayed**, but present in the page payload and in every avatar URL (see below) |
 
 The site stores nothing: no database, no cookie but the language preference, no analytics. Retention
-is therefore the upstream's: a member removed in Canari disappears from the next render (and their
-photo address with their roster row), and the Carte snapshot lives until the
+is therefore the upstream's: a member removed in Canari disappears from the next render, a photo may
+sit in the avatar cache for up to an hour (`avatarCache`), and the Carte snapshot lives until the
 next republish. A takedown request is handled within 30 days by removing the person in Canari and,
 if they are on a live Carte, republishing it.
 
@@ -30,6 +31,7 @@ objection right (art. 21) honoured on request at `bureau@rootz-emse.fr`.
    `X-Robots-Tag: noindex` set by the loader (`setHeaders`). It applies to
    `/associations/[handle]` and `/lists/[handle]` whenever the entity has members, and to
    `/associations` while a carte is live. An association with no member stays indexable.
+   `/api/*` (avatars) gets the header from `hooks.server.ts`.
 2. **Those pages are not in the sitemap** (`sitemapEligible`: a directory `memberCount` above zero
    keeps the entry out; the directory itself is out while a carte is live). A sitemap entry for a
    `noindex` page is a contradiction crawlers report as an error. The two legal pages are in it.
@@ -38,15 +40,17 @@ objection right (art. 21) honoured on request at `bureau@rootz-emse.fr`.
    (`@fontsource/glass-antiqua`) and Fira Mono are self-hosted. Do not add a remote stylesheet,
    script or font; `grep -rn "googleapis\|gstatic" src` must stay empty.
 
-## The account id is not read
+## The account id, on its way out
 
-Until 2026-11-02 this showcase built each photo URL from the member's `userId` (the MiConnect `sub`)
-and proxied it to MiGallery, so that stable identifier, which correlates a person across Canari,
-MiGallery and this site, sat in the `src` of every face. Canari now hands out the photo address
-itself (`avatarUrl`, keyed by the roster row), the roster list is keyed by its row `id`, the carte
-cards by their position, and the proxy is gone. No type here declares `userId`, so no code can come
-to depend on it again. A Canari that still SENDS it is read without it: the field travels in the
-API response, and nothing here renders, links or keys on it (`tests/memberPhoto.test.ts`).
+The Canari public API returns `userId` (the MiConnect `sub`) on every member and card. This showcase
+used it as its photo key, so the id sat in the avatar `src` of every card. It is an identifier, not
+a name, but it is stable and correlates a person across Canari, MiGallery and this site.
+
+Canari now adds `avatarUrl`, a photo address keyed by the roster row, and this showcase prefers it
+(`memberPhotoUrl`, [architecture](architecture.md#member-photos-canaris-avatarurl-then-the-legacy-proxy)).
+`userId` is read for one thing only, the legacy photo while `avatarUrl` is absent, and never as a
+key, a link or text. Once this ships, Canari strips `userId` from its public payloads and the legacy
+proxy is deleted here. Until then the avatar route accepts only `[a-zA-Z0-9_-]{1,128}`.
 
 ## Owed by a human
 

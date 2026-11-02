@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { listsPeople, sitemapEligible } from "#lib/robots";
+import { isApiPath, listsPeople, NOINDEX, sitemapEligible } from "#lib/robots";
 
 vi.mock("#lib/paraglide/server", () => ({
 	paraglideMiddleware: (
@@ -33,6 +33,15 @@ describe("sitemapEligible", () => {
 	});
 });
 
+describe("isApiPath", () => {
+	it("matches the API tree and nothing that merely starts with the letters", () => {
+		expect(isApiPath("/api/users/u1/avatar")).toBe(true);
+		expect(isApiPath("/api")).toBe(true);
+		expect(isApiPath("/apiary")).toBe(false);
+		expect(isApiPath("/associations")).toBe(false);
+	});
+});
+
 describe("handle", () => {
 	const run = (path: string) =>
 		handle({
@@ -43,6 +52,10 @@ describe("handle", () => {
 			resolve: () => Promise.resolve(new Response("ok")),
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any);
+
+	it("marks the avatar proxy noindex", async () => {
+		expect((await run("/api/users/u1/avatar")).headers.get("X-Robots-Tag")).toBe(NOINDEX);
+	});
 
 	it("leaves ordinary pages to their own loaders", async () => {
 		expect((await run("/liens")).headers.get("X-Robots-Tag")).toBeNull();

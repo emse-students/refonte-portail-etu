@@ -57,8 +57,8 @@
 	<p>
 		Les données de membres proviennent de l'application <strong>Canari</strong> (API publique en
 		lecture seule), dans laquelle les associations gèrent leurs équipes. Les photos de profil
-		proviennent de <strong>MiGallery</strong> et sont servies par Canari. Ce site ne contient aucune base
-		de données : il n'en est qu'un affichage.
+		proviennent de <strong>MiGallery</strong>. Ce site ne contient aucune base de données : il n'en
+		est qu'un affichage.
 	</p>
 
 	<h2>Pourquoi, et sur quelle base légale</h2>
@@ -84,7 +84,7 @@
 		<li>
 			<strong>Pages d'associations et de listes</strong> : le site ne conserve rien, il affiche l'état
 			courant de Canari. Un membre retiré dans Canari disparaît du site ; une photo peut rester en mémoire
-			tampon de Canari jusqu'à une heure.
+			tampon du serveur jusqu'à une heure.
 		</li>
 		<li>
 			<strong>Carte de la Vie Asso</strong> : l'instantané est conservé jusqu'à la prochaine republication
