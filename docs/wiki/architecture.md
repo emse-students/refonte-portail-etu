@@ -9,7 +9,7 @@ Browser ──► Portail (SvelteKit, adapter-bun)
    │
    ├──► GET https://canari.emse.fr/api/public/*      (associations, lists, members)
    ├──► GET https://canari.emse.fr/api/media/public/* (logos)
-   └──► GET /api/users/:id/avatar ──► MiGallery       (member faces, server-proxied)
+   └──► GET https://canari.emse.fr/<avatarUrl>        (member photos, as Canari hands them out)
 ```
 
 ## Server-side rendering
@@ -182,8 +182,10 @@ was. Four properties follow from that:
   dead link.
 - **People are a snapshot.** Which member sits in which crown slot is an authoring
   decision in Canari, so member names, roles and initials travel in the payload. A
-  roster change needs a republish. Only `userId` travels for the photo; the face
-  itself comes from this repo's own `/api/users/:id/avatar` proxy.
+  roster change needs a republish. The photo travels as `avatarUrl`, the same
+  address the public roster hands out for the same face. The cards are keyed by
+  position: they are a frozen snapshot in render order, so nothing is ever
+  reordered, and no field of a card has to stay for the key's sake.
 - **A member card is sized by its name, so BOTH its dimensions travel.** Canari
   shrinks the name to fit the card and, past a readable floor, widens the card
   instead - so `w` varies from card to card. Its `photo` is published separately
@@ -215,88 +217,42 @@ map is omitted and the reason logged - the poster still exists in Canari, and on
 republish from its editor is the whole fix. The load fetches the carte and the
 association list independently, so neither can take the other down.
 
-## Avatars: same-origin MiGallery proxy
+## Member photos: served by Canari
 
-Member faces come from MiGallery, which requires a server-side API key. The
-browser requests `/api/users/:id/avatar` (same origin); the SvelteKit endpoint
-[`src/routes/api/users/[userId]/avatar/+server.ts`](../../src/routes/api/users/%5BuserId%5D/avatar/+server.ts)
-fetches `${GALLERY_API_URL}/users/:id/avatar` with `GALLERY_API_KEY` and streams
-the image back. The `userId` is the Authentik uid carried by the public API,
-which is the same identifier MiGallery keys avatars by. **That id therefore
-appears in every avatar URL**; hiding it needs an opaque token from Canari, see
-[data-protection](data-protection.md#what-this-repository-cannot-fix-the-account-id). On any miss the UI falls
-back to generated initials - `MemberCard` swaps to initials on the image's
-`onerror`, so **any** failing status degrades, not only a 404. That is exactly why
-the status is free to say what really happened, and must: nothing on screen
-depends on it, and it is the only place the difference survives.
+Every roster member and every carte card carries an `avatarUrl`: a path on the
+Canari origin (`/api/public/members/:memberId/avatar`), keyed by the ROSTER ROW
+rather than by the person's account. [`memberPhotoUrl`](../../src/lib/media.ts)
+resolves it against `PUBLIC_CANARI_URL` and accepts an absolute URL only on that
+same origin, so a payload cannot point an `<img>` at a host of its choosing. The
+image is a plain cross-origin `<img>`, like the logos: no CORS, no credentials.
+Canari relays MiGallery, so the face is the same one this portal used to proxy.
 
-This is same-origin on purpose: unlike the public API, MiGallery lives on a
-separate host the deploy server _can_ reach, so proxying avoids exposing the key
-to the browser and avoids cross-site requests.
+On any miss the UI draws generated initials: `memberPhotoUrl` answers null when
+there is no `avatarUrl` (nothing is requested at all), and `MemberCard` /
+`CarteVieAsso` hide the image on `onerror`, which is what a 404 for "no photo"
+reaches. A carte card whose member has since left the association carries
+`avatarUrl: null`.
 
-### The cache, and what may be remembered
-
-Answers are cached in process by
-[`src/lib/server/avatarCache.ts`](../../src/lib/server/avatarCache.ts) - one hour
-for an image, ten minutes for an absence, capped at 500 entries. `X-Cache:
-hit|miss` on the response makes it verifiable with a single request, which matters
-because the deploy host has no SSH access.
-
-It exists for a measured reason. Without it, one association page of N members
-opened N connections to MiGallery **per visitor, per visit**. Once the
-host briefly could not open outbound connections at all, and that amplification
-turned a single network fault into hundreds of recorded HTTP 502s in tight bursts - all of
-them the same runtime error, `Unable to connect`, on a well-formed URL. Neither DNS,
-TLS nor the secrets were involved; the cache does not fix the network, it removes
-the redundant work that made one hiccup visible on every card.
-
-Hence the statuses, which must not be collapsed into each other:
-
-| Situation                              | Status | `Cache-Control`         | Cached in process | Logged  |
-| -------------------------------------- | ------ | ----------------------- | ----------------- | ------- |
-| Image found                            | 200    | `public, max-age=86400` | yes, 1 h          | no      |
-| Upstream 404: this user has no avatar  | 404    | `public, max-age=600`   | yes, 10 min       | **no**  |
-| Upstream 401 / 429 / 5xx               | 502    | `no-store`              | **never**         | `error` |
-| Upstream unreachable (the fetch threw) | 502    | `no-store`              | **never**         | `error` |
-| Nothing within `OUTBOUND_BUDGET_MS`    | 502    | `no-store`              | **never**         | `error` |
-
-**Only an answer about the avatar may be remembered**, and exactly one status
-qualifies (`isCacheableAbsence`). `!res.ok` reads like "no avatar" and is not: a
-rotated `GALLERY_API_KEY` or one MiGallery 5xx, stored as an absence, would be
-remembered as "these members have no face" for the whole TTL, for every visitor.
-
-The same distinction governs the STATUS and the LOG, and both used to blur it:
-
-- a refused key answered **404**, which is this portal asserting that the member
-  has no face. It is a 502 now - a claim about MiGallery, which is what it is;
-- a plain 404 was logged at `error`, on every faceless card. A member with no
-  photo is the commonest case on the roster and is not an incident, so it is now
-  silent. The lines that remain all accuse.
+**No account id is read anywhere.** Until 2026-11-02 the photo URL was built here
+from `userId`, the MiConnect `sub`, and fetched from MiGallery through this
+repo's own `/api/users/:id/avatar` proxy with a server-side key. That put an
+identifier naming a person across the whole ecosystem into every `<img src>`, so
+Canari now hands out the photo address itself and the proxy, its cache and its
+key were deleted. Both payload shapes are pinned in
+[`tests/memberPhoto.test.ts`](../../tests/memberPhoto.test.ts): a Canari that
+still sends `userId` and no `avatarUrl` renders initials and nothing breaks.
 
 ### The outbound budget
 
 Every remote call carries `signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS)` - 4 s,
-declared once in [`src/lib/outbound.ts`](../../src/lib/outbound.ts) and shared with
-the two Canari public-API calls in `src/lib/canari.ts`. `fetch` has **no** default
-deadline, so a MiGallery that accepted the connection and then said nothing held
-this route open indefinitely.
-
-That is the opposite failure from the one measured above, and both were live on
-the same route at once: an unreachable upstream fails fast and gets amplified by
-the missing cache, while an upstream with no deadline cannot fail at all. The
-second is the worse of the two for the visitor, because there is no error to catch
-and no fallback to reach - the loaders here degrade on a **throw**, and a request
-with no deadline never throws. It expires as a `TimeoutError`, so the route's
-`catch` is what reports it.
-
-That signal is the route's `console.error`, and every line it produces is
-stamped with a time - not by the app, but by Docker's own JSON log driver,
-read back with `docker compose logs --timestamps`. Without that stamp the
-failures above could not be placed in time at all, which is what made the
-diagnosis cost a whole session: the count alone reads as a chronic fault, while
-their position in the append-only log showed one burst-shaped episode. (The stamp
-used to come from the process supervisor; the property moved with the runtime,
-not the requirement.)
+declared once in [`src/lib/outbound.ts`](../../src/lib/outbound.ts) and used by
+the Canari public-API calls in `src/lib/canari.ts`. `fetch` has **no** default
+deadline, and a request with no deadline never throws - while the loaders here
+degrade on a **throw**. It was measured on the avatar proxy, now deleted: an
+upstream that accepted the connection and then said nothing held the request open
+indefinitely. The budget expires as a `TimeoutError`, so a `catch` reports it, and
+Docker's JSON log driver stamps the line (`docker compose logs --timestamps`),
+which is what lets a burst be told from a chronic fault.
 
 ## Frontend structure
 

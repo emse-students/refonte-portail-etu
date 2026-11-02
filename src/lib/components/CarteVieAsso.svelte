@@ -25,7 +25,7 @@
 -->
 <script lang="ts">
 	import type { CanariAssociation, PublishedCarte, PublishedCarteUnit } from "#lib/types";
-	import { logoUrl, avatarUrl, generateColor } from "#lib/media";
+	import { logoUrl, memberPhotoUrl, generateColor } from "#lib/media";
 	import { m } from "#lib/paraglide/messages";
 
 	let {
@@ -241,7 +241,9 @@
 							</div>
 
 							<!-- Bureau cards over the blob's top arc, then the president in front of them. -->
-							{#each unit.cards as card (card.userId)}
+							<!-- Keyed by position: the cards are a frozen snapshot in render order, never reordered. -->
+							{#each unit.cards as card, slot (slot)}
+								{@const photo = memberPhotoUrl(card.avatarUrl)}
 								<div class="absolute" style="left:{card.x}px;top:{card.y}px">
 									<div
 										class="box-border"
@@ -253,14 +255,16 @@
 											style="width:{card.photo}px;height:{card.photo}px;border-radius:{CARD_PHOTO_RADIUS}px;background:{color};font-size:{CARD_INITIALS_SIZE}px"
 										>
 											<span>{card.initials}</span>
-											<img
-												src={avatarUrl(card.userId)}
-												alt=""
-												loading="lazy"
-												decoding="async"
-												onerror={hideOnError}
-												class="absolute inset-0 w-full h-full object-cover"
-											/>
+											{#if photo}
+												<img
+													src={photo}
+													alt=""
+													loading="lazy"
+													decoding="async"
+													onerror={hideOnError}
+													class="absolute inset-0 w-full h-full object-cover"
+												/>
+											{/if}
 										</div>
 										<p
 											class="text-center"

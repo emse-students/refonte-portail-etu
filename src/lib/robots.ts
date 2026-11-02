@@ -25,11 +25,3 @@ export function listsPeople(entity: { members?: readonly unknown[] | null }): bo
 export function sitemapEligible(entry: { memberCount?: number | null }): boolean {
 	return (entry.memberCount ?? 0) === 0;
 }
-
-/**
- * Paths whose responses are never an indexable document: the avatar proxy serves a person's face.
- * robots.txt already disallows `/api/`, but a disallow stops crawling, not indexing by reference.
- */
-export function isApiPath(pathname: string): boolean {
-	return pathname === "/api" || pathname.startsWith("/api/");
-}

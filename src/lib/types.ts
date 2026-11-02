@@ -33,10 +33,19 @@ export interface CanariAssociation {
 	memberCount: number;
 }
 
-/** A public member row, joined with the users mirror for display name and promo. */
+/**
+ * A public member row, joined with the users mirror for display name and promo.
+ *
+ * NO ACCOUNT ID IS READ HERE, ON PURPOSE. The roster used to carry `userId` (the MiConnect `sub`),
+ * and this showcase built each photo URL from it - which put an identifier that names a person
+ * across Canari, MiGallery and this site into every `<img src>`. The photo now arrives as
+ * `avatarUrl`, keyed by the roster row, and the list is keyed by `id`. Canari may still send
+ * `userId` and `createdAt` while it rolls out; they are deliberately absent from this type so no
+ * code here can start depending on them again (see docs/wiki/data-protection.md).
+ */
 export interface CanariMember {
+	/** The roster row's own id: one line of one public roster. The list key. */
 	id: string;
-	userId: string;
 	role: string;
 	/** Coarse flag: true when the member holds any admin permission. */
 	isAdmin: boolean;
@@ -44,7 +53,12 @@ export interface CanariMember {
 	firstName: string | null;
 	lastName: string | null;
 	promo: number | null;
-	createdAt: string;
+	/**
+	 * The member's photo, as Canari hands it out: a path on the Canari origin (resolved by
+	 * `memberPhotoUrl`). Absent from a Canari that predates the field, and null when there is none
+	 * to offer - both render initials.
+	 */
+	avatarUrl?: string | null;
 }
 
 /** An association/list detail response: the entity plus its public members. */
@@ -109,8 +123,13 @@ export interface PublishedCarteText {
 
 /** A member card (president or bureau) drawn on a unit: square photo + name + optional role. */
 export interface PublishedCarteCard {
-	/** Avatar join key; the photo comes from this showcase's own same-origin proxy. */
-	userId: string;
+	/**
+	 * The member's photo, the same address the public roster hands out for the same face (a path on
+	 * the Canari origin, resolved by `memberPhotoUrl`). Absent from a Canari that predates the field,
+	 * and null for a card whose member has since left the association - both render `initials`.
+	 * Canari may still send the card's `userId`; nothing here reads it.
+	 */
+	avatarUrl?: string | null;
 	name: string;
 	/** Role line under the name, or '' when the member has none. */
 	role: string;

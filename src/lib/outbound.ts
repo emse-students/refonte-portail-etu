@@ -1,8 +1,9 @@
 /**
  * THE ONE DEADLINE EVERY REMOTE CALL THIS SHOWCASE MAKES ANSWERS TO.
  *
- * `fetch` has no default timeout. None of this portal's remote calls - MiGallery for a member's
- * photo, Canari's public API for the directory and the carte - carried a deadline, so an upstream
+ * `fetch` has no default timeout. None of this portal's remote calls - Canari's public API for the
+ * directory and the carte, and MiGallery for a member's photo until that proxy was deleted on
+ * 2026-11-02 - carried a deadline, so an upstream
  * that accepted the connection and then said nothing held it, and the page waiting behind it, for
  * as long as it liked. There is no error to catch in that state and no fallback to reach: the
  * association page simply never finishes rendering, and the `error` handler that would have shown

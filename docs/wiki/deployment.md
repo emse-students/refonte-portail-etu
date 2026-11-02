@@ -258,12 +258,13 @@ data.
 
 Runtime configuration is read via `src/env.ts` and `$app/env/private` / `$app/env/public` (see `.env.example`):
 
-| Variable            | Scope       | Purpose                                    |
-| ------------------- | ----------- | ------------------------------------------ |
-| `PUBLIC_CANARI_URL` | public      | Canari base URL (browser + server).        |
-| `GALLERY_API_URL`   | server-only | MiGallery base URL for the avatar proxy.   |
-| `GALLERY_API_KEY`   | server-only | MiGallery API key (never sent to browser). |
-| `PORTAL_URL`        | server-only | `Origin` header for MiGallery, if needed.  |
+| Variable            | Scope  | Purpose                             |
+| ------------------- | ------ | ----------------------------------- |
+| `PUBLIC_CANARI_URL` | public | Canari base URL (browser + server). |
+
+`GALLERY_API_URL`, `GALLERY_API_KEY` and `PORTAL_URL` were the MiGallery avatar proxy's, and went
+with it: member photos are served by Canari now ([architecture](architecture.md#member-photos-served-by-canari)).
+Their GitHub Secrets are read by nothing and can be deleted.
 
 Today these live in a `.env` on the deploy server, rewritten by the deploy step
 on every release and loaded into the container at start via `env_file:` in
@@ -280,5 +281,5 @@ origin is derived from the request `Host` header, which the reverse proxy MUST f
 The current setup still depends on a hand-maintained server `.env`. The target
 is a fully reproducible deploy where every secret is injected from GitHub
 Actions secrets, so a clone can be brought up on a new machine with no manual
-server edits. This will be done together with a key rotation. Until then, keep
-`GALLERY_API_KEY` (and the others above) in the server `.env`.
+server edits. The portal holds no secret of its own any more: its one key, MiGallery's, went
+with the avatar proxy.

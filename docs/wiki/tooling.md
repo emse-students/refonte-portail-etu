@@ -23,7 +23,8 @@ Configured in [`oxfmt.json`](../../oxfmt.json). The options are the ones the old
 carried - tabs, 100 columns, **double** quotes, `trailingComma: "es5"` - so the migration is close
 to a no-op. **oxfmt disagreed with prettier about two files in the whole repository**:
 
-- `src/lib/server/avatarCache.ts`, a multi-line union type that oxfmt writes with a leading `|`.
+- `src/lib/server/avatarCache.ts` (deleted since, with the avatar proxy), a multi-line union type
+  that oxfmt writes with a leading `|`.
   This is the one stylistic disagreement the whole ecosystem hit, in every repository converted.
 - `src/app.css`, where prettier had broken `@import url(...) layer(base)` across two lines to stay
   under 100 columns and oxfmt keeps it on one. The at-rule is more readable whole.

@@ -20,8 +20,8 @@ read-only API; associations, lists and members are managed inside Canari.
   and no longer is).
 - **Data source**: Canari's public API at `${PUBLIC_CANARI_URL}/api/public/*`
   (associations, lists, members). Logos are public media blobs on the same host.
-- **Avatars**: member faces are proxied same-origin through
-  `/api/users/:id/avatar`, which fetches MiGallery with a server-side key.
+- **Member photos**: loaded straight from Canari, at the `avatarUrl` its public
+  API hands out with every roster member and carte card; initials when there is none.
 - **Carte de la Vie Asso**: when Canari has a poster published, the association
   directory renders it as an interactive map above the tiles, on wide screens. The
   payload is the poster already **resolved** (every box and font size in poster
@@ -42,15 +42,9 @@ bun run dev             # http://localhost:5173
 
 ## Environment variables
 
-| Variable            | Required | Purpose                                                                           |
-| ------------------- | -------- | --------------------------------------------------------------------------------- |
-| `PUBLIC_CANARI_URL` | no       | Base URL of the Canari instance. Defaults to `https://canari.emse.fr`.            |
-| `GALLERY_API_URL`   | yes\*    | MiGallery base URL. Avatar endpoint is `${GALLERY_API_URL}/users/:id/avatar`.     |
-| `GALLERY_API_KEY`   | yes\*    | Server-side MiGallery API key for the avatar proxy. Never exposed to the browser. |
-| `PORTAL_URL`        | no       | `Origin` header sent to MiGallery, if it enforces one.                            |
-
-\* Required only for member avatars; without them the UI falls back to generated
-initials.
+| Variable            | Required | Purpose                                                                |
+| ------------------- | -------- | ---------------------------------------------------------------------- |
+| `PUBLIC_CANARI_URL` | no       | Base URL of the Canari instance. Defaults to `https://canari.emse.fr`. |
 
 ## Scripts
 

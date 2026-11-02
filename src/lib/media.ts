@@ -13,12 +13,27 @@ export function logoUrl(a: Pick<CanariAssociation, "logoMediaId" | "logoUrl">): 
 }
 
 /**
- * Same-origin URL of a member's avatar, proxied by the portal from MiGallery
- * (see src/routes/api/users/[userId]/avatar). Returns 404 when the user has no
- * avatar, so consumers render an initials fallback on the image `onerror`.
+ * The URL a member photo is loaded from, or null when there is none to load - the caller then draws
+ * initials and never issues the request.
+ *
+ * Canari serves the photo itself and hands out its address as `avatarUrl` on every public roster
+ * member and carte card: a path on the Canari origin, keyed by the roster row rather than by the
+ * person's account. A path is resolved against {@link CANARI_URL}; an absolute URL is accepted
+ * only on that same origin, so a payload cannot point an `<img>` at a host of its choosing.
+ * Anything else is refused, and said so, because it means Canari and this showcase disagree on the
+ * contract.
  */
-export function avatarUrl(userId: string): string {
-	return `/api/users/${encodeURIComponent(userId)}/avatar`;
+export function memberPhotoUrl(avatarUrl: string | null | undefined): string | null {
+	if (!avatarUrl) return null;
+	if (avatarUrl.startsWith("/") && !avatarUrl.startsWith("//")) return `${CANARI_URL}${avatarUrl}`;
+	try {
+		const url = new URL(avatarUrl);
+		if (url.origin === new URL(CANARI_URL).origin) return url.href;
+	} catch {
+		// Not a URL at all: refused below, like a foreign origin.
+	}
+	console.warn(`[MEMBER_PHOTO] refused an avatarUrl outside ${CANARI_URL}: ${avatarUrl}`);
+	return null;
 }
 
 /** Up to two uppercase initials from a name, for avatar/logo placeholders. */
