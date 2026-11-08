@@ -28,9 +28,11 @@ export class CanariApiError extends Error {
 	constructor(
 		readonly status: number | null,
 		readonly url: string,
-		cause?: unknown
+		cause?: unknown,
+		/** The typed refusal code the API answered with (`{ code }` in its body), when it gave one. */
+		readonly code: string | null = null
 	) {
-		super(`Canari public API ${status ?? "unreachable"} for ${url}`);
+		super(`Canari public API ${status ?? "unreachable"}${code ? ` (${code})` : ""} for ${url}`);
 		this.name = "CanariApiError";
 		this.cause = cause;
 	}
@@ -117,10 +119,23 @@ export async function getPublishedCarte(
 		return null;
 	}
 	const url = `${API}/carte?space=${encodeURIComponent(space)}`;
-	const res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	let res: Response;
+	try {
+		res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	} catch (e) {
+		throw new CanariApiError(null, url, e);
+	}
 	if (res.status === 404) return null;
 	if (!res.ok) {
-		throw new Error(`Canari public API ${res.status} for ${url}`);
+		// A 400 carries a typed code (`CARTE_PUBLIC_SPACE_INVALID` for a misnamed space): it travels
+		// as a value, so the log names it without anyone parsing a message.
+		const body = (await res.json().catch(() => null)) as { code?: unknown } | null;
+		throw new CanariApiError(
+			res.status,
+			url,
+			undefined,
+			typeof body?.code === "string" ? body.code : null
+		);
 	}
 	const carte = (await res.json()) as PublishedCarte;
 	if (carte.version !== CARTE_VERSION || !Array.isArray(carte.units)) {
@@ -140,6 +155,27 @@ export async function getPublishedCarte(
 		}
 	}
 	return carte;
+}
+
+/**
+ * The live carte for a page that renders without it: a failure is LOGGED with its status and code,
+ * then answered null, so a misnamed space (a 400) or an outage never passes silently and never costs
+ * the page its other content.
+ *
+ * @param where - The caller, named in the log line.
+ */
+export async function getPublishedCarteOrNull(
+	fetch: Fetch,
+	where: string
+): Promise<PublishedCarte | null> {
+	try {
+		return await getPublishedCarte(fetch);
+	} catch (e) {
+		const status = e instanceof CanariApiError ? (e.status ?? "unreachable") : "unknown";
+		const code = e instanceof CanariApiError ? (e.code ?? "none") : "none";
+		console.error(`[carte] ${where}: no map - Canari answered ${status}, code ${code}`, e);
+		return null;
+	}
 }
 
 /** One association or list by slug, including its public members. */
