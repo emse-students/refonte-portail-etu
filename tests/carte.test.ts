@@ -87,6 +87,24 @@ afterEach(() => {
 });
 
 describe("getPublishedCarte", () => {
+	it("asks Canari for the carte of the space the deployment names", async () => {
+		const seen: string[] = [];
+		const fetch = (async (input: RequestInfo | URL) => {
+			seen.push(String(input));
+			return { ok: false, status: 404, json: async () => null } as Response;
+		}) as typeof globalThis.fetch;
+		await getPublishedCarte(fetch);
+		expect(seen).toEqual(["https://canari.emse.fr/api/public/carte?space=ICM%3Asaint-etienne"]);
+	});
+
+	it("shows no map and asks nothing when no space is named, and says so", async () => {
+		const error = vi.spyOn(console, "error").mockImplementation(() => {});
+		const fetch = vi.fn() as unknown as typeof globalThis.fetch;
+		expect(await getPublishedCarte(fetch, null)).toBeNull();
+		expect(fetch).not.toHaveBeenCalled();
+		expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
+	});
+
 	it("returns the map when one is live", async () => {
 		const carte = await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: CARTE } }));
 		expect(carte).toEqual(CARTE);

@@ -1,4 +1,4 @@
-import { PUBLIC_CANARI_URL } from "$app/env/public";
+import { PUBLIC_CANARI_CARTE_SPACE, PUBLIC_CANARI_URL } from "$app/env/public";
 import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "#lib/types";
 import { OUTBOUND_BUDGET_MS } from "#lib/outbound";
 
@@ -72,6 +72,14 @@ export function getAssociations(
 	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
 }
 
+/**
+ * The Canari space whose carte this showcase shows, as `<formation>:<campus>` (for example
+ * `ICM:saint-etienne`), or null when the deployment names none. Canari keeps one live carte PER
+ * SPACE, so the showcase must say which one it wants; with no space it shows no map at all - there is
+ * deliberately no fallback to "whatever is live".
+ */
+export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+
 /** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
 const CARTE_VERSION = 2;
 
@@ -82,7 +90,8 @@ const CARTE_VERSION = 2;
 const LEGACY_CARD_PAD_X = 12;
 
 /**
- * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
+ * The "Carte de la Vie Asso" Canari currently has live for this showcase's space, or null when there
+ * is none - or when the deployment names no space (`PUBLIC_CANARI_CARTE_SPACE`), which is logged.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
  * publishes a map, and the association directory has to render whether or not one exists. Any other
@@ -96,11 +105,22 @@ const LEGACY_CARD_PAD_X = 12;
  * Within v2, one field is read for compatibility rather than required, so that the map does not need
  * the two repositories to be deployed in a particular order. See the loop below.
  */
-export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
-	const res = await fetch(`${API}/carte`, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+export async function getPublishedCarte(
+	fetch: Fetch,
+	space: string | null = CARTE_SPACE
+): Promise<PublishedCarte | null> {
+	if (!space) {
+		console.error(
+			"PUBLIC_CANARI_CARTE_SPACE is not set - no carte is shown. Name the Canari space " +
+				"(`<formation>:<campus>`) in the deployment's .env."
+		);
+		return null;
+	}
+	const url = `${API}/carte?space=${encodeURIComponent(space)}`;
+	const res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
 	if (res.status === 404) return null;
 	if (!res.ok) {
-		throw new Error(`Canari public API ${res.status} for ${API}/carte`);
+		throw new Error(`Canari public API ${res.status} for ${url}`);
 	}
 	const carte = (await res.json()) as PublishedCarte;
 	if (carte.version !== CARTE_VERSION || !Array.isArray(carte.units)) {
