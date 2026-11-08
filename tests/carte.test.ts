@@ -102,7 +102,7 @@ describe("getPublishedCarte", () => {
 		const fetch = vi.fn() as unknown as typeof globalThis.fetch;
 		expect(await getPublishedCarte(fetch, null)).toBeNull();
 		expect(fetch).not.toHaveBeenCalled();
-		expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
+		expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_SPACE"));
 	});
 
 	it("returns the map when one is live", async () => {

@@ -10,8 +10,11 @@ const optional = (value: string | undefined) => value;
 export const variables = defineEnvVars({
 	/** Canari base URL, used by the browser and the server. */
 	PUBLIC_CANARI_URL: { public: true, schema: optional },
-	/** The Canari space whose carte is shown, `<formation>:<campus>`; unset shows no carte. */
-	PUBLIC_CANARI_CARTE_SPACE: { public: true, schema: optional },
+	/**
+	 * The Canari space this showcase is the portail of, `<formation>:<campus>`: its carte and its
+	 * association directory. Unset: no carte and no directory, logged.
+	 */
+	PUBLIC_CANARI_SPACE: { public: true, schema: optional },
 	/** MiGallery base URL for the avatar proxy. */
 	GALLERY_API_URL: { schema: optional },
 	/** MiGallery API key. Never sent to the browser. */

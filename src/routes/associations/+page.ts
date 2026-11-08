@@ -3,7 +3,8 @@ import { NOINDEX } from "#lib/robots";
 import { getAssociations, getPublishedCarteOrNull } from "#lib/canari";
 
 /**
- * All associations (active + archived) for the directory page, plus the Carte de la Vie Asso when
+ * The associations of this portail's space for the directory page (those the space offers, as Canari
+ * decides them for its carte: archived ones are not offered), plus the Carte de la Vie Asso when
  * Canari has one live.
  *
  * The two degrade independently: the list to an empty array plus `failed`, the carte to null. A map
