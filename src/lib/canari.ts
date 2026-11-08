@@ -97,9 +97,9 @@ function requireSpace(space: string | null, what: string): string {
 }
 
 /**
- * The associations of this showcase's space (`type="association"`, those the space offers - the
- * same set as its carte, decided by Canari), or the promo lists (`type="list"`, not filtered by a
- * space).
+ * The associations of this showcase's space (`type="association"`: those whose audience reaches
+ * it, decided by Canari - its carte's set plus its archived associations), or the promo lists
+ * (`type="list"`, not filtered by a space).
  */
 export async function getAssociations(
 	fetch: Fetch,

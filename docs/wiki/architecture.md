@@ -160,8 +160,9 @@ are in [`src/lib/types.ts`](../../src/lib/types.ts).
 - `GET /api/public/carte?space=...` - Canari keeps one live carte per space. Unset,
   `getPublishedCarte` logs and returns null: no map.
 - `GET /api/public/associations?type=association&space=...` (home, directory, sitemap) - only the
-  associations the space offers: type association, not archived, audience reaching the space - the
-  same set as its carte, decided by Canari (owner, 2026-11-08). Lists are not filtered by a space.
+  associations whose audience reaches the space, decided by Canari (owner, 2026-11-08): its carte's
+  set plus its archived associations, which the directory keeps in its archived section. Lists are
+  not filtered by a space.
 - `GET /api/public/associations/slug/:slug?space=...` - an association the space does not offer
   answers 404, so another space's association is not rendered here by URL.
 
