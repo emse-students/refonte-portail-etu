@@ -1,4 +1,4 @@
-import { PUBLIC_CANARI_CARTE_SPACE, PUBLIC_CANARI_URL } from "$app/env/public";
+import { PUBLIC_CANARI_SPACE, PUBLIC_CANARI_URL } from "$app/env/public";
 import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "#lib/types";
 import { OUTBOUND_BUDGET_MS } from "#lib/outbound";
 
@@ -11,6 +11,14 @@ export const CANARI_URL = (PUBLIC_CANARI_URL || "https://canari.emse.fr").replac
 
 /** Absolute URL of the public read-only API root. */
 const API = `${CANARI_URL}/api/public`;
+
+/**
+ * The Canari space this showcase is the portail of, as `<formation>:<campus>` (for example
+ * `ICM:saint-etienne`), or null when the deployment names none. It decides the carte AND the
+ * association directory (owner, 2026-11-08: only the associations of that space). With no space the
+ * carte is omitted and the directory reads fail, both logged - never a fallback to everything.
+ */
+export const CANARI_SPACE = PUBLIC_CANARI_SPACE?.trim() || null;
 
 /** SvelteKit's load `fetch`, passed through so SSR requests are traced/deduped. */
 type Fetch = typeof globalThis.fetch;
@@ -65,22 +73,45 @@ async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
 	return (await res.json()) as T;
 }
 
-/** All associations (`type="association"`) or promo lists (`type="list"`); both when omitted. */
-export function getAssociations(
-	fetch: Fetch,
-	type?: "association" | "list"
-): Promise<CanariAssociation[]> {
-	const qs = type ? `?type=${type}` : "";
-	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
+/**
+ * The deployment names no Canari space (`PUBLIC_CANARI_SPACE`). A configuration fault, not an
+ * answer: it is a {@link CanariApiError} with no status, so every loader already treats it as "the
+ * API said nothing" (the directory's failed state, a 503 on a detail page) - and it is logged where
+ * it is thrown. There is no fallback to the unfiltered list.
+ */
+export class MissingSpaceError extends CanariApiError {
+	constructor(what: string) {
+		super(null, `${API} (${what})`);
+		this.name = "MissingSpaceError";
+		this.message =
+			`PUBLIC_CANARI_SPACE is not set - ${what} cannot be read. Name the Canari space ` +
+			"(`<formation>:<campus>`) in the deployment's .env.";
+		console.error(this.message);
+	}
+}
+
+/** The space, or a logged {@link MissingSpaceError}. */
+function requireSpace(space: string | null, what: string): string {
+	if (!space) throw new MissingSpaceError(what);
+	return space;
 }
 
 /**
- * The Canari space whose carte this showcase shows, as `<formation>:<campus>` (for example
- * `ICM:saint-etienne`), or null when the deployment names none. Canari keeps one live carte PER
- * SPACE, so the showcase must say which one it wants; with no space it shows no map at all - there is
- * deliberately no fallback to "whatever is live".
+ * The associations of this showcase's space (`type="association"`: those whose audience reaches
+ * it, decided by Canari - its carte's set plus its archived associations), or the promo lists
+ * (`type="list"`, not filtered by a space).
  */
-export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+export async function getAssociations(
+	fetch: Fetch,
+	type: "association" | "list",
+	space: string | null = CANARI_SPACE
+): Promise<CanariAssociation[]> {
+	const qs =
+		type === "association"
+			? `?type=association&space=${encodeURIComponent(requireSpace(space, "the association directory"))}`
+			: "?type=list";
+	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
+}
 
 /** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
 const CARTE_VERSION = 2;
@@ -93,7 +124,7 @@ const LEGACY_CARD_PAD_X = 12;
 
 /**
  * The "Carte de la Vie Asso" Canari currently has live for this showcase's space, or null when there
- * is none - or when the deployment names no space (`PUBLIC_CANARI_CARTE_SPACE`), which is logged.
+ * is none - or when the deployment names no space (`PUBLIC_CANARI_SPACE`), which is logged.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
  * publishes a map, and the association directory has to render whether or not one exists. Any other
@@ -109,11 +140,11 @@ const LEGACY_CARD_PAD_X = 12;
  */
 export async function getPublishedCarte(
 	fetch: Fetch,
-	space: string | null = CARTE_SPACE
+	space: string | null = CANARI_SPACE
 ): Promise<PublishedCarte | null> {
 	if (!space) {
 		console.error(
-			"PUBLIC_CANARI_CARTE_SPACE is not set - no carte is shown. Name the Canari space " +
+			"PUBLIC_CANARI_SPACE is not set - no carte is shown. Name the Canari space " +
 				"(`<formation>:<campus>`) in the deployment's .env."
 		);
 		return null;
@@ -178,10 +209,19 @@ export async function getPublishedCarteOrNull(
 	}
 }
 
-/** One association or list by slug, including its public members. */
-export function getAssociationBySlug(fetch: Fetch, slug: string): Promise<CanariAssociationDetail> {
+/**
+ * One association or list by slug, including its public members. Asked for this showcase's space:
+ * an association the space does not offer answers 404 (Canari decides), so another space's
+ * association is not rendered here by URL.
+ */
+export async function getAssociationBySlug(
+	fetch: Fetch,
+	slug: string,
+	space: string | null = CANARI_SPACE
+): Promise<CanariAssociationDetail> {
+	const named = encodeURIComponent(requireSpace(space, `the page of "${slug}"`));
 	return getJson<CanariAssociationDetail>(
 		fetch,
-		`${API}/associations/slug/${encodeURIComponent(slug)}`
+		`${API}/associations/slug/${encodeURIComponent(slug)}?space=${named}`
 	);
 }

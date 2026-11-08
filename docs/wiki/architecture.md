@@ -146,18 +146,28 @@ All content is read from Canari's unauthenticated read-only API. The typed
 client lives in [`src/lib/canari.ts`](../../src/lib/canari.ts); response shapes
 are in [`src/lib/types.ts`](../../src/lib/types.ts).
 
-| Endpoint                              | Returns                            |
-| ------------------------------------- | ---------------------------------- |
-| `/api/public/associations?type=…`     | Associations or campaign lists     |
-| `/api/public/associations/slug/:slug` | One entity with its public members |
-| `/api/public/carte`                   | The published Carte de la Vie Asso |
-| `/api/media/public/:id`               | A public logo blob                 |
+| Endpoint                                  | Returns                                      |
+| ----------------------------------------- | -------------------------------------------- |
+| `/api/public/associations?type=…&space=…` | This space's associations, or campaign lists |
+| `/api/public/associations/slug/:slug`     | One entity with its public members           |
+| `/api/public/carte`                       | The published Carte de la Vie Asso           |
+| `/api/media/public/:id`                   | A public logo blob                           |
 
 `PUBLIC_CANARI_URL` overrides the base URL (defaults to `https://canari.emse.fr`).
-`PUBLIC_CANARI_CARTE_SPACE` names the Canari space whose carte is shown (`<formation>:<campus>`,
-`ICM:saint-etienne` in production): Canari keeps one live carte per space and the showcase asks
-`GET /api/public/carte?space=...`. Unset, `getPublishedCarte` logs and returns null - no map, and
-no fallback to the call without a space.
+`PUBLIC_CANARI_SPACE` names the Canari space this portail shows (`<formation>:<campus>`,
+`ICM:saint-etienne` in production), and every read that depends on it sends it as `?space=`:
+
+- `GET /api/public/carte?space=...` - Canari keeps one live carte per space. Unset,
+  `getPublishedCarte` logs and returns null: no map.
+- `GET /api/public/associations?type=association&space=...` (home, directory, sitemap) - only the
+  associations whose audience reaches the space, decided by Canari (owner, 2026-11-08): its carte's
+  set plus its archived associations, which the directory keeps in its archived section. Lists are
+  not filtered by a space.
+- `GET /api/public/associations/slug/:slug?space=...` - an association the space does not offer
+  answers 404, so another space's association is not rendered here by URL.
+
+Unset, the association reads throw `MissingSpaceError` (logged; the directory shows its failure
+state, a detail page answers 503). There is no fallback to the unfiltered list.
 
 ## The Carte de la Vie Asso
 

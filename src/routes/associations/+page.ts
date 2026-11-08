@@ -3,8 +3,9 @@ import { NOINDEX } from "#lib/robots";
 import { getAssociations, getPublishedCarteOrNull } from "#lib/canari";
 
 /**
- * All associations (active + archived) for the directory page, plus the Carte de la Vie Asso when
- * Canari has one live.
+ * The associations of this portail's space for the directory page - active and archived, the
+ * archived ones in their own section as before (owner, 2026-11-08) - plus the Carte de la Vie Asso
+ * when Canari has one live.
  *
  * The two degrade independently: the list to an empty array plus `failed`, the carte to null. A map
  * is a bonus above the directory, so neither its absence (the usual case - `getPublishedCarte`

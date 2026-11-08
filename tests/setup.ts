@@ -15,7 +15,7 @@ vi.mock("svelte/transition", () => ({
 // then falls back to its production default instead of depending on the developer's shell.
 vi.mock("$app/env/public", () => ({
 	PUBLIC_CANARI_URL: undefined,
-	PUBLIC_CANARI_CARTE_SPACE: "ICM:saint-etienne",
+	PUBLIC_CANARI_SPACE: "ICM:saint-etienne",
 }));
 
 afterEach(() => {

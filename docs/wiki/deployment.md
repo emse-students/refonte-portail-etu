@@ -258,13 +258,13 @@ data.
 
 Runtime configuration is read via `src/env.ts` and `$app/env/private` / `$app/env/public` (see `.env.example`):
 
-| Variable                    | Scope       | Purpose                                                                                                                 |
-| --------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_CANARI_URL`         | public      | Canari base URL (browser + server).                                                                                     |
-| `PUBLIC_CANARI_CARTE_SPACE` | public      | The Canari space whose carte is shown, `<formation>:<campus>`; written by `deploy.yml` (not a secret). Unset: no carte. |
-| `GALLERY_API_URL`           | server-only | MiGallery base URL for the avatar proxy.                                                                                |
-| `GALLERY_API_KEY`           | server-only | MiGallery API key (never sent to browser).                                                                              |
-| `PORTAL_URL`                | server-only | `Origin` header for MiGallery, if needed.                                                                               |
+| Variable              | Scope       | Purpose                                                                                                                                                       |
+| --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_CANARI_URL`   | public      | Canari base URL (browser + server).                                                                                                                           |
+| `PUBLIC_CANARI_SPACE` | public      | The Canari space this portail shows, `<formation>:<campus>`: its carte and its association directory; written by `deploy.yml` (not a secret). Unset: neither. |
+| `GALLERY_API_URL`     | server-only | MiGallery base URL for the avatar proxy.                                                                                                                      |
+| `GALLERY_API_KEY`     | server-only | MiGallery API key (never sent to browser).                                                                                                                    |
+| `PORTAL_URL`          | server-only | `Origin` header for MiGallery, if needed.                                                                                                                     |
 
 Today these live in a `.env` on the deploy server, rewritten by the deploy step
 on every release and loaded into the container at start via `env_file:` in
