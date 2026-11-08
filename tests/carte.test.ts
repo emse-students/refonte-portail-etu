@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { getPublishedCarte } from "#lib/canari";
+import { CanariApiError, getPublishedCarte } from "#lib/canari";
 import { load } from "../src/routes/associations/+page";
 import type { PublishedCarte } from "#lib/types";
 
@@ -87,6 +87,24 @@ afterEach(() => {
 });
 
 describe("getPublishedCarte", () => {
+	it("asks Canari for the carte of the space the deployment names", async () => {
+		const seen: string[] = [];
+		const fetch = (async (input: RequestInfo | URL) => {
+			seen.push(String(input));
+			return { ok: false, status: 404, json: async () => null } as Response;
+		}) as typeof globalThis.fetch;
+		await getPublishedCarte(fetch);
+		expect(seen).toEqual(["https://canari.emse.fr/api/public/carte?space=ICM%3Asaint-etienne"]);
+	});
+
+	it("shows no map and asks nothing when no space is named, and says so", async () => {
+		const error = vi.spyOn(console, "error").mockImplementation(() => {});
+		const fetch = vi.fn() as unknown as typeof globalThis.fetch;
+		expect(await getPublishedCarte(fetch, null)).toBeNull();
+		expect(fetch).not.toHaveBeenCalled();
+		expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
+	});
+
 	it("returns the map when one is live", async () => {
 		const carte = await getPublishedCarte(stubFetch({ "/carte": { status: 200, body: CARTE } }));
 		expect(carte).toEqual(CARTE);
@@ -95,6 +113,16 @@ describe("getPublishedCarte", () => {
 	it("returns null on 404 rather than throwing", async () => {
 		// Nothing published is the NORMAL state, not a failure: only an admin ever publishes a map.
 		expect(await getPublishedCarte(stubFetch({ "/carte": { status: 404 } }))).toBeNull();
+	});
+
+	it("throws a refusal with its typed code, as a value", async () => {
+		const err = await getPublishedCarte(
+			stubFetch({
+				"/carte": { status: 400, body: { code: "CARTE_PUBLIC_SPACE_INVALID", message: "x" } },
+			})
+		).catch((e: unknown) => e);
+		expect(err).toBeInstanceOf(CanariApiError);
+		expect(err).toMatchObject({ status: 400, code: "CARTE_PUBLIC_SPACE_INVALID" });
 	});
 
 	it("still throws on any other error status", async () => {
@@ -170,6 +198,22 @@ describe("the association directory load", () => {
 		expect(data.failed).toBe(false);
 		expect(data.carte).toBeNull();
 		expect(setHeaders).not.toHaveBeenCalled();
+	});
+
+	it("logs a refused map with its status and code, and still renders the directory", async () => {
+		const error = vi.spyOn(console, "error").mockImplementation(() => {});
+		const data = await run(
+			stubFetch({
+				"/associations": { status: 200, body: [{ id: "asso-1" }] },
+				"/carte": { status: 400, body: { code: "CARTE_PUBLIC_SPACE_INVALID" } },
+			})
+		);
+		expect(data.associations).toHaveLength(1);
+		expect(data.carte).toBeNull();
+		expect(error).toHaveBeenCalledWith(
+			expect.stringMatching(/associations page.*400.*CARTE_PUBLIC_SPACE_INVALID/),
+			expect.any(Error)
+		);
 	});
 
 	it("keeps the map when the association fetch fails", async () => {

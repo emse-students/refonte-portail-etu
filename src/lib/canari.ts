@@ -1,4 +1,4 @@
-import { PUBLIC_CANARI_URL } from "$app/env/public";
+import { PUBLIC_CANARI_CARTE_SPACE, PUBLIC_CANARI_URL } from "$app/env/public";
 import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "#lib/types";
 import { OUTBOUND_BUDGET_MS } from "#lib/outbound";
 
@@ -28,9 +28,11 @@ export class CanariApiError extends Error {
 	constructor(
 		readonly status: number | null,
 		readonly url: string,
-		cause?: unknown
+		cause?: unknown,
+		/** The typed refusal code the API answered with (`{ code }` in its body), when it gave one. */
+		readonly code: string | null = null
 	) {
-		super(`Canari public API ${status ?? "unreachable"} for ${url}`);
+		super(`Canari public API ${status ?? "unreachable"}${code ? ` (${code})` : ""} for ${url}`);
 		this.name = "CanariApiError";
 		this.cause = cause;
 	}
@@ -72,6 +74,14 @@ export function getAssociations(
 	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
 }
 
+/**
+ * The Canari space whose carte this showcase shows, as `<formation>:<campus>` (for example
+ * `ICM:saint-etienne`), or null when the deployment names none. Canari keeps one live carte PER
+ * SPACE, so the showcase must say which one it wants; with no space it shows no map at all - there is
+ * deliberately no fallback to "whatever is live".
+ */
+export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+
 /** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
 const CARTE_VERSION = 2;
 
@@ -82,7 +92,8 @@ const CARTE_VERSION = 2;
 const LEGACY_CARD_PAD_X = 12;
 
 /**
- * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
+ * The "Carte de la Vie Asso" Canari currently has live for this showcase's space, or null when there
+ * is none - or when the deployment names no space (`PUBLIC_CANARI_CARTE_SPACE`), which is logged.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
  * publishes a map, and the association directory has to render whether or not one exists. Any other
@@ -96,11 +107,35 @@ const LEGACY_CARD_PAD_X = 12;
  * Within v2, one field is read for compatibility rather than required, so that the map does not need
  * the two repositories to be deployed in a particular order. See the loop below.
  */
-export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
-	const res = await fetch(`${API}/carte`, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+export async function getPublishedCarte(
+	fetch: Fetch,
+	space: string | null = CARTE_SPACE
+): Promise<PublishedCarte | null> {
+	if (!space) {
+		console.error(
+			"PUBLIC_CANARI_CARTE_SPACE is not set - no carte is shown. Name the Canari space " +
+				"(`<formation>:<campus>`) in the deployment's .env."
+		);
+		return null;
+	}
+	const url = `${API}/carte?space=${encodeURIComponent(space)}`;
+	let res: Response;
+	try {
+		res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	} catch (e) {
+		throw new CanariApiError(null, url, e);
+	}
 	if (res.status === 404) return null;
 	if (!res.ok) {
-		throw new Error(`Canari public API ${res.status} for ${API}/carte`);
+		// A 400 carries a typed code (`CARTE_PUBLIC_SPACE_INVALID` for a misnamed space): it travels
+		// as a value, so the log names it without anyone parsing a message.
+		const body = (await res.json().catch(() => null)) as { code?: unknown } | null;
+		throw new CanariApiError(
+			res.status,
+			url,
+			undefined,
+			typeof body?.code === "string" ? body.code : null
+		);
 	}
 	const carte = (await res.json()) as PublishedCarte;
 	if (carte.version !== CARTE_VERSION || !Array.isArray(carte.units)) {
@@ -120,6 +155,27 @@ export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | 
 		}
 	}
 	return carte;
+}
+
+/**
+ * The live carte for a page that renders without it: a failure is LOGGED with its status and code,
+ * then answered null, so a misnamed space (a 400) or an outage never passes silently and never costs
+ * the page its other content.
+ *
+ * @param where - The caller, named in the log line.
+ */
+export async function getPublishedCarteOrNull(
+	fetch: Fetch,
+	where: string
+): Promise<PublishedCarte | null> {
+	try {
+		return await getPublishedCarte(fetch);
+	} catch (e) {
+		const status = e instanceof CanariApiError ? (e.status ?? "unreachable") : "unknown";
+		const code = e instanceof CanariApiError ? (e.code ?? "none") : "none";
+		console.error(`[carte] ${where}: no map - Canari answered ${status}, code ${code}`, e);
+		return null;
+	}
 }
 
 /** One association or list by slug, including its public members. */

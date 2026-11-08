@@ -154,6 +154,10 @@ are in [`src/lib/types.ts`](../../src/lib/types.ts).
 | `/api/media/public/:id`               | A public logo blob                 |
 
 `PUBLIC_CANARI_URL` overrides the base URL (defaults to `https://canari.emse.fr`).
+`PUBLIC_CANARI_CARTE_SPACE` names the Canari space whose carte is shown (`<formation>:<campus>`,
+`ICM:saint-etienne` in production): Canari keeps one live carte per space and the showcase asks
+`GET /api/public/carte?space=...`. Unset, `getPublishedCarte` logs and returns null - no map, and
+no fallback to the call without a space.
 
 ## The Carte de la Vie Asso
 

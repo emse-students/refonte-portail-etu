@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { CanariAssociation } from "#lib/types";
 
-vi.mock("#lib/canari", () => ({ getAssociations: vi.fn(), getPublishedCarte: vi.fn() }));
+vi.mock("#lib/canari", () => ({ getAssociations: vi.fn(), getPublishedCarteOrNull: vi.fn() }));
 
-import { getAssociations, getPublishedCarte } from "#lib/canari";
+import { getAssociations, getPublishedCarteOrNull } from "#lib/canari";
 import { GET } from "../src/routes/sitemap.xml/+server";
 
 /**
@@ -37,7 +37,7 @@ function assoc(slug: string, over: Partial<CanariAssociation> = {}): CanariAssoc
 }
 
 const mocked = vi.mocked(getAssociations);
-const carteMock = vi.mocked(getPublishedCarte);
+const carteMock = vi.mocked(getPublishedCarteOrNull);
 
 /** Calls the handler the way SvelteKit does, and returns the body. */
 async function render(): Promise<string> {
