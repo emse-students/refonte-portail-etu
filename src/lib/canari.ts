@@ -18,8 +18,9 @@ type Fetch = typeof globalThis.fetch;
 /**
  * A call to the public API that did not return data, carrying WHY as a value.
  *
- * `status` is the API's own status code, or `null` when the request never got an answer at all -
- * a timeout, a DNS failure, a refused connection. That distinction is the whole point of the type:
+ * `status` is the API's own status code, or `null` when the request never got an answer a page can
+ * use - a timeout, a DNS failure, a refused connection, a success whose body is not JSON or stops
+ * arriving. That distinction is the whole point of the type:
  * a 404 is the API ANSWERING that a slug does not exist, and a timeout is the API saying nothing.
  * A page that turns both into its own 404 tells a crawler to deindex a page that exists, over a
  * blip. Never classify by reading the message - the caller reads `status`.
@@ -62,7 +63,13 @@ async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
 	if (!res.ok) {
 		throw new CanariApiError(res.status, url);
 	}
-	return (await res.json()) as T;
+	try {
+		return (await res.json()) as T;
+	} catch (e) {
+		// A 2xx whose body is not JSON, or stopped arriving within the budget: nothing was answered
+		// that a page can use, so it is classified like no answer at all - never like a 404.
+		throw new CanariApiError(null, url, e);
+	}
 }
 
 /** All associations (`type="association"`) or promo lists (`type="list"`); both when omitted. */
