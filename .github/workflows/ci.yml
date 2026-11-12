@@ -74,6 +74,11 @@ jobs:
       - name: Test the release gates
         run: bash .github/scripts/tests/release-preflight.test.sh
 
+      # A VALUE REACHES A SCRIPT THROUGH `env:`, NEVER BY BEING WRITTEN INTO ITS TEXT: an
+      # expression inside a `run:` is substituted before the shell reads it, so it is code.
+      - name: Test that no workflow writes an expression inside a script
+        run: bash .github/scripts/tests/workflow-expressions.test.sh
+
       # Pin the Bun version so CI, the deploy runner and a fresh clone all
       # resolve the same toolchain. Must be >= 1.2 to read the text bun.lock.
       - name: Setup Bun
