@@ -7,7 +7,7 @@ import {
 	noteCspReport,
 	SECURITY_HEADERS,
 } from "#lib/server/security-headers";
-import { CANARI_ORIGIN, CSP, CSP_REPORT_PATH, inlineScriptHash } from "../csp.config";
+import { appHtmlScriptHashes, CANARI_ORIGIN, CSP, CSP_REPORT_PATH } from "../csp.config";
 
 vi.mock("#lib/paraglide/server", () => ({
 	paraglideMiddleware: (
@@ -213,11 +213,19 @@ describe("the content security policy", () => {
 		expect(CSP.reportOnly["connect-src"]).toContain(CANARI_ORIGIN);
 	});
 
-	it("allows the theme script of the template by its hash", () => {
-		const html = "<head><script>document.x = 1;</script></head>";
+	it("names the hash of the template's inline theme script", () => {
+		const hashes = appHtmlScriptHashes("<head><script>var a = 1;</script></head>");
 
-		expect(inlineScriptHash(html)).toMatch(/^sha256-[A-Za-z0-9+/]+=*$/);
-		expect(CSP.reportOnly["script-src"].some((s) => s.startsWith("sha256-"))).toBe(true);
-		expect(() => inlineScriptHash("<head></head>")).toThrow();
+		expect(hashes).toEqual(["sha256-+dZ6udsWxNVoGfScAq7t5IIF5UJb4F6RhjbN6oe1p4w="]);
+		expect(CSP.reportOnly["script-src"].length).toBeGreaterThan(1);
+	});
+
+	it("finds an inline script whatever its casing, attributes and closing tag, and skips one with a src", () => {
+		const one = "sha256-+dZ6udsWxNVoGfScAq7t5IIF5UJb4F6RhjbN6oe1p4w=";
+
+		expect(appHtmlScriptHashes('<SCRIPT type="module">var a = 1;</Script >')).toEqual([one]);
+		expect(appHtmlScriptHashes('<script src="/a.js"></script><script>var a = 1;</script>')).toEqual(
+			[one]
+		);
 	});
 });

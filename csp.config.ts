@@ -25,16 +25,22 @@ export const CANARI_ORIGIN = new URL(
 ).origin;
 
 /**
- * The `sha256-` source of the inline script in `src/app.html` (the theme class, set before the
- * first paint). SvelteKit hashes the scripts it writes itself, not the ones in the template.
+ * The hash source of each inline `<script>` that `src/app.html` itself carries (the theme class,
+ * set before the first paint). SvelteKit hashes the scripts it writes, never the ones of the
+ * template, so they are read from the file here and cannot drift from it.
  */
-export function inlineScriptHash(html: string): string {
-	const match = /<script>([\s\S]*?)<\/script>/.exec(html);
-	if (!match) throw new Error("csp.config: no inline <script> found in src/app.html");
-	return `sha256-${createHash("sha256").update(match[1]).digest("base64")}`;
+export function appHtmlScriptHashes(html: string): `sha256-${string}`[] {
+	// Any casing, any attribute, any spacing of the closing tag: a script this missed would simply
+	// not be listed. One with a `src` has no body to hash and is covered by its origin.
+	return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script[^>]*>/gi)]
+		.filter((match) => match[1].trim() !== "")
+		.map(
+			(match): `sha256-${string}` =>
+				`sha256-${createHash("sha256").update(match[1]).digest("base64")}`
+		);
 }
 
-const THEME_SCRIPT_HASH = inlineScriptHash(
+const templateScripts = appHtmlScriptHashes(
 	readFileSync(resolve(process.cwd(), "src/app.html"), "utf8")
 );
 
@@ -50,7 +56,7 @@ export const CSP = {
 		"default-src": ["self"],
 		// Svelte's own inline scripts are hashed by SvelteKit; the theme script of `app.html` is
 		// named here.
-		"script-src": ["self", THEME_SCRIPT_HASH],
+		"script-src": ["self", ...templateScripts],
 		// Svelte and the carte write `style` attributes (positions, colours, scale): inline styles
 		// stay. Fonts and the stylesheet are bundled and served from this origin.
 		"style-src": ["self", "unsafe-inline"],
