@@ -122,10 +122,12 @@ association that has been there for years.
 
 So the distinction is carried as a TYPE and never read out of a message:
 `CanariApiError.status` is the API's own status code, or `null` when the request
-never got an answer at all. Only `404` may become a 404; everything else is a
+never got an answer a page can use - no answer at all, or a success whose body
+is not JSON or stops arriving, which the client classifies where it reads the
+body (`getJson`). Only `404` may become a 404; everything else is a
 503, which is the status that means "ask again". Both branches log server-side -
 a rendered error page is otherwise the only trace, and it names nothing.
-Covered by `tests/detailLoader.test.ts`.
+Covered by `tests/detailLoader.test.ts` and `tests/canariClient.test.ts`.
 
 ## Verifying a change
 
