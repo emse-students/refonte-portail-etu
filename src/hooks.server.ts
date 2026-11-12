@@ -1,6 +1,7 @@
-import type { Handle } from "@sveltejs/kit";
+import { isRedirect, type Handle } from "@sveltejs/kit";
 import { isApiPath, NOINDEX } from "#lib/robots";
 import { paraglideMiddleware } from "#lib/paraglide/server";
+import { applySecurityHeaders } from "#lib/server/security-headers";
 
 /**
  * Resolves the request's locale BEFORE the page renders, and stamps it into `<html lang>`.
@@ -25,15 +26,29 @@ import { paraglideMiddleware } from "#lib/paraglide/server";
  * added later owes a `Vary: Cookie`.
  */
 export const handle: Handle = async ({ event, resolve }) => {
-	const response = await paraglideMiddleware(event.request, ({ request, locale }) => {
-		event.request = request;
-		return resolve(event, {
-			transformPageChunk: ({ html }) => html.replace("%paraglide.lang%", locale),
+	let response: Response;
+	try {
+		response = await paraglideMiddleware(event.request, ({ request, locale }) => {
+			event.request = request;
+			return resolve(event, {
+				transformPageChunk: ({ html }) => html.replace("%paraglide.lang%", locale),
+			});
 		});
-	});
+	} catch (thrown) {
+		// A `redirect()` thrown outside a load does not come back through `resolve`: it travels up
+		// as an exception. Turn it into the response it would have become, so the headers reach it too.
+		if (!isRedirect(thrown)) throw thrown;
+		response = new Response(null, {
+			status: thrown.status,
+			headers: { location: thrown.location },
+		});
+	}
 	// The avatar proxy serves people's faces: never an indexable document (see `#lib/robots`).
 	// Page-level `X-Robots-Tag` for pages that list people is set by their loaders.
 	if (isApiPath(event.url.pathname)) response.headers.set("X-Robots-Tag", NOINDEX);
+	// This handler is the outermost one, and a redirect was just made a response: every answer
+	// passes here, so this is where the site-wide headers are written.
+	applySecurityHeaders(response.headers);
 	return response;
 };
 
