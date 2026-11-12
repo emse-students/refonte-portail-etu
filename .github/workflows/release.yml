@@ -66,15 +66,19 @@ jobs:
         id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
+          # Through env, never written into the script: a value substituted into a script's
+          # text is read by the shell as code (`workflow-expressions.test.sh`).
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
             SHA="$(git rev-parse origin/main)"
             VERSION="$(jq -r .version package.json)"
             echo "A hand re-deploy of main at ${SHA:0:8}, version $VERSION."
           else
-            SHA="$(git rev-list -n1 '${{ github.event.release.tag_name }}')"
-            VERSION='${{ github.event.release.tag_name }}'
+            SHA="$(git rev-list -n1 "refs/tags/$TAG_NAME")"
+            VERSION="$TAG_NAME"
           fi
           {
             echo "version=${VERSION#v}"
