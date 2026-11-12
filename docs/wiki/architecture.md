@@ -140,6 +140,57 @@ SvelteKit rejects - every detail page 503s. Answering as the production origin
 gets a single `*` and works. That duplicate is a Canari-side defect; it is fixed
 there, and this note stays because it is the symptom anyone will hit first.
 
+## Security headers and the content security policy
+
+Every answer from a route - a page, an error page, the avatar proxy, a redirect thrown past
+`resolve` - carries `X-Content-Type-Options: nosniff`,
+`Referrer-Policy: strict-origin-when-cross-origin` and `X-Frame-Options: SAMEORIGIN`. They are
+written by `handle` in [`src/hooks.server.ts`](../../src/hooks.server.ts), the only handler,
+through `applySecurityHeaders` ([`src/lib/server/security-headers.ts`](../../src/lib/server/security-headers.ts)),
+which keeps a stricter value a route already set. A `redirect()` thrown outside a load is turned
+into its response there so the headers reach it. SvelteKit's own trailing-slash normalisation
+(`/liens/` to `/liens`) is a body-less 308 answered before any handler runs. `Strict-Transport-Security`
+is not set here: it belongs to whatever terminates TLS.
+
+The content security policy lives in [`csp.config.ts`](../../csp.config.ts), read by
+`vite.config.ts` (SvelteKit's `csp` option adds a nonce for each inline script it writes), in two
+stages:
+
+- **enforced**: `frame-ancestors 'self'`. The portal links out to the other sites of the
+  ecosystem and none of them embeds it;
+- **observed for one release** (`Content-Security-Policy-Report-Only`): `default-src 'self'` and
+  the directives beside it. Nothing is blocked. A browser posts each violation to
+  `POST /api/csp-report` (public, stores nothing, bodies over 8 KB dropped, always 204), and
+  `noteCspReport` logs it as `[CSP] would block: directive=... blocked=... page=... source=...` -
+  once per distinct violation, then at its 10th, 100th... occurrence with the count; URLs lose
+  their query and fragment. When a release's log is quiet, the observed directives move to
+  `directives`.
+  A reported value also loses every control character and white space, so it stays one field of
+  one line, and every line the route writes passes `logCspLine`: at most
+  `CSP_REPORT_LINES_PER_HOUR` (200) in a clock hour, then one line saying the bound was passed,
+  then nothing until the next hour. The front's nginx `add_header` writes `X-Frame-Options` and
+  `X-Content-Type-Options` too, so an answer can carry each twice with the same value; that is
+  harmless.
+
+The origins the pages load from, and why:
+
+| Directive     | Source                                      | What loads from it                                                                 |
+| ------------- | ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `img-src`     | Canari origin (`PUBLIC_CANARI_URL`)         | association and list logos, `/api/media/public/<id>`                               |
+| `img-src`     | `data:`                                     | the carte's background image (a data URL), small inlined assets                    |
+| `connect-src` | Canari origin (`PUBLIC_CANARI_URL`)         | the public API, read by the browser on a client-side navigation                    |
+| `script-src`  | the hash of the inline script in `app.html` | the theme class, set before the first paint (computed from the file, never copied) |
+| `style-src`   | `'unsafe-inline'`                           | `style` attributes written by Svelte and by the carte                              |
+| `font-src`    | `data:`                                     | small `@fontsource` files the bundler inlines                                      |
+
+Member faces are same-origin (the server proxies MiGallery), so no gallery origin is listed. The
+config runs at build time, where the deploy's `.env` is absent: an unset `PUBLIC_CANARI_URL` gives
+the code's own default, and a deployment that points it elsewhere at run time appears in the log as
+reports naming that origin. A logo stored as a free-form `logoUrl`, or an image in a bio, would
+appear the same way.
+
+Pinned by `tests/securityHeaders.test.ts`.
+
 ## Data source: Canari public API
 
 All content is read from Canari's unauthenticated read-only API. The typed
