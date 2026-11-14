@@ -72,22 +72,43 @@ async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
 	}
 }
 
-/** All associations (`type="association"`) or promo lists (`type="list"`); both when omitted. */
+/**
+ * The Canari space this showcase is the portal of, as `<formation>:<campus>` (for example
+ * `ICM:saint-etienne`), or null when the deployment names none (`PUBLIC_CANARI_CARTE_SPACE`).
+ *
+ * It scopes EVERYTHING the showcase reads: the carte (Canari keeps one live carte PER SPACE, and
+ * with no space the showcase shows no map at all - there is deliberately no fallback to "whatever is
+ * live"), and since 2026-11-14 the DIRECTORY too. Until then only the carte named it, so the portal
+ * of one space listed the associations and lists of every campus.
+ */
+export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+
+/**
+ * All associations (`type="association"`) or promo lists (`type="list"`); both when omitted - OF
+ * THIS SHOWCASE'S SPACE: Canari keeps only the entities whose audience reaches the space named.
+ * With no space configured the list is complete, which is logged: a portal that names no space is
+ * a deployment fault, not a choice.
+ */
 export function getAssociations(
 	fetch: Fetch,
-	type?: "association" | "list"
+	type?: "association" | "list",
+	space: string | null = CARTE_SPACE
 ): Promise<CanariAssociation[]> {
-	const qs = type ? `?type=${type}` : "";
+	const query = new URLSearchParams();
+	if (type) query.set("type", type);
+	if (space) query.set("space", space);
+	else warnNoSpace("the directory");
+	const qs = query.size > 0 ? `?${query}` : "";
 	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
 }
 
-/**
- * The Canari space whose carte this showcase shows, as `<formation>:<campus>` (for example
- * `ICM:saint-etienne`), or null when the deployment names none. Canari keeps one live carte PER
- * SPACE, so the showcase must say which one it wants; with no space it shows no map at all - there is
- * deliberately no fallback to "whatever is live".
- */
-export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+/** Says, once per read, that the deployment names no space and what that read then answers. */
+function warnNoSpace(what: string): void {
+	console.warn(
+		`PUBLIC_CANARI_CARTE_SPACE is not set - ${what} is read for EVERY space. Name the Canari ` +
+			"space (`<formation>:<campus>`) in the deployment's .env."
+	);
+}
 
 /** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
 const CARTE_VERSION = 2;
@@ -185,10 +206,20 @@ export async function getPublishedCarteOrNull(
 	}
 }
 
-/** One association or list by slug, including its public members. */
-export function getAssociationBySlug(fetch: Fetch, slug: string): Promise<CanariAssociationDetail> {
+/**
+ * One association or list by slug, including its public members - when it is OF THIS SHOWCASE'S
+ * SPACE: Canari answers 404 for an entity whose audience does not reach the space named, exactly as
+ * for an unknown slug, so another campus's association has no page here.
+ */
+export function getAssociationBySlug(
+	fetch: Fetch,
+	slug: string,
+	space: string | null = CARTE_SPACE
+): Promise<CanariAssociationDetail> {
+	if (!space) warnNoSpace(`the page of ${slug}`);
+	const qs = space ? `?space=${encodeURIComponent(space)}` : "";
 	return getJson<CanariAssociationDetail>(
 		fetch,
-		`${API}/associations/slug/${encodeURIComponent(slug)}`
+		`${API}/associations/slug/${encodeURIComponent(slug)}${qs}`
 	);
 }
