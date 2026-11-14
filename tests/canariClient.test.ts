@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { CanariApiError, getAssociationBySlug } from "#lib/canari";
+import { describe, it, expect, vi } from "vitest";
+import { CanariApiError, getAssociationBySlug, getAssociations } from "#lib/canari";
 
 /**
  * EVERY FAILURE OF A READ LEAVES THE CLIENT AS A `CanariApiError`. The detail loaders answer 404
@@ -53,5 +53,52 @@ describe("the Canari client classifies what it could not read", () => {
 		);
 
 		expect(read.slug).toBe("bde");
+	});
+});
+
+/**
+ * THE DIRECTORY IS READ FOR THIS SHOWCASE'S SPACE (2026-11-14). Only the carte named the space, so
+ * the portal of ICM Saint-Etienne listed another campus's associations and served their pages.
+ */
+describe("the Canari client names the showcase's space on every directory read", () => {
+	/** The URLs a read asks for. */
+	async function urlsOf(read: (fetch: typeof globalThis.fetch) => Promise<unknown>) {
+		const urls: string[] = [];
+		await read((async (url: string) => {
+			urls.push(url);
+			return Response.json([]);
+		}) as unknown as typeof fetch);
+		return urls;
+	}
+
+	it("the list carries the space, beside the type", async () => {
+		const [url] = await urlsOf((fetch) => getAssociations(fetch, "list"));
+		const query = new URL(url).searchParams;
+		expect(query.get("type")).toBe("list");
+		expect(query.get("space")).toBe("ICM:saint-etienne");
+	});
+
+	it("both kinds at once still carry the space, with no type", async () => {
+		const [url] = await urlsOf((fetch) => getAssociations(fetch));
+		const query = new URL(url).searchParams;
+		expect(query.has("type")).toBe(false);
+		expect(query.get("space")).toBe("ICM:saint-etienne");
+	});
+
+	it("a page by slug carries the space, so another space's entity is Canari's 404", async () => {
+		const [url] = await urlsOf((fetch) => getAssociationBySlug(fetch, "minitel"));
+		expect(new URL(url).pathname.endsWith("/associations/slug/minitel")).toBe(true);
+		expect(new URL(url).searchParams.get("space")).toBe("ICM:saint-etienne");
+	});
+
+	it("with no space configured the read is complete, and says so", async () => {
+		const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		try {
+			const [url] = await urlsOf((fetch) => getAssociations(fetch, "association", null));
+			expect(new URL(url).searchParams.has("space")).toBe(false);
+			expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
+		} finally {
+			error.mockRestore();
+		}
 	});
 });

@@ -210,6 +210,12 @@ are in [`src/lib/types.ts`](../../src/lib/types.ts).
 `GET /api/public/carte?space=...`. Unset, `getPublishedCarte` logs and returns null - no map, and
 no fallback to the call without a space.
 
+**The same variable scopes the directory (2026-11-14).** `getAssociations` and
+`getAssociationBySlug` send `space` too, so Canari answers only the associations, lists and
+institutions whose audience reaches this portal's space, and 404s the page of any other. Until
+then only the carte named the space, and the portal of ICM Saint-Etienne listed another campus's
+associations. Unset, the directory is read whole and each read logs an error, as the carte does.
+
 ## The Carte de la Vie Asso
 
 Canari's poster editor can put one map **online**; the directory renders it above

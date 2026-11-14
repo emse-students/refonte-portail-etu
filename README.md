@@ -42,13 +42,13 @@ bun run dev             # http://localhost:5173
 
 ## Environment variables
 
-| Variable                    | Required | Purpose                                                                                                               |
-| --------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_CANARI_URL`         | no       | Base URL of the Canari instance. Defaults to `https://canari.emse.fr`.                                                |
-| `PUBLIC_CANARI_CARTE_SPACE` | no       | The Canari space whose carte is shown, `<formation>:<campus>` (deploy: `ICM:saint-etienne`). Unset: no carte, logged. |
-| `GALLERY_API_URL`           | yes\*    | MiGallery base URL. Avatar endpoint is `${GALLERY_API_URL}/users/:id/avatar`.                                         |
-| `GALLERY_API_KEY`           | yes\*    | Server-side MiGallery API key for the avatar proxy. Never exposed to the browser.                                     |
-| `PORTAL_URL`                | no       | `Origin` header sent to MiGallery, if it enforces one.                                                                |
+| Variable                    | Required | Purpose                                                                                                                                                                              |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PUBLIC_CANARI_URL`         | no       | Base URL of the Canari instance. Defaults to `https://canari.emse.fr`.                                                                                                               |
+| `PUBLIC_CANARI_CARTE_SPACE` | no       | The Canari space this portal shows - its carte AND its directory - `<formation>:<campus>` (deploy: `ICM:saint-etienne`). Unset: no carte, the directory of every space, both logged. |
+| `GALLERY_API_URL`           | yes\*    | MiGallery base URL. Avatar endpoint is `${GALLERY_API_URL}/users/:id/avatar`.                                                                                                        |
+| `GALLERY_API_KEY`           | yes\*    | Server-side MiGallery API key for the avatar proxy. Never exposed to the browser.                                                                                                    |
+| `PORTAL_URL`                | no       | `Origin` header sent to MiGallery, if it enforces one.                                                                                                                               |
 
 \* Required only for member avatars; without them the UI falls back to generated
 initials.
