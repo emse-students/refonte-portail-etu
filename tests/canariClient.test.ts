@@ -78,6 +78,13 @@ describe("the Canari client names the showcase's space on every directory read",
 		expect(query.get("space")).toBe("ICM:saint-etienne");
 	});
 
+	it("both kinds at once still carry the space, with no type", async () => {
+		const [url] = await urlsOf((fetch) => getAssociations(fetch));
+		const query = new URL(url).searchParams;
+		expect(query.has("type")).toBe(false);
+		expect(query.get("space")).toBe("ICM:saint-etienne");
+	});
+
 	it("a page by slug carries the space, so another space's entity is Canari's 404", async () => {
 		const [url] = await urlsOf((fetch) => getAssociationBySlug(fetch, "minitel"));
 		expect(new URL(url).pathname.endsWith("/associations/slug/minitel")).toBe(true);
@@ -85,13 +92,13 @@ describe("the Canari client names the showcase's space on every directory read",
 	});
 
 	it("with no space configured the read is complete, and says so", async () => {
-		const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+		const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
 		try {
 			const [url] = await urlsOf((fetch) => getAssociations(fetch, "association", null));
 			expect(new URL(url).searchParams.has("space")).toBe(false);
-			expect(warn).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
+			expect(error).toHaveBeenCalledWith(expect.stringContaining("PUBLIC_CANARI_CARTE_SPACE"));
 		} finally {
-			warn.mockRestore();
+			error.mockRestore();
 		}
 	});
 });

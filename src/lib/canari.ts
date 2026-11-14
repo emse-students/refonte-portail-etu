@@ -98,13 +98,16 @@ export function getAssociations(
 	if (type) query.set("type", type);
 	if (space) query.set("space", space);
 	else warnNoSpace("the directory");
-	const qs = query.size > 0 ? `?${query}` : "";
-	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
+	// `toString()`, never `query.size`: these loads also run in the visitor's browser, and `size`
+	// is absent before Safari 17 - an empty query there would drop the type AND the space.
+	const qs = query.toString();
+	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs ? `?${qs}` : ""}`);
 }
 
 /** Says, once per read, that the deployment names no space and what that read then answers. */
 function warnNoSpace(what: string): void {
-	console.warn(
+	// The level the carte reports the same fault at: one deployment fault, one level.
+	console.error(
 		`PUBLIC_CANARI_CARTE_SPACE is not set - ${what} is read for EVERY space. Name the Canari ` +
 			"space (`<formation>:<campus>`) in the deployment's .env."
 	);

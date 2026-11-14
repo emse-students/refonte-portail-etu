@@ -214,7 +214,7 @@ no fallback to the call without a space.
 `getAssociationBySlug` send `space` too, so Canari answers only the associations, lists and
 institutions whose audience reaches this portal's space, and 404s the page of any other. Until
 then only the carte named the space, and the portal of ICM Saint-Etienne listed another campus's
-associations. Unset, the directory is read whole and each read logs a warning.
+associations. Unset, the directory is read whole and each read logs an error, as the carte does.
 
 ## The Carte de la Vie Asso
 
