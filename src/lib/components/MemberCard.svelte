@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { CanariMember } from "#lib/types";
-	import { initials, generateColor, avatarUrl } from "#lib/media";
+	import { initials, generateColor, memberPhotoUrl } from "#lib/media";
 	import { m } from "#lib/paraglide/messages";
 
 	let { member, bureau = false }: { member: CanariMember; bureau?: boolean } = $props();
@@ -11,6 +11,7 @@
 			m.member_fallback()
 	);
 
+	const photo = $derived(memberPhotoUrl(member));
 	let showPhoto = $state(true);
 </script>
 
@@ -24,9 +25,9 @@
 		style="background:{generateColor(name)}"
 	>
 		<span>{initials(name)}</span>
-		{#if showPhoto}
+		{#if photo && showPhoto}
 			<img
-				src={avatarUrl(member.userId)}
+				src={photo}
 				alt=""
 				loading="lazy"
 				class="absolute inset-0 w-full h-full object-cover"

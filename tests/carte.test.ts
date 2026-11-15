@@ -46,7 +46,7 @@ const CARTE: PublishedCarte = {
 			name: { x: 123, y: 184, w: 154, size: 15, emailSize: 5.25 },
 			cards: [
 				{
-					userId: "u1",
+					avatarUrl: "/api/public/members/m1/avatar",
 					name: "Claire Vanruymbeke",
 					role: "Presidente",
 					initials: "CV",

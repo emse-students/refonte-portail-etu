@@ -61,7 +61,7 @@ describe.each([
 	});
 
 	it("sends X-Robots-Tag: noindex when the page prints members, and not otherwise", async () => {
-		mocked.mockResolvedValue({ slug: "bde", members: [{ userId: "u1" }] } as never);
+		mocked.mockResolvedValue({ slug: "bde", members: [{ id: "m1" }] } as never);
 		await load(EVENT);
 		expect(setHeaders).toHaveBeenCalledWith({ "X-Robots-Tag": "noindex" });
 

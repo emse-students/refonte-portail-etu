@@ -11,7 +11,7 @@ through Paraglide).
 | Datum                                                 | Where it comes from                 | Where it is shown                                                                      |
 | ----------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------- |
 | First name, last name, promo, role                    | Canari public API (`/api/public/*`) | member cards on `/associations/[handle]` and `/lists/[handle]`                         |
-| Photo                                                 | MiGallery, via the avatar proxy     | member cards, Carte de la Vie Asso                                                     |
+| Photo                                                 | Canari `avatarUrl`, or the proxy    | member cards, Carte de la Vie Asso                                                     |
 | Names, roles, photos, directory of the "Carte" poster | Canari, a **published snapshot**    | `/associations`, while a carte is live                                                 |
 | Account id (`userId`, the MiConnect `sub`)            | Canari public API                   | **not displayed**, but present in the page payload and in every avatar URL (see below) |
 
@@ -40,20 +40,17 @@ objection right (art. 21) honoured on request at `bureau@rootz-emse.fr`.
    (`@fontsource/glass-antiqua`) and Fira Mono are self-hosted. Do not add a remote stylesheet,
    script or font; `grep -rn "googleapis\|gstatic" src` must stay empty.
 
-## What this repository cannot fix: the account id
+## The account id, on its way out
 
-The Canari public API returns `userId` (the MiConnect `sub`) on every member and card. The avatar
-proxy `/api/users/[userId]/avatar` is keyed by that same id because it is also MiGallery's key, so
-the id is visible in the avatar `src` of every card, and in the serialised page data. It is an
-identifier, not a name, but it is stable and correlates a person across Canari, MiGallery and this
-site.
+The Canari public API returns `userId` (the MiConnect `sub`) on every member and card. This showcase
+used it as its photo key, so the id sat in the avatar `src` of every card. It is an identifier, not
+a name, but it is stable and correlates a person across Canari, MiGallery and this site.
 
-It cannot be hidden here without breaking avatars: the `<img src>` needs a key the proxy can map back
-to MiGallery, and the loaders are universal (they run in the visitor's browser on client-side
-navigation), so there is no server-only secret available to mint an opaque token. **The fix is on
-Canari's side**: the public API should return an opaque, public avatar token (or the avatar URL
-itself) instead of the account id, and the proxy would accept that token. Until then the id is not
-rendered as text anywhere, and the avatar route accepts only `[a-zA-Z0-9_-]{1,128}`.
+Canari now adds `avatarUrl`, a photo address keyed by the roster row, and this showcase prefers it
+(`memberPhotoUrl`, [architecture](architecture.md#member-photos-canaris-avatarurl-then-the-legacy-proxy)).
+`userId` is read for one thing only, the legacy photo while `avatarUrl` is absent, and never as a
+key, a link or text. Once this ships, Canari strips `userId` from its public payloads and the legacy
+proxy is deleted here. Until then the avatar route accepts only `[a-zA-Z0-9_-]{1,128}`.
 
 ## Owed by a human
 
