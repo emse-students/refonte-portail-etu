@@ -4,6 +4,7 @@ import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import adapter from "@sveltejs/adapter-bun";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import { CSP } from "./csp.config.ts";
 
 /**
  * Rewrites Paraglide's `import("async_hooks")` to `import("node:async_hooks")`.
@@ -74,6 +75,8 @@ export default defineConfig({
 			adapter: adapter({ precompress: true }),
 			paths: { relative: true },
 			env: { dir: "./.env" },
+			// Enforced: no framing by another site. Observed for one release: everything else.
+			csp: CSP,
 		}),
 		paraglideNodeBuiltinSpecifier(),
 	],

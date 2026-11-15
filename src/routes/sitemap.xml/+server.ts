@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types";
-import { getAssociations, getPublishedCarte } from "#lib/canari";
+import { getAssociations, getPublishedCarteOrNull } from "#lib/canari";
 import { sitemapEligible } from "#lib/robots";
 
 /**
@@ -40,7 +40,7 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
 	const [associations, lists, carte] = await Promise.all([
 		getAssociations(fetch, "association").catch(() => []),
 		getAssociations(fetch, "list").catch(() => []),
-		getPublishedCarte(fetch).catch(() => null),
+		getPublishedCarteOrNull(fetch, "sitemap"),
 	]);
 
 	const entries = [

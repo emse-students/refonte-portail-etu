@@ -90,6 +90,9 @@ jobs:
         # the avatar proxy when GALLERY_API_KEY is unset.
         env:
           PUBLIC_CANARI_URL: ${{ secrets.PUBLIC_CANARI_URL }}
+          # Not a secret: the Canari space this showcase is the portail of. Canari keeps one live
+          # carte per space and serves none to a showcase that does not name its space.
+          PUBLIC_CANARI_CARTE_SPACE: "ICM:saint-etienne"
           GALLERY_API_URL: ${{ secrets.GALLERY_API_URL }}
           GALLERY_API_KEY: ${{ secrets.GALLERY_API_KEY }}
           PORTAL_URL: ${{ secrets.PORTAL_URL }}
@@ -97,6 +100,7 @@ jobs:
           cd ~/portail-etu
           cat > .env <<EOF
           PUBLIC_CANARI_URL=${PUBLIC_CANARI_URL}
+          PUBLIC_CANARI_CARTE_SPACE=${PUBLIC_CANARI_CARTE_SPACE}
           GALLERY_API_URL=${GALLERY_API_URL}
           GALLERY_API_KEY=${GALLERY_API_KEY}
           PORTAL_URL=${PORTAL_URL}

@@ -1,4 +1,4 @@
-import { PUBLIC_CANARI_URL } from "$app/env/public";
+import { PUBLIC_CANARI_CARTE_SPACE, PUBLIC_CANARI_URL } from "$app/env/public";
 import type { CanariAssociation, CanariAssociationDetail, PublishedCarte } from "#lib/types";
 import { OUTBOUND_BUDGET_MS } from "#lib/outbound";
 
@@ -18,8 +18,9 @@ type Fetch = typeof globalThis.fetch;
 /**
  * A call to the public API that did not return data, carrying WHY as a value.
  *
- * `status` is the API's own status code, or `null` when the request never got an answer at all -
- * a timeout, a DNS failure, a refused connection. That distinction is the whole point of the type:
+ * `status` is the API's own status code, or `null` when the request never got an answer a page can
+ * use - a timeout, a DNS failure, a refused connection, a success whose body is not JSON or stops
+ * arriving. That distinction is the whole point of the type:
  * a 404 is the API ANSWERING that a slug does not exist, and a timeout is the API saying nothing.
  * A page that turns both into its own 404 tells a crawler to deindex a page that exists, over a
  * blip. Never classify by reading the message - the caller reads `status`.
@@ -28,9 +29,11 @@ export class CanariApiError extends Error {
 	constructor(
 		readonly status: number | null,
 		readonly url: string,
-		cause?: unknown
+		cause?: unknown,
+		/** The typed refusal code the API answered with (`{ code }` in its body), when it gave one. */
+		readonly code: string | null = null
 	) {
-		super(`Canari public API ${status ?? "unreachable"} for ${url}`);
+		super(`Canari public API ${status ?? "unreachable"}${code ? ` (${code})` : ""} for ${url}`);
 		this.name = "CanariApiError";
 		this.cause = cause;
 	}
@@ -60,16 +63,54 @@ async function getJson<T>(fetch: Fetch, url: string): Promise<T> {
 	if (!res.ok) {
 		throw new CanariApiError(res.status, url);
 	}
-	return (await res.json()) as T;
+	try {
+		return (await res.json()) as T;
+	} catch (e) {
+		// A 2xx whose body is not JSON, or stopped arriving within the budget: nothing was answered
+		// that a page can use, so it is classified like no answer at all - never like a 404.
+		throw new CanariApiError(null, url, e);
+	}
 }
 
-/** All associations (`type="association"`) or promo lists (`type="list"`); both when omitted. */
+/**
+ * The Canari space this showcase is the portal of, as `<formation>:<campus>` (for example
+ * `ICM:saint-etienne`), or null when the deployment names none (`PUBLIC_CANARI_CARTE_SPACE`).
+ *
+ * It scopes EVERYTHING the showcase reads: the carte (Canari keeps one live carte PER SPACE, and
+ * with no space the showcase shows no map at all - there is deliberately no fallback to "whatever is
+ * live"), and since 2026-11-14 the DIRECTORY too. Until then only the carte named it, so the portal
+ * of one space listed the associations and lists of every campus.
+ */
+export const CARTE_SPACE = PUBLIC_CANARI_CARTE_SPACE?.trim() || null;
+
+/**
+ * All associations (`type="association"`) or promo lists (`type="list"`); both when omitted - OF
+ * THIS SHOWCASE'S SPACE: Canari keeps only the entities whose audience reaches the space named.
+ * With no space configured the list is complete, which is logged: a portal that names no space is
+ * a deployment fault, not a choice.
+ */
 export function getAssociations(
 	fetch: Fetch,
-	type?: "association" | "list"
+	type?: "association" | "list",
+	space: string | null = CARTE_SPACE
 ): Promise<CanariAssociation[]> {
-	const qs = type ? `?type=${type}` : "";
-	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs}`);
+	const query = new URLSearchParams();
+	if (type) query.set("type", type);
+	if (space) query.set("space", space);
+	else warnNoSpace("the directory");
+	// `toString()`, never `query.size`: these loads also run in the visitor's browser, and `size`
+	// is absent before Safari 17 - an empty query there would drop the type AND the space.
+	const qs = query.toString();
+	return getJson<CanariAssociation[]>(fetch, `${API}/associations${qs ? `?${qs}` : ""}`);
+}
+
+/** Says, once per read, that the deployment names no space and what that read then answers. */
+function warnNoSpace(what: string): void {
+	// The level the carte reports the same fault at: one deployment fault, one level.
+	console.error(
+		`PUBLIC_CANARI_CARTE_SPACE is not set - ${what} is read for EVERY space. Name the Canari ` +
+			"space (`<formation>:<campus>`) in the deployment's .env."
+	);
 }
 
 /** Publication schema this showcase renders. See {@link PublishedCarte.version}. */
@@ -82,7 +123,8 @@ const CARTE_VERSION = 2;
 const LEGACY_CARD_PAD_X = 12;
 
 /**
- * The "Carte de la Vie Asso" Canari currently has live, or null when there is none.
+ * The "Carte de la Vie Asso" Canari currently has live for this showcase's space, or null when there
+ * is none - or when the deployment names no space (`PUBLIC_CANARI_CARTE_SPACE`), which is logged.
  *
  * A 404 is the documented answer for "nothing is published", not a failure: only an admin ever
  * publishes a map, and the association directory has to render whether or not one exists. Any other
@@ -96,11 +138,35 @@ const LEGACY_CARD_PAD_X = 12;
  * Within v2, one field is read for compatibility rather than required, so that the map does not need
  * the two repositories to be deployed in a particular order. See the loop below.
  */
-export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | null> {
-	const res = await fetch(`${API}/carte`, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+export async function getPublishedCarte(
+	fetch: Fetch,
+	space: string | null = CARTE_SPACE
+): Promise<PublishedCarte | null> {
+	if (!space) {
+		console.error(
+			"PUBLIC_CANARI_CARTE_SPACE is not set - no carte is shown. Name the Canari space " +
+				"(`<formation>:<campus>`) in the deployment's .env."
+		);
+		return null;
+	}
+	const url = `${API}/carte?space=${encodeURIComponent(space)}`;
+	let res: Response;
+	try {
+		res = await fetch(url, { signal: AbortSignal.timeout(OUTBOUND_BUDGET_MS) });
+	} catch (e) {
+		throw new CanariApiError(null, url, e);
+	}
 	if (res.status === 404) return null;
 	if (!res.ok) {
-		throw new Error(`Canari public API ${res.status} for ${API}/carte`);
+		// A 400 carries a typed code (`CARTE_PUBLIC_SPACE_INVALID` for a misnamed space): it travels
+		// as a value, so the log names it without anyone parsing a message.
+		const body = (await res.json().catch(() => null)) as { code?: unknown } | null;
+		throw new CanariApiError(
+			res.status,
+			url,
+			undefined,
+			typeof body?.code === "string" ? body.code : null
+		);
 	}
 	const carte = (await res.json()) as PublishedCarte;
 	if (carte.version !== CARTE_VERSION || !Array.isArray(carte.units)) {
@@ -122,10 +188,41 @@ export async function getPublishedCarte(fetch: Fetch): Promise<PublishedCarte | 
 	return carte;
 }
 
-/** One association or list by slug, including its public members. */
-export function getAssociationBySlug(fetch: Fetch, slug: string): Promise<CanariAssociationDetail> {
+/**
+ * The live carte for a page that renders without it: a failure is LOGGED with its status and code,
+ * then answered null, so a misnamed space (a 400) or an outage never passes silently and never costs
+ * the page its other content.
+ *
+ * @param where - The caller, named in the log line.
+ */
+export async function getPublishedCarteOrNull(
+	fetch: Fetch,
+	where: string
+): Promise<PublishedCarte | null> {
+	try {
+		return await getPublishedCarte(fetch);
+	} catch (e) {
+		const status = e instanceof CanariApiError ? (e.status ?? "unreachable") : "unknown";
+		const code = e instanceof CanariApiError ? (e.code ?? "none") : "none";
+		console.error(`[carte] ${where}: no map - Canari answered ${status}, code ${code}`, e);
+		return null;
+	}
+}
+
+/**
+ * One association or list by slug, including its public members - when it is OF THIS SHOWCASE'S
+ * SPACE: Canari answers 404 for an entity whose audience does not reach the space named, exactly as
+ * for an unknown slug, so another campus's association has no page here.
+ */
+export function getAssociationBySlug(
+	fetch: Fetch,
+	slug: string,
+	space: string | null = CARTE_SPACE
+): Promise<CanariAssociationDetail> {
+	if (!space) warnNoSpace(`the page of ${slug}`);
+	const qs = space ? `?space=${encodeURIComponent(space)}` : "";
 	return getJson<CanariAssociationDetail>(
 		fetch,
-		`${API}/associations/slug/${encodeURIComponent(slug)}`
+		`${API}/associations/slug/${encodeURIComponent(slug)}${qs}`
 	);
 }
