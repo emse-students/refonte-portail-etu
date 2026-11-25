@@ -1,4 +1,3 @@
-import type { Handle } from "@sveltejs/kit";
 import interstitialHtml from "../leaveInAppBrowser/interstitial.html?raw";
 import { leaveInAppBrowserResponse, type GateRequest } from "../leaveInAppBrowser/gate";
 
@@ -21,7 +20,3 @@ export function leaveInAppBrowser(request: GateRequest, url: URL): Response | nu
 		log: (line) => console.log(line),
 	});
 }
-
-/** The SvelteKit `handle` step, FIRST in the sequence so no session, locale or page head is built. */
-export const leaveInAppBrowserHandler: Handle = ({ event, resolve }) =>
-	leaveInAppBrowser(event.request, event.url) ?? resolve(event);

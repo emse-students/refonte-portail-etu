@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { leaveInAppBrowser, leaveInAppBrowserHandler } from "../src/lib/server/leaveInAppBrowser";
+import { leaveInAppBrowser } from "../src/lib/server/leaveInAppBrowser";
 
 /**
  * This site's gate, as `hooks.server.ts` calls it: the shared fixtures through the real module, the
@@ -88,24 +88,5 @@ describe("leaveInAppBrowser", () => {
 		expect(lines).toEqual([
 			"[leave-iab] interstitial served site=portail-etu app=messenger os=android ios=- route=/c",
 		]);
-	});
-
-	it("the handle step answers an in-app browser itself and hands everyone else to resolve", async () => {
-		let resolved = 0;
-		const next = async () => {
-			resolved += 1;
-			return new Response("page");
-		};
-		const call = (request: Request) =>
-			leaveInAppBrowserHandler({
-				event: { request, url: new URL(request.url) },
-				resolve: next,
-			} as unknown as Parameters<typeof leaveInAppBrowserHandler>[0]);
-		const gated = await call(page(messengerIos));
-		expect(gated.headers.get("cache-control")).toBe("no-store");
-		expect(resolved).toBe(0);
-		const real = cases.find((c) => c.expect === null && c.userAgent.includes("Mozilla"))!;
-		expect(await (await call(page(real.userAgent))).text()).toBe("page");
-		expect(resolved).toBe(1);
 	});
 });
