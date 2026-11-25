@@ -2,6 +2,7 @@ import { isRedirect, type Handle } from "@sveltejs/kit";
 import { isApiPath, NOINDEX } from "#lib/robots";
 import { paraglideMiddleware } from "#lib/paraglide/server";
 import { applySecurityHeaders } from "#lib/server/security-headers";
+import { leaveInAppBrowser } from "#lib/server/leaveInAppBrowser";
 
 /**
  * Resolves the request's locale BEFORE the page renders, and stamps it into `<html lang>`.
@@ -26,6 +27,11 @@ import { applySecurityHeaders } from "#lib/server/security-headers";
  * added later owes a `Vary: Cookie`.
  */
 export const handle: Handle = async ({ event, resolve }) => {
+	// A Meta in-app browser gets the page that sends it away, and nothing of the site (owner decision
+	// of 2026-11-25). First, so no locale or page is built for it.
+	const leave = leaveInAppBrowser(event.request, event.url);
+	if (leave) return leave;
+
 	let response: Response;
 	try {
 		response = await paraglideMiddleware(event.request, ({ request, locale }) => {
